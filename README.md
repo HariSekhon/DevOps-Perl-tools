@@ -9,7 +9,7 @@ The first thing you need to do is to get my library submodule since I share code
 Enter the directory and run git submodule init and git submodule update to fetch my library repo:
 
 ```
-cd nagios-plugins
+cd sysadmin
 ```
 ```
 git submodule init
