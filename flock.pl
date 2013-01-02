@@ -1,7 +1,7 @@
 #!/usr/bin/perl -T
 #
-#   Author: Hari Sekhon
-#   Date: 2012-02-02 13:24:30 +0000 (Thu, 02 Feb 2012)
+#  Author: Hari Sekhon
+#  Date: 2012-02-02 13:24:30 +0000 (Thu, 02 Feb 2012)
 #
 #  http://github.com/harisekhon
 #
