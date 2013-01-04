@@ -46,7 +46,7 @@ $usage_line = "usage: $progname --url 'http://host/blah' --sleep-interval=1 --co
 );
 @usage_order=qw/url sleep-interval count/;
 
-delete $HariSekhonUtils::options2{"t|timeout=i"};
+delete $options2{"t|timeout=i"};
 
 get_options();
 
