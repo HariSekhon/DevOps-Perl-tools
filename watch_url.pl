@@ -10,7 +10,7 @@
 
 # Utility to watch a given URL and output it's status code. Useful for testing web farms and load balancers
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -46,7 +46,7 @@ $usage_line = "usage: $progname --url 'http://host/blah' --sleep-interval=1 --co
 );
 @usage_order=qw/url sleep-interval count/;
 
-delete $options2{"t|timeout=i"};
+delete $HariSekhonUtils::default_options{"t|timeout=i"};
 
 get_options();
 
