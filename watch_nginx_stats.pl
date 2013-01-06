@@ -72,8 +72,9 @@ my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon Watch Nginx Stats version $main::VERSION");
 my $req = HTTP::Request->new(GET => $url);
 
-print "\t"x12 . "=============== Totals =================\n";
-print "Time\t\t\tCount\t\tActive\tReading\tWriting\tWaiting\tConn/s\tRequests/s\tAccepted\tHandled\t\tRequests\n";
+print "="x111 . " Totals " . "="x17 . "\n";
+print "Time\t\t\tCount\t\tActive\tReading\tWriting\tWaiting\tConn/s\tRequests/s   |  Accepted\tHandled\t\tRequests\n";
+print "="x136 . "\n";
 for(my $i=1;$i<=$count or $count eq 0;$i++){
     $now  = time;
     $time = strftime("%F %T", localtime);
