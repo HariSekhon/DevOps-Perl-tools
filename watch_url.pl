@@ -65,7 +65,7 @@ my $req = HTTP::Request->new(GET => $url);
 
 print "="x133 . "\n";
 #print "Time\t\t\tCount\t\tResult\t\tHTTP Status Code = Number (% of Total Requests, % of Returned Requests)\n";
-print "Timestamp\t\tCount\t\tResult\t\tRound Trip Time\t\tHTTP Status Code = % of Total Requests (number/total)\n";
+print "Time\t\t\tCount\t\tResult\t\tRound Trip Time\t\tHTTP Status Code = % of Total Requests (number/total)\n";
 print "="x133 . "\n";
 #while(1){
 for(my $i=1;$i<=$count or $count eq 0;$i++){
