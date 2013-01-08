@@ -10,7 +10,7 @@
 
 # Utility to watch a given URL and output it's status code. Useful for testing web farms and load balancers
 
-$VERSION = "0.2.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -23,7 +23,11 @@ use LWP::UserAgent;
 use POSIX;
 use Time::HiRes qw/sleep time/;
 
+# This is the max content length if on one line before outputting it on a separate line
+my $content_length = 40;
 my $count = 0;
+my $output;
+my $regex;
 my $res;
 my $returned = 0;
 my $interval = 1;
@@ -40,11 +44,13 @@ my $tstamp2;
 $usage_line = "usage: $progname --url 'http://host/blah' --sleep-interval=1 --count=0 (unlimited)";
 
 %options = (
-    "u|url=s"         => [ \$url,         "URL to GET in http(s)://host/page.html form" ],
-    "c|count=i"       => [ \$count,       "Number of times to request the given URL. Default: 0 (unlimited)" ],
+    "u|url=s"         => [ \$url,       "URL to GET in http(s)://host/page.html form" ],
+    "c|count=i"       => [ \$count,     "Number of times to request the given URL. Default: 0 (unlimited)" ],
     "i|interval=f"    => [ \$interval,  "Interval in secs between URL requests. Default: 1" ],
+    "o|output"        => [ \$output,    "Show raw output at end of each line or after if output contains newlines or is longer than $content_length characters" ],
+    "r|regex=s"       => [ \$regex,     "Output regex match of against entire web page (useful for testing embedded host information of systems behind load balancers but can become messy if you make the regex too big)" ],
 );
-@usage_order=qw/url count interval/;
+@usage_order=qw/url count interval output/;
 
 delete $HariSekhonUtils::default_options{"t|timeout=i"};
 
@@ -58,6 +64,7 @@ $interval > 0      or usage "Interval must be greater than zero";
 
 vlog_options "Count", $count ? $count : "$count (unlimited)";
 vlog_options "Sleep interval", $interval;
+$regex = validate_regex($regex) if $regex;
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon Watch URL version $main::VERSION ");
@@ -94,7 +101,21 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
         #$msg .= "$_ = $stats{$_} (" . int($stats{$_} / $returned * 100) . "% $stats{$_}/$returned) (" . int($stats{$_} / $total * 100) . "% $stats{$_}/$total)\t\t";
         $msg .= "$_ = " . int($stats{$_} / $total * 100) . "% ($stats{$_}/$total)\t\t";
     }
-    print "$time\t$i\t\t$msg\n";
-    vlog2 "* sleeping for $interval seconds";
+    print "$time\t$i\t\t$msg";
+    if($output or $regex or $verbose >= 3){
+        my $content = $res->content;
+        chomp $content;
+        if($regex){
+            $content =~ /($regex)/m;
+            $content = $1 if $1;
+        }
+        if(length $content > $content_length or $content =~ /[\r\n]/){
+            print "\ncontent: $content\n";
+        } else {
+            print "content: $content";
+        }
+    }
+    print "\n";
+    vlog2 "* sleeping for $interval seconds\n";
     sleep $interval;
 }
