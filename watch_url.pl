@@ -95,6 +95,7 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     }
     $returned += 1;
     $time_taken = sprintf("%.4f", $tstamp2 - $tstamp1);
+    chomp $status_line;
     $msg = "$status_line\t\t$time_taken secs\t\t";
     $stats{$status} += 1;
     $returned = 0;
