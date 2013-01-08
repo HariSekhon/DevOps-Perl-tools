@@ -90,7 +90,7 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     $status  =~ s/\s.*$//;
     $total++;
     if($status !~ /^\d+$/){
-        print "$time\tCODE ERROR: status code '$status' is not a number (status line was: '$status_line')\n";
+        warn "$time\tCODE ERROR: status code '$status' is not a number (status line was: '$status_line')\n";
         next;
     }
     $returned += 1;
