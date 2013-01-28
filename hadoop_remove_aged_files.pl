@@ -2,6 +2,11 @@
 #
 #   Author: Hari Sekhon
 #   Date: 2013-01-14 20:50:13 +0000 (Mon, 14 Jan 2013)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
 
 # Deletes files from Hadoop's HDFS /tmp directory that are older than X days
 
