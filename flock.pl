@@ -8,9 +8,9 @@
 #  License: see accompanying LICENSE file
 #
 
-# Arbitrary locking utility. Useful to safely running commands that would otherwise clash
+$DESCRIPTION = "Arbitrary locking utility. Useful to safely running commands that would otherwise clash";
 
-$VERSION = "1.1";
+$VERSION = "1.2";
 
 use strict;
 use warnings;
@@ -41,6 +41,7 @@ sub vlog{
 
 sub usage {
     print "@_\n\n" if @_;
+    print "$main::DESCRIPTION\n\n" if $main::DESCRIPTION;
     print "usage: $progname [ options ]
 
     -c --command        Command to run if lock succeeds
