@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Filter program to print net line additions/removals from diff / patches
+$DESCRIPTION = "Filter program to print net line additions/removals from diff / patches";
 
 # This is a rewrite of a shell version I used for a few years in my extensive
 # and borderline ridiculously over developed but immensely cool bashrc
@@ -19,7 +19,7 @@
 # it's easier to control matching programatically and
 # it leverages my personal perl library's validation functions
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -30,6 +30,8 @@ BEGIN {
 use HariSekhonUtils;
 
 $usage_line = "usage: $progname [patchfile1] [patchfile2] ...";
+
+get_options();
 
 my $fh;
 
