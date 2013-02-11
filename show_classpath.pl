@@ -93,7 +93,6 @@ sub show_classpath($){
     ( my $args = $cmd ) =~ s/.*?java\s+//;;
     $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)\s/ <CLASSPATHS> /;
     print "command:  $cmd\n\n";
-    #$args =~ s/.*?java\s+//;
     my $count = 0;
     if($args =~ /\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)\s/i){
         foreach(split(/\:/, $1)){
