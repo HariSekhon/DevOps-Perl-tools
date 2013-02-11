@@ -83,8 +83,9 @@ while(<$fh>){
     my $cmd = $_;
     chomp $cmd;
     if(/java.*$command_regex/io){
-        print "command:  $cmd\n\n";
         my $args = $cmd;
+        $cmd =~ s/\s-classpath(?:\s+|=)([^\s+]+)\s/ <CLASSPATHS> /;
+        print "command:  $cmd\n\n";
         $args =~ s/.*?java\s+//;
         if($args =~ /\s-classpath(?:\s+|=)([^\s+]+)\s/i){
             foreach(split(/\:/, $1)){
