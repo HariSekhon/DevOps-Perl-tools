@@ -63,7 +63,7 @@ defined($version) and die "$progname version $main::VERSION\n";
 defined($command_regex) or usage;
 
 if(! eval { qr/$command_regex/ }){
-    die "invalid command regex supplied: $!\n";
+    die "invalid command regex supplied: $command_regex\n";
 }
 
 $timeout =~ /^\d+$/                 || usage "timeout value must be a positive integer\n";
