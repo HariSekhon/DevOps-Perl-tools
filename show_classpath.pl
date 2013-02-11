@@ -12,7 +12,7 @@
 
 # TODO: detect environment of process and print those classpaths as well, can only think how to do this on Linux right now and not portably and no time to think now
 
-$DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex";
+$DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex. Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
 $VERSION = "0.2";
 
 use strict;
