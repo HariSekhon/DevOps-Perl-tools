@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Utility to watch a given URL and output it's status code. Useful for testing web farms and load balancers
+$DESCRIPTION = "Watch a given URL and it's output/status code. Useful for testing web farms and load balancers";
 
 $VERSION = "0.3";
 
