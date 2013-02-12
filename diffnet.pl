@@ -12,8 +12,8 @@ $DESCRIPTION = "Filter program to print net line additions/removals from diff / 
 
 # This is a rewrite of a shell version I used for a few years in my extensive
 # and borderline ridiculously over developed but immensely cool bashrc
-# (nearly 4500 lines at the time I've split this off
-# (6500 with aliases files + an additional >17,000 lines of supporting scripts)
+# (nearly 4500 lines at the time I've split this off)
+# (6500 with aliases files + an additional 21,000 lines of supporting scripts)
 #
 # It's at least 5 times faster than the shell version
 # it's easier to control matching programatically and
