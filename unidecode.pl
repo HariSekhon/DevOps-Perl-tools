@@ -8,8 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Convert UTF to ASCII, works as a standard unix filter program
-
+$DESCRIPTION="Convert UTF to ASCII, works as a standard unix filter program";
 $VERSION = "0.6";
 
 use strict;
