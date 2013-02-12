@@ -10,7 +10,11 @@
 #
 #  vim:ts=4:sw=4:et
 
+$DESCRIPTION = "Watch Nginx stats from the Nginx stats stub";
+
 $VERSION = "0.2";
+
+# TODO: split off and unify this with my check_nginx_stats.pl Nagios plugin
 
 use strict;
 use warnings;
