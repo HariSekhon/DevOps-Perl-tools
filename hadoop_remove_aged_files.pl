@@ -8,9 +8,9 @@
 #  License: see accompanying LICENSE file
 #
 
-# Deletes files from Hadoop's HDFS /tmp directory that are older than X days
+$DESCRIPTION = "Deletes files from Hadoop's HDFS /tmp directory that are older than X days
 
-# Credit to my old colleague Rob Dawson for giving me this idea during lunch
+Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
 $VERSION = "0.1";
 
