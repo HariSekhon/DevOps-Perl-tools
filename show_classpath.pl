@@ -10,7 +10,9 @@
 #
 #  vim:ts=4:sw=4:et
 
-# TODO: detect environment of process and print those classpaths as well, can only think how to do this on Linux right now and not portably and no time to think now
+# XXX: this is truncated to 4096 chars which for programs with very long cli classpaths is a hard coded kernel problem
+
+# TODO: catch all classpaths via jinfo while minimizing the impending race condition
 
 $DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex.
 
@@ -24,7 +26,7 @@ use Getopt::Long qw(:config bundling);
 
 # Make %ENV safer (taken from PerlSec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
-$ENV{'PATH'} = '/bin:/usr/bin';
+$ENV{'PATH'} = '/bin:/usr/bin:/usr/java/latest/bin:/System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands';
 
 my $progname = basename $0;
 
@@ -90,7 +92,7 @@ $SIG{ALRM} = sub {
 vlog "setting timeout to $timeout secs\n";
 alarm($timeout);
 
-sub show_classpath($){
+sub show_cli_classpath($){
     my $cmd = shift;
     ( my $args = $cmd ) =~ s/.*?java\s+//;;
     $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)\s/ <CLASSPATHS> /;
@@ -111,11 +113,11 @@ my $fh;
 if($stdin){
     $fh = *STDIN;
 } else {
-    open $fh, "ps -ef|";
+    open $fh, "ps -e -o pid,user,command |";
 }
 while(<$fh>){
     chomp;
     if(/\bjava\s.*$command_regex/io){
-        show_classpath($_);
+        show_cli_classpath($_);
     }
 }
