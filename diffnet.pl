@@ -89,12 +89,12 @@ sub diffnet {
     if($blocks or $additions_only or $removals_only){
         unless($removals_only){
             foreach my $i (sort {$a <=> $b} keys %additions){
-                print "$add_prefix$additions{$i}" unless grep { $_ eq $additions{$i} } keys %removals;
+                print "$add_prefix$additions{$i}" unless grep { $_ eq $additions{$i} } values %removals;
             }
         }
         unless($additions_only){
             foreach my $i (sort {$a <=> $b} keys %removals){
-                print "$remove_prefix$removals{$i}" unless grep { $_ eq $removals{$i} } keys %additions;;
+                print "$remove_prefix$removals{$i}" unless grep { $_ eq $removals{$i} } values %additions;;
             }
         }
     } else {
@@ -107,9 +107,9 @@ sub diffnet {
             if(defined($additions{$i}) and defined($removals{$i})){
                 die "code error: have stored line number $i against both addition and removal, not possible!";
             } elsif(defined($additions{$i})){
-                print "$add_prefix$additions{$i}" unless grep { $_ eq $additions{$i} } keys %removals;
+                print "$add_prefix$additions{$i}" unless grep { $_ eq $additions{$i} } values %removals;
             } elsif(defined($removals{$i})){
-                print "$remove_prefix$removals{$i}" unless grep { $_ eq $removals{$i} } keys %additions;
+                print "$remove_prefix$removals{$i}" unless grep { $_ eq $removals{$i} } values %additions;
             } else {
                 die "code error: line number $i was not found in either additions or removals hash";
             }
