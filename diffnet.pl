@@ -98,9 +98,9 @@ sub diffnet {
             }
         }
     } else {
-        my $max_addition_lineno = (sort {$a <=> $b} keys %additions)[0];
-        my $max_removal_lineno  = (sort {$a <=> $b} keys %removals)[0];
-        my $max_lineno          = $max_addition_lineno > $max_removal_lineno ? $max_addition_lineno : $max_removal_lineno;
+        #my $max_addition_lineno = (sort {$a <=> $b} keys %additions)[0] || 0;
+        #my $max_removal_lineno  = (sort {$a <=> $b} keys %removals)[0]  || 0;
+        #my $max_lineno          = $max_addition_lineno > $max_removal_lineno ? $max_addition_lineno : $max_removal_lineno;
         my @changes = sort {$a <=> $b} ( keys %additions, keys %removals );
         @changes or return;
         foreach my $i ( uniq_array(@changes) ){
