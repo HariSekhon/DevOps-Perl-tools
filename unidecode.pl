@@ -60,7 +60,7 @@ if(@files){
     while(<STDIN>){ decode($_) }
 }
 
-sub decode {
+sub decode ($) {
     my $string = shift;
     chomp $string;
     print unidecode("$string\n");
