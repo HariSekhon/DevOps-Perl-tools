@@ -30,7 +30,7 @@ my @files;
     "f|file=s"      => [ \$file, "File to unidecode" ],
 );
 
-get_options();;
+get_options();
 
 if($file){
     my @tmp = split(/\s*,\s*/, $file);
