@@ -51,6 +51,12 @@ foreach my $file (@files){
 
 vlog_options "files", "[ '" . join("', '", @files) . "' ]";
 
+sub decode ($) {
+    my $string = shift;
+    chomp $string;
+    print unidecode("$string\n");
+}
+
 if(@files){
     foreach my $file (@files){
         open(my $fh, $file) or die "Failed to open file '$file': $!\n";
@@ -58,10 +64,4 @@ if(@files){
     }
 } else {
     while(<STDIN>){ decode($_) }
-}
-
-sub decode ($) {
-    my $string = shift;
-    chomp $string;
-    print unidecode("$string\n");
 }
