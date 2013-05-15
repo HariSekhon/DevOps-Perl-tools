@@ -21,7 +21,7 @@ $DESCRIPTION = "Filter program to print net line additions/removals from diff / 
 
 # TODO: use counters so that I don't discount 2 removals for 1 addition etc
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -40,12 +40,14 @@ my $blocks;
 my $add_prefix;
 my $remove_prefix;
 my $ignore_case;
+my $ignore_whitespace;
 
 %options = (
-    "a|additions-only"   => [ \$additions_only, "Show only additions" ],
-    "r|removals-only"    => [ \$removals_only,  "Show only removals" ],
-    "b|blocks"           => [ \$blocks,         "Show changes in blocks of additions first and then removals" ],
-    "i|ignore-case"      => [ \$ignore_case,    "Ignore case changes" ],
+    "a|additions-only"    => [ \$additions_only,    "Show only additions" ],
+    "r|removals-only"     => [ \$removals_only,     "Show only removals"  ],
+    "b|blocks"            => [ \$blocks,            "Show changes in blocks of additions first and then removals" ],
+    "i|ignore-case"       => [ \$ignore_case,       "Ignore case in comparisons" ],
+    "w|ignore-whitespace" => [ \$ignore_whitespace, "Ignore whitespace in comparisons" ],
 );
 
 get_options();
@@ -59,13 +61,15 @@ if(@ARGV){
     }
 };
 
-sub ignore_case ($) {
+sub transformations ($) {
     my $string = shift;
     if($ignore_case){
-        return lc $string;
-    } else {
-        return $string;
+        $string = lc $string;
     }
+    if($ignore_whitespace){
+        $string =~ s/\s+//g;
+    }
+    return $string;
 }
 
 sub diffnet ($;$) {
@@ -100,12 +104,12 @@ sub diffnet ($;$) {
     if($blocks or $additions_only or $removals_only){
         unless($removals_only){
             foreach my $i (sort {$a <=> $b} keys %additions){
-                print "$add_prefix$additions{$i}" unless grep { ignore_case($_) eq ignore_case($additions{$i}) } values %removals;
+                print "$add_prefix$additions{$i}" unless grep { transformations($_) eq transformations($additions{$i}) } values %removals;
             }
         }
         unless($additions_only){
             foreach my $i (sort {$a <=> $b} keys %removals){
-                print "$remove_prefix$removals{$i}" unless grep { ignore_case($_) eq ignore_case($removals{$i}) } values %additions;;
+                print "$remove_prefix$removals{$i}" unless grep { transformations($_) eq transformations($removals{$i}) } values %additions;;
             }
         }
     } else {
@@ -118,9 +122,9 @@ sub diffnet ($;$) {
             if(defined($additions{$i}) and defined($removals{$i})){
                 die "code error: have stored line number $i against both addition and removal, not possible!";
             } elsif(defined($additions{$i})){
-                print "$add_prefix$additions{$i}" unless grep { ignore_case($_) eq ignore_case($additions{$i}) } values %removals;
+                print "$add_prefix$additions{$i}" unless grep { transformations($_) eq transformations($additions{$i}) } values %removals;
             } elsif(defined($removals{$i})){
-                print "$remove_prefix$removals{$i}" unless grep { ignore_case($_) eq ignore_case($removals{$i}) } values %additions;
+                print "$remove_prefix$removals{$i}" unless grep { transformations($_) eq transformations($removals{$i}) } values %additions;
             } else {
                 die "code error: line number $i was not found in either additions or removals hash";
             }
