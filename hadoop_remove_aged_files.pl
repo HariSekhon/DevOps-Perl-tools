@@ -12,7 +12,7 @@ $DESCRIPTION = "Deletes files from Hadoop's HDFS /tmp directory that are older t
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -102,7 +102,7 @@ while (<$fh>){
     chomp;
     my $line = $_;
     $line =~ /^Found\s\d+\sitems/ and next;
-    if($line =~ /^([d-])[r-][w-][x-][r-][w-][x-][r-][w-][x-]\s+(?:\d+|-)\s+\w+\s+\w+\s+\d+\s+(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})\s+($filename_regex)$/){
+    if($line =~ /^([d-])[r-][w-][x-][r-][w-][x-][r-][w-][xt-]\s+(?:\d+|-)\s+\w+\s+\w+\s+\d+\s+(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})\s+($filename_regex)$/){
         my $dir      = $1;
         next if $dir eq "d"; # Not supporting dirs as there is no -rmdir and it would require a dangerous -rmr operation and should therefore be done by hand
         $file_count++;
@@ -116,8 +116,9 @@ while (<$fh>){
         my $tstamp   = timelocal(0, $min, $hour, $day, $month-1, $year) || die "$progname: Failed to convert timestamp $year-$month-$day $hour:$min for comparison\n";
         if( ($now - $tstamp ) > $max_age_secs){
             next if (defined($exclude) and $filename =~ /$exclude/);
-            # Some additional safety stuff
-            next if ($filename =~ /^\/(?:tmp\/mapred|hbase)\//i);
+            # Some additional safety stuff, do not mess with /tmp/mapred or /hbase !!!! or .Trash
+            next if ($filename =~ /^\/(?:tmp\/mapred|hbase)\//i or
+                     $filename =~ /\.Trash\//);
             push(@files, $filename); 
             $files_removed++;
         }
@@ -131,6 +132,8 @@ while (<$fh>){
     }
 }
 
+plural($file_count);
+$msg = "$progname Complete - %d file$plural checked, ";
 plural($files_removed);
-$msg = "$progname Complete - %d files checked, %d file$plural older than %s days %s hours %s mins " . ($echo ? "" : "removed") . "\n";
+$msg .= "%d file$plural older than %s days %s hours %s mins " . ($echo ? "" : "removed") . "\n";
 printf($msg, $file_count, $files_removed, $days, $hours, $mins);
