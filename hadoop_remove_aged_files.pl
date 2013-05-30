@@ -12,7 +12,7 @@ $DESCRIPTION = "Deletes files from Hadoop's HDFS /tmp directory that are older t
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -80,19 +80,19 @@ $hours   = validate_float($hours, 0, 23,   "hours");
 $mins    = validate_float($mins,  0, 59,   "mins");
 my $max_age_secs = ($days * 86400) + ($hours * 3600) + ($mins * 60);
 usage "must specify a total max age > 5 minutes" if ($max_age_secs < 300);
-$path    = validate_filename($path, undef, "path"); # because validate_dir[ectory] checks the directory existance on the local filesystem
-$exclude = validate_regex($exclude) if defined($exclude);
+$path        = validate_filename($path, undef, "path"); # because validate_dir[ectory] checks the directory existance on the local filesystem
+$exclude     = validate_regex($exclude) if defined($exclude);
 $hadoop_bin  = which($hadoop_bin, 1);
 $hadoop_bin  =~ /\b\/?hadoop$/ or die "invalid hadoop program '$hadoop_bin' given, should be called hadoop!\n";
-vlog_options "rm", $rm ? "true" : "false";
-vlog_options "skipTrash", $skipTrash ? "true" : "false";
+vlog_options "rm",          $rm        ? "true" : "false";
+vlog_options "skipTrash",   $skipTrash ? "true" : "false";
 vlog_options "hadoop path", $hadoop_bin;
 vlog2;
 
 set_timeout();
 
-my $cmd = "hadoop fs -ls -R '$path'";
-my $fh = cmd("$cmd | ") or die "ERROR: $? returned from \"$cmd\" command: $!\n";
+my $cmd   = "hadoop fs -ls -R '$path'";
+my $fh    = cmd("$cmd | ") or die "ERROR: $? returned from \"$cmd\" command: $!\n";
 my @files = ();
 my $now   = time || die "Failed to get epoch timestamp\n";
 my $file_count    = 0;
@@ -102,7 +102,7 @@ while (<$fh>){
     chomp;
     my $line = $_;
     $line =~ /^Found\s\d+\sitems/ and next;
-    if($line =~ /^([d-])[r-][w-][x-][r-][w-][x-][r-][w-][xt-]\s+(?:\d+|-)\s+\w+\s+\w+\s+\d+\s+(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})\s+($filename_regex)$/){
+    if($line =~ /^([d-])$rwxt_regex\s+(?:\d+|-)\s+\w+\s+\w+\s+\d+\s+(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})\s+($filename_regex)$/){
         my $dir      = $1;
         next if $dir eq "d"; # Not supporting dirs as there is no -rmdir and it would require a dangerous -rmr operation and should therefore be done by hand
         $file_count++;
@@ -119,7 +119,7 @@ while (<$fh>){
             # Some additional safety stuff, do not mess with /tmp/mapred or /hbase !!!! or .Trash
             next if ($filename =~ /^\/(?:tmp\/mapred|hbase)\//i or
                      $filename =~ /\.Trash\//);
-            push(@files, $filename); 
+            push(@files, $filename);
             $files_removed++;
         }
     } else {
