@@ -12,7 +12,7 @@
 -- Mainly based on Hive QL and Impala SQL with some MySQL
 
 (?:ENABLE|DISABLE) (?:NO_DROP|OFFLINE)
-(?:START|STOP) SLAVE(?: (?:IO_THREAD|SQL_THREAD))?
+(?:START|STOP) SLAVE
 ADD
 AFTER
 ALTER \w+
