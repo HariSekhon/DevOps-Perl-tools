@@ -39,7 +39,7 @@ my @columns;
 
 get_options();
 
-$table   = validate_database_tablename($table);
+$table   = validate_database_tablename($table, "allow_qualified");
 
 vlog2;
 set_timeout();
