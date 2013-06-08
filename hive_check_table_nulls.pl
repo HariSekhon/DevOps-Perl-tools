@@ -10,9 +10,9 @@
 #
 #  vim:ts=4:sts=4:et
 
-# Hive tool to check a table NULLS
-
 # Wrote this while on a data science course, everything on this course so far is old news to me... I guess that's good?
+
+$DESCRIPTION = "Hive tool to check a table for NULLS";
 
 $VERSION = "0.1";
 
