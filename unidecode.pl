@@ -10,7 +10,7 @@
 
 $DESCRIPTION="Convert UTF to ASCII, works as a standard unix filter program";
 
-$VERSION = "0.6";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
@@ -24,32 +24,14 @@ use HariSekhonUtils;
 use Text::Unidecode; # For changing unicode to ascii
 
 my $file;
-my @files;
 
 %options = (
-    "f|file=s"      => [ \$file, "File to unidecode" ],
+    "f|files=s"     => [ \$file, "File(s) to unidecode" ],
 );
 
 get_options();
 
-if($file){
-    my @tmp = split(/\s*,\s*/, $file);
-    push(@files, @tmp);
-}
-
-foreach(@ARGV){
-    push(@files, $_);
-}
-
-( $file and not -f $file ) and die "Error: couldn't find file '$file'\n";
-foreach my $file (@files){
-    if(not -f $file ){
-        print STDERR "File not found: '$file'\n";
-        @files = grep { $_ ne $file } @files;
-    }
-}
-
-vlog_options "files", "[ '" . join("', '", @files) . "' ]";
+my @files = parse_file_option($file, "args are files");
 
 sub decode ($) {
     my $string = shift;
