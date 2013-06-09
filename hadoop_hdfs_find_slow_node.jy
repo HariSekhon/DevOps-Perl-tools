@@ -1,0 +1,115 @@
+#!/usr/bin/env jython
+#
+#   Author: Hari Sekhon
+#   Date: 2013-06-08 22:06:27 +0100 (Sat, 08 Jun 2013)
+#  $LastChangedBy$
+#  $LastChangedDate$
+#  $Revision$
+#  $URL$
+#  $Id$
+#
+#  vim:ts=4:sts=4:et
+
+# Jython to find a slow node by querying all the nodes for a given filename
+
+# I tested this on one of my NN HA Kerberized clusters, should work fine under all circumstances where you have Jython and correctly deployed Hadoop client configuration
+
+# ============================================================================ #
+# Example Usage
+#
+# generate a test file
+#
+# >>>  dd if=/dev/zero bs=1M count=10 | hadoop fs -D dfs.block.size=$((1024*1024)) -put - /tmp/testfile
+#
+# inspect new test file's block locations (optional)
+#
+# >>>  hadoop fsck /tmp/testfile -files -blocks -locations
+#
+# Run this program again the file to see the block read speeds from the different datanodes
+#
+# >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_node.jy
+#
+# For prettier aligned output sorted by the slowest nodes at the top:
+# >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_node.jy | column -t | sort -k13nr
+#
+# ============================================================================ #
+
+import os, sys, time
+# Reusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
+import getopt
+#import array # not use byte arrays any more
+from java.nio import ByteBuffer
+try:
+    from org.apache.hadoop.conf import Configuration
+    from org.apache.hadoop.fs import FileSystem
+    from org.apache.hadoop.fs import Path
+except ImportError:
+    print "Couldn't find Hadoop Java classes, try adding -J-cp `hadoop classpath` to the jython arguments"
+    sys.exit(2)
+#from org.apache.hadoop.hdfs import DistributedFileSystem
+#dfs = DistributedFileSystem()
+#client = dfs.getClient()
+
+def usage():
+    """print usage and exit"""
+
+    print >> sys.stderr, "\nusage: %s -f /path/to/hdfs/file\n" % os.path.basename(__file__)
+    sys.exit(3)
+
+
+def main():
+    """parse cli args and call fetchFileBlocks to run the speed test"""
+
+    opts, args = getopt.getopt(sys.argv[1:], "f:", ["file="])
+    filename = ""
+    for o, a in opts:
+        if o in ("-f", "--file"):
+            filename = a
+        else:
+            usage()
+    if filename == "":
+        usage()
+    #if sys.argv[1]:
+    #    filename = sys.argv[1]
+    #else:
+    #    usage()
+    fetchFileBlocks(filename)
+
+
+def fetchFileBlocks(filename):
+    """Fetches all block replicas from all datanodes with timings"""
+
+    conf = Configuration()
+    path = Path(filename)
+    fs   = FileSystem.get(conf)
+
+    if not fs.exists(path):
+        print "File not found: %s" % filename
+        sys.exit(1)
+    fh = fs.open(path)
+    offset = 0
+    length = 1
+    block_num = 0
+    while True:
+        block_num += 1
+        block_locations = fs.getFileBlockLocations(path, offset, length)
+        if not block_locations:
+            break
+        for block in block_locations:
+            #print "block_locations " + block.toString()
+            block_offset    = block.getOffset()
+            block_length    = block.getLength()
+            block_datanodes = block.getNames()
+            #print "offset: %s, length: %s, datanodes: %s" % (block_offset, block_length, " ".join(block_datanodes))
+            for datanode in block_datanodes:
+                block.setNames([datanode])
+                start_time = time.time()
+                fh.seek(block_offset)
+                fh.read(ByteBuffer.allocate(block_length))
+                end_time = time.time()
+                time_taken = end_time - start_time
+                print "block %d (offset %d, length %d) read block from datanode %s in %.4f secs" % (block_num, block_offset, block_length, datanode, time_taken)
+        offset = block_offset + block_length
+
+if __name__ == "__main__":
+    main()
