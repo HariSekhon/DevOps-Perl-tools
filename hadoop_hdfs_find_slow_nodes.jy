@@ -7,6 +7,7 @@
 #
 #  License: see accompanying LICENSE file
 #
+# vim:filetype=python
 
 """ Jython program to find a slow Hadoop HDFS node by querying all the nodes for a given HDFS file and printing the read times """
 
@@ -17,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = 0.2
+__version__ = 0.3
 
 # ============================================================================ #
 #                               Example Usage
@@ -44,21 +45,19 @@ __version__ = 0.2
 #
 # ============================================================================ #
 
-import os, sys, time
+import os, sys, time, socket
 # Refusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
 import getopt
-#import array # not use byte arrays any more
+#import array # not using byte arrays any more
 from java.nio import ByteBuffer
 try:
     from org.apache.hadoop.conf import Configuration
-    from org.apache.hadoop.fs import FileSystem
+    #from org.apache.hadoop.fs import FileSystem
     from org.apache.hadoop.fs import Path
+    from org.apache.hadoop.hdfs import DistributedFileSystem
 except ImportError:
     print "Couldn't find Hadoop Java classes, try adding -J-cp `hadoop classpath` to the jython arguments"
     sys.exit(2)
-#from org.apache.hadoop.hdfs import DistributedFileSystem
-#dfs = DistributedFileSystem()
-#client = dfs.getClient()
 
 def usage():
     """print usage and exit"""
@@ -93,76 +92,139 @@ def main():
             usage()
     if filename == "":
         usage()
-    #if sys.argv[1]:
-    #    filename = sys.argv[1]
-    #else:
-    #    usage()
-    fetchFileBlocks(filename, one_block_per_DN)
+    try:
+        TestHDFSBlockReads(filename, one_block_per_DN).fetchFileBlocksTimed()
+    except KeyboardInterrupt, e:
+        print "Caught Control-C..."
+        sys.exit(0)
+    except IOError, e:
+        print "%s" % e
+        sys.exit(2)
 
 
-def fetchFileBlocks(filename, one_block_per_DN):
-    """Fetches all block replicas from all datanodes with timings"""
+class TestHDFSBlockReads:
+    """Class to hold HDFS Block Read State"""
 
-    conf = Configuration()
-    path = Path(filename)
-    fs   = FileSystem.get(conf)
+    def __init__(self, filename, one_block_per_DN):
+        """Instantiate State"""
 
-    if not fs.exists(path):
-        print "File not found: %s" % filename
-        sys.exit(1)
-    fh = fs.open(path)
-    offset = 0
-    length = 1
-    block_num = 0
-    highest_node_times = {}
-    if(one_block_per_DN):
-        datanodes_tested = []
-    while True:
-        block_num += 1
-        block_locations = fs.getFileBlockLocations(path, offset, length)
-        if not block_locations:
-            break
-        for block in block_locations:
-            #print "block_locations " + block.toString()
-            block_offset    = block.getOffset()
-            block_length    = block.getLength()
-            block_datanodes = block.getNames()
-            #print "offset: %s, length: %s, datanodes: %s" % (block_offset, block_length, " ".join(block_datanodes))
-            for datanode in block_datanodes:
-                if(one_block_per_DN):
-                    if(datanode in datanodes_tested):
-                        continue
-                    datanodes_tested.append(datanode)
-                block.setNames([datanode])
-                start_time = time.time()
-                fh.seek(block_offset)
-                fh.read(ByteBuffer.allocate(block_length))
-                end_time = time.time()
-                time_taken = end_time - start_time
-                print "read block %d (offset %d, length %d) from datanode %s in %.4f secs" % (block_num, block_offset, block_length, datanode, time_taken)
-                if(datanode in highest_node_times):
-                    if(time_taken > highest_node_times[datanode]):
-                        highest_node_times[datanode][time_taken] = [block_num, block_offset, block_length]
-                else:
-                    highest_node_times[datanode] = {time_taken: [block_num, block_offset, block_length]}
-        offset = block_offset + block_length
+        self.one_block_per_DN   = one_block_per_DN
+        self.datanodes_tested   = set()
+        self.block_num          = 0
+        self.offset             = 0
+        self.length             = 1
+        try:
+            self.fqdn = socket.getfqdn()
+            print ">> Running on %s" % self.fqdn
+        except SocketError, e:
+            print >> sys.stderr, "Failed to get fqdn of this local host, won't be able to tell you if we're reading from a local datanode\n\nSocketError: %s\n" % e
+            self.fqdn = None
 
-    print "\nSummary - DataNodes by highest block read time descending:\n"
-    slowest_times = {}
-    for datanode in highest_node_times.keys():
-        slowest_time  = highest_node_times[datanode].keys()[0]
-        block_num     = highest_node_times[datanode][slowest_time][0]
-        block_offset  = highest_node_times[datanode][slowest_time][1]
-        block_length  = highest_node_times[datanode][slowest_time][2]
-        if(slowest_time in slowest_times):
-            slowest_times[slowest_time].append([datanode, block_num, block_offset, block_length])
+        conf      = Configuration()
+        self.fs   = DistributedFileSystem.get(conf)
+        self.path = Path(filename)
+
+        if not self.fs.exists(self.path):
+            raise IOError, "File not found: %s" % filename
+        #self.fh = self.fs.open(path)
+        # The client one tells you which DN you are reading from
+        client = self.fs.getClient()
+        #in = client.DFSDataInputStream(self.fh)
+        self.fh = client.open(filename)
+        if self.fh == None:
+            raise IOError, "Failed to get client filehandle to HDFS file %s" % filename
+        self.highest_node_times = {}
+
+    def fetchFileBlocksTimed(self):
+        """Fetches all block replicas from all datanodes with timings"""
+
+        while True:
+            self.block_num += 1
+            block_locations = self.fs.getFileBlockLocations(self.path, self.offset, self.length)
+            if not block_locations:
+                break
+            for block in block_locations:
+                #print "block_locations " + block.toString()
+                self.block_offset    = block.getOffset()
+                self.block_length    = block.getLength()
+                self.readBlockFromDNs()
+                self.offset = self.block_offset + self.block_length
+
+        print
+        if self.fqdn:
+            if self.fqdn in self.datanodes_tested:
+                print "Local DataNode is %s\n" % self.fqdn
+            else:
+                print "No local DataNode reads\n"
+        print "Summary - DataNodes by highest block read time descending:\n"
+        slowest_times = {}
+        for datanode in self.highest_node_times.keys():
+            slowest_time = self.highest_node_times[datanode].keys()[0]
+            rack         = self.highest_node_times[datanode][slowest_time][0]
+            block_num    = self.highest_node_times[datanode][slowest_time][1]
+            block_offset = self.highest_node_times[datanode][slowest_time][2]
+            block_length = self.highest_node_times[datanode][slowest_time][3]
+            if(slowest_time in slowest_times):
+                slowest_times[slowest_time].append([datanode, rack, block_num, block_offset, block_length])
+            else:
+                slowest_times[slowest_time] = [[datanode, rack, block_num, block_offset, block_length]]
+        for time_taken in reversed(sorted(slowest_times.keys())):
+            for t in slowest_times[time_taken]:
+                print "datanode %s rack %s highest read time was for block %d (offset %d, self.length %d) => %.4f secs" % (t[0], t[1], t[2], t[3], t[4], time_taken)
+
+        return slowest_times
+
+    def readBlockFromDNs(self):
+        """Read current block self.offset to self.length from all datanodes"""
+        self.block_read_DNs = set()
+        self.fh.seek(self.block_offset) # local node first otherwise NPE when trying seekToNewSource()
+        # looks like this isn't populated until first read, check on second pass on seekToNewSource()
+        self.dn = self.fh.getCurrentDatanode()
+        self.readBlockFromDN()
+        while self.fh.seekToNewSource(self.block_offset):
+            # self.dn must be populated by here or something is wrong
+            self.dn = self.fh.getCurrentDatanode()
+            if self.dn == None:
+                raise IOError, "Failed to get current DataNode for block %s offset %s length %s" % (self.block_num, self.block_offset, self.block_length)
+            # I've come back to the first DN, done with this block
+            self.host = self.dn.getHostName()
+            if self.host in self.block_read_DNs:
+                return
+            self.readBlockFromDN()
+
+    def readBlockFromDN(self):
+        """Read current block from current DN"""
+        if self.dn:
+            self.host = self.dn.getHostName()
+            if(self.one_block_per_DN):
+                if(self.host in self.datanodes_tested):
+                    return
+            self.host = self.dn.getHostName()
+            if(self.host in self.block_read_DNs):
+                return
+        self.readBlockTimed()
+
+    def readBlockTimed(self):
+        """Read the current block with timings"""
+        start_time = time.time()
+        self.fh.read(ByteBuffer.allocate(self.block_length))
+        end_time   = time.time()
+        time_taken = end_time - start_time
+        self.dn    = self.fh.getCurrentDatanode()
+        self.host  = self.dn.getHostName()
+        rack       = self.dn.getNetworkLocation()
+        self.block_read_DNs.add(self.host)
+        self.datanodes_tested.add(self.host)
+        isLocal = ""
+        #if self.fqdn == self.host:
+        #    isLocal = " (local)"
+        print "read block %d (offset %d, self.length %d) from rack %s datanode %s in %.4f secs" % (self.block_num, self.block_offset, self.block_length, rack, self.host, time_taken)
+        if(self.host in self.highest_node_times):
+            if(time_taken > self.highest_node_times[self.host]):
+                self.highest_node_times[self.host][time_taken] = [rack, self.block_num, self.block_offset, self.block_length]
         else:
-            slowest_times[slowest_time] = [[datanode, block_num, block_offset, block_length]]
-    for time_taken in reversed(sorted(slowest_times.keys())):
-        for t in slowest_times[time_taken]:
-            print "datanode %s highest read time was for block %d (offset %d, length %d) => %.4f secs" % (t[0], t[1], t[2], t[3], time_taken)
+            self.highest_node_times[self.host] = {time_taken: [rack, self.block_num, self.block_offset, self.block_length]}
 
-    return slowest_times
 
 if __name__ == "__main__":
     main()
