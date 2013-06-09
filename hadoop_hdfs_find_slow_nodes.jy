@@ -37,11 +37,7 @@ __version__ = 0.4
 #
 # 3. Run this program against the file to see the block read speeds from the different datanodes
 #
-#    >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_node.jy
-#
-#    For prettier aligned output sorted by the slowest nodes at the top:
-#
-#    >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_node.jy | column -t | sort -k12nr
+#    >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_node.jy -f /tmp/testfile
 #
 # ============================================================================ #
 
@@ -66,7 +62,8 @@ def usage():
 usage: %s -f /path/to/hdfs/file
 
 -f --file               File in HDFS to read from all blocks from to find out which datanode is the slowest from this client
--m --multiple           Fetch multiple copies not just the nearest copy to debug performance across nodes
+-a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
+-m --multiple-blocks    Fetch multiple copies not just the nearest copy to debug performance across nodes
 -o --one-block-per-DN   Only read 1 block from each DataNode for quickness, not as thorough. Optional, not the default
 """ % os.path.basename(__file__)
     sys.exit(3)
@@ -76,18 +73,23 @@ def main():
     """parse cli args and call fetchFileBlocks to run the speed test"""
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hf:mo", ["help", "usage", "file=", "multiple", "one-block-per-DN"])
+        opts, args = getopt.getopt(sys.argv[1:], "hf:amo", ["help", "usage", "file=", "all-blocks", "multiple", "one-block-per-DN"])
     except getopt.GetoptError, e:
         print "error: %s" % e
         usage()
-    filename = ""
-    multiple = False
+    filename         = ""
+    all_blocks       = False
+    multiple_blocks  = False
     one_block_per_DN = False
     for o, a in opts:
         if o in ("-f", "--file"):
             filename = a
-        elif o in ("-m", "--multiple"):
-            multiple = True
+        elif o in ("-a", "--all-blocks"):
+            all_blocks = True
+            print "--all not implemented yet"
+            sys.exit(2)
+        elif o in ("-m", "--multiple-blocks"):
+            multiple_blocks = True
         elif o in ("-o", "--one-block-per-DN"):
             one_block_per_DN = True
         elif o in ("-h", "--help", "--usage"):
@@ -192,8 +194,8 @@ class TestHDFSBlockReads:
                 self.dn = self.fh.getCurrentDatanode()
                 if self.dn == None:
                     raise IOError, "Failed to get current DataNode for block %s offset %s length %s" % (self.block_num, self.block_offset, self.block_length)
-                # I've come back to the first DN, done with this block
                 self.host = self.dn.getHostName()
+                # I've come back to the first DN, done with this block
                 if self.host in self.block_read_DNs:
                     return
                 if not self.readBlockFromDN():
