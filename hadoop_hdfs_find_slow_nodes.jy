@@ -190,7 +190,8 @@ class TestHDFSBlockReads:
             self.host = self.dn.getHostName()
             if self.host in self.block_read_DNs:
                 return
-            self.readBlockFromDN()
+            if not self.readBlockFromDN():
+                return
 
     def readBlockFromDN(self):
         """Read current block from current DN"""
@@ -198,10 +199,10 @@ class TestHDFSBlockReads:
             self.host = self.dn.getHostName()
             if(self.one_block_per_DN):
                 if(self.host in self.datanodes_tested):
-                    return
+                    return False
             self.host = self.dn.getHostName()
             if(self.host in self.block_read_DNs):
-                return
+                return False
         self.readBlockTimed()
 
     def readBlockTimed(self):
