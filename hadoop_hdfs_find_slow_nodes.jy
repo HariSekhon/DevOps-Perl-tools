@@ -18,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = 0.3
+__version__ = 0.4
 
 # ============================================================================ #
 #                               Example Usage
@@ -65,7 +65,8 @@ def usage():
     print >> sys.stderr, """
 usage: %s -f /path/to/hdfs/file
 
--f --file               File in HDFS to read from all the datanodes containing the block
+-f --file               File in HDFS to read from all blocks from to find out which datanode is the slowest from this client
+-m --multiple           Fetch multiple copies not just the nearest copy to debug performance across nodes
 -o --one-block-per-DN   Only read 1 block from each DataNode for quickness, not as thorough. Optional, not the default
 """ % os.path.basename(__file__)
     sys.exit(3)
@@ -75,15 +76,18 @@ def main():
     """parse cli args and call fetchFileBlocks to run the speed test"""
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hf:o", ["help", "usage", "file=", "one-block-per-DN"])
+        opts, args = getopt.getopt(sys.argv[1:], "hf:mo", ["help", "usage", "file=", "multiple", "one-block-per-DN"])
     except getopt.GetoptError, e:
         print "error: %s" % e
         usage()
     filename = ""
+    multiple = False
     one_block_per_DN = False
     for o, a in opts:
         if o in ("-f", "--file"):
             filename = a
+        elif o in ("-m", "--multiple"):
+            multiple = True
         elif o in ("-o", "--one-block-per-DN"):
             one_block_per_DN = True
         elif o in ("-h", "--help", "--usage"):
@@ -93,7 +97,7 @@ def main():
     if filename == "":
         usage()
     try:
-        TestHDFSBlockReads(filename, one_block_per_DN).fetchFileBlocksTimed()
+        TestHDFSBlockReads(filename, multiple, one_block_per_DN).fetchFileBlocksTimed()
     except KeyboardInterrupt, e:
         print "Caught Control-C..."
         sys.exit(0)
@@ -105,9 +109,10 @@ def main():
 class TestHDFSBlockReads:
     """Class to hold HDFS Block Read State"""
 
-    def __init__(self, filename, one_block_per_DN):
+    def __init__(self, filename, multiple, one_block_per_DN):
         """Instantiate State"""
 
+        self.multiple           = multiple
         self.one_block_per_DN   = one_block_per_DN
         self.datanodes_tested   = set()
         self.block_num          = 0
@@ -181,17 +186,18 @@ class TestHDFSBlockReads:
         # looks like this isn't populated until first read, check on second pass on seekToNewSource()
         self.dn = self.fh.getCurrentDatanode()
         self.readBlockFromDN()
-        while self.fh.seekToNewSource(self.block_offset):
-            # self.dn must be populated by here or something is wrong
-            self.dn = self.fh.getCurrentDatanode()
-            if self.dn == None:
-                raise IOError, "Failed to get current DataNode for block %s offset %s length %s" % (self.block_num, self.block_offset, self.block_length)
-            # I've come back to the first DN, done with this block
-            self.host = self.dn.getHostName()
-            if self.host in self.block_read_DNs:
-                return
-            if not self.readBlockFromDN():
-                return
+        if self.multiple:
+            while self.fh.seekToNewSource(self.block_offset):
+                # self.dn must be populated by here or something is wrong
+                self.dn = self.fh.getCurrentDatanode()
+                if self.dn == None:
+                    raise IOError, "Failed to get current DataNode for block %s offset %s length %s" % (self.block_num, self.block_offset, self.block_length)
+                # I've come back to the first DN, done with this block
+                self.host = self.dn.getHostName()
+                if self.host in self.block_read_DNs:
+                    return
+                if not self.readBlockFromDN():
+                    return
 
     def readBlockFromDN(self):
         """Read current block from current DN"""
