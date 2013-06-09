@@ -147,7 +147,7 @@ def fetchFileBlocks(filename, one_block_per_DN):
                     highest_node_times[datanode] = {time_taken: [block_num, block_offset, block_length]}
         offset = block_offset + block_length
 
-    print "\nDataNodes by slowest first:\n"
+    print "\nSummary - DataNodes by highest block read time descending:\n"
     slowest_times = {}
     for datanode in highest_node_times.keys():
         slowest_time  = highest_node_times[datanode].keys()[0]
