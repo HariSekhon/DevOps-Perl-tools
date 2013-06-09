@@ -62,10 +62,10 @@ def usage():
 usage: %s -f /path/to/hdfs/file
 
 -f --file               File in HDFS to read from all blocks from to find out which datanode is the slowest from this client
--a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
 -m --multiple-blocks    Fetch multiple copies not just the nearest copy to debug performance across nodes
 -o --one-block-per-DN   Only read 1 block from each DataNode for quickness, not as thorough. Optional, not the default
 """ % os.path.basename(__file__)
+#-a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
     sys.exit(3)
 
 
