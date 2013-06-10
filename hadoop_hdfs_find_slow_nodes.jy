@@ -18,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = 0.4
+__version__ = 0.5
 
 # ============================================================================ #
 #                               Example Usage
@@ -118,6 +118,7 @@ class TestHDFSBlockReads:
         self.multiple_blocks    = multiple_blocks
         self.one_block_per_DN   = one_block_per_DN
         self.datanodes_tested   = set()
+        self.nodes_failed_reads = set()
         self.block_num          = 0
         self.offset             = 0
         self.length             = 1
@@ -164,6 +165,11 @@ class TestHDFSBlockReads:
                 print "Local DataNode is %s\n" % self.fqdn
             else:
                 print "No local DataNode reads\n"
+        if self.nodes_failed_reads:
+            print "The following nodes FAILED to return blocks:\n"
+            for node in sorted(nodes_failed_reads):
+                print node
+            print"\n"
         print "Summary - DataNodes by highest block read time descending:\n"
         slowest_times = {}
         for datanode in self.highest_node_times.keys():
@@ -178,7 +184,7 @@ class TestHDFSBlockReads:
                 slowest_times[slowest_time] = [[datanode, rack, block_num, block_offset, block_length]]
         for time_taken in reversed(sorted(slowest_times.keys())):
             for t in slowest_times[time_taken]:
-                print "datanode %s rack %s highest read time was for block %d (offset %d, self.length %d) => %.4f secs" % (t[0], t[1], t[2], t[3], t[4], time_taken)
+                print "datanode %s rack %s highest read time was for block %d (offset %d, length %d) => %.4f secs" % (t[0], t[1], t[2], t[3], t[4], time_taken)
 
         return slowest_times
 
@@ -217,7 +223,20 @@ class TestHDFSBlockReads:
     def readBlockTimed(self):
         """Read the current block with timings"""
         start_time = time.time()
-        self.fh.read(ByteBuffer.allocate(self.block_length))
+        try:
+            bytes = self.fh.read(ByteBuffer.allocate(self.block_length))
+            if not bytes:
+                self.dn    = self.fh.getCurrentDatanode()
+                self.host  = self.dn.getHostName()
+                self.nodes_failed_reads.add(self.host)
+                print "Error: failed to read bytes from block %d (offset %d, length %d) from rack %s datanode %s: %s" % (self.block_num, self.block_offset, self.block_length, rack, self.host)
+                return
+        except Exception, e:
+            self.dn    = self.fh.getCurrentDatanode()
+            self.host  = self.dn.getHostName()
+            self.nodes_failed_reads.add(self.host)
+            print "Error: failed to read block %d (offset %d, length %d) from rack %s datanode %s: %s" % (self.block_num, self.block_offset, self.block_length, rack, self.host, e)
+            return
         end_time   = time.time()
         time_taken = end_time - start_time
         self.dn    = self.fh.getCurrentDatanode()
