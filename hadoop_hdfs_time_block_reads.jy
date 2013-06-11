@@ -11,7 +11,7 @@
 
 """ Jython program to find a slow Hadoop HDFS node by querying all the nodes for a given HDFS file and printing the read times """
 
-# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_node.jy -f /hdfs/path/to/file
+# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy -f /hdfs/path/to/file
 
 # I tested this on one of my NN HA Kerberized clusters, should work fine under all circumstances where you have Jython and correctly deployed Hadoop client configuration as long as you have enough RAM, should be no more than 1GB or ~ java -Xmx + HDFS blocksize
 #
@@ -37,7 +37,7 @@ __version__ = 0.6
 #
 # 3. Run this program against the file to see the block read speeds from the different datanodes
 #
-#    >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_node.jy -f /tmp/testfile
+#    >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy -f /tmp/testfile
 #
 # ============================================================================ #
 
@@ -52,7 +52,7 @@ try:
     from org.apache.hadoop.fs import Path
     from org.apache.hadoop.hdfs import DistributedFileSystem
 except ImportError, e:
-    print "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_find_slow_nodes.jy <args>"
+    print "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy <args>"
     sys.exit(2)
 
 def usage():
