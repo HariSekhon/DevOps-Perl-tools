@@ -112,9 +112,9 @@ def main():
             print java_oom_fix
         sys.exit(2)
     except:
+        print "Error: %s" % sys.exc_info()[1].toString()
         if sys.exc_info()[1].toString() == java_oom:
             print java_oom_fix
-        print "Error: %s" % sys.exc_info()[1].toString()
         sys.exit(2)
 
 
