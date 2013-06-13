@@ -99,17 +99,26 @@ def main():
             usage()
     if filename == "":
         usage()
+    java_oom     = "java.lang.OutOfMemoryError: Java heap space"
+    java_oom_fix = "\nAdd/Increase -J-Xmx<value> command line argument (need at least block_size + 300m)\n"
     try:
-        HDFSBlockTester(filename, multiple_blocks, one_block_per_DN).fetchFileBlocksTimed()
+        HDFSBlockReader(filename, multiple_blocks, one_block_per_DN).fetchFileBlocksTimed()
     except KeyboardInterrupt, e:
         print "Caught Control-C..."
         sys.exit(0)
     except Exception, e:
-        print "Error running HDFSBlockTester: %s" % e
+        print "Error running HDFSBlockReader: %s" % e
+        if java_oom in e.message:
+            print java_oom_fix
+        sys.exit(2)
+    except:
+        if sys.exc_info()[1].toString() == java_oom:
+            print java_oom_fix
+        print "Error: %s" % sys.exc_info()[1].toString()
         sys.exit(2)
 
 
-class HDFSBlockTester:
+class HDFSBlockReader:
     """Class to hold HDFS Block Read State"""
 
     def __init__(self, filename, multiple_blocks, one_block_per_DN):
