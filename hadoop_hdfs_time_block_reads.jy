@@ -75,7 +75,7 @@ usage: %s -f /path/to/hdfs/file
 
 
 def main():
-    """parse cli args and call fetchFileBlocks to run the speed test"""
+    """parse cli args and call HDFS block read speed test for the given filename"""
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hf:amo", ["help", "usage", "file=", "all-blocks", "multiple-blocks", "one-block-per-DN"])
