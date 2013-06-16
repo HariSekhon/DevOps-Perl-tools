@@ -10,9 +10,11 @@
 -- Mainly based on Hive QL and Impala SQL with some MySQL
 
 -- Regex one per line of keywords to uppercase - used by uppercase_sql_keywords.pl
+-- whitespace is converted to \s+ for matching so this list can look cleaner
+-- leading/trailing whitespace is automatically trimmed
 
 (?:ENABLE|DISABLE) (?:NO_DROP|OFFLINE)
-(?:START|STOP) SLAVE
+(?:START|STOP) SLAVE(?: IO_THREAD|SQL_THREAD)?
 ADD
 AFTER
 ALTER \w+
@@ -55,7 +57,7 @@ FOR
 FROM
 FUNCTION
 GRANT
-GRANT ALL PRIVILEGES ON
+GRANT ([A-Za-z]+)(?:\s*,\s*[A-Za-z]+)* PRIVILEGES ON
 GROUP BY
 HAVING
 IDENTIFIED BY
