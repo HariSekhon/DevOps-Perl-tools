@@ -12,13 +12,14 @@
 -- Regex one per line of keywords to uppercase - used by uppercase_sql_keywords.pl
 -- whitespace is converted to \s+ for matching so this list can look cleaner
 -- leading/trailing whitespace is automatically trimmed
+-- don't specify functions such as COUNT() with brackets since brackets are added as one of several possible keyword boundaries
 
 (?:ENABLE|DISABLE) (?:NO_DROP|OFFLINE)
 (?:START|STOP) SLAVE(?: IO_THREAD|SQL_THREAD)?
 ADD
 AFTER
 ALTER \w+
-ANALYZE
+ANALYZE \w+
 ARCHIVE PARTITION
 AS
 AVG
@@ -27,14 +28,14 @@ BINARY
 BOOLEAN
 BUCKETS
 CASCADE
+CAST
 CLUSTERED
 COLLECTION ITEMS TERMINATED BY
 COLUMNS
 COMMENT (?:\"|\')
 COMPUTE STATISTICS
 COUNT
-COUNT\(
-CREATE \w+
+CREATE (?:EXTERNAL )?\w+
 DATABASE
 DBPROPERTIES
 DECIMAL
@@ -69,6 +70,7 @@ INDEX
 INPUTFORMAT
 INSERT INTO TABLE
 INSERT OVERWRITE TABLE...
+INSTR
 INT
 LEFT (?:INNER|OUTER )?JOIN
 LIKE
@@ -94,6 +96,7 @@ REPAIR TABLE
 REPLACE
 RESTRICT
 ROW FORMAT
+SCHEMA
 SELECT
 SEQUENCEFILE
 SERDE
@@ -110,8 +113,9 @@ STORED AS
 STORED AS \w+
 STRING
 STRUCT
-SUBSTR\(
+SUBSTR
 SUM
+SYSTEM
 TABLE
 TBLPROPERTIES
 TEMPORARY
