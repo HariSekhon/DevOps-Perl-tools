@@ -57,7 +57,7 @@ FOR
 FROM
 FUNCTION
 GRANT
-GRANT ([A-Za-z]+)(?:\s*,\s*[A-Za-z]+)* PRIVILEGES ON
+GRANT (?:[A-Za-z]+)(?:\s*,\s*[A-Za-z]+)* PRIVILEGES ON
 GROUP BY
 HAVING
 IDENTIFIED BY
