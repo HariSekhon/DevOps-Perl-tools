@@ -15,7 +15,7 @@ Primarily written to help me clean up various SQL across Hive / Impala / MySQL e
 Uses a regex list of keywords located in the same directory as this program
 called sql_keywords.txt for easy maintainance and addition of keywords";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -47,6 +47,8 @@ foreach(<$fh>){
     $_ = trim($_);
     my $sql = $_;
     $sql =~ s/\s+/\\s+/g;
+    # protection against ppl leaving matching brackets in sql_keywords.txt
+    $sql =~ s/([^\\])\(([^\?])/$1\(?:$2/g;
     # wraps regex in (?:XISM: )
     #$sql = validate_regex($sql);
     $sql_keywords{$sql} = uc $_;
