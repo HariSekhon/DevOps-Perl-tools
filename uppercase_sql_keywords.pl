@@ -1,16 +1,19 @@
 #!/usr/bin/perl -T
 #
-#   Author: Hari Sekhon
-#   Date: 2013-06-05 14:08:20 +0100 (Wed, 05 Jun 2013)
-#  $LastChangedBy$
-#  $LastChangedDate$
-#  $Revision$
-#  $URL$
-#  $Id$
+#  Author: Hari Sekhon
+#  Date: 2013-06-05 14:08:20 +0100 (Wed, 05 Jun 2013)
 #
-#  vim:ts=4:sts=4:et
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
 
-$DESCRIPTION = "Util to uppercase SQL / HiveQL keywords in a file or stdin";
+$DESCRIPTION = "Util to uppercase SQL / HiveQL keywords in a file or stdin. Works like a standard filter program
+
+Primarily written to help me clean up various SQL across Hive / Impala / MySQL etc
+
+Uses a regex list of keywords located in the same directory as this program
+called sql_keywords.txt for easy maintainance and addition of keywords";
 
 $VERSION = "0.1";
 
@@ -29,6 +32,7 @@ my $comments;
     "f|files=s"      => [ \$file, "File(s) to uppercase SQL from" ],
     "c|comments"     => [ \$comments, "Apply transformations even to lines with --/# comments" ],
 );
+@usage_order = qw/files comments/;
 
 get_options();
 

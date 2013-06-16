@@ -1,15 +1,15 @@
 --
---   Author: Hari Sekhon
---   Date: 2013-06-08 02:16:46 +0100 (Sat, 08 Jun 2013)
---  $LastChangedBy$
---  $LastChangedDate$
---  $Revision$
---  $URL$
---  $Id$
+--  Author: Hari Sekhon
+--  Date: 2013-06-08 02:16:46 +0100 (Sat, 08 Jun 2013)
 --
---  vim:ts=4:sw=4:et:filetype=sql
+--  http://github.com/harisekhon
+--
+--  License: see accompanying LICENSE file
+--
 
 -- Mainly based on Hive QL and Impala SQL with some MySQL
+
+-- Regex one per line of keywords to uppercase - used by uppercase_sql_keywords.pl
 
 (?:ENABLE|DISABLE) (?:NO_DROP|OFFLINE)
 (?:START|STOP) SLAVE
