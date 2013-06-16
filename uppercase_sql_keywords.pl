@@ -38,6 +38,7 @@ get_options();
 
 my @files = parse_file_option($file, "args are files");
 my %sql_keywords;
+my $comment_chars = qr/(?:^|\s)(?:#|--)/;
 
 my $fh = open_file dirname(__FILE__) . "/sql_keywords.txt";
 foreach(<$fh>){
@@ -55,17 +56,28 @@ foreach(<$fh>){
 }
 
 sub uppercase_sql ($) {
-    my $string = shift;
+    my $string            = shift;
+    my $captured_comments = undef;
     #$string =~ /(?:SELECT|SHOW|ALTER|DROP|TRUNCATE|GRANT|FLUSH)/ or return $string;
     unless($comments){
-        $string =~ /#|--/ and return $string;
-    }
-    my $sep = '\s|\(|\)|\[|\]|,|;|\n|\r\n|\"|' . "'";
-    foreach my $sql (sort keys %sql_keywords){
-        if($string =~ /(^|$sep)($sql)($sep|$)/gi){
-            my $uc_sql = uc $2;
-            $string =~ s/(^|$sep)$sql($sep)/$1$uc_sql$2/gi;
+        if($string =~ s/(${comment_chars}.*$)//){
+            $captured_comments = $1;
         }
+    }
+    if($string){
+        # cannot simply use word boundary here since NULL would match /dev/null
+        my $sep = '\s|\(|\)|\[|\]|,|\.\.\.|;|\n|\r\n|\"|' . "'";
+        foreach my $sql (sort keys %sql_keywords){
+            if($string =~ /($sep)?($sql)($sep|$)/gi){
+                my $uc_sql = uc $2;
+                # have to redefine comment chars here because variable length negative lookbehind isn't implemented
+                $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$sql($sep|$)/$1$uc_sql$2/gi;
+            }
+        }
+    }
+    if($captured_comments){
+        chomp $string;
+        $string .= $captured_comments . "\n";
     }
     return $string;
 }
