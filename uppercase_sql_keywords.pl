@@ -29,8 +29,8 @@ my $file;
 my $comments;
 
 %options = (
-    "f|files=s"      => [ \$file, "File(s) to uppercase SQL from" ],
-    "c|comments"     => [ \$comments, "Apply transformations even to lines with --/# comments" ],
+    "f|files=s"      => [ \$file,       "File(s) to uppercase SQL from" ],
+    "c|comments"     => [ \$comments,   "Apply transformations even to lines with --/# comments" ],
 );
 @usage_order = qw/files comments/;
 
