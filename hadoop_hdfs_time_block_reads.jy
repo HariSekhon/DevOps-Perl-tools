@@ -45,7 +45,11 @@ import os, sys, time, socket
 # Refusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
 import getopt
 #import array # not using byte arrays any more
-from java.nio import ByteBuffer
+try:
+    from java.nio import ByteBuffer
+except ImportError, e:
+    print "Couldn't find java.nio class, not running inside Jython?"
+    sys.exit(3)
 try:
     from org.apache.hadoop.conf import Configuration
     #from org.apache.hadoop.fs import FileSystem
@@ -53,7 +57,7 @@ try:
     from org.apache.hadoop.hdfs import DistributedFileSystem
 except ImportError, e:
     print "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy <args>"
-    sys.exit(2)
+    sys.exit(3)
 
 def usage():
     """print usage and exit"""
