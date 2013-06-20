@@ -14,7 +14,7 @@
 # BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy -f /hdfs/path/to/file
 
 __author__  = "Hari Sekhon"
-__version__ = 0.1
+__version__ = 0.2
 
 import os, sys
 # Refusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
@@ -49,12 +49,19 @@ def usage(*msg):
 usage: %s <hdfs_file_or_dir> [ <hdfs_file_or_dir2> <hdfs_file_or_dir3> ... ]
 
 Fetches HDFS native checksums for one or more files or for all files under any given directory tree
+
+-v --verbose    Verbose mode, prefixes name: algorithm: and checksum: and shows the algo of the checksum
 """ % os.path.basename(__file__)
     sys.exit(3)
 
+def printerr(msg):
+    """ Print error message to stdout """
+
+    print >> sys.stderr, ">>> %s" % msg
+
 def die(msg, *ec):
     """ Print error message and exit program """
-    print >> sys.stderr, msg
+    printerr(msg)
     if ec:
         exitcode = ec[0]
         if exitcode.isdigit():
@@ -63,7 +70,7 @@ def die(msg, *ec):
             else:
                 sys.exit(exitcode)
         else:
-            print >> sys.stderr, "Code error, non-digit passed as second arg to die()"
+            printerr("Code error, non-digit passed as second arg to die()")
             sys.exit(2)
     sys.exit(2)
 
@@ -101,19 +108,19 @@ def main():
     try:
         HDFSChecksumReader().print_checksums(filelist)
     except KeyboardInterrupt, e:
-        print >> sys.stderr, "Caught Control-C..."
+        printerr("Caught Control-C...")
         sys.exit(0)
     except Exception, e:
-        print >> sys.stderr, "Error running HDFSChecksumReader: %s" % e
+        printerr("Error running HDFSChecksumReader: %s" % e)
         if java_oom in e.message:
             print >> sys.stderr, java_oom_fix
         #import traceback; traceback.print_exc()
         sys.exit(2)
     except:
-        print >> sys.stderr, "Error: %s" % sys.exc_info()[1].toString()
+        printerr("Error: %s" % sys.exc_info()[1].toString())
         if sys.exc_info()[1].toString() == java_oom:
             print >> sys.stderr, java_oom_fix
-        import traceback; traceback.print_exc()
+        #import traceback; traceback.print_exc()
         sys.exit(2)
 
 
@@ -127,40 +134,68 @@ class HDFSChecksumReader:
         #self.fs   = DistributedFileSystem.get(conf)
         self.fs   = FileSystem.get(conf)
 
+    def get_path(self, filename):
+        """ Return the path object for a given filename """
+        try:
+            path = Path(filename)
+        except Exception, e:
+            return None
+        if path:
+            return path
+        else:
+            return None
+
     def print_checksums(self, filelist):
         """ Recurses directories and calls print_checksum(file) per file """
 
-        for file in filelist:
-            self.print_checksum(file)
+        for filename in filelist:
+            path = self.get_path(filename)
+            if not path:
+                printerr("Failed to get HDFS path object for file " + filename)
+                continue
+            if not self.fs.exists(path):
+                #raise IOError, "HDFS File not found: %s" % filename
+                printerr("HDFS file/dir not found: %s" % filename)
+                continue
+            self.recurse_hdfs_path(filename, path)
 
-    def print_checksum(self, file):
-        """ Prints the HDFS checksum for the given file arg """
+    def recurse_hdfs_path(self, filename, path):
+        """ Recurses a path object if directory or passes to print_checksum if file """
+
+        if self.fs.isFile(path):
+            self.print_checksum(filename, path)
+        elif self.fs.isDirectory(path):
+            try:
+                l = self.fs.listStatus(path)
+                for i in range(0, len(l)):
+                    p = l[i].getPath()
+                    self.recurse_hdfs_path(p.toUri().getPath(), p)
+            except:
+                printerr(sys.exc_info()[1].message.split("\n")[0])
+        else:
+            raise IOError, ">>> %s is not a file or directory" % filename
+
+    def print_checksum(self, filename, path):
+        """ Prints the HDFS checksum for the given file + fs path object """
 
         vprint("file:")
-        print file + " ",
-        try:
-            path = Path(file)
-        except Exception, e:
-            print >> sys.stderr, "Failed to get HDFS path object for file " + file
-        if path and not self.fs.exists(path):
-            raise IOError, "HDFS File not found: %s" % file
+        print filename + " ",
         try:
             checksum = self.fs.getFileChecksum(path)
             if checksum:
                 vprint("algorithm: " + checksum.getAlgorithmName() + " ")
                 vprint("checksum:")
                 # All 3 of these methods come out the same
-                print "".join([str(x) for x in checksum.getBytes()]).strip()
-                #print ''.join([str(Byte.valueOf(c)) for c in checksum.getBytes()]).strip()
-                #print ''.join([Arrays.toString(c) for c in checksum.getBytes()]).strip()
+                print "".join(str(x) for x in checksum.getBytes()).strip()
+                #print ''.join(str(Byte.valueOf(c))   for c in checksum.getBytes()).strip()
+                #print ''.join(    Arrays.toString(c) for c in checksum.getBytes()).strip()
             else:
-                print >> sys.stderr, "NO CHECKSUM for file " + file
+                printerr("NO CHECKSUM for file " + filename)
                 return 0
         except Exception, e:
-            print >> sys.stderr, e
+            printerr(e)
         except:
-            print "<checksum could not be determined>"
-            print >> sys.stderr, "ERROR: " + sys.exc_info()[1].message.split("\n")[0]
+            print ">>> " + sys.exc_info()[1].message.split("\n")[0]
             return 0
         return 1
 
