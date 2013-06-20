@@ -9,7 +9,7 @@
 #
 # vim:filetype=python
 
-""" Jython program to fetch the HDFS native checksums of a file """
+""" Jython program to fetch the HDFS native checksums of a file. Quick way of checking for duplicate files """
 
 # BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy -f /hdfs/path/to/file
 
