@@ -157,9 +157,9 @@ class HDFSChecksumReader:
                 #raise IOError, "HDFS File not found: %s" % filename
                 printerr("HDFS file/dir not found: %s" % filename)
                 continue
-            self.recurse_hdfs_path(filename, path)
+            self.print_checksum_recurse(filename, path)
 
-    def recurse_hdfs_path(self, filename, path):
+    def print_checksum_recurse(self, filename, path):
         """ Recurses a path object if directory or passes to print_checksum if file """
 
         if self.fs.isFile(path):
@@ -169,7 +169,7 @@ class HDFSChecksumReader:
                 l = self.fs.listStatus(path)
                 for i in range(0, len(l)):
                     p = l[i].getPath()
-                    self.recurse_hdfs_path(p.toUri().getPath(), p)
+                    self.print_checksum_recurse(p.toUri().getPath(), p)
             except:
                 printerr(sys.exc_info()[1].message.split("\n")[0])
         else:
@@ -183,7 +183,8 @@ class HDFSChecksumReader:
         try:
             checksum = self.fs.getFileChecksum(path)
             if checksum:
-                vprint("algorithm: " + checksum.getAlgorithmName() + " ")
+                if verbose:
+                    print "algorithm: " + checksum.getAlgorithmName() + " "
                 vprint("checksum:")
                 # All 3 of these methods come out the same
                 print "".join(str(x) for x in checksum.getBytes()).strip()
