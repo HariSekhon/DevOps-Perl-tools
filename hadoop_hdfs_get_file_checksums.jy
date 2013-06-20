@@ -191,7 +191,7 @@ class HDFSChecksumReader:
                 #print ''.join(str(Byte.valueOf(c))   for c in checksum.getBytes()).strip()
                 #print ''.join(    Arrays.toString(c) for c in checksum.getBytes()).strip()
             else:
-                printerr("NO CHECKSUM for file " + filename)
+                printerr("<NO CHECKSUM for file " + filename + ">")
                 return 0
         except Exception, e:
             printerr(e)
