@@ -1,0 +1,169 @@
+#!/usr/bin/env jython
+#
+#  Author: Hari Sekhon
+#  Date: 2013-06-20 18:21:02 +0100 (Thu, 20 Jun 2013)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
+# vim:filetype=python
+
+""" Jython program to fetch the HDFS native checksums of a file """
+
+# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy -f /hdfs/path/to/file
+
+__author__  = "Hari Sekhon"
+__version__ = 0.1
+
+import os, sys
+# Refusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
+import getopt
+#import array
+#try:
+#    from java.nio import ByteBuffer
+#except ImportError, e:
+#    print >> sys.stderr, "Couldn't find java.nio class, not running inside Jython?"
+#    sys.exit(3)
+try:
+    from org.apache.hadoop.conf import Configuration
+    #from org.apache.hadoop.fs import FileSystem
+    from org.apache.hadoop.fs import Path
+    from org.apache.hadoop.hdfs import DistributedFileSystem
+    from org.apache.hadoop.fs import FileSystem
+    #from org.apache.hadoop.security import AccessControlException
+    #import org.apache.hadoop.security.AccessControlException
+    #import java.lang.Exception
+    #from java.lang import Byte
+    #from java.util import Arrays
+except ImportError, e:
+    print >> sys.stderr, "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy <args>"
+    sys.exit(3)
+
+def usage(*msg):
+    """ Print usage and exit """
+
+    if msg:
+        print >> sys.stderr, "".join(msg)
+    print >> sys.stderr, """
+usage: %s <hdfs_file_or_dir> [ <hdfs_file_or_dir2> <hdfs_file_or_dir3> ... ]
+
+Fetches HDFS native checksums for one or more files or for all files under any given directory tree
+""" % os.path.basename(__file__)
+    sys.exit(3)
+
+def die(msg, *ec):
+    """ Print error message and exit program """
+    print >> sys.stderr, msg
+    if ec:
+        exitcode = ec[0]
+        if exitcode.isdigit():
+            if exitcode > 255:
+                sys.exit(exitcode % 256)
+            else:
+                sys.exit(exitcode)
+        else:
+            print >> sys.stderr, "Code error, non-digit passed as second arg to die()"
+            sys.exit(2)
+    sys.exit(2)
+
+verbose = False
+def vprint(msg):
+    """ Print if verbose """
+
+    if verbose:
+        print msg,
+
+
+def main():
+    """ Parse cli args and launch hdfs_get_file_checksum() """
+
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "hv", ["help", "usage", "verbose"])
+    except getopt.GetoptError, e:
+        usage("error: %s" % e)
+    for o, a in opts:
+        if o in ("-v", "--verbose"):
+            global verbose
+            verbose = True
+        elif o in ("-h", "--help", "--usage"):
+            usage()
+        else:
+            usage()
+    filelist = set()
+    for arg in args:
+        filelist.add(arg)
+    if not filelist:
+        usage("no file / directory specified")
+    filelist = sorted(filelist)
+    java_oom     = "java.lang.OutOfMemoryError: Java heap space"
+    java_oom_fix = "\nAdd/Increase -J-Xmx<value> command line argument\n"
+    try:
+        HDFSChecksumReader().print_checksums(filelist)
+    except KeyboardInterrupt, e:
+        print >> sys.stderr, "Caught Control-C..."
+        sys.exit(0)
+    except Exception, e:
+        print >> sys.stderr, "Error running HDFSChecksumReader: %s" % e
+        if java_oom in e.message:
+            print >> sys.stderr, java_oom_fix
+        #import traceback; traceback.print_exc()
+        sys.exit(2)
+    except:
+        print >> sys.stderr, "Error: %s" % sys.exc_info()[1].toString()
+        if sys.exc_info()[1].toString() == java_oom:
+            print >> sys.stderr, java_oom_fix
+        import traceback; traceback.print_exc()
+        sys.exit(2)
+
+
+class HDFSChecksumReader:
+    """ Class to hold HDFS Checksum Read state """
+
+    def __init__(self):
+        """ Instantiate State """
+
+        conf      = Configuration()
+        #self.fs   = DistributedFileSystem.get(conf)
+        self.fs   = FileSystem.get(conf)
+
+    def print_checksums(self, filelist):
+        """ Recurses directories and calls print_checksum(file) per file """
+
+        for file in filelist:
+            self.print_checksum(file)
+
+    def print_checksum(self, file):
+        """ Prints the HDFS checksum for the given file arg """
+
+        vprint("file:")
+        print file + " ",
+        try:
+            path = Path(file)
+        except Exception, e:
+            print >> sys.stderr, "Failed to get HDFS path object for file " + file
+        if path and not self.fs.exists(path):
+            raise IOError, "HDFS File not found: %s" % file
+        try:
+            checksum = self.fs.getFileChecksum(path)
+            if checksum:
+                vprint("algorithm: " + checksum.getAlgorithmName() + " ")
+                vprint("checksum:")
+                # All 3 of these methods come out the same
+                print "".join([str(x) for x in checksum.getBytes()]).strip()
+                #print ''.join([str(Byte.valueOf(c)) for c in checksum.getBytes()]).strip()
+                #print ''.join([Arrays.toString(c) for c in checksum.getBytes()]).strip()
+            else:
+                print >> sys.stderr, "NO CHECKSUM for file " + file
+                return 0
+        except Exception, e:
+            print >> sys.stderr, e
+        except:
+            print "<checksum could not be determined>"
+            print >> sys.stderr, "ERROR: " + sys.exc_info()[1].message.split("\n")[0]
+            return 0
+        return 1
+
+
+if __name__ == "__main__":
+    main()
