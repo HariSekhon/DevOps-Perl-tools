@@ -48,7 +48,7 @@ import getopt
 try:
     from java.nio import ByteBuffer
 except ImportError, e:
-    print "Couldn't find java.nio class, not running inside Jython?"
+    print >> sys.stderr, "Couldn't find java.nio class, not running inside Jython?"
     sys.exit(3)
 try:
     from org.apache.hadoop.conf import Configuration
@@ -56,7 +56,7 @@ try:
     from org.apache.hadoop.fs import Path
     from org.apache.hadoop.hdfs import DistributedFileSystem
 except ImportError, e:
-    print "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy <args>"
+    print >> sys.stderr, "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy <args>"
     sys.exit(3)
 
 def usage():
@@ -80,7 +80,7 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hf:amo", ["help", "usage", "file=", "all-blocks", "multiple-blocks", "one-block-per-DN"])
     except getopt.GetoptError, e:
-        print "error: %s" % e
+        print >> sys.stderr, "error: %s" % e
         usage()
     filename         = ""
     all_blocks       = False
@@ -108,17 +108,17 @@ def main():
     try:
         HDFSBlockReader(filename, multiple_blocks, one_block_per_DN).fetchFileBlocksTimed()
     except KeyboardInterrupt, e:
-        print "Caught Control-C..."
+        print >> sys.stderr, "Caught Control-C..."
         sys.exit(0)
     except Exception, e:
-        print "Error running HDFSBlockReader: %s" % e
+        print >> sys.stderr, "Error running HDFSBlockReader: %s" % e
         if java_oom in e.message:
-            print java_oom_fix
+            print >> sys.stderr, java_oom_fix
         sys.exit(2)
     except:
-        print "Error: %s" % sys.exc_info()[1].toString()
+        print sys.stderr, "Error: %s" % sys.exc_info()[1].toString()
         if sys.exc_info()[1].toString() == java_oom:
-            print java_oom_fix
+            print >> sys.stderr, java_oom_fix
         sys.exit(2)
 
 
