@@ -148,7 +148,7 @@ class HDFSBlockReader:
         self.path = Path(filename)
 
         if not self.fs.exists(self.path):
-            raise IOError, "File not found: %s" % filename
+            raise IOError, "HDFS File not found: %s" % filename
         #self.fh = self.fs.open(path)
         # The client one tells you which DN you are reading from
         try:
