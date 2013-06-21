@@ -19,7 +19,7 @@ hadoop fs -checksum
 
 """
 
-# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy -f /hdfs/path/to/file
+# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy <list of HDFS files and/or directories>
 
 __author__  = "Hari Sekhon"
 __version__ = 0.2
@@ -27,26 +27,15 @@ __version__ = 0.2
 import os, sys
 # Refusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
 import getopt
-#import array
-#try:
-#    from java.nio import ByteBuffer
-#except ImportError, e:
-#    print >> sys.stderr, "Couldn't find java.nio class, not running inside Jython?"
-#    sys.exit(3)
 try:
     from org.apache.hadoop.conf import Configuration
-    #from org.apache.hadoop.fs import FileSystem
     from org.apache.hadoop.fs import Path
     from org.apache.hadoop.hdfs import DistributedFileSystem
     from org.apache.hadoop.fs import FileSystem
     from org.apache.hadoop.util import StringUtils
     #from org.apache.hadoop.security import AccessControlException
-    #import org.apache.hadoop.security.AccessControlException
-    #import java.lang.Exception
-    #from java.lang import Byte
-    #from java.util import Arrays
 except ImportError, e:
-    print >> sys.stderr, "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy <args>"
+    print >> sys.stderr, "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksums.jy <args>"
     sys.exit(3)
 
 def usage(*msg):
@@ -55,9 +44,9 @@ def usage(*msg):
     if msg:
         print >> sys.stderr, "".join(msg)
     print >> sys.stderr, """
-usage: %s <hdfs_file_or_dir> [ <hdfs_file_or_dir2> <hdfs_file_or_dir3> ... ]
+usage: %s <list of HDFS files and/or directories>
 
-Fetches HDFS native checksums for one or more files or for all files under any given directory tree
+Fetches HDFS native checksums for given files / all files under given directories
 
 -v --verbose    Verbose mode, prefixes name: algorithm: and checksum: and shows the algo of the checksum
 """ % os.path.basename(__file__)
