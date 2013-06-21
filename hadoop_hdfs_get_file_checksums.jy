@@ -9,7 +9,15 @@
 #
 # vim:filetype=python
 
-""" Jython program to fetch the HDFS native checksums of a file. Quick way of checking for duplicate files """
+""" Jython program to fetch the HDFS native checksums of a file.
+
+Quick way of checking for duplicate files but not checking content itself so differing block sizes will not match
+
+Will be implemented in hadoop-9209 jira for versions 3.0.0, 0.23.7, 2.1.0-beta using a new command line param
+
+hadoop fs -checksum
+
+"""
 
 # BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy -f /hdfs/path/to/file
 
@@ -31,6 +39,7 @@ try:
     from org.apache.hadoop.fs import Path
     from org.apache.hadoop.hdfs import DistributedFileSystem
     from org.apache.hadoop.fs import FileSystem
+    from org.apache.hadoop.util import StringUtils
     #from org.apache.hadoop.security import AccessControlException
     #import org.apache.hadoop.security.AccessControlException
     #import java.lang.Exception
@@ -179,17 +188,14 @@ class HDFSChecksumReader:
         """ Prints the HDFS checksum for the given file + fs path object """
 
         vprint("file:")
-        print filename + " ",
+        print filename,
         try:
             checksum = self.fs.getFileChecksum(path)
             if checksum:
-                if verbose:
-                    print "algorithm: " + checksum.getAlgorithmName() + " "
+                vprint("algorithm:")
+                print "\t" + checksum.getAlgorithmName(),
                 vprint("checksum:")
-                # All 3 of these methods come out the same
-                print "".join(str(x) for x in checksum.getBytes()).strip()
-                #print ''.join(str(Byte.valueOf(c))   for c in checksum.getBytes()).strip()
-                #print ''.join(    Arrays.toString(c) for c in checksum.getBytes()).strip()
+                print "\t" + StringUtils.byteToHexString(checksum.getBytes(), 0, checksum.getLength())
             else:
                 printerr("<NO CHECKSUM for file " + filename + ">")
                 return 0
