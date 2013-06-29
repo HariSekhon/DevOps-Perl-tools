@@ -6,6 +6,6 @@
 .PHONY: install
 install:
 	@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
-	cpan LWP::UserAgent
 	git submodule init
 	git sudmodule update
+	cpan LWP::UserAgent
