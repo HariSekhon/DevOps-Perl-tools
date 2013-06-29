@@ -5,8 +5,6 @@ A collection of tools I've written over the years to ease systems administration
 
 ### Setup ###
 
-Run
-
 ```
 cd sysadmin
 ```
@@ -16,7 +14,7 @@ make
 
 This will fetch my shared library submodule and also pull in the Perl CPAN module LWP::UserAgent (for which you'll need to be root)
 
-## Manual Setup ##
+#### Manual Setup ####
 
 Enter the directory and run git submodule init and git submodule update to fetch my library repo:
 
@@ -32,8 +30,10 @@ git submodule update
 
 The LWP::UserAgent Perl module is also needed for watch_url.pl and watch_nginx_stats.pl
 
+Run as root:
+
 ```
-sudo cpan LWP::UserAgent
+cpan LWP::UserAgent
 ```
 
 You're now ready to use these programs.
