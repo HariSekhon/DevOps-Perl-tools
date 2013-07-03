@@ -45,3 +45,13 @@ cpan Text::Unidecode
 ```
 
 You're now ready to use these programs.
+
+
+### Jython for Hadoop Utils ###
+
+A couple of the Hadoop utilities listed below require Jython (as well as Hadoop to be installed and correctly configured or course)
+
+hadoop_hdfs_time_block_reads.jy
+hadoop_hdfs_get_file_checksums.jy
+
+Jython can be fetched from http://www.jython.org/downloads.html
