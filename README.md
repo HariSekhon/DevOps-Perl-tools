@@ -56,4 +56,4 @@ hadoop_hdfs_time_block_reads.jy
 hadoop_hdfs_get_file_checksums.jy
 ```
 
-Jython can be fetched from http://www.jython.org/downloads.html
+Jython is a simple download and unpack and can be fetched from http://www.jython.org/downloads.html
