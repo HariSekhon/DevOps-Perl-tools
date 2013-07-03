@@ -1,5 +1,5 @@
-SysAdmin Tools
-==============
+Hadoop & Web Scale SysAdmin Tools
+=================================
 
 A collection of Hadoop & Web Scale sysadmin tools I've written over the years that are generally useful across environments
 
@@ -30,15 +30,15 @@ git submodule update
 
 ##### CPAN Modules #####
 
-watch_url.pl / watch_nginx_stats.pl require the LWP::UserAgent CPAN module:
+Install the following CPAN modules as root
 
-Run as root:
+For watch_url.pl / watch_nginx_stats.pl:
 
 ```
 cpan LWP::UserAgent
 ```
 
-unidecode.pl requires the Text::Unidecode CPAN module:
+For unidecode.pl:
 
 ```
 cpan Text::Unidecode
