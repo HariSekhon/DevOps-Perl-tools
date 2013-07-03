@@ -12,7 +12,7 @@ cd sysadmin
 make
 ```
 
-This will fetch my shared library submodule and also pull in the Perl CPAN module LWP::UserAgent (for which you'll need to be root)
+This will fetch my shared library submodule and also pull in the Perl CPAN modules LWP::UserAgent and Text::Unidecode (for which you'll need to be root)
 
 #### Manual Setup ####
 
