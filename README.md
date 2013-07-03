@@ -14,7 +14,7 @@ make
 
 This will fetch my shared library submodule and also pull in the Perl CPAN modules LWP::UserAgent and Text::Unidecode (for which you'll need to be root)
 
-#### Manual Setup ####
+#### OR: Manual Setup ####
 
 Enter the directory and run git submodule init and git submodule update to fetch my library repo:
 
@@ -28,7 +28,7 @@ git submodule init
 git submodule update
 ```
 
-##### CPAN Modules #####
+###### CPAN Modules ######
 
 Install the following CPAN modules as root
 
