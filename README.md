@@ -1,7 +1,7 @@
 SysAdmin Tools
 ==============
 
-A collection of tools I've written over the years to ease systems administration tasks
+A collection of Hadoop & Web Scale sysadmin tools I've written over the years that are generally useful across environments
 
 ### Setup ###
 
@@ -28,12 +28,20 @@ git submodule init
 git submodule update
 ```
 
-The LWP::UserAgent Perl module is also needed for watch_url.pl and watch_nginx_stats.pl
+##### CPAN Modules #####
+
+watch_url.pl / watch_nginx_stats.pl require the LWP::UserAgent CPAN module:
 
 Run as root:
 
 ```
 cpan LWP::UserAgent
+```
+
+unidecode.pl requires the Text::Unidecode CPAN module:
+
+```
+cpan Text::Unidecode
 ```
 
 You're now ready to use these programs.
