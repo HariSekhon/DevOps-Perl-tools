@@ -79,10 +79,10 @@ def main():
     try:
         HDFSChecksumReader().print_checksums(filelist)
     except KeyboardInterrupt, e:
-        printerr("Caught Control-C...")
+        printerr("Caught Control-C...", 1)
         sys.exit(0)
     except Exception, e:
-        printerr("Error running HDFSChecksumReader: %s" % e)
+        printerr("Error running HDFSChecksumReader: %s" % e, 1)
         if java_oom in e.message:
             printerr(java_oom_fix)
         #import traceback; traceback.print_exc()
@@ -119,11 +119,11 @@ class HDFSChecksumReader:
         for filename in filelist:
             path = self.get_path(filename)
             if not path:
-                printerr("Failed to get HDFS path object for file " + filename)
+                printerr("Failed to get HDFS path object for file " + filename, 1)
                 continue
             if not self.fs.exists(path):
                 #raise IOError, "HDFS File not found: %s" % filename
-                printerr("HDFS file/dir not found: %s" % filename)
+                printerr("HDFS file/dir not found: %s" % filename, 1)
                 continue
             self.print_checksum_recurse(filename, path)
 
@@ -139,7 +139,7 @@ class HDFSChecksumReader:
                     p = l[i].getPath()
                     self.print_checksum_recurse(p.toUri().getPath(), p)
             except:
-                printerr(sys.exc_info()[1].message.split("\n")[0])
+                printerr(sys.exc_info()[1].message.split("\n")[0], 1)
         else:
             raise IOError, ">>> %s is not a file or directory" % filename
 
@@ -156,10 +156,10 @@ class HDFSChecksumReader:
                 vprint("checksum:")
                 print "\t" + StringUtils.byteToHexString(checksum.getBytes(), 0, checksum.getLength())
             else:
-                printerr("<NO CHECKSUM for file " + filename + ">")
+                printerr("<NO CHECKSUM for file " + filename + ">", 1)
                 return 0
         except Exception, e:
-            printerr(e)
+            printerr(e, 1)
         except:
             print ">>> " + sys.exc_info()[1].message.split("\n")[0]
             return 0
