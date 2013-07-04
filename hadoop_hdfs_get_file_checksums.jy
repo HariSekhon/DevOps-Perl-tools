@@ -80,16 +80,16 @@ def main():
         HDFSChecksumReader().print_checksums(filelist)
     except KeyboardInterrupt, e:
         printerr("Caught Control-C...", 1)
-        sys.exit(0)
+        sys.exit("OK")
     except Exception, e:
         printerr("Error running HDFSChecksumReader: %s" % e, 1)
         if java_oom in e.message:
             printerr(java_oom_fix)
         #import traceback; traceback.print_exc()
-        sys.exit(2)
+        sys.exit("CRITICAL")
     except:
         print_jython_exception()
-        sys.exit(2)
+        sys.exit("CRITICAL")
 
 
 class HDFSChecksumReader:
