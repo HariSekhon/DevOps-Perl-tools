@@ -7,7 +7,7 @@
 #
 #  License: see accompanying LICENSE file
 #
-# vim:filetype=python
+#  vim:filetype=python
 
 """ Jython program to find a slow Hadoop HDFS node by querying all the nodes for a given HDFS file and printing the read times """
 
@@ -18,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = 0.6
+__version__ = 0.7
 
 # ============================================================================ #
 #                               Example Usage
@@ -45,42 +45,42 @@ import os, sys, time, socket
 # Refusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
 import getopt
 #import array # not using byte arrays any more
+sys.path.append(os.path.dirname(os.path.abspath(sys.argv[0])) + "/lib")
+from HariSekhonUtils import *
+jython_only()
 try:
     from java.nio import ByteBuffer
 except ImportError, e:
-    print >> sys.stderr, "Couldn't find java.nio class, not running inside Jython?"
-    sys.exit(3)
+    die("Couldn't find java.nio class, not running inside Jython?")
 try:
     from org.apache.hadoop.conf import Configuration
     #from org.apache.hadoop.fs import FileSystem
     from org.apache.hadoop.fs import Path
     from org.apache.hadoop.hdfs import DistributedFileSystem
 except ImportError, e:
-    print >> sys.stderr, "Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy <args>"
-    sys.exit(3)
+    die("Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy <args>")
 
 def usage():
-    """print usage and exit"""
+    """ Print usage and exit """
 
-    print >> sys.stderr, """
+    die("""
 usage: %s -f /path/to/hdfs/file
 
 -f --file               File in HDFS to read from all blocks from to find out which datanode is the slowest from this client
 -m --multiple-blocks    Fetch multiple copies not just the nearest copy to debug performance across nodes
 -o --one-block-per-DN   Only read 1 block from each DataNode for quickness, not as thorough. Optional, not the default
-""" % os.path.basename(__file__)
+""" % os.path.basename(__file__), ERRORS["UNKNOWN"])
 #-a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
 # TODO: add multiple files and dir recursion
-    sys.exit(3)
 
 
 def main():
-    """parse cli args and call HDFS block read speed test for the given filename"""
+    """ Parse cli args and call HDFS block read speed test for the given filename """
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hf:amo", ["help", "usage", "file=", "all-blocks", "multiple-blocks", "one-block-per-DN"])
     except getopt.GetoptError, e:
-        print >> sys.stderr, "error: %s" % e
+        printerr("error: %s" % e)
         usage()
     filename         = ""
     all_blocks       = False
@@ -108,18 +108,18 @@ def main():
     try:
         HDFSBlockReader(filename, multiple_blocks, one_block_per_DN).fetchFileBlocksTimed()
     except KeyboardInterrupt, e:
-        print >> sys.stderr, "Caught Control-C..."
-        sys.exit(0)
+        printerr("Caught Control-C...", 1)
+        sys.exit("OK")
     except Exception, e:
-        print >> sys.stderr, "Error running HDFSBlockReader: %s" % e
+        printerr("Error running HDFSBlockReader: %s" % e, 1)
         if java_oom in e.message:
-            print >> sys.stderr, java_oom_fix
-        sys.exit(2)
+            printerr(java_oom_fix)
+        sys.exit("CRITICAL")
     except:
-        print sys.stderr, "Error: %s" % sys.exc_info()[1].toString()
+        printerr("Error: %s" % sys.exc_info()[1].toString())
         if sys.exc_info()[1].toString() == java_oom:
-            print >> sys.stderr, java_oom_fix
-        sys.exit(2)
+            printerr(java_oom_fix)
+        sys.exit("CRITICAL")
 
 
 class HDFSBlockReader:
@@ -140,7 +140,7 @@ class HDFSBlockReader:
             # time.strftime("%z") doesn't work in Jython
             print ">>  %s  Running on %s\n" % (time.strftime("%Y/%m/%d %H:%M:%S %Z"), self.fqdn)
         except:
-            print >> sys.stderr, "Failed to get fqdn of this local host, won't be able to tell you if we're reading from a local datanode\n\nError: %s\n" % sys.exc_info()[1].toString()
+            printerr("Failed to get fqdn of this local host, won't be able to tell you if we're reading from a local datanode\n\nError: %s\n" % sys.exc_info()[1].toString())
             self.fqdn = None
 
         conf      = Configuration()
