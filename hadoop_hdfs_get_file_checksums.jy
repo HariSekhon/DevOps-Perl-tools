@@ -7,7 +7,7 @@
 #
 #  License: see accompanying LICENSE file
 #
-# vim:filetype=python
+#  vim:filetype=python
 
 """ Jython program to fetch the HDFS native checksums of a file.
 
