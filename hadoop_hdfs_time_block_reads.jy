@@ -143,6 +143,7 @@ class HDFSBlockReader:
         self.block_num          = 0
         self.offset             = 0
         self.length             = 1
+        self.read_count         = 0
         try:
             self.fqdn = socket.getfqdn()
             # time.strftime("%z") doesn't work in Jython
@@ -320,6 +321,7 @@ class HDFSBlockReader:
 
     def readBlockTimed(self):
         """ Read the current block with timings """
+        self.read_count += 1
         start_time = time.time()
         try:
             # This appears to print a traceback and continue with another node, not much I can do about that since it doesn't raise anything and succeeds eventually. You will see it in output however
@@ -353,7 +355,7 @@ class HDFSBlockReader:
         isLocal = ""
         #if self.fqdn == self.host:
         #    isLocal = " (local)"
-        print "read %sblock %d (offset %d, length %d) from rack %s datanode %s in %.4f secs" % (self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host, time_taken)
+        print "read %d %sblock %d (offset %d, length %d) from rack %s datanode %s in %.4f secs" % (self.read_count, self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host, time_taken)
         if(self.host in self.highest_node_times.keys()):
             if(time_taken > self.highest_node_times[self.host]):
                 self.highest_node_times[self.host][time_taken] = [rack, self.filename, self.block_num, self.block_offset, self.block_length]
