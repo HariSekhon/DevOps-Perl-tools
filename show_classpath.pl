@@ -18,7 +18,7 @@ $DESCRIPTION = "Program to print all the command line classpaths of Java process
 
 Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
 
-$VERSION = "0.2";
+$VERSION = 0.3;
 
 use strict;
 use warnings;
@@ -56,18 +56,44 @@ if(defined($command_regex)){
 sub show_cli_classpath($){
     my $cmd = shift;
     ( my $args = $cmd ) =~ s/.*?java\s+//;;
-    $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)\s/ <CLASSPATHS> /;
-    print "command:  $cmd\n\n";
+    $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
+    print "\ncommand:  $cmd\n\n";
     my $count = 0;
-    if($args =~ /\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)\s/i){
+    if($args =~ /\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/i){
         foreach(split(/\:/, $1)){
+            next if /^\s*$/;
             print "classpath:  $_\n";
             $count++;
         }
     }
     print "\n" if $count;
-    #print "\n" . "="x80 . "\n"; 
-    print "$count classpaths found\n\n\n";
+    print "$count classpaths found\n\n";
+}
+
+sub show_jinfo_classpath($){
+    my $cmd = shift;
+    $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
+    print "\ncommand:  $cmd\n\n";
+    $cmd =~ /^(\d+)\s+\w+\s+.+$/ or die "Invalid input to show_jinfo_classpath, expecting '<pid> <user> <cmd>'\n";
+    my $pid = $1;
+    my @output = cmd("jinfo $pid");
+    my $found_classpath = 0;
+    foreach(@output){
+        /^java.class.path\s*=\s*/ or next;
+        s/^java.class.path\s*=\s*//;
+        my $count = 0;
+        foreach(split(":", $_)){
+            next if /^\s*$/;
+            print "classpath:  $_\n";
+            $count++;
+        }
+        print "\n" if $count;
+        #print "\n" . "="x80 . "\n"; 
+        print "$count classpaths found\n\n";
+        $found_classpath = 1;
+        last;
+    }
+    $found_classpath or die "Failed to find java classpath in output from jinfo!\n";
 }
 
 my $fh;
@@ -79,6 +105,8 @@ if($stdin){
 while(<$fh>){
     chomp;
     if(/\bjava\s.*$command_regex/io){
-        show_cli_classpath($_);
+        #show_cli_classpath($_);
+        show_jinfo_classpath($_);
+        print "="x80 . "\n"; 
     }
 }
