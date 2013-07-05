@@ -55,6 +55,7 @@ if(defined($command_regex)){
 
 sub show_cli_classpath($){
     my $cmd = shift;
+    $cmd =~ /\bjava\b/ or return;
     ( my $args = $cmd ) =~ s/.*?java\s+//;;
     $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
     print "\ncommand:  $cmd\n\n";
@@ -73,13 +74,22 @@ sub show_cli_classpath($){
 
 sub show_jinfo_classpath($){
     my $cmd = shift;
+    $cmd =~ /\bjava\b/ or return;
     $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
     print "\ncommand:  $cmd\n\n";
-    $cmd =~ /^(\d+)\s+\w+\s+.+$/ or die "Invalid input to show_jinfo_classpath, expecting '<pid> <user> <cmd>'\n";
+    # support ps -ef and ps aux type inputs for convenience
+    if($cmd =~ /^\w+\s+(\d+)\s+\d+(?:\.\d+)?\s+\d+(?:\.\d+)?/){
+    } elsif($cmd =~ /^(\d+)\s+\w+\s+(?:$filename_regex\/)?java.+$/){
+    } else {
+        die "Invalid input to show_jinfo_classpath, expecting '<pid> <user> <cmd>' or 'ps -ef' or 'ps aux' input\n";
+    }
     my $pid = $1;
     my @output = cmd("jinfo $pid");
     my $found_classpath = 0;
     foreach(@output){
+        if(/error/i){
+            die "jinfo error attaching to process id $pid\n$_\n";
+        }
         /^java.class.path\s*=\s*/ or next;
         s/^java.class.path\s*=\s*//;
         my $count = 0;
