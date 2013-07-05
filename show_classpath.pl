@@ -17,57 +17,28 @@
 $DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex.
 
 Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
+
 $VERSION = "0.2";
 
 use strict;
 use warnings;
-use File::Basename;
-use Getopt::Long qw(:config bundling);
+BEGIN {
+    use File::Basename;
+    use lib dirname(__FILE__) . "/lib";
+}
+use HariSekhonUtils qw/:DEFAULT :regex/;
 
-# Make %ENV safer (taken from PerlSec)
-delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
-$ENV{'PATH'} = '/bin:/usr/bin:/usr/java/latest/bin:/System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands';
-
-my $progname = basename $0;
+$ENV{'PATH'} = '/bin:/usr/bin:/usr/java/default/bin:/System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands';
 
 my $command_regex = "";
-my $default_timeout = 10;
-my $help;
 my $stdin = 0;
-my $timeout = $default_timeout;
-my $verbose = 0;
-my $version;
 
-sub vlog{
-    print "@_\n" if $verbose;
-}
+%options = (
+    "C|command_regex=s" => [ \$command_regex, "Command regex (PCRE format). Default \"\" shows all java processes" ],
+    "s|stdin"           => [ \$stdin,         "Read process 'command +args' strings one per line from stdin (else spawns 'ps -ef')" ],
+);
 
-sub usage {
-    print "@_\n\n" if @_;
-    print "$main::DESCRIPTION\n\n" if $main::DESCRIPTION;
-    print "usage: $progname [ options ]
-
-    -C --command        Command regex (PCRE format). Default \"\" shows all java processes
-    -s --stdin          Read process 'command +args' strings one per line from stdin (else spawns 'ps -ef')
-    -t --timeout        Timeout in secs (default $default_timeout)
-    -v --verbose        Verbose mode
-    -V --version        Print version and exit
-    -h --help --usage   Print this help
-\n";
-    exit 1;
-}
-
-GetOptions (
-    "h|help|usage"      => \$help,
-    "C|command_regex=s" => \$command_regex,
-    "s|stdin"           => \$stdin,
-    "t|timeout=i"       => \$timeout,
-    "v|verbose+"        => \$verbose,
-    "V|version"         => \$version,
-) or usage;
-
-defined($help) and usage;
-defined($version) and die "$progname version $main::VERSION\n";
+get_options();
 
 if (@ARGV == 0){
 } elsif (@ARGV == 1 and $command_regex eq ""){
@@ -81,16 +52,6 @@ if(defined($command_regex)){
         die "invalid command regex supplied: $command_regex\n";
     }
 }
-
-$timeout =~ /^\d+$/                 || usage "timeout value must be a positive integer\n";
-($timeout >= 1 && $timeout <= 60)   || usage "timeout value must be between 1 - 60 secs\n";
-
-vlog "verbose mode on";
-$SIG{ALRM} = sub {
-    die "timed out after $timeout seconds\n";
-};
-vlog "setting timeout to $timeout secs\n";
-alarm($timeout);
 
 sub show_cli_classpath($){
     my $cmd = shift;
