@@ -67,7 +67,8 @@ sub show_cli_classpath($){
         }
     }
     print "\n" if $count;
-    print "$count classpaths found\n\n";
+    plural $count;
+    print "$count classpath$plural found\n\n";
 }
 
 sub show_jinfo_classpath($){
@@ -89,7 +90,8 @@ sub show_jinfo_classpath($){
         }
         print "\n" if $count;
         #print "\n" . "="x80 . "\n"; 
-        print "$count classpaths found\n\n";
+        plural $count;
+        print "$count classpath$plural found\n\n";
         $found_classpath = 1;
         last;
     }
