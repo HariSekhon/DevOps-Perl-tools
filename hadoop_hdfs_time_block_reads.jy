@@ -76,6 +76,15 @@ usage: %s [options] <list of HDFS files and/or directories>
 
 -m --multiple-blocks    Fetch multiple copies of each block not just the first nearest copy. This helps to debug performance across nodes
 -o --one-block-per-DN   Only read 1 block from each DataNode for quickness, not as thorough. Optional, not the default
+
+Known Issues:
+
+- no way direct HDFS API to fetch blocks from specific datanodes
+
+Implications:
+
+- will not fetch blocks from any datanode more than 1 rack level away while datanodes are still available in the current rack level
+- no way to get datanode information from HDFS API for a datanode before the block read() so cannot print which datanode we are currently trying to read a block from. This means if a datanode becomes unavailable during the test this program will hang but you won't know which datanode it's hanging on since we couldn't get the DN information from the API before the read to print it out ahead of time
 """ % os.path.basename(__file__), ERRORS["UNKNOWN"])
 #-a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
 # TODO: add multiple files and dir recursion
