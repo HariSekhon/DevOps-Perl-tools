@@ -144,6 +144,9 @@ class HDFSBlockReader:
         self.offset             = 0
         self.length             = 1
         self.read_count         = 0
+        # this ensures we try multiple datanodes to try to get one timed block read from every datanode (caveat: currently won't go to blocks more than 1 rack level away while there are still functioning DNs)
+        if self.one_block_per_DN:
+            self.multiple_blocks = 1
         try:
             self.fqdn = socket.getfqdn()
             # time.strftime("%z") doesn't work in Jython
@@ -347,6 +350,7 @@ class HDFSBlockReader:
             return
         end_time   = time.time()
         time_taken = end_time - start_time
+        # would like to put this earlier to show which block reading in case you get stuck on one but it looks like the HDFS API only populates this after the read()
         self.dn    = self.fh.getCurrentDatanode()
         self.host  = self.dn.getHostName()
         rack       = self.dn.getNetworkLocation()
