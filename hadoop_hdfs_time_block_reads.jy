@@ -66,15 +66,15 @@ def usage(*msg):
     if msg:
         printerr(msg)
     die("""
-Times reads of all HDFS blocks for given files / all files under given directories to find out which datanode is the slowest from this client.
-    
+Times reads of at least one replica of each every HDFS block for given files / all files under given directories to find out which datanode is the slowest from this client.
+
 Same block access pattern as \"hadoop fs -cat\" but with far superior yet concise information about every block's datanode, rack location and millisecond accurate read time.
 
 Generates a summary report of slow datanodes in descending order with their rack location, slowest block details and read times.
 
 usage: %s [options] <list of HDFS files and/or directories>
 
--m --multiple-blocks    Fetch multiple copies of each block not just the first nearest copy. This helps to debug performance across nodes
+-m --multiple-blocks    Fetch multiple replicas of each block not just the nearest replica. This helps to debug performance across nodes
 -o --one-block-per-DN   Only read 1 block from each DataNode for quickness, not as thorough. Optional, not the default
 
 Known Issues:
