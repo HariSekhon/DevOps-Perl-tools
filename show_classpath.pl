@@ -10,10 +10,6 @@
 #
 #  vim:ts=4:sw=4:et
 
-# XXX: this is truncated to 4096 chars which for programs with very long cli classpaths is a hard coded kernel problem
-
-# TODO: catch all classpaths via jinfo while minimizing the impending race condition
-
 $DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex.
 
 Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
@@ -53,6 +49,7 @@ if(defined($command_regex)){
     }
 }
 
+# XXX: this is truncated to 4096 chars which for programs with very long cli classpaths is a hard coded kernel problem
 sub show_cli_classpath($){
     my $cmd = shift;
     $cmd =~ /\bjava\b/ or return;
