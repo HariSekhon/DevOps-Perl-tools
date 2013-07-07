@@ -14,7 +14,7 @@ $DESCRIPTION = "Program to print all the command line classpaths of Java process
 
 Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
 
-$VERSION = 0.3;
+$VERSION = 0.3.1;
 
 use strict;
 use warnings;
@@ -75,8 +75,8 @@ sub show_jinfo_classpath($){
     $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
     print "\ncommand:  $cmd\n\n";
     # support ps -ef and ps aux type inputs for convenience
-    if($cmd =~ /^\w+\s+(\d+)\s+\d+(?:\.\d+)?\s+\d+(?:\.\d+)?/){
-    } elsif($cmd =~ /^(\d+)\s+\w+\s+(?:$filename_regex\/)?java.+$/){
+    if($cmd =~ /^\s*\w+\s+(\d+)\s+\d+(?:\.\d+)?\s+\d+(?:\.\d+)?/){
+    } elsif($cmd =~ /^\s*(\d+)\s+\w+\s+(?:$filename_regex\/)?java.+$/){
     } else {
         die "Invalid input to show_jinfo_classpath, expecting '<pid> <user> <cmd>' or 'ps -ef' or 'ps aux' input\n";
     }
