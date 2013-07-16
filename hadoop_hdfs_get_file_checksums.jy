@@ -11,7 +11,9 @@
 
 """ Jython program to fetch the HDFS native checksums of a file.
 
-Quick way of checking for duplicate files but not checking content itself so differing block sizes will not match
+Quick way of checking for duplicate files but not checking content itself, over 100x less data to transfer as a result.
+
+Caveat: files with differing block sizes will not match
 
 Will be implemented in hadoop-9209 jira for versions 3.0.0, 0.23.7, 2.1.0-beta using a new command line param
 
