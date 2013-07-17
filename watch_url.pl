@@ -10,7 +10,7 @@
 
 $DESCRIPTION = "Watch a given URL and it's output/status code. Useful for testing web farms and load balancers";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -27,20 +27,22 @@ use Time::HiRes qw/sleep time/;
 my $default_output_length = 40;
 my $output_length = $default_output_length;
 my $count = 0;
+my $interval = 1;
 my $output;
 my $regex;
 my $res;
 my $returned = 0;
-my $interval = 1;
+my $ssl_ca_path;
+my $ssl_noverify;
 my $status;
 my $status_line;
 my $time;
-my $total = 0;
-my $url;
-my %stats;
 my $time_taken;
+my $total = 0;
 my $tstamp1;
 my $tstamp2;
+my $url;
+my %stats;
 
 $usage_line = "usage: $progname --url 'http://host/blah' --interval=1 --count=0 (unlimited)";
 
@@ -51,8 +53,10 @@ $usage_line = "usage: $progname --url 'http://host/blah' --interval=1 --count=0 
     "o|output"          => [ \$output,        "Show raw output at end of each line or on new line if output contains carriage returns or newlines or is longer than --output-length characters" ],
     "r|regex=s"         => [ \$regex,         "Output regex match of against entire web page (useful for testing embedded host information of systems behind load balancers)" ],
     "l|output-length=i" => [ \$output_length, "Max length of single line output before putting in on a separate line (defaults to $default_output_length chars)" ],
+    "ssl-CA-path=s"     => [ \$ssl_ca_path,   "Path to CA certificate directory to verify SSL certificate if specifying https://" ],
+    "ssl-noverify"      => [ \$ssl_noverify,  "Do not verify SSL certificate if specifying https://" ],
 );
-@usage_order=qw/url count interval output regex output-length/;
+@usage_order=qw/url count interval output regex output-length ssl-CA-path tls-noverify/;
 
 delete $HariSekhonUtils::default_options{"t|timeout=i"};
 
@@ -72,6 +76,19 @@ validate_int($output_length, 0, 1000, "output length");
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon Watch URL version $main::VERSION ");
+$ua->show_progress(1) if $debug;
+
+if(defined($ssl_noverify)){
+    $ua->ssl_opts( verify_hostname => 0 );
+}
+if(defined($ssl_ca_path)){
+    $ssl_ca_path = validate_directory($ssl_ca_path, undef, "SSL CA directory", "no vlog");
+    $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
+}
+vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
+vlog_options "SSL noverify", $ssl_noverify ? "true" : "false";
+vlog2;
+
 my $req = HTTP::Request->new(GET => $url);
 
 print "="x133 . "\n";
@@ -121,6 +138,9 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
         }
     }
     print "\n";
+    if($status_line eq "500 Can't verify SSL peers without knowning which Certificate Authorities to trust"){
+        die "\n\n$status_line\n\nPlease specify either --ssl-CA-path or --ssl-noverify\n";
+    }
     vlog2 "* sleeping for $interval seconds\n";
     sleep $interval;
 }
