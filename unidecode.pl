@@ -8,7 +8,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION="Convert UTF to ASCII, works as a standard unix filter program";
+$DESCRIPTION="Convert UTF to ASCII, works as a standard unix filter program
+
+Known Issues: uses the Text::Unidecode CPAN module, which seems to convert unknown chars to \"a\"";
 
 $VERSION = "0.6.1";
 
