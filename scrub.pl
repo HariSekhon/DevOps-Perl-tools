@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-#TODO: split out Cisco + ScreenOS matches to files for easy maintenance/extension";
+# TODO: split out Cisco + ScreenOS matches to files for easy maintenance/extension;
 
 $DESCRIPTION = "Scrub username/passwords, IP addresses, hostnames, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email or pastebin like websites.
 
