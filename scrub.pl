@@ -106,8 +106,8 @@ sub scrub_custom($){
 
 sub scrub_ip($){
     my $string = shift;
-    $string =~ s/$ip_regex\/\d+/<ip>\/<cidr>/go;
-    $string =~ s/$subnet_mask_regex\/\d+/<subnet>\/<cidr>/go;
+    #$string =~ s/$ip_regex\/\d+/<ip>\/<cidr>/go;
+    #$string =~ s/$subnet_mask_regex\/\d+/<subnet>\/<cidr>/go;
     $string =~ s/$ip_regex/<ip>/go;
     $string =~ s/$subnet_mask_regex/<subnet>/go;
     $string =~ s/$mac_regex/<mac>/g;
