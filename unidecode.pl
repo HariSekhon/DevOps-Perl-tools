@@ -28,7 +28,7 @@ use Text::Unidecode; # For changing unicode to ascii
 my $file;
 
 %options = (
-    "f|files=s"     => [ \$file, "File(s) to unidecode" ],
+    "f|files=s"     => [ \$file, "File(s) to unidecode, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
 );
 
 get_options();
