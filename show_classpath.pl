@@ -30,8 +30,8 @@ my $command_regex = "";
 my $stdin = 0;
 
 %options = (
-    "C|command_regex=s" => [ \$command_regex, "Command regex (PCRE format). Default \"\" shows all java processes" ],
-    "s|stdin"           => [ \$stdin,         "Read process 'command +args' strings one per line from stdin (else spawns 'ps -ef')" ],
+    "C|command_regex=s" => [ \$command_regex, "Regex of classname for JPS or command for 'ps -ef' or 'ps aux'. Default \"\" shows all java processes" ],
+    "s|stdin"           => [ \$stdin,         "Read process one per line from stdin (should be in format of 'jps', 'ps -ef', or 'ps aux' command outputs)" ],
 );
 
 get_options();
@@ -139,9 +139,11 @@ if($stdin){
 while(<$fh>){
     chomp;
     debug "input: $_";
-    if($jps_regex){
+    if($_ =~ $jps_regex){
         debug "JPS process detected";
-        show_jinfo_classpath($_);  
+        if($2 =~ /$command_regex/io){
+            show_jinfo_classpath($_);
+        }
     } elsif(/\bjava\s.*$command_regex/io){
         debug "Java command detected";
         #show_cli_classpath($_);
