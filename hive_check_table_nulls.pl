@@ -1,14 +1,12 @@
 #!/usr/bin/perl -T
 #
-#   Author: Hari Sekhon
-#   Date: 2013-05-30 10:34:27 +0100 (Thu, 30 May 2013)
-#  $LastChangedBy$
-#  $LastChangedDate$
-#  $Revision$
-#  $URL$
-#  $Id$
+#  Author: Hari Sekhon
+#  Date: 2013-05-30 10:34:27 +0100 (Thu, 30 May 2013)
 #
-#  vim:ts=4:sts=4:et
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
 
 # Wrote this while on a data science course, everything on this course so far is old news to me... I guess that's good?
 
