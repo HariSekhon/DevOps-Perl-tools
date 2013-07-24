@@ -14,7 +14,7 @@ $DESCRIPTION = "Program to print all the command line classpaths of Java process
 
 Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
 
-$VERSION = 0.3.1;
+$VERSION = 0.4;
 
 use strict;
 use warnings;
@@ -69,18 +69,38 @@ sub show_cli_classpath($){
     print "$count classpath$plural found\n\n";
 }
 
+# the blank case is an embedded JVM with no main classname, ie Impalad's embedded JVM in C++ for HDFS calls
+my $jps_regex = qr/^(\d+)\s+(\w*)$/;
+
 sub show_jinfo_classpath($){
     my $cmd = shift;
-    $cmd =~ /\bjava\b/ or return;
-    $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
-    print "\ncommand:  $cmd\n\n";
-    # support ps -ef and ps aux type inputs for convenience
-    if($cmd =~ /^\s*\w+\s+(\d+)\s+\d+(?:\.\d+)?\s+\d+(?:\.\d+)?/){
-    } elsif($cmd =~ /^\s*(\d+)\s+\w+\s+(?:$filename_regex\/)?java.+$/){
+    my $pid;
+    if($cmd =~ $jps_regex){
+        $pid = $1;
+        return if $2 eq "Jps";
+        unless($2){
+            $cmd .= "<embedded JVM no classname from JPS output>";
+        }
+        debug "JPS input detected";
+        print "JPS:     $cmd\n";
+        print "command: " . `ps h -fp $pid` . "\n\n";
     } else {
-        die "Invalid input to show_jinfo_classpath, expecting '<pid> <user> <cmd>' or 'ps -ef' or 'ps aux' input\n";
+        unless($cmd =~ /\bjava\b/){
+            vlog2 "skipping $cmd since it doesn't match /\\bjava\\b/";
+            return;
+        }
+        $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
+        print "\ncommand:  $cmd\n\n";
+        # support ps -ef and ps aux type inputs for convenience
+        if($cmd =~ /^\s*\w+\s+(\d+)\s+\d+(?:\.\d+)?\s+\d+(?:\.\d+)?/){
+            debug "ps -ef input detected";
+        } elsif($cmd =~ /^\s*(\d+)\s+\w+\s+(?:$filename_regex\/)?java.+$/){
+            debug "ps aux input detected";
+        } else {
+            die "Invalid input to show_jinfo_classpath, expecting '<pid> <classname>' or '<pid> <user> <cmd>' or 'ps -ef' or 'ps aux' input\n";
+        }
+        $pid = $1;
     }
-    my $pid = $1;
     my @output = cmd("jinfo $pid");
     my $found_classpath = 0;
     foreach(@output){
@@ -103,19 +123,28 @@ sub show_jinfo_classpath($){
         last;
     }
     $found_classpath or die "Failed to find java classpath in output from jinfo!\n";
+    print "="x80 . "\n"; 
 }
 
 my $fh;
 if($stdin){
     $fh = *STDIN;
 } else {
-    open $fh, "ps -e -o pid,user,command |";
+    unless(open $fh, "jps |"){
+        warn "\nWARNING: jps failed, perhaps not in \$PATH? (\$PATH = $ENV{PATH})\n";
+        warn "\nWARNING: Falling back to ps command\n\n";
+        open $fh, "ps -e -o pid,user,command |";
+    }
 }
 while(<$fh>){
     chomp;
-    if(/\bjava\s.*$command_regex/io){
+    debug "input: $_";
+    if($jps_regex){
+        debug "JPS process detected";
+        show_jinfo_classpath($_);  
+    } elsif(/\bjava\s.*$command_regex/io){
+        debug "Java command detected";
         #show_cli_classpath($_);
         show_jinfo_classpath($_);
-        print "="x80 . "\n"; 
     }
 }
