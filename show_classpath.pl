@@ -141,7 +141,11 @@ while(<$fh>){
     debug "input: $_";
     if($_ =~ $jps_regex){
         debug "JPS process detected";
-        if($2 =~ /$command_regex/io){
+        if($command_regex){
+            if($2 =~ /$command_regex/io){
+                show_jinfo_classpath($_);
+            }
+        } else {
             show_jinfo_classpath($_);
         }
     } elsif(/\bjava\s.*$command_regex/io){
