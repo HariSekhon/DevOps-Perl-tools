@@ -18,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = 0.8
+__version__ = "0.8.1"
 
 # ============================================================================ #
 #                               Example Usage
@@ -143,6 +143,7 @@ class HDFSBlockReader:
         """ Instantiate HDFSBlockReader State """
 
         self.fileoutput         = ""
+        self.files_read         = set()
         self.multiple_files     = False
         self.multiple_blocks    = multiple_blocks
         self.one_block_per_DN   = one_block_per_DN
@@ -191,10 +192,14 @@ class HDFSBlockReader:
     def fetchFilelistBlocksTimed(self, filelist):
         """ Recurses directories and calls fetchFileBlocksTimed(file) per file """
 
-        if len(filelist) > 1:
+        
+        #if(len(filelist) > 1 or (self.get_path(filelist[0]) and self.fs.isDirectory(self.get_path(filelist[0])))):
+        if(len(filelist) > 1 or self.fs.isDirectory(self.get_path(filelist[0]))):
+            # even if there is only one file under the whole directory tree since it's now different to the specified arg we should print it
             self.multiple_files = True
         else:
             self.multiple_files = False
+        start_time = time.time()
         for filename in filelist:
             path = self.get_path(filename)
             if not path:
@@ -205,8 +210,13 @@ class HDFSBlockReader:
                 printerr("HDFS file/dir not found: %s" % filename, 1)
                 continue
             self.recurse_path(filename, path)
+        end_time = time.time()
+        total_time = end_time - start_time
+        plural = "s"
+        if len(self.files_read) == 1:
+            plural = ""
+        print "\nFinished reading blocks from %s file%s in %.4f secs\n" % (len(self.files_read), plural, total_time)
 
-        print
         if self.fqdn:
             if self.fqdn in self.datanodes_tested:
                 print "Local DataNode is %s\n" % self.fqdn
@@ -245,6 +255,8 @@ class HDFSBlockReader:
 
         if self.fs.isFile(path):
             try:
+                if not self.multiple_files:
+                    print "Reading File %s\n" % filename
                 self.fetchFileBlocksTimed(filename, path)
             except Exception, e:
                 printerr(e, 1)
@@ -254,8 +266,11 @@ class HDFSBlockReader:
             try:
                 l = self.fs.listStatus(path)
                 for i in range(0, len(l)):
-                    p = l[i].getPath()
-                    self.recurse_path(p.toUri().getPath(), p)
+                    try:
+                        p = l[i].getPath()
+                        self.recurse_path(p.toUri().getPath(), p)
+                    except:
+                        printerr(sys.exc_info()[1].message.split("\n")[0], 1)
             except:
                 printerr(sys.exc_info()[1].message.split("\n")[0], 1)
         else:
@@ -265,7 +280,10 @@ class HDFSBlockReader:
     def fetchFileBlocksTimed(self, filename, path):
         """ Fetches all block replicas from all datanodes with timings """
 
-        self.filename = filename
+        self.filename   = filename
+        self.block_num  = 0
+        self.offset     = 0
+        self.length     = 1
         if self.multiple_files:
             self.fileoutput = "file %s " % filename
         try:
@@ -365,6 +383,7 @@ class HDFSBlockReader:
         rack       = self.dn.getNetworkLocation()
         self.block_read_DNs.add(self.host)
         self.datanodes_tested.add(self.host)
+        self.files_read.add(self.filename)
         isLocal = ""
         #if self.fqdn == self.host:
         #    isLocal = " (local)"
