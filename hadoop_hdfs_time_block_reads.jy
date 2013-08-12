@@ -18,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = "0.8.2"
+__version__ = "0.8.3"
 
 # ============================================================================ #
 #                               Example Usage
