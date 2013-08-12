@@ -329,13 +329,26 @@ class HDFSBlockReader:
 
     def readBlockFromDNs(self):
         """ Read current block self.offset to self.length from all datanodes """
+        self.read_count += 1
         self.block_read_DNs = set()
         self.fh.seek(self.block_offset) # local node first otherwise NPE when trying seekToNewSource()
-        # looks like this isn't populated until first read, check on second pass on seekToNewSource()
-        self.dn = self.fh.getCurrentDatanode()
+        print "read %d %sblock %d (offset %d, length %d) from" % (self.read_count, self.fileoutput, self.block_num, self.block_offset, self.block_length),
+        # XXX: force 0 byte read for API to select DN otherwise the API doesn't populate the DN info till after the read and we can't figure out what DN we are currently reading from
+        bytes_read = self.fh.read(ByteBuffer.allocate(0))
+        # would like to put this earlier to show which block reading in case you get stuck on one but it looks like the HDFS API only populates this after the read()
+        self.dn    = self.fh.getCurrentDatanode()
+        if not self.dn:
+            printerr("ERROR: no datanode info for read of %sblock %d (offset, %d, length %d), read must have failed unexpectedly" % (self.fileoutput, self.block_num, self.block_offset, self.block_length))
+            return
+        self.host  = self.dn.getHostName()
+        self.rack  = self.dn.getNetworkLocation()
+        print "rack %s datanode %s =>" % (self.rack, self.host),
+        ## looks like this isn't populated until first read, check on second pass on seekToNewSource()
+        #self.dn = self.fh.getCurrentDatanode()
         self.readBlockFromDN()
         if self.multiple_blocks:
             while self.fh.seekToNewSource(self.block_offset):
+                self.read_count += 1
                 # self.dn must be populated by here or something is wrong
                 self.dn = self.fh.getCurrentDatanode()
                 if self.dn == None:
@@ -362,14 +375,11 @@ class HDFSBlockReader:
 
     def readBlockTimed(self):
         """ Read the current block with timings """
-        self.read_count += 1
         start_time = time.time()
         try:
             # This appears to print a traceback and continue with another node, not much I can do about that since it doesn't raise anything and succeeds eventually. You will see it in output however
             # XXX: this reads UP TO the byte buffer length, doing partial reads and returning too quickly
             #bytes_read = self.fh.read(ByteBuffer.allocate(self.block_length))
-            # XXX: this is because otherwise the API doesn't populate the DN info
-            bytes_read = self.fh.read(ByteBuffer.allocate(0))
             # XXX: PROBLEM is this requires a byte array of equal size to the file being read due to indexing
             #bytes_read = self.fh.read(ByteBuffer.allocate(self.block_length * 100).array(), self.offset, self.block_length)
             #bytes_read = self.fh.read(self.block_offset, ByteBuffer.allocate(self.block_length).array(), 0, self.block_length)
@@ -392,28 +402,22 @@ class HDFSBlockReader:
             self.dn    = self.fh.getCurrentDatanode()
             if self.dn:
                 self.host  = self.dn.getHostName()
-                rack       = self.dn.getNetworkLocation()
+                self.rack  = self.dn.getNetworkLocation()
                 self.nodes_failed_reads.add(self.host)
-                print "Error: failed to read %sblock %d (offset %d, length %d) from rack %s datanode %s: %s" % (self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host, sys.exc_info()[1].toString())
+                print "Error: failed to read %sblock %d (offset %d, length %d) from rack %s datanode %s: %s" % (self.fileoutput, self.block_num, self.block_offset, self.block_length, self.rack, self.host, sys.exc_info()[1].toString())
             else:
                 raise IOError, sys.exc_info()[1].toString()
             return
         end_time   = time.time()
         time_taken = end_time - start_time
-        # would like to put this earlier to show which block reading in case you get stuck on one but it looks like the HDFS API only populates this after the read()
-        self.dn    = self.fh.getCurrentDatanode()
-        if not self.dn:
-            printerr("ERROR: no datanode info for read of %sblock %d (offset, %d, length %d), read must have failed unexpectedly" % (self.fileoutput, self.block_num, self.block_offset, self.block_length))
-            return
-        self.host  = self.dn.getHostName()
-        rack       = self.dn.getNetworkLocation()
         self.block_read_DNs.add(self.host)
         self.datanodes_tested.add(self.host)
         self.files_read.add(self.filename)
         isLocal = ""
         #if self.fqdn == self.host:
         #    isLocal = " (local)"
-        print "read %d %sblock %d (offset %d, length %d) from rack %s datanode %s in %.4f secs" % (self.read_count, self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host, time_taken)
+        #print "read %d %sblock %d (offset %d, length %d) from rack %s datanode %s in %.4f secs" % (self.read_count, self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host, time_taken)
+        print "%.4f secs" % time_taken
         # readFully doesn't return number of bytes read
         #print "%s bytes read" % bytes_read
         #if bytes_read != self.block_length:
@@ -421,9 +425,9 @@ class HDFSBlockReader:
         # TODO: somehow broken listing first time
         if(self.host in self.highest_node_times):
             if(time_taken > self.highest_node_times[self.host][0]):
-                self.highest_node_times[self.host] = [time_taken, rack, self.filename, self.block_num, self.block_offset, self.block_length]
+                self.highest_node_times[self.host] = [time_taken, self.rack, self.filename, self.block_num, self.block_offset, self.block_length]
         else:
-            self.highest_node_times[self.host] = [time_taken, rack, self.filename, self.block_num, self.block_offset, self.block_length]
+            self.highest_node_times[self.host] = [time_taken, self.rack, self.filename, self.block_num, self.block_offset, self.block_length]
 
 
 if __name__ == "__main__":
