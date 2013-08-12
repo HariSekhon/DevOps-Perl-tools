@@ -18,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = "0.8.1"
+__version__ = "0.8.2"
 
 # ============================================================================ #
 #                               Example Usage
@@ -44,10 +44,11 @@ __version__ = "0.8.1"
 import os, sys, time, socket
 # Refusing to use either optparse or argparse since it's annoyingly non-portable across different versions of Python
 import getopt
-#import array # not using byte arrays any more
 sys.path.append(os.path.dirname(os.path.abspath(sys.argv[0])) + "/lib")
 from HariSekhonUtils import *
+#import array # using jarray for byte arrays
 jython_only()
+import jarray
 try:
     from java.nio import ByteBuffer
 except ImportError, e:
@@ -66,26 +67,36 @@ def usage(*msg):
     if msg:
         printerr(msg)
     die("""
+================================================================================
+%s  by Hari Sekhon  -  version %s
+================================================================================
+
 Times reads of nearest block replica(s) for every HDFS block for given files / all files under given directories to find out which datanode is the slowest from this client.
 
 Same block access pattern as \"hadoop fs -cat\" but with far superior yet concise information about every block's datanode, rack location and millisecond accurate read timing.
 
 Generates a summary report of slow datanodes in descending order with their rack location, slowest block details and read times.
 
-usage: %s [options] <list of HDFS files and/or directories>
+================================================================================
+
+USAGE: %s [options] <list of HDFS files and/or directories>
 
 -m --multiple-blocks    Fetch multiple replicas of each block not just the nearest replica. This helps to debug performance across nodes
 -o --one-block-per-DN   Only read 1 block from each DataNode for quickness, not as thorough. Optional, not the default
 
+================================================================================
 Known Issues:
 
-- no way direct HDFS API to fetch blocks from specific datanodes
+- no way to direct HDFS API to fetch blocks from specific datanodes
 
+================================================================================
 Implications:
 
 - will not fetch blocks from any datanode more than 1 rack level away while datanodes are still available in the current rack level
 - no way to get datanode information from HDFS API for a datanode before the block read() so cannot print which datanode we are currently trying to read a block from. This means if a datanode becomes unavailable during the test this program will hang but you won't know which datanode it's hanging on since we couldn't get the DN information from the API before the read to print it out ahead of time
-""" % os.path.basename(__file__), ERRORS["UNKNOWN"])
+
+================================================================================
+""" % (os.path.basename(__file__), __version__, os.path.basename(__file__)), ERRORS["UNKNOWN"])
 #-a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
 # TODO: add multiple files and dir recursion
 
@@ -226,16 +237,16 @@ class HDFSBlockReader:
             print "The following nodes FAILED to return blocks:\n"
             for node in sorted(self.nodes_failed_reads):
                 print node
-            print"\n"
+            print ""
         print "Summary - DataNodes by highest block read time descending:\n"
         slowest_times = {}
         for datanode in self.highest_node_times.keys():
-            slowest_time = self.highest_node_times[datanode].keys()[0]
-            rack         = self.highest_node_times[datanode][slowest_time][0]
-            filename     = self.highest_node_times[datanode][slowest_time][1]
-            block_num    = self.highest_node_times[datanode][slowest_time][2]
-            block_offset = self.highest_node_times[datanode][slowest_time][3]
-            block_length = self.highest_node_times[datanode][slowest_time][4]
+            slowest_time = self.highest_node_times[datanode][0]
+            rack         = self.highest_node_times[datanode][1]
+            filename     = self.highest_node_times[datanode][2]
+            block_num    = self.highest_node_times[datanode][3]
+            block_offset = self.highest_node_times[datanode][4]
+            block_length = self.highest_node_times[datanode][5]
             if(slowest_time in slowest_times):
                 slowest_times[slowest_time].append([datanode, rack, filename, block_num, block_offset, block_length])
             else:
@@ -355,14 +366,26 @@ class HDFSBlockReader:
         start_time = time.time()
         try:
             # This appears to print a traceback and continue with another node, not much I can do about that since it doesn't raise anything and succeeds eventually. You will see it in output however
-            bytes = self.fh.read(ByteBuffer.allocate(self.block_length))
-            if not bytes:
-                self.dn    = self.fh.getCurrentDatanode()
-                self.host  = self.dn.getHostName()
-                rack       = self.dn.getNetworkLocation()
-                self.nodes_failed_reads.add(self.host)
-                print "Error: failed to read bytes from %sblock %d (offset %d, length %d) from rack %s datanode %s" % (self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host)
-                return
+            # XXX: this reads UP TO the byte buffer length, doing partial reads and returning too quickly
+            #bytes_read = self.fh.read(ByteBuffer.allocate(self.block_length))
+            # XXX: this is because otherwise the API doesn't populate the DN info
+            bytes_read = self.fh.read(ByteBuffer.allocate(0))
+            # XXX: PROBLEM is this requires a byte array of equal size to the file being read due to indexing
+            #bytes_read = self.fh.read(ByteBuffer.allocate(self.block_length * 100).array(), self.offset, self.block_length)
+            #bytes_read = self.fh.read(self.block_offset, ByteBuffer.allocate(self.block_length).array(), 0, self.block_length)
+            #bytes_read = self.fh.read(self.block_offset, jarray.zeros(self.block_length, "b"), 0, self.block_length)
+            bytes_read = self.fh.readFully(self.block_offset, jarray.zeros(self.block_length, "b"), 0, self.block_length)
+            # readFully doesn't return number of bytes read
+#            if not bytes_read:
+#                self.dn    = self.fh.getCurrentDatanode()
+#                if self.dn:
+#                    self.host  = self.dn.getHostName()
+#                    rack       = self.dn.getNetworkLocation()
+#                    self.nodes_failed_reads.add(self.host)
+#                    printerr("Error: failed to read bytes from %sblock %d (offset %d, length %d) from rack %s datanode %s" % (self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host))
+#                else:
+#                    printerr("ERROR: Failed to read bytes from %sblock %d (offset %d, length %d) [datanode info not available]" % (self.fileoutput, self.block_num, self.block_offset, self.block_length))
+#                return
         except Exception, e:
             raise Exception, e
         except:
@@ -379,6 +402,9 @@ class HDFSBlockReader:
         time_taken = end_time - start_time
         # would like to put this earlier to show which block reading in case you get stuck on one but it looks like the HDFS API only populates this after the read()
         self.dn    = self.fh.getCurrentDatanode()
+        if not self.dn:
+            printerr("ERROR: no datanode info for read of %sblock %d (offset, %d, length %d), read must have failed unexpectedly" % (self.fileoutput, self.block_num, self.block_offset, self.block_length))
+            return
         self.host  = self.dn.getHostName()
         rack       = self.dn.getNetworkLocation()
         self.block_read_DNs.add(self.host)
@@ -388,11 +414,16 @@ class HDFSBlockReader:
         #if self.fqdn == self.host:
         #    isLocal = " (local)"
         print "read %d %sblock %d (offset %d, length %d) from rack %s datanode %s in %.4f secs" % (self.read_count, self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host, time_taken)
-        if(self.host in self.highest_node_times.keys()):
-            if(time_taken > self.highest_node_times[self.host]):
-                self.highest_node_times[self.host][time_taken] = [rack, self.filename, self.block_num, self.block_offset, self.block_length]
+        # readFully doesn't return number of bytes read
+        #print "%s bytes read" % bytes_read
+        #if bytes_read != self.block_length:
+        #    printerr("WARNING: bytes read = %s  vs  block length = %s" % (bytes_read, self.block_length))
+        # TODO: somehow broken listing first time
+        if(self.host in self.highest_node_times):
+            if(time_taken > self.highest_node_times[self.host][0]):
+                self.highest_node_times[self.host] = [time_taken, rack, self.filename, self.block_num, self.block_offset, self.block_length]
         else:
-            self.highest_node_times[self.host] = {time_taken: [rack, self.filename, self.block_num, self.block_offset, self.block_length]}
+            self.highest_node_times[self.host] = [time_taken, rack, self.filename, self.block_num, self.block_offset, self.block_length]
 
 
 if __name__ == "__main__":
