@@ -18,7 +18,7 @@
 # watch memory usage with top like so:    top -p $(pgrep -f jython|tr '\n' ','|sed 's/,$//')
 
 __author__  = "Hari Sekhon"
-__version__ = "0.8.3"
+__version__ = "0.8.4"
 
 # ============================================================================ #
 #                               Example Usage
@@ -342,7 +342,7 @@ class HDFSBlockReader:
             return
         self.host  = self.dn.getHostName()
         self.rack  = self.dn.getNetworkLocation()
-        print "rack %s datanode %s =>" % (self.rack, self.host),
+        print "rack %s datanode %s => " % (self.rack, self.host),
         ## looks like this isn't populated until first read, check on second pass on seekToNewSource()
         #self.dn = self.fh.getCurrentDatanode()
         self.readBlockFromDN()
@@ -413,11 +413,19 @@ class HDFSBlockReader:
         self.block_read_DNs.add(self.host)
         self.datanodes_tested.add(self.host)
         self.files_read.add(self.filename)
-        isLocal = ""
+        throughput = self.block_length / time_taken
+        units = "B"
+        if((throughput / 1024.0) > 1):
+            throughput = throughput / 1024.0
+            units = "KB"
+            if((throughput / 1024.0) > 1):
+                throughput = throughput / 1024.0
+                units = "MB"
+        #isLocal = ""
         #if self.fqdn == self.host:
         #    isLocal = " (local)"
         #print "read %d %sblock %d (offset %d, length %d) from rack %s datanode %s in %.4f secs" % (self.read_count, self.fileoutput, self.block_num, self.block_offset, self.block_length, rack, self.host, time_taken)
-        print "%.4f secs" % time_taken
+        print "%.4f secs  (%.2f %s/s)" % (time_taken, throughput, units)
         # readFully doesn't return number of bytes read
         #print "%s bytes read" % bytes_read
         #if bytes_read != self.block_length:
