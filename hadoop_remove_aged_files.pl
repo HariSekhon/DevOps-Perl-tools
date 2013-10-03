@@ -12,7 +12,7 @@ $DESCRIPTION = "Deletes files from Hadoop's HDFS /tmp directory that are older t
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.3.2";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -36,7 +36,8 @@ my $hours = 0;
 my $mins  = 0;
 my $exclude;
 my $skipTrash = "";
-my $rm = 0;
+my $rm    = 0;
+my $batch = 0;
 
 set_timeout_max(86400);    # 1 day max -t timeout
 set_timeout_default(1800); # 30 mins. hadoop fs -lsr /tmp took 6 minutes to list 1720943 files/dirs on my test cluster!
@@ -65,6 +66,7 @@ my %months = (
     "rm"            =>  [ \$rm,         "Actually launch the hadoop fs -rm commands on the files, by default this script only prints the hadoop fs -rm commands. WARNING: only use this switch after you have checked what the list of files to be removed is, otherwise you may lose data" ],
     "skipTrash"     =>  [ \$skipTrash,  "Skips moving files to HDFS Trash, reclaims space immediately" ],
     "hadoop-bin=s"  =>  [ \$hadoop_bin, "Path to 'hadoop' command if not in \$PATH" ],
+    "batch=s"       =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max 100)" ],
 );
 @usage_order = qw/days hours mins path exclude rm skipTrash hadoop-bin/;
 get_options();
@@ -81,9 +83,13 @@ $mins    = validate_float($mins,  0, 59,   "mins");
 my $max_age_secs = ($days * 86400) + ($hours * 3600) + ($mins * 60);
 usage "must specify a total max age > 5 minutes" if ($max_age_secs < 300);
 $path        = validate_filename($path, undef, "path"); # because validate_dir[ectory] checks the directory existance on the local filesystem
-$exclude     = validate_regex($exclude) if defined($exclude);
+if(defined($exclude)){
+    $exclude     = validate_regex($exclude);
+    $exclude     = qr/$exclude/o;
+}
 $hadoop_bin  = which($hadoop_bin, 1);
 $hadoop_bin  =~ /\b\/?hadoop$/ or die "invalid hadoop program '$hadoop_bin' given, should be called hadoop!\n";
+$batch       = validate_int($batch, 0, 100, "batch size");
 vlog_options "rm",          $rm        ? "true" : "false";
 vlog_options "skipTrash",   $skipTrash ? "true" : "false";
 vlog_options "hadoop path", $hadoop_bin;
@@ -115,20 +121,21 @@ while (<$fh>){
         $month = $months{$month} if grep { $month eq $_} keys %months;
         my $tstamp   = timelocal(0, $min, $hour, $day, $month-1, $year) || die "$progname: Failed to convert timestamp $year-$month-$day $hour:$min for comparison\n";
         if( ($now - $tstamp ) > $max_age_secs){
-            next if (defined($exclude) and $filename =~ /$exclude/);
-            # Some additional safety stuff, do not mess with /tmp/mapred or /hbase !!!!
-            # or .Trash...
-            # or now /solr...
-            # oh and I should probably omit the CM canary files given I work for Cloudera now...
-            # Also, omitting the Hive warehouse directory since removing Hive managed tables seems scary
+            next if (defined($exclude) and $filename =~ $exclude);
+            # - Some additional safety stuff, do not mess with /tmp/mapred or /hbase !!!!
+            # - or .Trash...
+            # - or now /solr has been added...
+            # - oh and I should probably omit the CM canary files given I work for Cloudera now...
+            # - Also, omitting the Hive warehouse directory since removing Hive managed tables seems scary
+            # - share/lib/ is under /user/oozie, don't remove that either
             # not anchoring /tmp intentionally since hadoop fs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
             next if ($filename =~ qr( 
                                     /tmp/mapred/ |
                                     /hbase/      |
                                     /solr/       |
                                     \.Trash/     |
-                                    /warehouse/  |
-                                    /user/oozie/share/lib/ |
+                                    warehouse/   |
+                                    share/lib/   |
                                     \.cloudera_health_monitoring_canary_files
                                     )ix);
             push(@files, $filename);
@@ -137,10 +144,22 @@ while (<$fh>){
     } else {
         warn "$progname: WARNING - failed to match line from hadoop output: \"$line\"\n";
     }
-    if(@files){
+    if(@files and $batch < 2){
         $cmd = "$echo hadoop fs -rm $skipTrash '" . join("' '", @files) . "'";
         system($cmd) and die "ERROR: $? returned from \"hadoop fs -rm\" command: $!\n";
         @files = ();
+    }
+}
+if(@files and $batch > 1){
+    for(my $i=0; $i < scalar @files; $i += $batch){
+        #print "total batch = @files\n";
+        #print "batch 3 =  " . join(" -- ", @files[ $i .. $i+3 ]) . "\n";
+        my $last_index = $i + $batch - 1;
+        if($last_index >= scalar @files){
+            $last_index = scalar(@files) - 1;
+        }
+        $cmd = "$echo hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
+        system($cmd) and die "ERROR: $? returned from \"hadoop fs -rm\" command: $!\n";
     }
 }
 
