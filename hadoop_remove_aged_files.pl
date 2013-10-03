@@ -66,7 +66,7 @@ my %months = (
     "rm"            =>  [ \$rm,         "Actually launch the hadoop fs -rm commands on the files, by default this script only prints the hadoop fs -rm commands. WARNING: only use this switch after you have checked what the list of files to be removed is, otherwise you may lose data" ],
     "skipTrash"     =>  [ \$skipTrash,  "Skips moving files to HDFS Trash, reclaims space immediately" ],
     "hadoop-bin=s"  =>  [ \$hadoop_bin, "Path to 'hadoop' command if not in \$PATH" ],
-    "batch=s"       =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max 100)" ],
+    "b|batch=s"     =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max 100)" ],
 );
 @usage_order = qw/days hours mins path exclude rm skipTrash hadoop-bin/;
 get_options();
