@@ -12,7 +12,7 @@ $DESCRIPTION = "Deletes files from Hadoop's HDFS /tmp directory that are older t
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -116,9 +116,21 @@ while (<$fh>){
         my $tstamp   = timelocal(0, $min, $hour, $day, $month-1, $year) || die "$progname: Failed to convert timestamp $year-$month-$day $hour:$min for comparison\n";
         if( ($now - $tstamp ) > $max_age_secs){
             next if (defined($exclude) and $filename =~ /$exclude/);
-            # Some additional safety stuff, do not mess with /tmp/mapred or /hbase !!!! or .Trash
-            next if ($filename =~ /^\/(?:tmp\/mapred|hbase)\//i or
-                     $filename =~ /\.Trash\//);
+            # Some additional safety stuff, do not mess with /tmp/mapred or /hbase !!!!
+            # or .Trash...
+            # or now /solr...
+            # oh and I should probably omit the CM canary files given I work for Cloudera now...
+            # Also, omitting the Hive warehouse directory since removing Hive managed tables seems scary
+            # not anchoring /tmp intentionally since hadoop fs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
+            next if ($filename =~ qr( 
+                                    /tmp/mapred/ |
+                                    /hbase/      |
+                                    /solr/       |
+                                    \.Trash/     |
+                                    /warehouse/  |
+                                    /user/oozie/share/lib/ |
+                                    \.cloudera_health_monitoring_canary_files
+                                    )ix);
             push(@files, $filename);
             $files_removed++;
         }
