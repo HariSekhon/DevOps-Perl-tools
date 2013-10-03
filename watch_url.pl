@@ -10,7 +10,7 @@
 
 $DESCRIPTION = "Watch a given URL, outputting status code, content, round trip time and percentages of return codes. Useful for testing web farms and load balancers";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -58,7 +58,7 @@ $usage_line = "usage: $progname --url 'http://host/blah' --interval=1 --count=0 
 );
 @usage_order=qw/url count interval output regex output-length ssl-CA-path tls-noverify/;
 
-delete $HariSekhonUtils::default_options{"t|timeout=i"};
+remove_timeout();
 
 get_options();
 
