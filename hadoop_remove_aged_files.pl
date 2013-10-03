@@ -101,8 +101,9 @@ my $cmd   = "hadoop fs -ls -R '$path'";
 my $fh    = cmd("$cmd | ") or die "ERROR: $? returned from \"$cmd\" command: $!\n";
 my @files = ();
 my $now   = time || die "Failed to get epoch timestamp\n";
-my $file_count    = 0;
-my $files_removed = 0;
+my $file_count     = 0;
+my $files_removed  = 0;
+my $excluded_count = 0;
 while (<$fh>){
     print "output: $_" if $verbose >= 3;
     chomp;
@@ -121,7 +122,10 @@ while (<$fh>){
         $month = $months{$month} if grep { $month eq $_} keys %months;
         my $tstamp   = timelocal(0, $min, $hour, $day, $month-1, $year) || die "$progname: Failed to convert timestamp $year-$month-$day $hour:$min for comparison\n";
         if( ($now - $tstamp ) > $max_age_secs){
-            next if (defined($exclude) and $filename =~ $exclude);
+            if (defined($exclude) and $filename =~ $exclude){
+                $excluded_count += 1;
+                next;
+            }
             # - Some additional safety stuff, do not mess with /tmp/mapred or /hbase !!!!
             # - or .Trash...
             # - or now /solr has been added...
@@ -164,7 +168,7 @@ if(@files and $batch > 1){
 }
 
 plural($file_count);
-$msg = "$progname Complete - %d file$plural checked, ";
+$msg = "$progname Complete - %d file$plural checked, $excluded_count excluded, ";
 plural($files_removed);
 $msg .= "%d file$plural older than %s days %s hours %s mins " . ($echo ? "" : "removed") . "\n";
 printf($msg, $file_count, $files_removed, $days, $hours, $mins);
