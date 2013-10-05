@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Deletes files from Hadoop's HDFS /tmp directory that are older than X days
+$DESCRIPTION = "Deletes files a Hadoop HDFS directory tree (default /tmp) that are older than a given time
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
