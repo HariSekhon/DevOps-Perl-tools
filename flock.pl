@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Arbitrary locking utility. Useful to safely running commands that would otherwise clash";
+$DESCRIPTION = "Arbitrary locking utility. Useful for safely running commands that would otherwise clash";
 
 $VERSION = "1.2";
 
