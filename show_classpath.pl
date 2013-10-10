@@ -30,7 +30,7 @@ my $command_regex = "";
 my $stdin = 0;
 
 %options = (
-    "C|command_regex=s" => [ \$command_regex, "Regex of classname for JPS or command for 'ps -ef' or 'ps aux'. Default \"\" shows all java processes" ],
+    "C|command_regex=s" => [ \$command_regex, "Regex of classname for JPS or command for 'ps -ef' or 'ps aux' if piping in 'ps -ef' or 'ps aux' input. Default \"\" shows all java processes" ],
     "s|stdin"           => [ \$stdin,         "Read process one per line from stdin (should be in format of 'jps', 'ps -ef', or 'ps aux' command outputs)" ],
 );
 
