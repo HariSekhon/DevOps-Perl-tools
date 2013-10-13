@@ -7,7 +7,7 @@
 --  License: see accompanying LICENSE file
 --
 
--- Mainly based on Hive QL and Impala SQL with some MySQL
+-- Mainly based on Hive QL and Impala SQL with some MySQL, Cassandra CQL
 
 -- Regex one per line of keywords to uppercase - used by uppercase_sql_keywords.pl
 -- whitespace is converted to \s+ for matching so this list can look cleaner
@@ -41,6 +41,7 @@ DBPROPERTIES
 DECIMAL
 DELIMITED
 DESC(?:ENDING)?
+DESC (?:KEYSPACES?|TABLES?|CLUSTER|SCHEMA)
 DESCRIBE
 DESCRIBE EXTENDED
 DESCRIBE FORMATTED
