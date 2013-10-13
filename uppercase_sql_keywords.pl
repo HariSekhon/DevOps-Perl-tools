@@ -8,9 +8,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Util to uppercase SQL / HiveQL keywords in a file or stdin, works like a standard unix filter program
+$DESCRIPTION = "Util to uppercase SQL-like keywords from stdin or file(s), prints to standard output
 
-Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL
+Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc.
 
 Uses a regex list of keywords located in the same directory as this program
 called sql_keywords.txt for easy maintainance and addition of keywords";
@@ -29,7 +29,7 @@ my $file;
 my $comments;
 
 %options = (
-    "f|files=s"      => [ \$file,       "File(s) to uppercase SQL from" ],
+    "f|files=s"      => [ \$file,       "File(s) to uppercase SQL from. Non-option arguments are added to the list of files" ],
     "c|comments"     => [ \$comments,   "Apply transformations even to lines with --/# comments" ],
 );
 @usage_order = qw/files comments/;
