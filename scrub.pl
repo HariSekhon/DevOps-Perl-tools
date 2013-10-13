@@ -13,11 +13,13 @@
 
 $DESCRIPTION = "Scrub username/passwords, IP addresses, hostnames, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email or pastebin like websites.
 
+Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output.
+
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored
 
-Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin, not used this version much, probably requires tweaks";
+Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -62,19 +64,19 @@ my @files = parse_file_option($file, "args are files");
 
 my @custom_phrases;
 if($custom){
-    my $scrub_txt = dirname(__FILE__) . "/scrub_custom.txt";
+    my $scrub_custom_txt = dirname(__FILE__) . "/scrub_custom.txt";
     my $fh;
-    if(open $fh, $scrub_txt){
+    if(open $fh, $scrub_custom_txt){
         while(<$fh>){
             chomp;
             s/#.*//;
             next if /^\s*$/;
             push(@custom_phrases, $_);
         }
-        @custom_phrases or die "Failed to read any custom phrases from $scrub_txt\n";
+        @custom_phrases or die "Failed to read any custom phrases from '$scrub_custom_txt'\n";
         close $fh;
     } else {
-        warn "failed to open file $scrub_txt\n";
+        warn "warning: failed to open file $scrub_custom_txt, continuing without...\n";
     }
 }
 
