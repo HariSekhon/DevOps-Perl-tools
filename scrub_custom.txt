@@ -1,0 +1,17 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-07-18 22:00:56 +0100 (Thu, 18 Jul 2013)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
+
+# scrub_custom.txt - used by scrub.pl
+#
+# List of phrases to scrub, one PCRE format Regex per line
+#
+# blank lines and lines prefixed with a hash sign (#) are ignored
+#
+# Put more specific matches at top
+
