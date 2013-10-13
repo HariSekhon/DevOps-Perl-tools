@@ -6,6 +6,9 @@ A collection of Hadoop & Web Scale sysadmin tools I've written over the years th
 ### Setup ###
 
 ```
+git clone https://github.com/harisekhon/sysadmin
+```
+```
 cd sysadmin
 ```
 ```
@@ -16,8 +19,11 @@ This will fetch my shared library submodule and also pull in the Perl CPAN modul
 
 #### OR: Manual Setup ####
 
-Enter the directory and run git submodule init and git submodule update to fetch my library repo:
+Enter the sysadmin directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
+```
+git clone https://github.com/harisekhon/sysadmin
+```
 ```
 cd sysadmin
 ```
