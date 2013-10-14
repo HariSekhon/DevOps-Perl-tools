@@ -7,11 +7,7 @@ A collection of Hadoop & Web Scale sysadmin tools I've written over the years th
 
 ```
 git clone https://github.com/harisekhon/sysadmin
-```
-```
 cd sysadmin
-```
-```
 make
 ```
 
@@ -23,14 +19,8 @@ Enter the sysadmin directory and run git submodule init and git submodule update
 
 ```
 git clone https://github.com/harisekhon/sysadmin
-```
-```
 cd sysadmin
-```
-```
 git submodule init
-```
-```
 git submodule update
 ```
 
