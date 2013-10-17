@@ -5,15 +5,13 @@ A collection of Hadoop & Web Scale sysadmin tools I've written over the years th
 
 ### Setup ###
 
-As root you can do the following to quickly set up:
+The 'make' command will initialize my library submodule then use 'sudo' to install the required CPAN modules
 
 ```
 git clone https://github.com/harisekhon/sysadmin
 cd sysadmin
 make
 ```
-
-This will fetch my shared library submodule and also pull in the Perl CPAN modules LWP::UserAgent and Text::Unidecode (for which you'll need to be root)
 
 #### OR: Manual Setup ####
 
@@ -26,9 +24,11 @@ git submodule init
 git submodule update
 ```
 
+Then proceed to install the CPAN modules below by hand
+
 ###### CPAN Modules ######
 
-Install the following CPAN modules as root:
+Install the following CPAN modules using the cpan command, use sudo if you're not root:
 
 ```
 sudo cpan LWP::Simple LWP::UserAgent Text::Unidecode Time::HiRes XML::Validate
