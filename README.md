@@ -5,6 +5,8 @@ A collection of Hadoop & Web Scale sysadmin tools I've written over the years th
 
 ### Setup ###
 
+As root you can do the following to quickly set up:
+
 ```
 git clone https://github.com/harisekhon/sysadmin
 cd sysadmin
@@ -26,18 +28,10 @@ git submodule update
 
 ###### CPAN Modules ######
 
-Install the following CPAN modules as root
-
-For watch_url.pl / watch_nginx_stats.pl:
+Install the following CPAN modules as root:
 
 ```
-cpan LWP::UserAgent
-```
-
-For unidecode.pl:
-
-```
-cpan Text::Unidecode
+sudo cpan LWP::Simple LWP::UserAgent Text::Unidecode Time::HiRes XML::Validate
 ```
 
 You're now ready to use these programs.
