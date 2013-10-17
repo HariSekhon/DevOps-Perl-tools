@@ -147,6 +147,8 @@ vlog2;
 
 sub write_temp($){
     my $string = shift;
+    defined($string) or die "undefined string passed to write_temp()\n";
+    $string =~ /^\s*$/ and "blank output found in intermediate stage, passed to write_temp(), may indicate a failure in the processing pipeline\n";
     my ( $fh, $filename ) = tempfile();
     vlog2 "writing output to $filename";
     print $fh $string or die "Failed to write to temp file '$filename'\n";
@@ -164,11 +166,13 @@ $xml_temp2 = validate_file($xml_temp2, undef, undef, 1);
 my $xml_kv1 = write_temp(xsltproc($xml_temp1));
 my $xml_kv2 = write_temp(xsltproc($xml_temp2));
 
-my $cmd1 = "sort $xml_kv1";
-my $cmd2 = "sort $xml_kv2";
+my $sorted_file1 = write_temp(`sort '$xml_kv1'`);
+my $sorted_file2 = write_temp(`sort '$xml_kv2'`);
 
+( -z $sorted_file1 ) and die "sorted file 1 '$sorted_file1' is empty, nothing to diff (may be a failure in the processing pipeline)\n";
+( -z $sorted_file2 ) and die "sorted file 2 '$sorted_file2' is empty, nothing to diff (may be a failure in the processing pipeline)\n";
 vlog2;
-my $cmd = "bash -c 'diff <($cmd1) <($cmd2)'";
+my $cmd = "bash -c 'diff '$sorted_file1' '$sorted_file2''";
 vlog2($cmd);
 system($cmd);
 
@@ -182,3 +186,5 @@ unlink_tmp($xml_temp1);
 unlink_tmp($xml_temp2);
 unlink_tmp($xml_kv1);
 unlink_tmp($xml_kv2);
+unlink_tmp($sorted_file1);
+unlink_tmp($sorted_file2);
