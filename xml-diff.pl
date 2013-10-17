@@ -148,7 +148,7 @@ vlog2;
 sub write_temp($){
     my $string = shift;
     defined($string) or die "undefined string passed to write_temp()\n";
-    $string =~ /^\s*$/ and "blank output found in intermediate stage, passed to write_temp(), may indicate a failure in the processing pipeline\n";
+    $string =~ /^\s*$/ and die "blank output found in intermediate stage, passed to write_temp(), may indicate a failure in the processing pipeline\n";
     my ( $fh, $filename ) = tempfile();
     vlog2 "writing output to $filename";
     print $fh $string or die "Failed to write to temp file '$filename'\n";
@@ -172,7 +172,7 @@ my $sorted_file2 = write_temp(`sort '$xml_kv2'`);
 ( -z $sorted_file1 ) and die "sorted file 1 '$sorted_file1' is empty, nothing to diff (may be a failure in the processing pipeline)\n";
 ( -z $sorted_file2 ) and die "sorted file 2 '$sorted_file2' is empty, nothing to diff (may be a failure in the processing pipeline)\n";
 vlog2;
-my $cmd = "bash -c 'diff '$sorted_file1' '$sorted_file2''";
+my $cmd = "bash -c 'diff \"$sorted_file1\" \"$sorted_file2\"'";
 vlog2($cmd);
 system($cmd);
 
