@@ -10,7 +10,7 @@
 
 $DESCRIPTION = "Watch a given URL, outputting status code, content, round trip time and percentages of return codes. Useful for testing web farms and load balancers";
 
-$VERSION = "0.4.1";
+$VERSION = "0.4.2";
 
 use strict;
 use warnings;
@@ -32,6 +32,7 @@ my $output;
 my $regex;
 my $res;
 my $returned = 0;
+my $sleep_time;
 my $ssl_ca_path;
 my $ssl_noverify;
 my $status;
@@ -141,6 +142,7 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     if($status_line eq "500 Can't verify SSL peers without knowning which Certificate Authorities to trust"){
         die "\n\n$status_line\n\nPlease specify either --ssl-CA-path or --ssl-noverify\n";
     }
-    vlog2 "* sleeping for $interval seconds\n";
-    sleep $interval;
+    $sleep_time = ($interval - $time_taken) < 0 ? 0 : ($interval - $time_taken);
+    vlog2 "* sleeping for $sleep_time seconds\n";
+    sleep $sleep_time;
 }
