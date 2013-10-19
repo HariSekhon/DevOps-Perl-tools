@@ -58,7 +58,7 @@ if($all){
     $network  = 1;
     $custom   = 1;
 }
-unless($ip + $host + $network + $cisco + $screenos + $custom > 1){
+unless($ip + $host + $network + $cisco + $screenos + $custom >= 1){
     usage "must specify a scrubbing to apply";
 }
 
