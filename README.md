@@ -54,4 +54,4 @@ Then add the Jython untarred directory to the $PATH or specify the /path/to/jyth
 /path/to/jython_dir/bin/jython -J-cp `hadoop classpath` <program> --help
 ```
 
-The ```-J-cp `hadoop classpath```` but does the right thing in finding the Hadoop java classes required to use the Hadoop APIs.
+The ```-J-cp `hadoop classpath```` bit does the right thing in finding the Hadoop java classes required to use the Hadoop APIs.
