@@ -47,3 +47,11 @@ hadoop_hdfs_get_file_checksums.jy
 ```
 
 Jython is a simple download and unpack and can be fetched from http://www.jython.org/downloads.html
+
+Then add the Jython untarred directory to the $PATH or specify the /path/to/jython_dir/bin/jython explicitly:
+
+```
+/path/to/jython_dir/bin/jython -J-cp `hadoop classpath` <program> --help
+```
+
+The ```-J-cp `hadoop classpath```` but does the right thing in finding the Hadoop java classes required to use the Hadoop APIs.
