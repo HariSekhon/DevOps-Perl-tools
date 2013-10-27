@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Hive tool to check a table for NULLS";
 
-$VERSION = "0.1.1";
+$VERSION = "0.1.2";
 
 my $HIVE_OPTS = "";
 
@@ -50,7 +50,7 @@ foreach(@output){
     /^Time taken/i and next;
     /^Logging initialized/i and next;
     /^Hive history/i and next;
-    /^(?:FAIL|ERROR)/i and die "HIVE $_\n";
+    /(?:^(?:FAIL|ERROR)|not exist)/i and die "HIVE $_\n";
     #my @tmp = split(/\s+/, $_);
     #my $column_name=$tmp[0];
     my $column_name=(split(/\s+/, $_))[0];
