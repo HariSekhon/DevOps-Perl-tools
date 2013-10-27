@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Hive tool to check a table for NULLS";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 my $HIVE_OPTS = "";
 
@@ -42,7 +42,8 @@ $table   = validate_database_tablename($table, "allow_qualified");
 vlog2;
 set_timeout();
 
-my @output = cmd("hive -e 'DESCRIBE $table;'");
+my $hive = "hive -S";
+my @output = cmd("$hive -e 'DESCRIBE $table;'");
 foreach(@output){
     /^OK$/i and next;
     /^Time taken/i and next;
@@ -58,6 +59,6 @@ foreach(@output){
 
 my $query = "SELECT COUNT(*) from $table where " . join("=NULL OR ", @columns) . "=NULL";
 
-my $cmd = "hive -e '$query;' $HIVE_OPTS";
+my $cmd = "$hive -e '$query;' $HIVE_OPTS";
 print "$cmd\n";
 system("$cmd");
