@@ -42,7 +42,8 @@ $table   = validate_database_tablename($table, "allow_qualified");
 vlog2;
 set_timeout();
 
-my $hive = "hive -S";
+my $hive = "hive";
+$hive .= " -S" unless $verbose;
 my @output = cmd("$hive -e 'DESCRIBE $table;'");
 foreach(@output){
     /^OK$/i and next;
