@@ -10,7 +10,7 @@
 
 $DESCRIPTION = "Watch a given URL, outputting status code, content, round trip time and percentages of return codes. Useful for testing web farms and load balancers";
 
-$VERSION = "0.4.2";
+$VERSION = "0.4.3";
 
 use strict;
 use warnings;
@@ -45,10 +45,10 @@ my $tstamp2;
 my $url;
 my %stats;
 
-$usage_line = "usage: $progname --url 'http://host/blah' --interval=1 --count=0 (unlimited)";
+$usage_line = "usage: $progname --url http://host/blah --interval=1 --count=0 (unlimited)";
 
 %options = (
-    "u|url=s"           => [ \$url,           "URL to GET in http(s)://host/page.html form" ],
+    "u|url=s"           => [ \$url,           "URL to GET. Will use first arg as url if this switch is omitted" ],
     "c|count=i"         => [ \$count,         "Number of times to request the given URL. Default: 0 (unlimited)" ],
     "i|interval=f"      => [ \$interval,      "Interval in secs between URL requests. Default: 1" ],
     "o|output"          => [ \$output,        "Show raw output at end of each line or on new line if output contains carriage returns or newlines or is longer than --output-length characters" ],
@@ -62,6 +62,8 @@ $usage_line = "usage: $progname --url 'http://host/blah' --interval=1 --count=0 
 remove_timeout();
 
 get_options();
+
+$url = $ARGV[0] if not defined($url) and defined($ARGV[0]);
 
 #$url =~ /^(http:\/\/\w[\w\.-]+\w(?:\/[\w\.\;\=\&\%\/-]*)?)$/ or die "Invalid URL given\n";
 $url = validate_url($url);
