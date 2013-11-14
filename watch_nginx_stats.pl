@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Watch Nginx stats. Nginx will need to be configured to support this, see documentation at http://wiki.nginx.org/HttpStubStatusModule";
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 # TODO: split off and unify this with my check_nginx_stats.pl Nagios plugin
 
@@ -36,7 +36,7 @@ my $end_time;
 my $handled;
 my $last_accepted = 0;
 my $last_requests = 0;
-my $last_end_time;
+my $last_start_time;
 my $reading;
 my $requests;
 my $requests_sec;
@@ -145,17 +145,17 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     if($i eq 1){
         $conns_sec = $requests_sec = "N/A";
     } else {
-        $time_diff = $end_time - $last_end_time;
-        if($time_diff < 1){
-            $conns_sec = $requests_sec = "N/A";
-        } else {
-            $conns_sec    = int( ($accepted - $last_accepted) / $time_diff );
-            $requests_sec = int( ($requests - $last_requests) / $time_diff );
-        }
+        $time_diff = $start_time - $last_start_time;
+        #if($time_diff < 1){
+            #$conns_sec = $requests_sec = "N/A";
+        #} else {
+            $conns_sec    = sprintf("%.0f", ($accepted - $last_accepted) / $time_diff);
+            $requests_sec = sprintf("%.0f", ($requests - $last_requests) / $time_diff);
+        #}
     }
-    $last_end_time = $end_time;
-    $last_accepted = $accepted;
-    $last_requests = $requests;
+    $last_start_time = $start_time;
+    $last_accepted   = $accepted;
+    $last_requests   = $requests;
     print "$time\t$i\t\t$active\t$reading\t$writing\t$waiting\t$conns_sec\t$requests_sec\t\t$accepted\t\t$handled\t\t$requests\n";
     $sleep_time = ($interval - $time_taken) < 0 ? 0 : ($interval - $time_taken);
     vlog2 "* sleeping for $sleep_time seconds\n";
