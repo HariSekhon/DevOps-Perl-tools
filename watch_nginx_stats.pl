@@ -10,9 +10,9 @@
 #
 #  vim:ts=4:sw=4:et
 
-$DESCRIPTION = "Watch Nginx stats from the Nginx stats stub";
+$DESCRIPTION = "Watch Nginx stats. Nginx will need to be configured to support this, see documentation at http://wiki.nginx.org/HttpStubStatusModule";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 # TODO: split off and unify this with my check_nginx_stats.pl Nagios plugin
 
@@ -20,7 +20,7 @@ use strict;
 use warnings;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__) . "/../lib";
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 use LWP::UserAgent;
@@ -32,28 +32,31 @@ my $active;
 my $conns_sec;
 my $content;
 my $count = 0;
+my $end_time;
 my $handled;
 my $last_accepted = 0;
 my $last_requests = 0;
-my $last_time;
-my $now;
+my $last_end_time;
 my $reading;
 my $requests;
 my $requests_sec;
 my $res;
 my $interval = 1;
+my $sleep_time;
+my $start_time;
 my $status;
 my $status_line;
 my $time;
 my $time_diff;
+my $time_taken;
 my $url;
 my $waiting;
 my $writing;
 
-$usage_line = "usage: $progname -u 'http://host/nginx_status' --interval=1 --count=0 (unlimited)\n";
+$usage_line = "usage: $progname --url http://host/nginx_status --interval=1 --count=0 (unlimited)\n";
 
 %options = (
-    "u|url=s"       => [ \$url,         "URL to the Nginx status/stats page from which to collect nginx stats" ],
+    "u|url=s"       => [ \$url,         "URL to the Nginx status/stats page from which to collect nginx stats. Will use first arg as the URL if omitting this switch" ],
     "c|count=i"     => [ \$count,       "Number of times to collect stats. Default: 0 (unlimited)" ],
     "i|interval=f"  => [ \$interval,    "Interval in secs between stats requests. Default: 1" ],
 );
@@ -62,6 +65,8 @@ $usage_line = "usage: $progname -u 'http://host/nginx_status' --interval=1 --cou
 delete $HariSekhonUtils::default_options{"t|timeout=i"};
 
 get_options();
+
+$url = $ARGV[0] if not defined($url) and defined($ARGV[0]);
 
 #$url =~ /^(http:\/\/\w[\w\.-]+\w\/[\w\.\;\=\&\%\/-]+)$/ or die "Invalid URL given\n";
 $url = validate_url($url, "Nginx Stats");
@@ -80,13 +85,15 @@ print "="x111 . " Totals " . "="x17 . "\n";
 print "Time\t\t\tCount\t\tActive\tReading\tWriting\tWaiting\tConn/s\tRequests/s   |  Accepted\tHandled\t\tRequests\n";
 print "="x136 . "\n";
 for(my $i=1;$i<=$count or $count eq 0;$i++){
-    $now  = time;
-    $time = strftime("%F %T", localtime);
     vlog3 "sending request";
-    $res     = $ua->request($req);
+    $time       = strftime("%F %T", localtime);
+    $start_time = time;
+    $res        = $ua->request($req);
+    $end_time   = time;
+    $time_taken = $end_time - $start_time;
     vlog3 "got response";
-    $status  = $status_line  = $res->status_line;
-    $status  =~ s/\s.*$//;
+    $status     = $status_line  = $res->status_line;
+    $status     =~ s/\s.*$//;
     if(! isInt($status)){
         print "$time\tCODE ERROR: status code '$status' is not a number (status line was: '$status_line')\n";
         next;
@@ -104,15 +111,15 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
         next;
     }
     unless($content =~ /Active connections:\s+(\d+)/){
-        warn "$time\tWARNING: Cannot find Active connections in output\n";
-        warn "content: '$content'\n";
+        warn "$time\tWARNING: Cannot find Active connections in output (not an Nginx server or wrong /stats_stub url?)\n";
+        warn "content: '$content'\n" if $verbose >= 3;
         sleep $interval;
         next;
     }
     $active = $1;
     unless($content =~ /server accepts handled requests\n\s+(\d+)\s+(\d+)\s+(\d+)/){
         warn "$time\tWARNING: Cannot find 'server accepts handled requests' in output\n";
-        warn "content: '$content'\n";
+        warn "content: '$content'\n" if $verbose >= 3;
         sleep $interval;
         next;
     }
@@ -138,7 +145,7 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     if($i eq 1){
         $conns_sec = $requests_sec = "N/A";
     } else {
-        $time_diff = $now - $last_time;
+        $time_diff = $end_time - $last_end_time;
         if($time_diff < 1){
             $conns_sec = $requests_sec = "N/A";
         } else {
@@ -146,11 +153,12 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
             $requests_sec = int( ($requests - $last_requests) / $time_diff );
         }
     }
-    $last_time = $now;
+    $last_end_time = $end_time;
     $last_accepted = $accepted;
     $last_requests = $requests;
     print "$time\t$i\t\t$active\t$reading\t$writing\t$waiting\t$conns_sec\t$requests_sec\t\t$accepted\t\t$handled\t\t$requests\n";
-    vlog3 "sleeping for $interval seconds";
-    sleep $interval;
+    $sleep_time = ($interval - $time_taken) < 0 ? 0 : ($interval - $time_taken);
+    vlog2 "* sleeping for $sleep_time seconds\n";
+    sleep $sleep_time;
 }
 exit 0;
