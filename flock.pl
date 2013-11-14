@@ -10,7 +10,7 @@
 
 $DESCRIPTION = "Arbitrary locking utility. Useful for safely running commands that would otherwise clash";
 
-$VERSION = "1.2";
+$VERSION = "1.2.1";
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ sub usage {
     -V --version        Print version and exit
     -h --help --usage   Print this help
 \n";
-    exit 1;
+    exit 3;
 }
 
 GetOptions (
