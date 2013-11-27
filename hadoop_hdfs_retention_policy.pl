@@ -156,7 +156,8 @@ while (<$fh>){
                                     \.Trash/     |
                                     warehouse/   |
                                     share/lib/   |
-                                    \.cloudera_health_monitoring_canary_files
+                                    \.cloudera_health_monitoring_canary_files |
+                                    ['"]
                                     )ix){
                 $script_excluded_count++;
                 next;
