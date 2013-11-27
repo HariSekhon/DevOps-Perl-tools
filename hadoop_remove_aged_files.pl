@@ -175,8 +175,12 @@ while (<$fh>){
         warn "$progname: WARNING - failed to match line from hadoop output: \"$line\"\n";
     }
     if(@files and $batch < 2){
-        $cmd = "$echo hadoop fs -rm $skipTrash '" . join("' '", @files) . "'";
-        system($cmd) and die "ERROR: $? returned from \"hadoop fs -rm\" command: $!\n";
+        $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files) . "'";
+        if($echo){
+            print "$cmd\n";
+        } else {
+            system($cmd) and die "ERROR: $? returned from command \"$cmd\": $!\n";
+        }
         @files = ();
     }
 }
@@ -188,8 +192,12 @@ if(@files and $batch > 1){
         if($last_index >= scalar @files){
             $last_index = scalar(@files) - 1;
         }
-        $cmd = "$echo hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
-        system($cmd) and die "ERROR: $? returned from \"hadoop fs -rm\" command: $!\n";
+        $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
+        if($echo){
+            print "$cmd\n";
+        } else {
+            system($cmd) and die "ERROR: $? returned from command \"$cmd\": $!\n";
+        }
     }
 }
 
