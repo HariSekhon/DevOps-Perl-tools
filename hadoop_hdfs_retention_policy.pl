@@ -202,7 +202,7 @@ if(@files and $batch > 1){
         } else {
             die "resulting hadoop fs -rm command length > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\nHere is the would-be command:\n\n$cmd";
         }
-        print "file batch " $i+1 . " - " . $last_index+1 . ":\n";
+        print "file batch " . $i+1 . " - " . $last_index+1 . ":\n";
         if($print_only){
             print "$cmd\n";
         } else {
