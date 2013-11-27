@@ -17,3 +17,8 @@ install:
 		 Text::Unidecode \
 		 Time::HiRes \
 		 XML::Validate
+
+update:
+	git pull
+	git submodule update
+	make install
