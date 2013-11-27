@@ -206,7 +206,7 @@ if(@files and $batch > 1){
         if($print_only){
             print "$cmd\n";
         } else {
-            system($cmd) and die "ERROR: $? returned from command \"$cmd\": $!\n";
+            system($cmd) and die "ERROR: $? returned from command \"hadoop fs -rm ...\": $!\n";
         }
     }
 }
