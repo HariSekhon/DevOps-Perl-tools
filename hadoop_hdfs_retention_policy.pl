@@ -104,7 +104,7 @@ if(defined($exclude)){
 }
 $hadoop_bin  = which($hadoop_bin, 1);
 $hadoop_bin  =~ /\b\/?hadoop$/ or die "invalid hadoop program '$hadoop_bin' given, should be called hadoop!\n";
-$batch       = validate_int($batch, 0, 10000, "batch size");
+$batch       = validate_int($batch, 0, 1500, "batch size"); # argument list too long error > 1500
 vlog_options "rm",          $rm        ? "true" : "false";
 vlog_options "skipTrash",   $skipTrash ? "true" : "false";
 vlog_options "hadoop path", $hadoop_bin;
@@ -120,8 +120,9 @@ my $file_count     = 0;
 my $files_removed  = 0;
 my $excluded_count = 0;
 my $script_excluded_count = 0;
+warn "processing file list\n";
 while (<$fh>){
-    print "output: $_" if $verbose >= 3;
+    vlog3 "output: $_";
     chomp;
     my $line = $_;
     $line =~ /^Found\s\d+\sitems/ and next;
@@ -180,7 +181,14 @@ while (<$fh>){
         if($print_only){
             print "$cmd\n";
         } else {
-            system($cmd) and die "ERROR: $? returned from command \"$cmd\": $!\n";
+            system($cmd);
+            if($? == 0){
+                # OK
+            } elsif($? == 33280){
+                die "Control-C\n";
+            } else {
+                die "ERROR: $? returned from command \"hadoop fs -rm ...\": $!\n";
+            }
         }
         @files = ();
     }
@@ -202,11 +210,18 @@ if(@files and $batch > 1){
         } else {
             die "resulting hadoop fs -rm command length > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\nHere is the would-be command:\n\n$cmd";
         }
-        print "file batch " . ($i+1) . " - " . ($last_index+1) . ":\n";
+        warn "file batch " . ($i+1) . " - " . ($last_index+1) . ":\n";
         if($print_only){
             print "$cmd\n";
         } else {
-            system($cmd) and die "ERROR: $? returned from command \"hadoop fs -rm ...\": $!\n";
+            system($cmd);
+            if($? == 0){
+                # OK
+            } elsif($? == 33280){
+                die "Control-C\n";
+            } else {
+                die "ERROR: $? returned from command \"hadoop fs -rm ...\": $!\n";
+            }
         }
     }
 }
@@ -216,4 +231,4 @@ $msg = "$progname Complete - %d file$plural checked, $excluded_count excluded, "
 $msg .= "$script_excluded_count hardcoded excluded for safety, " if $script_excluded_count;
 plural $files_removed;
 $msg .= "%d file$plural older than %s days %s hours %s mins " . ($print_only ? "" : "removed") . "\n";
-printf($msg, $file_count, $files_removed, $days, $hours, $mins);
+warn sprintf($msg, $file_count, $files_removed, $days, $hours, $mins);
