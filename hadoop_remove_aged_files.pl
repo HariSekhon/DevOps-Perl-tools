@@ -8,11 +8,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Deletes files a Hadoop HDFS directory tree (default /tmp) that are older than a given time
+$DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (default /tmp) that are older than the given Days Hours Mins. Deletes files if specifying --rm
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.4.0";
+$VERSION = "0.6.0";
 
 use strict;
 use warnings;
@@ -29,11 +29,12 @@ my $default_hadoop_bin = "hadoop";
 my $hadoop_bin = $default_hadoop_bin;
 
 my $DEFAULT_PATH = "/tmp";
-my $path = $DEFAULT_PATH;
+my $path; # don't set this, need to check if user did or used @ARGV
 
 my $days  = 0;
 my $hours = 0;
 my $mins  = 0;
+my $include;
 my $exclude;
 my $skipTrash = "";
 my $rm    = 0;
@@ -62,13 +63,14 @@ my %months = (
     "H|hours=i"     =>  [ \$hours,      "Number of hours after which to delete files" ],
     "m|mins=i"      =>  [ \$mins,       "Number of minutes after which to delete files" ],
     "p|path=s"      =>  [ \$path,       "Path for which to remove old files (default: $DEFAULT_PATH)" ],
-    "e|exclude=s"   =>  [ \$exclude,    "Regex of files to exclude from being deleted" ],
+    "i|include=s"   =>  [ \$include,    "Include Regex of files, for optional filtering" ],
+    "e|exclude=s"   =>  [ \$exclude,    "Exclude Regex of files, optional, takes priority over --include" ],
     "rm"            =>  [ \$rm,         "Actually launch the hadoop fs -rm commands on the files, by default this script only prints the hadoop fs -rm commands. WARNING: only use this switch after you have checked what the list of files to be removed is, otherwise you may lose data" ],
     "skipTrash"     =>  [ \$skipTrash,  "Skips moving files to HDFS Trash, reclaims space immediately" ],
     "hadoop-bin=s"  =>  [ \$hadoop_bin, "Path to 'hadoop' command if not in \$PATH" ],
     "b|batch=s"     =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max 100)" ],
 );
-@usage_order = qw/days hours mins path exclude rm skipTrash hadoop-bin/;
+@usage_order = qw/days hours mins path include exclude rm skipTrash batch hadoop-bin/;
 get_options();
 
 my $echo = "echo";
@@ -82,9 +84,22 @@ $hours   = validate_float($hours, 0, 23,   "hours");
 $mins    = validate_float($mins,  0, 59,   "mins");
 my $max_age_secs = ($days * 86400) + ($hours * 3600) + ($mins * 60);
 usage "must specify a total max age > 5 minutes" if ($max_age_secs < 300);
-$path        = validate_filename($path, undef, "path"); # because validate_dir[ectory] checks the directory existance on the local filesystem
+my @paths = ();
+push(@paths, validate_filename($path, 0, "path")) if defined($path); # because validate_dir[ectory] checks the directory existance on the local filesystem
+foreach(@ARGV){
+    push(@paths, validate_filename($_, 0, "path") );
+}
+if(@paths){
+    $path = "'" . join("' '", uniq_array @paths) . "'";
+} else {
+    $path = "'$DEFAULT_PATH'";
+}
+if(defined($include)){
+    $include     = validate_regex($include, "include");
+    $include     = qr/$include/o;
+}
 if(defined($exclude)){
-    $exclude     = validate_regex($exclude);
+    $exclude     = validate_regex($exclude, "exclude");
     $exclude     = qr/$exclude/o;
 }
 $hadoop_bin  = which($hadoop_bin, 1);
@@ -97,13 +112,14 @@ vlog2;
 
 set_timeout();
 
-my $cmd   = "hadoop fs -ls -R '$path'";
+my $cmd   = "hadoop fs -ls -R $path"; # is quoted above when processing $path or @paths;
 my $fh    = cmd("$cmd | ") or die "ERROR: $? returned from \"$cmd\" command: $!\n";
 my @files = ();
 my $now   = time || die "Failed to get epoch timestamp\n";
 my $file_count     = 0;
 my $files_removed  = 0;
 my $excluded_count = 0;
+my $script_excluded_count = 0;
 while (<$fh>){
     print "output: $_" if $verbose >= 3;
     chomp;
@@ -133,7 +149,7 @@ while (<$fh>){
             # - Also, omitting the Hive warehouse directory since removing Hive managed tables seems scary
             # - share/lib/ is under /user/oozie, don't remove that either
             # not anchoring /tmp intentionally since hadoop fs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
-            next if ($filename =~ qr( 
+            if ($filename =~ qr( 
                                     /tmp/mapred/ |
                                     /hbase/      |
                                     /solr/       |
@@ -141,9 +157,19 @@ while (<$fh>){
                                     warehouse/   |
                                     share/lib/   |
                                     \.cloudera_health_monitoring_canary_files
-                                    )ix);
-            push(@files, $filename);
-            $files_removed++;
+                                    )ix){
+                $script_excluded_count++;
+                next;
+            }
+            if(defined($include)){
+                if($filename =~ $include){
+                    push(@files, $filename);
+                    $files_removed++;
+                }
+            } else {
+                push(@files, $filename);
+                $files_removed++;
+            }
         }
     } else {
         warn "$progname: WARNING - failed to match line from hadoop output: \"$line\"\n";
@@ -167,8 +193,9 @@ if(@files and $batch > 1){
     }
 }
 
-plural($file_count);
+plural $file_count;
 $msg = "$progname Complete - %d file$plural checked, $excluded_count excluded, ";
-plural($files_removed);
+$msg .= "$script_excluded_count hardcoded excluded for safety, " if $script_excluded_count;
+plural $files_removed;
 $msg .= "%d file$plural older than %s days %s hours %s mins " . ($echo ? "" : "removed") . "\n";
 printf($msg, $file_count, $files_removed, $days, $hours, $mins);
