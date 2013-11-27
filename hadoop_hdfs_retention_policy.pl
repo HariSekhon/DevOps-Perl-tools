@@ -39,6 +39,7 @@ my $exclude;
 my $skipTrash = "";
 my $rm    = 0;
 my $batch = 0;
+my $max_batch_size = 1500; # argument list too long error > 1500
 
 set_timeout_max(86400);    # 1 day max -t timeout
 set_timeout_default(1800); # 30 mins. hadoop fs -lsr /tmp took 6 minutes to list 1720943 files/dirs on my test cluster!
@@ -68,7 +69,7 @@ my %months = (
     "rm"            =>  [ \$rm,         "Actually launch the hadoop fs -rm commands on the files, by default this script only prints the hadoop fs -rm commands. WARNING: only use this switch after you have checked what the list of files to be removed is, otherwise you may lose data" ],
     "skipTrash"     =>  [ \$skipTrash,  "Skips moving files to HDFS Trash, reclaims space immediately" ],
     "hadoop-bin=s"  =>  [ \$hadoop_bin, "Path to 'hadoop' command if not in \$PATH" ],
-    "b|batch=s"     =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max 100)" ],
+    "b|batch=s"     =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max $max_batch_size). You will almost certainly need to use this in Production" ],
 );
 @usage_order = qw/days hours mins path include exclude rm skipTrash batch hadoop-bin/;
 get_options();
@@ -104,7 +105,7 @@ if(defined($exclude)){
 }
 $hadoop_bin  = which($hadoop_bin, 1);
 $hadoop_bin  =~ /\b\/?hadoop$/ or die "invalid hadoop program '$hadoop_bin' given, should be called hadoop!\n";
-$batch       = validate_int($batch, 0, 1500, "batch size"); # argument list too long error > 1500
+$batch       = validate_int($batch, 0, $max_batch_size, "batch size");
 vlog_options "rm",          $rm        ? "true" : "false";
 vlog_options "skipTrash",   $skipTrash ? "true" : "false";
 vlog_options "hadoop path", $hadoop_bin;
