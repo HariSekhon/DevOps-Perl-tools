@@ -73,9 +73,9 @@ my %months = (
 @usage_order = qw/days hours mins path include exclude rm skipTrash batch hadoop-bin/;
 get_options();
 
-my $echo = "echo";
+my $print_only = 1;
 if ($rm and not $debug){
-    $echo = ""; # actually run the hadoop fs -rm command instead of just echo'ing it out
+    $print_only = 0; # actually run the hadoop fs -rm command instead of just echo'ing it out
 }
 $skipTrash = "-skipTrash" if $skipTrash;
 
@@ -176,7 +176,7 @@ while (<$fh>){
     }
     if(@files and $batch < 2){
         $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files) . "'";
-        if($echo){
+        if($print_only){
             print "$cmd\n";
         } else {
             system($cmd) and die "ERROR: $? returned from command \"$cmd\": $!\n";
@@ -193,7 +193,15 @@ if(@files and $batch > 1){
             $last_index = scalar(@files) - 1;
         }
         $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
-        if($echo){
+        #vlog2 "checking getconf ARG_MAX to make sure this batch command isn't too big";
+        my $ARG_MAX = `getconf ARG_MAX`;
+        isInt($ARG_MAX) or code_error "failed to get ARG_MAX from 'getconf ARG_MAX', got a non-integer '$ARG_MAX'";
+        if(length($cmd) < $ARG_MAX){
+            #vlog2 "command length: " . length($cmd) . "  ARG_MAX: $ARG_MAX";
+        } else {
+            die "resulting hadoop fs -rm command length > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\nHere is the would-be command:\n\n$cmd";
+        }
+        if($print_only){
             print "$cmd\n";
         } else {
             system($cmd) and die "ERROR: $? returned from command \"$cmd\": $!\n";
@@ -205,5 +213,5 @@ plural $file_count;
 $msg = "$progname Complete - %d file$plural checked, $excluded_count excluded, ";
 $msg .= "$script_excluded_count hardcoded excluded for safety, " if $script_excluded_count;
 plural $files_removed;
-$msg .= "%d file$plural older than %s days %s hours %s mins " . ($echo ? "" : "removed") . "\n";
+$msg .= "%d file$plural older than %s days %s hours %s mins " . ($print_only ? "" : "removed") . "\n";
 printf($msg, $file_count, $files_removed, $days, $hours, $mins);
