@@ -67,6 +67,8 @@ all files under any given directory argument
 
 USAGE: %s [options] <list of HDFS files and/or directories>
 
+-n --no-header      Don't output headers and timing summary
+
 ================================================================================
 """ % (os.path.basename(__file__), __version__, os.path.basename(__file__)), ERRORS["UNKNOWN"])
 #-a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
@@ -76,13 +78,16 @@ USAGE: %s [options] <list of HDFS files and/or directories>
 def main():
     """ Parse cli args and call HDFS block read speed test for the given file / directory arguments """
 
+    noheader = False
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "h", ["help", "usage" ])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "hn", ["help", "usage" "no-header"])
     except getopt.GetoptError, e:
         usage("error: %s" % e)
     for o, a in opts:
         if o in ("-h", "--help", "--usage"):
             usage()
+        elif o in ("-n", "--no=header"):
+            noheader = True
         else:
             usage()
     filelist = set()
@@ -92,7 +97,7 @@ def main():
         usage("no file / directory specified")
     filelist = sorted(filelist)
     try:
-        HDFSBlockCounter().printBlockCounts(filelist)
+        HDFSBlockCounter().printBlockCounts(filelist, noheader)
     except KeyboardInterrupt, e:
         printerr("Caught Control-C...", 1)
         sys.exit(ERRORS["OK"])
@@ -118,7 +123,7 @@ class HDFSBlockCounter:
         try:
             self.fqdn = socket.getfqdn()
             # time.strftime("%z") doesn't work in Jython
-            print ">>  %s  Running on %s\n" % (time.strftime("%Y/%m/%d %H:%M:%S %Z"), self.fqdn)
+            print >> sys.stderr, ">>  %s  Running on %s\n" % (time.strftime("%Y/%m/%d %H:%M:%S %Z"), self.fqdn)
         except:
             printerr("Failed to get fqdn of local host, continuing anyway...\n\nError: %s\n" % sys.exc_info()[1].toString())
             self.fqdn = None
@@ -147,14 +152,15 @@ class HDFSBlockCounter:
             return None
 
 
-    def printBlockCounts(self, filelist):
+    def printBlockCounts(self, filelist, noheader):
         """ Recurses directories and calls printFileBlocks(file) per file """
 
-        start_time = time.time()
-        print "=" * 80
-        print "Blocksize  Blocks  Replication       Size          Size   Small  Filename"
-        print "   (MB)              Factor         (bytes)        (MB)   file"
-        print "=" * 80
+        if not noheader:
+            start_time = time.time()
+            print "=" * 80
+            print "Blocksize  Blocks  Replication       Size          Size   Small  Filename"
+            print "   (MB)              Factor         (bytes)        (MB)   file"
+            print "=" * 80
         for filename in filelist:
             path = self.get_path(filename)
             if not path:
@@ -165,12 +171,13 @@ class HDFSBlockCounter:
                 printerr("HDFS file/dir not found: %s" % filename, 1)
                 continue
             self.recurse_path(filename, path)
-        end_time = time.time()
-        total_time = end_time - start_time
-        plural = "s"
-        if self.files == 1:
-            plural = ""
-        print "\nFinished reading block counts from %s file%s in %.4f secs\n" % (self.files, plural, total_time)
+        if not noheader:
+            end_time = time.time()
+            total_time = end_time - start_time
+            plural = "s"
+            if self.files == 1:
+                plural = ""
+            print "\nFinished reading block counts from %s file%s in %.4f secs\n" % (self.files, plural, total_time)
 
 
     def recurse_path(self, filename, path):
