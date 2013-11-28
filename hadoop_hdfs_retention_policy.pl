@@ -12,7 +12,7 @@ $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (defau
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.6.0";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -39,7 +39,7 @@ my $exclude;
 my $skipTrash = "";
 my $rm    = 0;
 my $batch = 0;
-my $max_batch_size = 1500; # argument list too long error > 1500
+my $max_batch_size = 2000; # argument list too long error > 1500
 
 set_timeout_max(86400);    # 1 day max -t timeout
 set_timeout_default(1800); # 30 mins. hadoop fs -lsr /tmp took 6 minutes to list 1720943 files/dirs on my test cluster!
@@ -208,10 +208,17 @@ if(@files and $batch > 1){
         #vlog2 "checking getconf ARG_MAX to make sure this batch command isn't too big";
         my $ARG_MAX = `getconf ARG_MAX`;
         isInt($ARG_MAX) or code_error "failed to get ARG_MAX from 'getconf ARG_MAX', got a non-integer '$ARG_MAX'";
-        if(length($cmd) < $ARG_MAX){
-            #vlog2 "command length: " . length($cmd) . "  ARG_MAX: $ARG_MAX";
+        # This doesn't work for some reason even when submitting 821459 against an ARG_MAX of 2621440 it results in ERROR: -1 returned from command "hadoop fs -rm ...": Argument list too long
+        # taken from xargs --show-limits, use the more restrictive of the two numbers
+        if($ARG_MAX > 131072){
+            $ARG_MAX = 131072;
+            vlog2 "override ARG_MAX to use 131072";
+        }
+        # add around 2000 for environment and another 2000 for safety margin
+        if((length($cmd) + 2000 + 2000) < $ARG_MAX){
+            vlog2 "command length: " . length($cmd) . "  ARG_MAX: $ARG_MAX";
         } else {
-            die "resulting hadoop fs -rm command length > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\nHere is the would-be command:\n\n$cmd";
+            die "Here is the would-be command:\n\n$cmd\n\nResulting hadoop fs -rm command length ( " . length($cmd) . ") + safety env + safety buffer (4000) > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\n"
         }
         warn "file batch " . ($i+1) . " - " . ($last_index+1) . ":\n";
         if($print_only){
