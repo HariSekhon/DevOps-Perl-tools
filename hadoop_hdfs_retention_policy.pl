@@ -199,6 +199,14 @@ while (<$fh>){
 }
 if(@files and $batch > 1){
     warn scalar @files . " files " . ($print_only ? "matching" : "to be deleted" ) . "\n";
+    my $ARG_MAX = `getconf ARG_MAX`;
+    isInt($ARG_MAX) or code_error "failed to get ARG_MAX from 'getconf ARG_MAX', got a non-integer '$ARG_MAX'";
+    # This doesn't work for some reason even when submitting 821459 against an ARG_MAX of 2621440 it results in ERROR: -1 returned from command "hadoop fs -rm ...": Argument list too long
+    # taken from xargs --show-limits, use the more restrictive of the two numbers
+    if($ARG_MAX > 131072){
+        $ARG_MAX = 131072;
+        vlog2 "override ARG_MAX to use 131072";
+    }
     for(my $i=0; $i < scalar @files; $i += $batch){
         #print "total batch = @files\n";
         #print "batch 3 =  " . join(" -- ", @files[ $i .. $i+3 ]) . "\n";
@@ -208,14 +216,6 @@ if(@files and $batch > 1){
         }
         $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
         #vlog2 "checking getconf ARG_MAX to make sure this batch command isn't too big";
-        my $ARG_MAX = `getconf ARG_MAX`;
-        isInt($ARG_MAX) or code_error "failed to get ARG_MAX from 'getconf ARG_MAX', got a non-integer '$ARG_MAX'";
-        # This doesn't work for some reason even when submitting 821459 against an ARG_MAX of 2621440 it results in ERROR: -1 returned from command "hadoop fs -rm ...": Argument list too long
-        # taken from xargs --show-limits, use the more restrictive of the two numbers
-        if($ARG_MAX > 131072){
-            $ARG_MAX = 131072;
-            vlog2 "override ARG_MAX to use 131072";
-        }
         # add around 2000 for environment and another 2000 for safety margin
         if((length($cmd) + 2000 + 2000) < $ARG_MAX){
             vlog2 "command length: " . length($cmd) . "  ARG_MAX: $ARG_MAX";
