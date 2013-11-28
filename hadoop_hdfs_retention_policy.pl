@@ -208,12 +208,11 @@ if(@files and $batch > 1){
         vlog2 "override ARG_MAX to use 131072";
     }
     for(my $i=0; $i < scalar @files; $i += $batch){
-        #print "total batch = @files\n";
-        #print "batch 3 =  " . join(" -- ", @files[ $i .. $i+3 ]) . "\n";
         my $last_index = $i + $batch - 1;
         if($last_index >= scalar @files){
             $last_index = scalar(@files) - 1;
         }
+        warn "file batch " . ($i+1) . " - " . ($last_index+1) . ":\n";
         $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
         #vlog2 "checking getconf ARG_MAX to make sure this batch command isn't too big";
         # add around 2000 for environment and another 2000 for safety margin
@@ -222,7 +221,6 @@ if(@files and $batch > 1){
         } else {
             die "Here is the would-be command:\n\n$cmd\n\nResulting hadoop fs -rm command length (" . length($cmd) . ") + env allowance (2000) + safety margin (2000) > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\n"
         }
-        warn "file batch " . ($i+1) . " - " . ($last_index+1) . ":\n";
         if($print_only){
             print "$cmd\n";
         } else {
