@@ -39,7 +39,7 @@ my $exclude;
 my $skipTrash = "";
 my $rm    = 0;
 my $batch = 0;
-my $max_batch_size = 2000; # argument list too long error > 1500
+my $max_batch_size = 1500; # argument list too long error > 1500
 
 set_timeout_max(86400);    # 1 day max -t timeout
 set_timeout_default(1800); # 30 mins. hadoop fs -lsr /tmp took 6 minutes to list 1720943 files/dirs on my test cluster!
@@ -113,6 +113,8 @@ vlog2;
 
 # might leave a hadoop fs -rm running when we exit but I don't want to submit a kill sub to timeout in case it interferes with any other hadoop fs -rm command any user might be executing on the same system.
 set_timeout();
+
+go_flock_yourself();
 
 my $cmd   = "hadoop fs -ls -R $path"; # is quoted above when processing $path or @paths;
 my $fh    = cmd("$cmd | ") or die "ERROR: $? returned from \"$cmd\" command: $!\n";
@@ -218,7 +220,7 @@ if(@files and $batch > 1){
         if((length($cmd) + 2000 + 2000) < $ARG_MAX){
             vlog2 "command length: " . length($cmd) . "  ARG_MAX: $ARG_MAX";
         } else {
-            die "Here is the would-be command:\n\n$cmd\n\nResulting hadoop fs -rm command length ( " . length($cmd) . ") + safety env + safety buffer (4000) > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\n"
+            die "Here is the would-be command:\n\n$cmd\n\nResulting hadoop fs -rm command length (" . length($cmd) . ") + env allowance (2000) + safety margin (2000) > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\n"
         }
         warn "file batch " . ($i+1) . " - " . ($last_index+1) . ":\n";
         if($print_only){
