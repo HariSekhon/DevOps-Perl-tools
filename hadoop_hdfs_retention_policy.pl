@@ -124,7 +124,7 @@ my $file_count     = 0;
 my $files_removed  = 0;
 my $excluded_count = 0;
 my $script_excluded_count = 0;
-vlog "processing file list\n";
+vlog "processing file list";
 while (<$fh>){
     vlog3 "output: $_";
     chomp;
@@ -198,7 +198,7 @@ while (<$fh>){
     }
 }
 if(@files and $batch > 1){
-    vlog scalar @files . " files " . ($print_only ? "matching" : "to be deleted" ) . "\n";
+    vlog scalar @files . " files " . ($print_only ? "matching" : "to be deleted" );
     my $ARG_MAX = `getconf ARG_MAX`;
     isInt($ARG_MAX) or code_error "failed to get ARG_MAX from 'getconf ARG_MAX', got a non-integer '$ARG_MAX'";
     # This doesn't work for some reason even when submitting 821459 against an ARG_MAX of 2621440 it results in ERROR: -1 returned from command "hadoop fs -rm ...": Argument list too long
@@ -212,7 +212,7 @@ if(@files and $batch > 1){
         if($last_index >= scalar @files){
             $last_index = scalar(@files) - 1;
         }
-        vlog "file batch " . ($i+1) . " - " . ($last_index+1) . ":\n";
+        vlog "file batch " . ($i+1) . " - " . ($last_index+1) . ":";
         $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
         #vlog2 "checking getconf ARG_MAX to make sure this batch command isn't too big";
         # add around 2000 for environment and another 2000 for safety margin
