@@ -111,6 +111,7 @@ vlog_options "skipTrash",   $skipTrash ? "true" : "false";
 vlog_options "hadoop path", $hadoop_bin;
 vlog2;
 
+# might leave a hadoop fs -rm running when we exit but I don't want to submit a kill sub to timeout in case it interferes with any other hadoop fs -rm command any user might be executing on the same system.
 set_timeout();
 
 my $cmd   = "hadoop fs -ls -R $path"; # is quoted above when processing $path or @paths;
@@ -195,6 +196,7 @@ while (<$fh>){
     }
 }
 if(@files and $batch > 1){
+    warn scalar @files . " files " . ($print_only ? "matching" : "to be deleted" ) . "\n";
     for(my $i=0; $i < scalar @files; $i += $batch){
         #print "total batch = @files\n";
         #print "batch 3 =  " . join(" -- ", @files[ $i .. $i+3 ]) . "\n";
