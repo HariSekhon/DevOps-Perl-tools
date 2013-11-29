@@ -43,7 +43,8 @@ A couple of the Hadoop utilities listed below require Jython (as well as Hadoop 
 
 ```
 hadoop_hdfs_time_block_reads.jy
-hadoop_hdfs_get_file_checksums.jy
+hadoop_hdfs_files_native_checksums.jy
+hadoop_hdfs_files_stats.jy
 ```
 
 Jython is a simple download and unpack and can be fetched from http://www.jython.org/downloads.html
