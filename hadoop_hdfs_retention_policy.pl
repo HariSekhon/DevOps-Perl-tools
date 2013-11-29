@@ -12,7 +12,7 @@ $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (defau
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -154,7 +154,7 @@ while (<$fh>){
             # - Also, omitting the Hive warehouse directory since removing Hive managed tables seems scary
             # - share/lib/ is under /user/oozie, don't remove that either
             # not anchoring /tmp intentionally since hadoop fs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
-            if ($filename =~ qr( 
+            if ($filename =~ qr{ 
                                     /tmp/mapred/ |
                                     /hbase/      |
                                     /solr/       |
@@ -162,8 +162,9 @@ while (<$fh>){
                                     warehouse/   |
                                     share/lib/   |
                                     \.cloudera_health_monitoring_canary_files |
-                                    ['"]
-                                    )ix){
+                                    [\'\"\`] |
+                                    \$\(
+                                    }ix){
                 $script_excluded_count++;
                 next;
             }
