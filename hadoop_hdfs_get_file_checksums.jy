@@ -21,7 +21,7 @@ hadoop fs -checksum
 
 """
 
-# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_get_file_checksum.jy <list of HDFS files and/or directories>
+# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_files_native_checksums.jy <list of HDFS files and/or directories>
 
 __author__  = "Hari Sekhon"
 __version__ = 0.3
@@ -49,25 +49,25 @@ def usage(*msg):
     if msg:
         printerr("".join(msg))
     die("""
-Fetches HDFS native checksums for given files / all files under given directories
+Fetches HDFS native checksums for given files / all files under given directories. This is at least ~100x more efficient in terms of data transfer than 'hadoop fs -cat | md5sum'
 
 usage: %s <list of HDFS files and/or directories>
 
--v --verbose    Verbose mode, prefixes name: algorithm: and checksum: and shows the algo of the checksum
+-n --no-header      Don't output headers
 """ % os.path.basename(__file__), ERRORS["UNKNOWN"] )
 
 
 def main():
     """ Parse cli args and launch hdfs_get_file_checksum() """
 
+    noheader = False
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "hv", ["help", "usage", "verbose"])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "hn", ["help", "usage", "no-header"])
     except getopt.GetoptError, e:
         usage("error: %s" % e)
     for o, a in opts:
-        if o in ("-v", "--verbose"):
-            global verbose
-            verbose = True
+        if o in ("-n", "--no-header"):
+            noheader = True
         elif o in ("-h", "--help", "--usage"):
             usage()
         else:
@@ -79,7 +79,7 @@ def main():
         usage("no file / directory specified")
     filelist = sorted(filelist)
     try:
-        HDFSChecksumReader().print_checksums(filelist)
+        HDFSChecksumReader().print_checksums(filelist, noheader)
     except KeyboardInterrupt, e:
         printerr("Caught Control-C...", 1)
         sys.exit("OK")
@@ -115,9 +115,13 @@ class HDFSChecksumReader:
         else:
             return None
 
-    def print_checksums(self, filelist):
+    def print_checksums(self, filelist, noheader):
         """ Recurses directories and calls print_checksum(filename) per file """
 
+        if not noheader:
+            print "=" * 150
+            print "%-56s  %-25s  %-12s  %s" % ("Checksum", "Algorithm", "BlockSize", "Filename")
+            print "=" * 150
         for filename in filelist:
             path = self.get_path(filename)
             if not path:
@@ -148,15 +152,14 @@ class HDFSChecksumReader:
     def print_checksum(self, filename, path):
         """ Prints the HDFS checksum for the given file + fs path object """
 
-        vprint("file:")
-        print filename,
         try:
             checksum = self.fs.getFileChecksum(path)
             if checksum:
-                vprint("algorithm:")
-                print "\t" + checksum.getAlgorithmName(),
-                vprint("checksum:")
-                print "\t" + StringUtils.byteToHexString(checksum.getBytes(), 0, checksum.getLength())
+                print "%-56s  %-25s  %-12s  %s" % (
+                        StringUtils.byteToHexString(checksum.getBytes(), 0, checksum.getLength()),
+                        checksum.getAlgorithmName(),
+                        self.fs.getFileStatus(path).getBlockSize(),
+                        filename)
             else:
                 printerr("<NO CHECKSUM for file " + filename + ">", 1)
                 return 0
