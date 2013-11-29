@@ -9,9 +9,9 @@
 #
 #  vim:filetype=python
 
-""" Jython program to count the number of blocks per file in Hadoop HDFS or for all files under given directories"""
+""" Jython program to output stats per file in Hadoop HDFS or for all files under given directories, including blocksize, data size and number of blocks"""
 
-# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_count_blocks.jy [options] <list of HDFS files and/or directories>
+# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_files_stats.jy [options] <list of HDFS files and/or directories>
 
 # I tested this on one of my NN HA Kerberized clusters, should work fine under all circumstances where you have Jython and correctly deployed Hadoop client configuration as long as you have enough RAM, should be no more than 1GB or ~ java -Xmx + HDFS blocksize
 #
@@ -24,9 +24,9 @@ __version__ = "0.8.5"
 #                               Example Usage
 # ============================================================================ #
 #
-# 3. Run this program against the file or directory tree to get a count of the number of blocks and blocksize
+# 3. Run this program against the file or directory tree to get per file stats for blocksize, size and number of blocks
 #
-#    >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_count_blocks.jy /tmp/testfile
+#    >>>  jython -J-cp `hadoop classpath` hadoop_hdfs_files_stats.jy /tmp/testfile
 #
 # ============================================================================ #
 
@@ -48,7 +48,7 @@ try:
     from org.apache.hadoop.fs import Path
     from org.apache.hadoop.hdfs import DistributedFileSystem
 except ImportError, e:
-    die("Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_count_blocks.jy <args>")
+    die("Couldn't find Hadoop Java classes, try:  jython -J-cp `hadoop classpath` hadoop_hdfs_files_stat.jy <args>")
 
 def usage(*msg):
     """ Print usage and exit """
