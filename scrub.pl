@@ -19,7 +19,7 @@ Create a list of phrases to scrub from config by placing them in scrub_custom.tx
 
 Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin";
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 use strict;
 use warnings;
@@ -163,8 +163,8 @@ sub scrub_screenos($){
     $string =~ s/set admin (name|user|password) "?.+"?/set admin $1 <scrubbed>/g;
     $string =~ s/set snmp (community|host) "?.+"?/set snmp $1 <scrubbed>/g;
     $string =~ s/ md5 "?.+"?/ md5 <scrubbed>/g;
-    $string =~ s/ key [^[:space:]]+ (?:!enable)/ key <scrubbed>/g;
-    $string =~ s/set nsmgmt init id [^[:space:]]+/set nsmgmt init id <scrubbed>/g;
+    $string =~ s/ key [^\s]+ (?:!enable)/ key <scrubbed>/g;
+    $string =~ s/set nsmgmt init id [^\s]+/set nsmgmt init id <scrubbed>/g;
     $string =~ s/preshare .+? /preshare <scrubbed> /g;
     $string = scrub_network_generic($string) unless $network;
     return $string;
