@@ -105,7 +105,7 @@ if(defined($exclude)){
 }
 $hadoop_bin  = which($hadoop_bin, 1);
 $hadoop_bin  =~ /\b\/?hadoop$/ or die "invalid hadoop program '$hadoop_bin' given, should be called hadoop!\n";
-$batch       = validate_int($batch, 0, $max_batch_size, "batch size");
+$batch       = validate_int($batch, "batch size", 0, $max_batch_size);
 vlog_options "rm",          $rm        ? "true" : "false";
 vlog_options "skipTrash",   $skipTrash ? "true" : "false";
 vlog_options "hadoop path", $hadoop_bin;
