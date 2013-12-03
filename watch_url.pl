@@ -10,7 +10,7 @@
 
 $DESCRIPTION = "Watch a given URL, outputting status code, content, round trip time and percentages of return codes. Useful for testing web farms and load balancers";
 
-$VERSION = "0.4.3";
+$VERSION = "0.4.4";
 
 use strict;
 use warnings;
@@ -75,7 +75,7 @@ $url = validate_url($url);
 validate_int($count, 0, "1000000", "count");
 validate_float($interval, 0.00001, 1000, "interval");
 $regex = validate_regex($regex) if $regex;
-validate_int($output_length, 0, 1000, "output length");
+validate_int($output_length, "output length", 0, 1000);
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon Watch URL version $main::VERSION ");
