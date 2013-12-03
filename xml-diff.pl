@@ -41,7 +41,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 use File::Temp 'tempfile';
-use LWP::Simple qw/get $ua/;
+use LWP::Simple '$ua';
 use XML::Validate;
 #use FileHandle;
 #use IPC::Open2;
