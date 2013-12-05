@@ -80,9 +80,9 @@ if ($rm and not $debug){
 }
 $skipTrash = "-skipTrash" if $skipTrash;
 
-$days    = validate_float($days,  0, 3650, "days");
-$hours   = validate_float($hours, 0, 23,   "hours");
-$mins    = validate_float($mins,  0, 59,   "mins");
+$days    = validate_float($days,  "days",  0, 3650);
+$hours   = validate_float($hours, "hours", 0, 23);
+$mins    = validate_float($mins,  "mins",  0, 59);
 my $max_age_secs = ($days * 86400) + ($hours * 3600) + ($mins * 60);
 usage "must specify a total max age > 5 minutes" if ($max_age_secs < 300);
 my @paths = ();
