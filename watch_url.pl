@@ -73,7 +73,7 @@ $url = validate_url($url);
 
 #vlog_options "Count", $count ? $count : "$count (unlimited)";
 validate_int($count, "count", 0, 1000000);
-validate_float($interval, "interval", 0.00001, 1000, interval);
+validate_float($interval, "interval", 0.00001, 1000);
 $regex = validate_regex($regex) if $regex;
 validate_int($output_length, "output length", 0, 1000);
 
