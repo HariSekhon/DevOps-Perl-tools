@@ -25,7 +25,6 @@ my $host2;
 my $port2;
 my $user2;
 my $password2;
-my $dir;
 
 %options = (
     %datameer_options,
