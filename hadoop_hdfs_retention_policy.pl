@@ -12,7 +12,7 @@ $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (defau
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.7.1";
+$VERSION = "0.8";
 
 use strict;
 use warnings;
@@ -40,6 +40,7 @@ my $skipTrash = "";
 my $rm    = 0;
 my $batch = 0;
 my $max_batch_size = 1500; # argument list too long error > 1500
+my $Xmx;
 
 set_timeout_max(86400);    # 1 day max -t timeout
 set_timeout_default(1800); # 30 mins. hadoop fs -lsr /tmp took 6 minutes to list 1720943 files/dirs on my test cluster!
@@ -70,6 +71,7 @@ my %months = (
     "skipTrash"     =>  [ \$skipTrash,  "Skips moving files to HDFS Trash, reclaims space immediately" ],
     "hadoop-bin=s"  =>  [ \$hadoop_bin, "Path to 'hadoop' command if not in \$PATH" ],
     "b|batch=s"     =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max $max_batch_size). You will almost certainly need to use this in Production" ],
+    "Xmx=s"         =>  [ \$Xmx,        "Max Heap to assign to the 'hadoop' or 'hdfs' command in MB, must be an integer, units cannot be specified" ],
 );
 @usage_order = qw/days hours mins path include exclude rm skipTrash batch hadoop-bin/;
 get_options();
@@ -103,6 +105,11 @@ if(defined($exclude)){
     $exclude     = validate_regex($exclude, "exclude");
     $exclude     = qr/$exclude/o;
 }
+if($Xmx){
+    $Xmx =~ /^(\d+)$/ or usage "-Xmx must be an integer representing the number of MB to allocate to the Heap";
+    $Xmx = $1;
+    vlog_options "Xmx (Max Heap MB)", $Xmx; 
+}
 $hadoop_bin  = which($hadoop_bin, 1);
 $hadoop_bin  =~ /\b\/?hadoop$/ or die "invalid hadoop program '$hadoop_bin' given, should be called hadoop!\n";
 $batch       = validate_int($batch, "batch size", 0, $max_batch_size);
@@ -117,7 +124,10 @@ set_timeout();
 go_flock_yourself();
 
 my $cmd   = "hadoop fs -ls -R $path"; # is quoted above when processing $path or @paths;
-my $fh    = cmd("$cmd | ") or die "ERROR: $? returned from \"$cmd\" command: $!\n";
+if($Xmx){
+    $cmd = "HADOOP_HEAPSIZE='$Xmx' $cmd";
+}
+my $fh    = cmd("$cmd | ", 0, 1) or die "ERROR: $? returned from \"$cmd\" command: $!\n";
 my @files = ();
 my $now   = time || die "Failed to get epoch timestamp\n";
 my $file_count     = 0;
@@ -182,6 +192,7 @@ while (<$fh>){
         warn "$progname: WARNING - failed to match line from hadoop output: \"$line\"\n";
     }
     if(@files and $batch < 2){
+        # Not setting HADOOP_HEAPSIZE here since it should be suffient for such a small number of files
         $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files) . "'";
         if($print_only){
             print "$cmd\n";
@@ -215,6 +226,9 @@ if(@files and $batch > 1){
         }
         vlog "file batch " . ($i+1) . " - " . ($last_index+1) . ":";
         $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
+        if($Xmx){
+            $cmd = "HADOOP_HEAPSIZE='$Xmx' $cmd";
+        }
         #vlog2 "checking getconf ARG_MAX to make sure this batch command isn't too big";
         # add around 2000 for environment and another 2000 for safety margin
         if((length($cmd) + 2000 + 2000) < $ARG_MAX){
