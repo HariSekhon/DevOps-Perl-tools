@@ -47,7 +47,7 @@ use File::Spec;
 use LWP::Simple '$ua';
 #use Time::HiRes 'sleep';
 
-$Data::Dumper::Terse = 1;
+$Data::Dumper::Terse  = 1;
 $Data::Dumper::Indent = 1;
 
 my $dir;
@@ -85,8 +85,8 @@ if(@selected_types){
 } else {
     @selected_types = @valid_types;
 }
-vlog_options "types", "@selected_types";
-vlog_options "skip-error", ( $skip_error ? "True" : "False" );
+vlog_options "types",       "@selected_types";
+vlog_options "skip-error",  ( $skip_error ? "True" : "False" );
 
 vlog2;
 set_timeout();
@@ -143,6 +143,8 @@ foreach $type (@selected_types){
             quit("CRITICAL", "blank content returned from '$url/$type/$id'");
         }
         $output = Dumper($json) || die "Failed to convert json config to string: $!";
+        $output =~ s/^'//;
+        $output =~ s/\n'//;
         vlog3($output);
         ( -d $type ) or mkdir $type or die "Failed to create directory '$dir': $!\n";
         $filename = "$dir/$type/$id";
@@ -160,7 +162,8 @@ my $cmd = "git add . && git ci -m \"updated datameer config\"";
 vlog2 "cmd: $cmd";
 $output = `$cmd`;
 my $returncode = $?;
-vlog2 "output:\n\n$output\n\nreturncode: $returncode";
+vlog2 "output:\n\n$output\n";
+vlog2 "returncode: $returncode\n";
 if($returncode != 0){
     unless($output =~ "nothing to commit"){
         print "ERROR:\n\n$output\n";
