@@ -26,7 +26,7 @@ Fetches configuration via the Datameer Rest API and writes it to files under spe
 
 Must specify a valid Git repository directory, which must contain a safety dot file '.datameer.git' indicating this repo is owned by this program before it will write to it
 
-Can optionally specify just a subset of one or more of the following config types:
+Can optionally specify just a subset of one or more of the following config types (fetches all config of given types or all configs of all of the following types if none are specified):
 
 " . join("\n", @valid_types) . " 
 
