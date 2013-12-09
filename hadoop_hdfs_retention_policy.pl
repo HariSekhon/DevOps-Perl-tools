@@ -209,6 +209,7 @@ while (<$fh>){
         @files = ();
     }
 }
+$file_count or die "No files found in HDFS";
 if(@files and $batch > 1){
     vlog scalar @files . " files " . ($print_only ? "matching" : "to be deleted" );
     my $ARG_MAX = `getconf ARG_MAX`;
