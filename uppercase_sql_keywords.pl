@@ -40,7 +40,7 @@ my @files = parse_file_option($file, "args are files");
 my %sql_keywords;
 my $comment_chars = qr/(?:^|\s)(?:#|--)/;
 
-my $fh = open_file dirname(__FILE__) . "/sql_keywords.txt";
+my $fh = open_file dirname(__FILE__) . "/sql_keywords.conf";
 foreach(<$fh>){
     chomp;
     s/(?:#|--).*//;
