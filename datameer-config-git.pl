@@ -43,6 +43,7 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Datameer;
 use Data::Dumper;
+use Fcntl ':flock';
 use File::Spec;
 use LWP::Simple '$ua';
 #use Time::HiRes 'sleep';
@@ -60,7 +61,7 @@ my $skip_error;
     %datameer_options,
     "d|git-dir=s",  [ \$dir,        "Git repo's top level directory" ],
     "git-binary=s", [ \$git,        "Path to git binary if not in \$PATH ($ENV{PATH})" ],
-    "no-git",       [ \$no_git,     "Do not commit to Git (must still specify a directory to download it but skips checks for .git repo or safety file .datameer.git since it doesn't invoke Git)" ],
+    "no-git",       [ \$no_git,     "Do not commit to Git (must still specify a directory to download it but skips checks for .git since it doesn't invoke Git)" ],
     "T|type=s",     [ \$type,       "Only fetch configs for these types in Datameer (comma separated list, see full list in --help description)" ],
     #"skip-error",   [ \$skip_error, "Skip errors from Datameer server" ],
 );
@@ -105,8 +106,11 @@ $status = "OK";
 chdir($dir) or die "failed to chdir to git directory $dir\n";
 unless($no_git){
     ( -d ".git" ) or die "'$dir' is not a Git repository!\n";
-    ( -f ".datameer.git" ) or die "'$dir' does not contain the safety touch file '.datameer.git' to ensure that you intend to write and commmit to this repo\n";
 }
+( -f ".datameer.git" ) or die "'$dir' does not contain the safety touch file '.datameer.git' to ensure that you intend to write and commmit to this repo\n";
+
+open my $lock_fh, "$dir"; # without quotes my tries to take $dir
+flock $lock_fh, LOCK_EX|LOCK_NB or die "Failed to acquire lock on '$dir', another instance of this program must be running!\n";
 
 my $url = "http://$host:$port/rest";
 
