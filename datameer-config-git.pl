@@ -32,7 +32,7 @@ Can optionally specify just a subset of one or more of the following config type
 
 Tested on Datameer 3.0.11";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -51,16 +51,20 @@ $Data::Dumper::Terse  = 1;
 $Data::Dumper::Indent = 1;
 
 my $dir;
+my $git = "git";
+my $no_git;
 my $type;
 my $skip_error;
 
 %options = (
     %datameer_options,
     "d|git-dir=s",  [ \$dir,        "Git repo's top level directory" ],
+    "git-binary=s", [ \$git,        "Path to git binary if not in \$PATH ($ENV{PATH})" ],
+    "no-git",       [ \$no_git,     "Do not commit to Git (must still specify a directory to download it but skips checks for .git repo or safety file .datameer.git since it doesn't invoke Git)" ],
     "T|type=s",     [ \$type,       "Only fetch configs for these types in Datameer (comma separated list, see full list in --help description)" ],
     #"skip-error",   [ \$skip_error, "Skip errors from Datameer server" ],
 );
-@usage_order = qw/host port user password git-dir type/;
+@usage_order = qw/host port user password git-dir git-binary no-git type/;
 
 set_timeout_max(3600);
 set_timeout_default(600);
@@ -69,6 +73,10 @@ get_options();
 
 ($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
 $dir = validate_directory(File::Spec->rel2abs($dir), 0, "git");
+$git = which($git, 1);
+$git = validate_file($git, 0, "git binary");
+$git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
+vlog_options "commit to git", ( $no_git ? "False" : "True" );
 my @selected_types;
 if($type){
     foreach $type (split(/\s*,\s*/, $type)){
@@ -86,7 +94,7 @@ if(@selected_types){
     @selected_types = @valid_types;
 }
 vlog_options "types",       "@selected_types";
-vlog_options "skip-error",  ( $skip_error ? "True" : "False" );
+#vlog_options "skip-error",  ( $skip_error ? "True" : "False" );
 
 vlog2;
 set_timeout();
@@ -95,8 +103,10 @@ set_http_timeout(30);
 $status = "OK";
 
 chdir($dir) or die "failed to chdir to git directory $dir\n";
-( -d ".git" ) or die "'$dir' is not a Git repository!\n";
-( -f ".datameer.git" ) or die "'$dir' does not contain the safety touch file '.datameer.git' to ensure that you intend to write and commmit to this repo\n";
+unless($no_git){
+    ( -d ".git" ) or die "'$dir' is not a Git repository!\n";
+    ( -f ".datameer.git" ) or die "'$dir' does not contain the safety touch file '.datameer.git' to ensure that you intend to write and commmit to this repo\n";
+}
 
 my $url = "http://$host:$port/rest";
 
@@ -157,17 +167,19 @@ foreach $type (@selected_types){
     }
 }
 
-vlog "committing any changes to git";
-my $cmd = "git add . && git ci -m \"updated datameer config\"";
-vlog2 "cmd: $cmd";
-$output = `$cmd`;
-my $returncode = $?;
-vlog2 "output:\n\n$output\n";
-vlog2 "returncode: $returncode\n";
-if($returncode != 0){
-    unless($output =~ "nothing to commit"){
-        print "ERROR:\n\n$output\n";
-        exit $returncode;
+unless($no_git){
+    vlog "committing any changes to git";
+    my $cmd = "$git add . && $git commit -m \"updated datameer config\"";
+    vlog2 "cmd: $cmd";
+    $output = `$cmd`;
+    my $returncode = $?;
+    vlog2 "output:\n\n$output\n";
+    vlog2 "returncode: $returncode\n";
+    if($returncode != 0){
+        unless($output =~ "nothing to commit"){
+            print "ERROR:\n\n$output\n";
+            exit $returncode;
+        }
     }
+    $output =~ /\d+ files? changed|\d+ insertion|\d+ deletion/i and print "$output\n";
 }
-$output =~ /\d+ files? changed|\d+ insertion|\d+ deletion/i and print "$output\n";
