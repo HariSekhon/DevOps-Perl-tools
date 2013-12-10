@@ -136,7 +136,7 @@ foreach $type (@selected_types){
             vlog "skipping $type $id with path /.system/...";
             next;
         }
-        vlog "fetcing configuration for $type id $id";
+        vlog "fetching configuration for $type id $id";
         vlog3 "GET $url/$type/$id";
         $req = HTTP::Request->new('GET', "$url/$type/$id");
         $req->authorization_basic($user, $password) if (defined($user) and defined($password));
