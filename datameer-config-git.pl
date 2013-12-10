@@ -54,6 +54,7 @@ $Data::Dumper::Indent = 1;
 my $dir;
 my $git = "git";
 my $no_git;
+my $quiet;
 my $type;
 my $skip_error;
 
@@ -63,14 +64,16 @@ my $skip_error;
     "git-binary=s", [ \$git,        "Path to git binary if not in \$PATH ($ENV{PATH})" ],
     "no-git",       [ \$no_git,     "Do not commit to Git (must still specify a directory to download it but skips checks for .git since it doesn't invoke Git)" ],
     "T|type=s",     [ \$type,       "Only fetch configs for these types in Datameer (comma separated list, see full list in --help description)" ],
+    "q|quiet",      [ \$quiet,      "Quiet mode" ],
     #"skip-error",   [ \$skip_error, "Skip errors from Datameer server" ],
 );
-@usage_order = qw/host port user password git-dir git-binary no-git type/;
+@usage_order = qw/host port user password git-dir git-binary no-git type quiet/;
 
 set_timeout_max(3600);
 set_timeout_default(600);
 
 get_options();
+$verbose++ unless $quiet;
 
 ($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
 $dir = validate_directory(File::Spec->rel2abs($dir), 0, "git");
