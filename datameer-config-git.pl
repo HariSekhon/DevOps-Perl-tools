@@ -76,7 +76,8 @@ get_options();
 $verbose++ unless $quiet;
 
 ($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
-$dir = validate_directory(File::Spec->rel2abs($dir), 0, "git");
+$dir = validate_directory($dir, 0, "git");
+$dir = File::Spec->rel2abs($dir);
 $git = which($git, 1);
 $git = validate_file($git, 0, "git binary");
 $git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
