@@ -24,7 +24,11 @@ Inspired by Rancid and the Datameer checks from the Advanced Nagios Plugins Coll
 
 Fetches configuration via the Datameer Rest API and writes it to files under specified Git directory repo, then commits those files to Git
 
-Must specify a valid Git repository directory, which must contain a safety dot file '.datameer.git' indicating this repo is owned by this program before it will write to it
+Requirements:
+
+- Datameer user with ADMIN assigned inside Datameer in order to fetch all configs (otherwise will only fetch some it has access to)
+- a valid Git repository checkout top level directory
+- a safety dot file '.datameer.git' at the top level of the git directory checkout indicating that this repo is owned by this program before it will write to it
 
 Can optionally specify just a subset of one or more of the following config types (fetches all config of given types or all configs of all of the following types if none are specified):
 
