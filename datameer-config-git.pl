@@ -111,7 +111,7 @@ set_http_timeout(30);
 
 $status = "OK";
 
-chdir($dir) or die "failed to chdir to git directory $dir: $!\n";
+chdir($dir) or die "failed to chdir to git directory '$dir': $!\n";
 unless($no_git){
     ( -d ".git" ) or die "'$dir' is not a Git repository!\n";
 }
