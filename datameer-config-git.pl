@@ -73,7 +73,7 @@ my $skip_error;
 );
 @usage_order = qw/host port user password git-dir git-binary no-git type quiet/;
 
-set_timeout_max(6000);
+set_timeout_max(36000);
 set_timeout_default(600);
 
 get_options();
