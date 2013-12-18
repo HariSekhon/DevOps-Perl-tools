@@ -27,7 +27,7 @@ Fetches configuration via the Datameer Rest API and writes it to files under spe
 Requirements:
 
 - Datameer user with ADMIN assigned inside Datameer in order to fetch all configs (otherwise will only fetch some it has access to)
-- a valid Git repository checkout top level directory
+- a valid Git repository checkout (specify the top level directory to --git-dir)
 - a safety dot file '.datameer.git' at the top level of the git directory checkout indicating that this repo is owned by this program before it will write to it
 
 Can optionally specify just a subset of one or more of the following config types (fetches all config of given types or all configs of all of the following types if none are specified):
@@ -36,7 +36,7 @@ Can optionally specify just a subset of one or more of the following config type
 
 Tested on Datameer 3.0.11";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -80,29 +80,29 @@ get_options();
 $verbose++ unless $quiet;
 
 ($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
-$dir = validate_directory($dir, 0, "git");
+# Putting rel2abs after validate re-taints the $dir, but putting it before rel2abs assumes "." on undefined $dir, avoiding the validation defined check, so check defined before rel2abs and then validate final $dir format before usage
+$dir or usage "git directory not defined";
 $dir = File::Spec->rel2abs($dir);
+$dir = validate_directory($dir, 0, "git");
 $git = which($git, 1);
 $git = validate_file($git, 0, "git binary");
 $git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
 vlog_options "commit to git", ( $no_git ? "False" : "True" );
-my @selected_types;
+my %selected_types;
 if($type){
     foreach $type (split(/\s*,\s*/, $type)){
         if(grep { $type eq $_ } @valid_types){
-            push(@selected_types, $type);
+            $selected_types{$type} = 0;
         } else {
             print "invalid type '$type' specified, see list of valid types below\n";
             usage;
         }
     }
 }
-if(@selected_types){
-    @selected_types = uniq_array(@selected_types);
-} else {
-    @selected_types = @valid_types;
+if(not %selected_types){
+    %selected_types = map { $_ => 0 } @valid_types;
 }
-vlog_options "types",       "@selected_types";
+vlog_options "types",       join(" ", sort keys %selected_types);
 #vlog_options "skip-error",  ( $skip_error ? "True" : "False" );
 
 vlog2;
@@ -129,9 +129,14 @@ my $fh;
 my $output;
 my $req;
 my $response;
+my $start_time = time;
+my $start_time_type;
+my %timings;
 $ua->show_progress(1) if $debug;
-foreach $type (@selected_types){
-    vlog "fetching all configuration for: $type";
+vlog "fetching all configurations for: " . join(" ", sort keys %selected_types);
+foreach $type (sort keys %selected_types){
+    vlog "fetching configurations for: $type";
+    $start_time_type = time;
     $json = datameer_curl "$url/$type", $user, $password;
     # iterate over ids, fetch and save to file hierarchy under git
     foreach $json (@{$json}){
@@ -170,14 +175,25 @@ foreach $type (@selected_types){
         vlog3($output);
         ( -d $type ) or mkdir $type or die "Failed to create directory '$dir': $!\n";
         $filename = "$dir/$type/$id";
-        vlog "writing config to file '$filename'";
+        vlog2 "writing config to file '$filename'";
         open ($fh, ">", $filename) or die "Failed to open file '$filename': $!\n";
         print $fh $output or die "Failed to write to file '$filename': $!\n";
         close $fh;
+        $selected_types{$type}++;
         vlog2;
         #sleep 0.5
     }
+    $timings{$type} = time - $start_time_type;
+    plural $selected_types{$type};
+    vlog "finished fetching $type: $selected_types{$type} fetched in $timings{$type} secs"
 }
+my $total_time = time - $start_time;
+
+vlog "\nCompleted all configuration fetching in $total_time secs:\n";
+foreach(sort keys %selected_types){
+    vlog sprintf("%-10s\t%4d fetched in %4d secs", $_, $selected_types{$_}, $timings{$_});
+}
+vlog;
 
 unless($no_git){
     vlog "committing any changes to git";
