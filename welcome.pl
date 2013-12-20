@@ -28,7 +28,7 @@ $| = 1;
 my $simple;
 
 %options = (
-    "s|simple" => [ \$simple,   "Print instantly without fancy effect, saves a 2-3 seconds" ],
+    "s|simple" => [ \$simple,   "Print instantly without fancy effect, saves 2-3 seconds" ],
 );
 get_options();
 
