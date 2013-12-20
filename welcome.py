@@ -61,7 +61,7 @@ try:
         last = re.sub(' *$', '', last)
         if(last_user == "ROOT"):
             msg += "ROOT"
-        elif(last_user == user):
+        elif(last_user.lower() == user.lower()):
             msg += "by you"
         else:
             msg += "by %s" % last_user
