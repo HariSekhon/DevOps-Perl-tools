@@ -14,6 +14,7 @@ install:
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	sudo cpan LWP::Simple \
 		 LWP::UserAgent \
+		 Term::ReadKey \
 		 Text::Unidecode \
 		 Time::HiRes \
 		 XML::Validate
