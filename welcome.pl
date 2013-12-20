@@ -57,7 +57,7 @@ if($last_login){
     $msg .= "last access was ";
     if($last_user eq "ROOT"){
         $msg .= "ROOT";
-    } elsif($last_user eq $user){
+    } elsif(lc $last_user eq lc $user){
         $msg .= "by you";
     } else {
         $msg .= "by $last_user";
