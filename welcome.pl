@@ -54,11 +54,13 @@ if($last_login){
     $last_login =~ s/.*(\w{3}\s+\w{3}\s+\d+)/$1/ or die "failed to find the date format in the last log";
     $last_login =~ s/ *$//;
     $last_login =~ /^[\w\s\:\(\)-]+$/ or die "last login '$last_login' failed to match expected format";
-    $msg .= "last access was by ";
-    if($last_user eq $user){
-        $msg .= "you";
+    $msg .= "last access was ";
+    if($last_user eq "ROOT"){
+        $msg .= "ROOT";
+    } elsif($last_user eq $user){
+        $msg .= "by you";
     } else {
-        $msg .= "$last_user";
+        $msg .= "by $last_user";
     }
     $msg .= " => $last_login";
 } else {
