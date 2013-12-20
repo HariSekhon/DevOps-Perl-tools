@@ -49,7 +49,7 @@ try:
             continue
         break
     if(last):
-        msg += "last access was by "
+        msg += "last access was "
         last_user = re.sub('\s+.*$', '', last)
         if last_user == "root":
             last_user = "ROOT"
@@ -59,10 +59,12 @@ try:
             print "failed to find the date format in the last log";
             sys.exit(2)
         last = re.sub(' *$', '', last)
-        if(last_user == user):
-            msg += "you"
+        if(last_user == "ROOT"):
+            msg += "ROOT"
+        elif(last_user == user):
+            msg += "by you"
         else:
-            msg += last_user
+            msg += "by %s" % last_user
         msg += " => %s" % last
     else:
         msg += "no last login information available!"
