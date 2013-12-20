@@ -64,7 +64,8 @@ my @chars = ("A".."Z", "a".."z", 0..9, split('', '@#$%^&*()'));
 
 my $ESC = "\033";
 
-set_timeout($timeout, sub { printf "${ESC}[%s;%sH${ESC}[0;40m${ESC}[1;37m%s${ESC}[$lines;${columns}H", int($lines / 2.0) , (int($columns / 2.0) - 12), "  ==> SYSTEM ERROR <==  "; exit 0; } );
+my $system_failure = "  ==> SYSTEM FAILURE <==  ";
+set_timeout($timeout, sub { printf "${ESC}[%s;%sH${ESC}[0;40m${ESC}[1;37m%s${ESC}[$lines;${columns}H", int($lines / 2.0) , int($columns / 2.0 - (length($system_failure) / 2.0)), $system_failure; exit 0; } );
 
 # sets terminal to bold black
 print "${ESC}[1;40m";
