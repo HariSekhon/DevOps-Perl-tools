@@ -25,6 +25,11 @@ use Time::HiRes 'sleep';
 
 $| = 1;
 
+my $simple;
+
+%options = (
+    "s|simple" => [ \$simple,   "Print instantly without fancy effect, saves a 2-3 seconds" ],
+);
 get_options();
 
 set_timeout();
@@ -65,6 +70,11 @@ if($last_login){
     $msg .= " => $last_login";
 } else {
     $msg .= "no last login information available!";
+}
+
+if($simple){
+    print "$msg\n";
+    exit 0;
 }
 
 my @charmap = ("A".."Z", "a".."z", 0..9, split('', '@#$%^&*()'));
