@@ -65,28 +65,32 @@ my @chars = ("A".."Z", "a".."z", 0..9, split('', '@#$%^&*()'));
 my $ESC = "\033";
 
 my $system_failure = "  ==> SYSTEM FAILURE <==  ";
+
+autoflush();
+
 set_timeout($timeout, sub { printf "${ESC}[%s;%sH${ESC}[0;40m${ESC}[1;37m%s${ESC}[$lines;${columns}H", int($lines / 2.0) , int($columns / 2.0 - (length($system_failure) / 2.0)), $system_failure; exit 0; } );
 
-# sets terminal to bold black
-print "${ESC}[1;40m";
-# clear screen, reset cursor position to 0,0
-print "${ESC}[2J${ESC}[0;0H";
-my ( %a, $letter, $line, $column, $o);
+# sets terminal to bold black - done per printf
+#print "${ESC}[1;40m";
+# clear screen     # cursor position to 0,0
+print "${ESC}[2J"; # ${ESC}[0;0H";
+my (%a, $letter, $line, $column);
 while(1){
     $letter = $chars[rand @chars];
     $a{int(rand $columns)} = 0;
     foreach $column (keys %a){
-        $o = $a{$column};
+        $line = $a{$column};
         $a{$column} += 1;
-        # cursor position line $o, $column
-        printf "${ESC}[%s;%sH",   $o, $column;
-        # set bold black bg (1;40), faint;green fg (2;32), print $letter
-        printf "${ESC}[1;40m${ESC}[2;32m%s" , $letter;
-        # cursor position line $a{$column}, column $column
-        printf "${ESC}[%s;%sH",  $a{$column}, $column;
-        # set normal black bg (0;40) to not dim white chars, all them to stand out more
-        # set bold;white fg (1;37), print $letter
-        printf "${ESC}[0;40m${ESC}[1;37m%s", $letter;
+        # ESC cursor position to $line, $column
+        # ESC bold;black  bg (1;40)
+        # ESC faint;green fg (2;32)
+        # ESC print $letter
+        printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[2;32m%s", $line, $column, $letter;
+        # ESC cursor position line $a{$column}, column $column
+        # ESC normal;black bg (0;40) - to not dim white fg chars, allow them to stand out more
+        # ESC bold;white   fg (1;37)
+        # print $letter
+        printf "${ESC}[%s;%sH${ESC}[0;40m${ESC}[1;37m%s",  $a{$column}, $column, $letter;
         # reset to 0,0 coordinates
         #printf "${ESC}[0;0H";
         if($a{$column} >= $lines){
