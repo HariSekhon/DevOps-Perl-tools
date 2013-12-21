@@ -62,6 +62,11 @@ $columns = validate_int($columns, 'Terminal Columns', 0, 5000);
 vlog_options "Terminal Pixels", "${wpixels}x${hpixels}";
 
 my @chars = ("A".."Z", "a".."z", 0..9, split('', '@#$%^&*()'));
+# Actually looks better without all the ascii symbols
+#@chars = ();
+#for(my $ascii=33; $ascii < 127; $ascii++){
+#    push(@chars, chr($ascii));
+#}
 
 my $ESC = "\033";
 
@@ -100,7 +105,8 @@ while(1){
                 $char;
         # reset to 0,0 coordinates
         #printf "${ESC}[0;0H";
-        if($cursor{$column} > $lines){
+        if($cursor{$column} >= $lines){
+            printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[2;32m%s", $cursor{$column}, $column, $char;
             $cursor{$column} = 0;
         }
     }
