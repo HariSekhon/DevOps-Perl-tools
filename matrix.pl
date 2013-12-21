@@ -75,19 +75,19 @@ set_timeout($timeout, sub { printf "${ESC}[%s;%sH${ESC}[0;40m${ESC}[1;37m%s${ESC
 #print "${ESC}[1;40m";
 # clear screen     # cursor position to 0,0
 print "${ESC}[2J"; # ${ESC}[0;0H";
-my (%cursor, $letter, $line, $column);
+my (%cursor, $char, $line, $column);
 while(1){
-    $letter = $chars[rand @chars];
     $cursor{int(rand $columns)} = 0;
     foreach $column (keys %cursor){
+        $char = $chars[rand @chars];
         $line = $cursor{$column};
         $cursor{$column} += 1;
                 # ESC cursor position to $line, $column
                 # ESC bold;black   bg (1;40)
-                # ESC faint;green  fg (2;32)  print $letter
+                # ESC faint;green  fg (2;32)  print $char
                 # ESC cursor position to line $a{$column}, $column
                 # ESC normal;black bg (0;40) - to not dim white fg chars, allow them to stand out more
-                # ESC bold;white   fg (1;37)  print $letter
+                # ESC bold;white   fg (1;37)  print $char
         printf "${ESC}[%s;%sH"  .
                "${ESC}[1;40m"   .
                "${ESC}[2;32m%s" .
@@ -95,9 +95,9 @@ while(1){
                "${ESC}[0;40m"   .
                "${ESC}[1;37m%s" ,
                 $line, $column,
-                $letter,
+                $char,
                 $cursor{$column}, $column,
-                $letter;
+                $char;
         # reset to 0,0 coordinates
         #printf "${ESC}[0;0H";
         if($cursor{$column} > $lines){
