@@ -82,16 +82,22 @@ while(1){
     foreach $column (keys %a){
         $line = $a{$column};
         $a{$column} += 1;
-        # ESC cursor position to $line, $column
-        # ESC bold;black  bg (1;40)
-        # ESC faint;green fg (2;32)
-        # ESC print $letter
-        printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[2;32m%s", $line, $column, $letter;
-        # ESC cursor position line $a{$column}, column $column
-        # ESC normal;black bg (0;40) - to not dim white fg chars, allow them to stand out more
-        # ESC bold;white   fg (1;37)
-        # print $letter
-        printf "${ESC}[%s;%sH${ESC}[0;40m${ESC}[1;37m%s",  $a{$column}, $column, $letter;
+                # ESC cursor position to $line, $column
+                # ESC bold;black   bg (1;40)
+                # ESC faint;green  fg (2;32)  print $letter
+                # ESC cursor position to line $a{$column}, $column
+                # ESC normal;black bg (0;40) - to not dim white fg chars, allow them to stand out more
+                # ESC bold;white   fg (1;37)  print $letter
+        printf "${ESC}[%s;%sH"  .
+               "${ESC}[1;40m"   .
+               "${ESC}[2;32m%s" .
+               "${ESC}[%s;%sH"  .
+               "${ESC}[0;40m"   .
+               "${ESC}[1;37m%s" ,
+                $line, $column,
+                $letter,
+                $a{$column}, $column,
+                $letter;
         # reset to 0,0 coordinates
         #printf "${ESC}[0;0H";
         if($a{$column} >= $lines){
