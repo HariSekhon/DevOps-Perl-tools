@@ -57,8 +57,9 @@ use Term::ReadKey 'GetTerminalSize';
 get_options();
 my ($columns, $lines, $wpixels, $hpixels) = GetTerminalSize();
 
-$columns = validate_int($columns, 'Terminal columns', 0, 1000);
-$lines   = validate_int($lines,   'Terminal lines',   0, 5000);
+$lines   = validate_int($lines,   'Terminal Lines',   0, 1000);
+$columns = validate_int($columns, 'Terminal Columns', 0, 5000);
+vlog_options "Terminal Pixels", "${wpixels}x${hpixels}";
 
 my @chars = ("A".."Z", "a".."z", 0..9, split('', '@#$%^&*()'));
 
