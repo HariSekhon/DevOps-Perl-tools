@@ -49,7 +49,7 @@ try:
             continue
         break
     if(last):
-        msg += "last access was "
+        msg += "last login was "
         last_user = re.sub('\s+.*$', '', last)
         if last_user == "root":
             last_user = "ROOT"

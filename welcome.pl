@@ -59,7 +59,7 @@ if($last_login){
     $last_login =~ s/.*(\w{3}\s+\w{3}\s+\d+)/$1/ or die "failed to find the date format in the last log";
     $last_login =~ s/ *$//;
     $last_login =~ /^[\w\s\:\(\)-]+$/ or die "last login '$last_login' failed to match expected format";
-    $msg .= "last access was ";
+    $msg .= "last login was ";
     if($last_user eq "ROOT"){
         $msg .= "ROOT";
     } elsif(lc $last_user eq lc $user){
