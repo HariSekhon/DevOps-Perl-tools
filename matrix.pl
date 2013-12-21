@@ -106,7 +106,7 @@ while(1){
         # reset to 0,0 coordinates
         #printf "${ESC}[0;0H";
         if($cursor{$column} >= $lines){
-            printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[2;32m%s", $cursor{$column}, $column, $char;
+            printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[2;32m%s", $cursor{$column}, $column, $chars[rand @chars];
             $cursor{$column} = 0;
         }
     }
