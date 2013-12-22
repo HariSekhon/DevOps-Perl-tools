@@ -38,7 +38,7 @@ my $user = $ENV{"USER"} || "user";
 $user = isUser($user) || die "invalid user '$user' determined from environment variable \$USER\n";
 if($user eq "root"){
     $user = uc $user;
-} elsif(length($user) < 4 or $user =~ /\d/){
+} elsif(length($user) < 4 or $user =~ /\d/ or $user eq "user"){
     # probably not a person's name, don't capitalize
 } else {
     $user = ucfirst lc $user;
