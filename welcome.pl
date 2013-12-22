@@ -71,6 +71,9 @@ if($last_login){
 } else {
     $msg .= "no last login information available!";
 }
+my $ESC = "\033";
+print "${ESC}[s";
+$SIG{'INT'} = sub { print "${ESC}[u$msg\n"; exit 1; };
 
 if($simple){
     print "$msg\n";
