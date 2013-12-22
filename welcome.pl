@@ -34,7 +34,7 @@ get_options();
 
 set_timeout();
 
-my $user = $ENV{"USER"} || "user";
+my $user = trim($ENV{"USER"}) || "user";
 $user = isUser($user) || die "invalid user '$user' determined from environment variable \$USER\n";
 if($user eq "root"){
     $user = uc $user;
