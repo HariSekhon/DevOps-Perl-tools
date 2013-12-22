@@ -26,11 +26,15 @@ import sys
 import time
 
 try:
-    user = os.environ['USER']
-    if not re.match('^[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]$', user):
-        #print "invalid user '%s' determined from environment variable $USER, failed regex validation" % user
-        #sys.exit(1)
+    try:
+        user = os.environ['USER'].strip()
+        if not user:
+            raise KeyError
+    except KeyError:
         user = "user"
+    if not re.match('^[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]$', user):
+        print "invalid user '%s' determined from environment variable $USER, failed regex validation" % user
+        sys.exit(1)
     if user == "root":
         user = user.upper()
     elif len(user) < 4 or re.search('\d', user) or user == "user":
