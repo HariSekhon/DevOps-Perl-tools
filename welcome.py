@@ -28,11 +28,12 @@ import time
 try:
     user = os.environ['USER']
     if not re.match('^[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]$', user):
-        print "invalid user '%s' determined from environment variable $USER, failed regex validation" % user
-        sys.exit(1)
+        #print "invalid user '%s' determined from environment variable $USER, failed regex validation" % user
+        #sys.exit(1)
+        user = "user"
     if user == "root":
         user = user.upper()
-    elif len(user) < 4 or re.search('\d', user):
+    elif len(user) < 4 or re.search('\d', user) or user == "user":
         # probably not a real name
         pass
     else:
