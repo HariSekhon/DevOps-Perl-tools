@@ -1,11 +1,11 @@
 Hadoop & Web Scale SysAdmin Tools
 =================================
 
-A few of Hadoop & Web Scale sysadmin tools I've written over the years that are generally useful across environments
+A few of the Hadoop & Web Scale sysadmin and other nifty tools I've written over the years that are generally useful across environments.
 
 ### Setup ###
 
-The 'make' command will initialize my library submodule then use 'sudo' to install the required CPAN modules
+The 'make' command will initialize my library submodule and  use 'sudo' to install the required CPAN modules:
 
 ```
 git clone https://github.com/harisekhon/sysadmin
@@ -24,7 +24,7 @@ git submodule init
 git submodule update
 ```
 
-Then proceed to install the CPAN modules below by hand
+Then proceed to install the CPAN modules below by hand.
 
 ###### CPAN Modules ######
 
