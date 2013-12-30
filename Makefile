@@ -19,6 +19,7 @@ install:
 		 Time::HiRes \
 		 XML::Validate
 
+.PHONY: update
 update:
 	git pull
 	git submodule update
