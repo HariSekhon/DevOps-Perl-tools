@@ -18,6 +18,8 @@ install:
 		 Text::Unidecode \
 		 Time::HiRes \
 		 XML::Validate
+	# don't track and commit your personal name, company name etc additions to scrub_custom.conf back to Git since they are personal to you
+	git update-index --assume-unchanged scrub_custom.conf
 
 .PHONY: update
 update:
