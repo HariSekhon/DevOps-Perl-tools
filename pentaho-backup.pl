@@ -55,7 +55,8 @@ my $install_dir;
 my $backup_dir;
 my $ba_server;
 my $di_server;
-my $backup_all;
+my $backup_ba_di;
+my $no_postgres;
 
 #   database        =>  user/password
 # default postgres users
@@ -76,12 +77,13 @@ $ENV{"PGPASSWORD"} = "password" unless $ENV{"PGPASSWORD"};
 #env_creds("PostgreSQL");
 
 %options = (
-    "i|install-dir=s"   =>  [   \$install_dir,  "Pentaho installation directory" ],
-    "b|backup-dir=s"    =>  [   \$backup_dir,   "Backup directory to place backups in, will create subdirectories date + timestamped under this directory" ],
-    "ba-server"         =>  [   \$ba_server,    "Only back up the BA Server (default backs up both BA and DI server)" ],
-    "di-server"         =>  [   \$di_server,    "Only back up the DI Server (default backs up both BA and DI server)" ],
+    "i|install-dir=s"   =>  [ \$install_dir,  "Pentaho installation directory" ],
+    "b|backup-dir=s"    =>  [ \$backup_dir,   "Backup directory to place backups in, will create subdirectories date + timestamped under this directory" ],
+    "ba-server"         =>  [ \$ba_server,    "Only back up the BA Server (default backs up both BA and DI server)" ],
+    "di-server"         =>  [ \$di_server,    "Only back up the DI Server (default backs up both BA and DI server)" ],
+    "no-postgres"       =>  [ \$no_postgres,  "Don't back up embedded PostgreSQL DBs. Specify if using customer databases backing Pentaho - back up those yourself" ],
 );
-@usage_order = qw/install-dir backup-dir ba-server di-server/;
+@usage_order = qw/install-dir backup-dir ba-server di-server no-postgres/;
 
 get_options();
 
@@ -91,8 +93,9 @@ $install_dir = validate_dir($install_dir, 0, "install directory");
 $backup_dir  = validate_dir($backup_dir,  0, "backup directory");
 vlog_options "ba-server", "true" if $ba_server;
 vlog_options "di-server", "true" if $di_server;
+vlog_options "no-postgres", "true" if $no_postgres;
 if(not $ba_server and not $di_server){
-    $backup_all = 1;
+    $backup_ba_di = 1;
 }
 
 go_flock_yourself();
@@ -111,29 +114,31 @@ set_timeout();
 
 chdir($backup_dir) or die "failed to change to backup directory $backup_dir to take BI and DI server backups: $!\n";
 
-my $pg_backup_file;
-my $pg_user = $ENV{"PGUSER"};
-foreach(qw/jackrabbit quartz hibernate/){
-    $pg_backup_file = "$backup_dir/${_}_$timestamp.sql";
-    tprint "Backing up PostgreSQL database '$_' to '$backup_dir'";
-    if($ENV{uc "${_}_PGUSER"}){
-        $ENV{"PGUSER"} = $ENV{uc "${_}_PGUSER"};
-    } elsif($pg_user){
-        $ENV{"PGUSER"} = $pg_user;
-    } else {
-        $ENV{"PGUSER"} = $postgres_users{$_};
+unless($no_postgres){
+    my $pg_backup_file;
+    my $pg_user = $ENV{"PGUSER"};
+    foreach(qw/jackrabbit quartz hibernate/){
+        $pg_backup_file = "$backup_dir/${_}_$timestamp.sql";
+        tprint "Backing up PostgreSQL database '$_' to '$backup_dir'";
+        if($ENV{uc "${_}_PGUSER"}){
+            $ENV{"PGUSER"} = $ENV{uc "${_}_PGUSER"};
+        } elsif($pg_user){
+            $ENV{"PGUSER"} = $pg_user;
+        } else {
+            $ENV{"PGUSER"} = $postgres_users{$_};
+        }
+        $ENV{"PGPASSWORD"} = $ENV{uc "${_}_PGPASSWORD"} if $ENV{uc "${_}_PGPASSWORD"};
+        tprint "connecting to database $_ with user $ENV{PGUSER}";
+        cmd("$install_dir/postgresql/bin/pg_dump $_ -f '$pg_backup_file'", 1);
+        cmd("gzip -9 '$pg_backup_file'", 1);
+        $pg_backup_file .= ".gz";
+        cmd("md5sum '$pg_backup_file' > '${pg_backup_file}.md5'", 1);
+        tprint "Finished backing up PostgreSQL database '$_'\n";
     }
-    $ENV{"PGPASSWORD"} = $ENV{uc "${_}_PGPASSWORD"} if $ENV{uc "${_}_PGPASSWORD"};
-    tprint "connecting to database $_ with user $ENV{PGUSER}";
-    cmd("$install_dir/postgresql/bin/pg_dump $_ -f '$pg_backup_file'", 1);
-    cmd("gzip -9 '$pg_backup_file'", 1);
-    $pg_backup_file .= ".gz";
-    cmd("md5sum '$pg_backup_file' > '${pg_backup_file}.md5'", 1);
-    tprint "Finished backing up PostgreSQL database '$_'\n";
 }
 
 
-if($ba_server or $backup_all){
+if($ba_server or $backup_ba_di){
     tprint "Backing up BA Server to $backup_dir";
     cmd("$install_dir/backup_utils/BAServerConfigAndSolutionsBackup.sh '$install_dir/server/biserver-ee'", 1);
     cmd("mv -v ba_backconfigandshell.zip 'ba_backconfigandshell.$timestamp.zip'", 1);
@@ -143,7 +148,7 @@ if($ba_server or $backup_all){
     tprint "Finished backing up BA Server\n";
 }
 
-if($di_server or $backup_all){
+if($di_server or $backup_ba_di){
     tprint "Backing up DI Server to $backup_dir";
     cmd("$install_dir/backup_utils/DIServerConfigAndSolutionsBackup.sh '$install_dir/server/data-integration-server'", 1);
     cmd("mv -v di_backconfigandshell.zip 'di_backconfigandshell.$timestamp.zip'", 1);
