@@ -18,6 +18,14 @@ Requirements:
   Version is enforced by requiring that these utils be dropped in to a directory under the pentaho installation itself in a directory called 'backup_utils', such that you are responsible for ensuring you only drop in the correct version that lines up with the Pentaho installation itself
 - Only supports local backups due to the dependence on the Pentaho version specific local backup scripts
 
+- PostgreSQL credentials:
+  - Environment variables can be used for PostgreSQL credentials to the embedded databases:
+    - \$<database_name>_PGUSER if found in environment is used where <database_name> is jackrabbit, quartz or hibernate.
+      - PostgreSQL user defaults to jcr_user, pentaho_user and hibuser respectively otherwise
+    - \$PGPASSWORD can be defined if all the databases share the same password
+      - \$<database_name>_PGPASSWORD overrides this on a per database basis
+      - defaults to 'password' if neither \$PGPASSWORD nor \$<database_name>_PGPASSWORD are set
+
 This script is in response to Pentaho not having a proper one-shot backup solution for the Pentaho server and all it's components.
 
 Restore Procedure:
@@ -38,6 +46,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use POSIX;
 
 set_timeout_max(86400);
 set_timeout_default(3600);
@@ -48,11 +57,21 @@ my $ba_server;
 my $di_server;
 my $backup_all;
 
+#   database        =>  user/password
+# default postgres users
 my %postgres_users = (
-    "jackrabbit"    =>  "jcruser",
+    "jackrabbit"    =>  "jcr_user",
     "quartz"        =>  "pentaho_user",
     "hibernate"     =>  "hibuser",
 );
+foreach(keys %postgres_users){
+    if($ENV{uc "${_}_PGUSER"}){
+        $postgres_users{$_} = $ENV{uc "${_}_PGUSER"};
+    }
+};
+
+# This is the default password for the embedded Pentaho postgres databases
+$ENV{"PGPASSWORD"} = "password" unless $ENV{"PGPASSWORD"};
 
 #env_creds("PostgreSQL");
 
@@ -61,16 +80,12 @@ my %postgres_users = (
     "b|backup-dir=s"    =>  [   \$backup_dir,   "Backup directory to place backups in, will create subdirectories date + timestamped under this directory" ],
     "ba-server"         =>  [   \$ba_server,    "Only back up the BA Server (default backs up both BA and DI server)" ],
     "di-server"         =>  [   \$di_server,    "Only back up the DI Server (default backs up both BA and DI server)" ],
-    #%useroptions,
 );
-@usage_order = qw/install-dir backup-dir ba-server di-server user password/;
+@usage_order = qw/install-dir backup-dir ba-server di-server/;
 
 get_options();
 
 getpwuid($<) eq "pentaho" or die "error: you must be the 'pentaho' user to run a backup\n";
-
-## default installation password
-#$password = "password" unless $password;
 
 $install_dir = validate_dir($install_dir, 0, "install directory");
 $backup_dir  = validate_dir($backup_dir,  0, "backup directory");
@@ -97,15 +112,26 @@ set_timeout();
 chdir($backup_dir) or die "failed to change to backup directory $backup_dir to take BI and DI server backups: $!\n";
 
 my $pg_backup_file;
+my $pg_user = $ENV{"PGUSER"};
 foreach(qw/jackrabbit quartz hibernate/){
     $pg_backup_file = "$backup_dir/${_}_$timestamp.sql";
     tprint "Backing up PostgreSQL database '$_' to '$backup_dir'";
-    cmd("'$install_dir/postgresql/bin/pg_dump' -U $postgres_users{$_} $_ > '$pg_backup_file'", 1);
+    if($ENV{uc "${_}_PGUSER"}){
+        $ENV{"PGUSER"} = $ENV{uc "${_}_PGUSER"};
+    } elsif($pg_user){
+        $ENV{"PGUSER"} = $pg_user;
+    } else {
+        $ENV{"PGUSER"} = $postgres_users{$_};
+    }
+    $ENV{"PGPASSWORD"} = $ENV{uc "${_}_PGPASSWORD"} if $ENV{uc "${_}_PGPASSWORD"};
+    tprint "connecting to database $_ with user $ENV{PGUSER}";
+    cmd("$install_dir/postgresql/bin/pg_dump $_ -f '$pg_backup_file'", 1);
     cmd("gzip -9 '$pg_backup_file'", 1);
     $pg_backup_file .= ".gz";
     cmd("md5sum '$pg_backup_file' > '${pg_backup_file}.md5'", 1);
     tprint "Finished backing up PostgreSQL database '$_'\n";
 }
+
 
 if($ba_server or $backup_all){
     tprint "Backing up BA Server to $backup_dir";
