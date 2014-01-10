@@ -140,9 +140,10 @@ unless($no_postgres){
 
 if($ba_server or $backup_ba_di){
     tprint "Backing up BA Server to $backup_dir";
+    cmd("rm -v ~/ba_backconfigandshell.zip ~/ba_backnewtomcatjars.zip", 1);
     cmd("$install_dir/backup_utils/BAServerConfigAndSolutionsBackup.sh '$install_dir/server/biserver-ee'", 1);
-    cmd("mv -v ba_backconfigandshell.zip 'ba_backconfigandshell.$timestamp.zip'", 1);
-    cmd("mv -v ba_backnewtomcatjars.zip  'ba_backnewtomcatjars.$timestamp.zip'",  1);
+    cmd("mv -v ~/ba_backconfigandshell.zip 'ba_backconfigandshell.$timestamp.zip'", 1);
+    cmd("mv -v ~/ba_backnewtomcatjars.zip  'ba_backnewtomcatjars.$timestamp.zip'",  1);
     cmd("md5sum ba_backconfigandshell.$timestamp.zip > ba_backconfigandshell.$timestamp.zip.md5", 1);
     cmd("md5sum ba_backnewtomcatjars.$timestamp.zip   > ba_backnewtomcatjars.$timestamp.zip.md5",  1);
     tprint "Finished backing up BA Server\n";
@@ -150,9 +151,10 @@ if($ba_server or $backup_ba_di){
 
 if($di_server or $backup_ba_di){
     tprint "Backing up DI Server to $backup_dir";
+    cmd("rm -v ~/di_backconfigandshell.zip ~/di_backnewtomcatjars.zip", 1);
     cmd("$install_dir/backup_utils/DIServerConfigAndSolutionsBackup.sh '$install_dir/server/data-integration-server'", 1);
-    cmd("mv -v di_backconfigandshell.zip 'di_backconfigandshell.$timestamp.zip'", 1);
-    cmd("mv -v di_backnewtomcatjars.zip  'di_backnewtomcatjars.$timestamp.zip'",  1);
+    cmd("mv -v ~/di_backconfigandshell.zip 'di_backconfigandshell.$timestamp.zip'", 1);
+    cmd("mv -v ~/di_backnewtomcatjars.zip  'di_backnewtomcatjars.$timestamp.zip'",  1);
     cmd("md5sum di_backconfigandshell.$timestamp.zip > di_backconfigandshell.$timestamp.zip.md5", 1);
     cmd("md5sum di_backnewtomcatjars.$timestamp.zip   > di_backnewtomcatjars.$timestamp.zip.md5",  1);
     tprint "Finished backing up DI Server\n";
