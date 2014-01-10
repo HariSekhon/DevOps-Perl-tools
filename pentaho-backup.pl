@@ -16,6 +16,7 @@ Requirements:
 
 - Pentaho backup script utils written by Pentaho and enforces using the right versions of those as they contain very specific version bound exclusions for jar files etc
   Version is enforced by requiring that these utils be dropped in to a directory under the pentaho installation itself in a directory called 'backup_utils', such that you are responsible for ensuring you only drop in the correct version that lines up with the Pentaho installation itself
+- Only supports local backups due to the dependence on the Pentaho version specific local backup scripts
 
 This script is in response to Pentaho not having a proper one-shot backup solution for the Pentaho server and all it's components.
 
@@ -43,6 +44,9 @@ set_timeout_default(3600);
 
 my $install_dir;
 my $backup_dir;
+my $ba_server;
+my $di_server;
+my $backup_all;
 
 my %postgres_users = (
     "jackrabbit"    =>  "jcruser",
@@ -55,9 +59,11 @@ my %postgres_users = (
 %options = (
     "i|install-dir=s"   =>  [   \$install_dir,  "Pentaho installation directory" ],
     "b|backup-dir=s"    =>  [   \$backup_dir,   "Backup directory to place backups in, will create subdirectories date + timestamped under this directory" ],
+    "ba-server"         =>  [   \$ba_server,    "Only back up the BA Server (default backs up both BA and DI server)" ],
+    "di-server"         =>  [   \$di_server,    "Only back up the DI Server (default backs up both BA and DI server)" ],
     #%useroptions,
 );
-@usage_order = qw/install-dir backup-dir user password/;
+@usage_order = qw/install-dir backup-dir ba-server di-server user password/;
 
 get_options();
 
@@ -68,6 +74,11 @@ getpwuid($<) eq "pentaho" or die "error: you must be the 'pentaho' user to run a
 
 $install_dir = validate_dir($install_dir, 0, "install directory");
 $backup_dir  = validate_dir($backup_dir,  0, "backup directory");
+vlog_options "ba-server", "true" if $ba_server;
+vlog_options "di-server", "true" if $di_server;
+if(not $ba_server and not $di_server){
+    $backup_all = 1;
+}
 
 go_flock_yourself();
 
@@ -87,7 +98,7 @@ chdir($backup_dir) or die "failed to change to backup directory $backup_dir to t
 
 my $pg_backup_file;
 foreach(qw/jackrabbit quartz hibernate/){
-    $pg_backup_file = "$backup_dir/${_}$timestamp.dmp";
+    $pg_backup_file = "$backup_dir/${_}_$timestamp.sql";
     tprint "Backing up PostgreSQL database '$_' to '$backup_dir'";
     cmd("'$install_dir/postgresql/bin/pg_dump' -U $postgres_users{$_} $_ > '$pg_backup_file'", 1);
     cmd("gzip -9 '$pg_backup_file'", 1);
@@ -96,20 +107,24 @@ foreach(qw/jackrabbit quartz hibernate/){
     tprint "Finished backing up PostgreSQL database '$_'\n";
 }
 
-tprint "Backing up BA Server to $backup_dir";
-cmd("$install_dir/backup_utils/BAServerConfigAndSolutionsBackup.sh '$install_dir/server/biserver-ee'", 1);
-cmd("mv -v ba_backconfigandshell.zip 'ba_backconfigandshell.$timestamp.zip'", 1);
-cmd("mv -v ba_backnewtomcatjars.zip  'ba_backnewtomcatjars.$timestamp.zip'",  1);
-cmd("md5sum ba_backconfigandshell.$timestamp.zip > ba_backconfigandshell.$timestamp.zip.md5", 1);
-cmd("md5sum ba_backnewtomcatjars.$timestamp.zip   > ba_backnewtomcatjars.$timestamp.zip.md5",  1);
-tprint "Finished backing up BA Server\n";
+if($ba_server or $backup_all){
+    tprint "Backing up BA Server to $backup_dir";
+    cmd("$install_dir/backup_utils/BAServerConfigAndSolutionsBackup.sh '$install_dir/server/biserver-ee'", 1);
+    cmd("mv -v ba_backconfigandshell.zip 'ba_backconfigandshell.$timestamp.zip'", 1);
+    cmd("mv -v ba_backnewtomcatjars.zip  'ba_backnewtomcatjars.$timestamp.zip'",  1);
+    cmd("md5sum ba_backconfigandshell.$timestamp.zip > ba_backconfigandshell.$timestamp.zip.md5", 1);
+    cmd("md5sum ba_backnewtomcatjars.$timestamp.zip   > ba_backnewtomcatjars.$timestamp.zip.md5",  1);
+    tprint "Finished backing up BA Server\n";
+}
 
-tprint "Backing up DI Server to $backup_dir";
-cmd("$install_dir/backup_utils/DIServerConfigAndSolutionsBackup.sh '$install_dir/server/data-integration-server'", 1);
-cmd("mv -v di_backconfigandshell.zip 'di_backconfigandshell.$timestamp.zip'", 1);
-cmd("mv -v di_backnewtomcatjars.zip  'di_backnewtomcatjars.$timestamp.zip'",  1);
-cmd("md5sum di_backconfigandshell.$timestamp.zip > di_backconfigandshell.$timestamp.zip.md5", 1);
-cmd("md5sum di_backnewtomcatjars.$timestamp.zip   > di_backnewtomcatjars.$timestamp.zip.md5",  1);
-tprint "Finished backing up DI Server\n";
+if($di_server or $backup_all){
+    tprint "Backing up DI Server to $backup_dir";
+    cmd("$install_dir/backup_utils/DIServerConfigAndSolutionsBackup.sh '$install_dir/server/data-integration-server'", 1);
+    cmd("mv -v di_backconfigandshell.zip 'di_backconfigandshell.$timestamp.zip'", 1);
+    cmd("mv -v di_backnewtomcatjars.zip  'di_backnewtomcatjars.$timestamp.zip'",  1);
+    cmd("md5sum di_backconfigandshell.$timestamp.zip > di_backconfigandshell.$timestamp.zip.md5", 1);
+    cmd("md5sum di_backnewtomcatjars.$timestamp.zip   > di_backnewtomcatjars.$timestamp.zip.md5",  1);
+    tprint "Finished backing up DI Server\n";
+}
 
 tprint "Pentaho Backup Completed Locally to $backup_dir";
