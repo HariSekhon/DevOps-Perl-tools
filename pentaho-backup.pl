@@ -15,7 +15,12 @@ Ties together the full Pentaho server backup with all the embedded PostgreSQL du
 Requirements:
 
 - Pentaho backup script utils written by Pentaho and enforces using the right versions of those as they contain very specific version bound exclusions for jar files etc
-  Version is enforced by requiring that these utils be dropped in to a directory under the pentaho installation itself in a directory called 'backup_utils', such that you are responsible for ensuring you only drop in the correct version that lines up with the Pentaho installation itself
+  - Version is enforced by requiring that these utils be dropped in to a directory under the pentaho installation itself in a directory called 'backup_utils', such that you are responsible for ensuring you only drop in the correct version that lines up with the Pentaho installation itself
+  - Download UpgradeUtility-vX.Y.Z.zip from the Pentaho Support Portal Upgrade instructions from your specific version, unzip and move and rename the '_nix' directory to 'backup_utils' under the pentaho top level installation directory
+  - Please be aware you may hit minor quoting bugs in these scripts and require minor edits to get them working:
+    - https://support.pentaho.com/entries/38570876-Error-after-running-BAServerConfigAndSolutionsBackup-sh
+    - http://jira.pentaho.com/browse/BISERVER-10828#comment-167926
+    - http://jira.pentaho.com/browse/PDI-11241
 - Only supports local backups due to the dependence on the Pentaho version specific local backup scripts
 
 - PostgreSQL credentials:
@@ -140,7 +145,7 @@ unless($no_postgres){
 
 if($ba_server or $backup_ba_di){
     tprint "Backing up BA Server to $backup_dir";
-    cmd("rm -v ~/ba_backconfigandshell.zip ~/ba_backnewtomcatjars.zip", 1);
+    cmd("rm -vf ~/ba_backconfigandshell.zip ~/ba_backnewtomcatjars.zip", 1);
     cmd("$install_dir/backup_utils/BAServerConfigAndSolutionsBackup.sh '$install_dir/server/biserver-ee'", 1);
     cmd("mv -v ~/ba_backconfigandshell.zip 'ba_backconfigandshell.$timestamp.zip'", 1);
     cmd("mv -v ~/ba_backnewtomcatjars.zip  'ba_backnewtomcatjars.$timestamp.zip'",  1);
@@ -151,7 +156,7 @@ if($ba_server or $backup_ba_di){
 
 if($di_server or $backup_ba_di){
     tprint "Backing up DI Server to $backup_dir";
-    cmd("rm -v ~/di_backconfigandshell.zip ~/di_backnewtomcatjars.zip", 1);
+    cmd("rm -vf ~/di_backconfigandshell.zip ~/di_backnewtomcatjars.zip", 1);
     cmd("$install_dir/backup_utils/DIServerConfigAndSolutionsBackup.sh '$install_dir/server/data-integration-server'", 1);
     cmd("mv -v ~/di_backconfigandshell.zip 'di_backconfigandshell.$timestamp.zip'", 1);
     cmd("mv -v ~/di_backnewtomcatjars.zip  'di_backnewtomcatjars.$timestamp.zip'",  1);
