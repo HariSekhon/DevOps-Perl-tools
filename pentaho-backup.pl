@@ -12,6 +12,8 @@ $DESCRIPTION = "Backs up the local Pentaho BA and DI Server
 
 Ties together the full Pentaho server backup with all the embedded PostgreSQL dumps and the XML and .properties files to create a one shot backup program with error checking.
 
+Unlike the recommendation to 'shut down the Pentaho server and backup the whole server or whole /opt/pentaho application directory', this method does not require switching off the Pentaho server components to back it up.
+
 Requirements:
 
 - Pentaho backup script utils written by Pentaho and enforces using the right versions of those as they contain very specific version bound exclusions for jar files etc
