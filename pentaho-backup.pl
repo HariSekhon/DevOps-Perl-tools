@@ -27,7 +27,7 @@ Requirements:
 
 - PostgreSQL credentials:
   - Environment variables can be used for PostgreSQL credentials to the embedded databases:
-    - \$<database_name>_PGUSER if found in environment is used where <database_name> is jackrabbit, quartz or hibernate.
+    - \$<database_name>_PGUSER if found in environment is used where <database_name> is one of: jackrabbit, di_jackrabbit, quartz, di_quartz, hibernate, di_hibernate
       - PostgreSQL user defaults to jcr_user, pentaho_user and hibuser respectively otherwise
     - \$PGPASSWORD can be defined if all the databases share the same password
       - \$<database_name>_PGPASSWORD overrides this on a per database basis
@@ -44,7 +44,7 @@ Restore Procedure:
 Used on Pentaho 5.0
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -121,32 +121,38 @@ set_timeout();
 
 chdir($backup_dir) or die "failed to change to backup directory $backup_dir to take BI and DI server backups: $!\n";
 
-unless($no_postgres){
-    my $pg_backup_file;
-    my $pg_user = $ENV{"PGUSER"};
-    foreach(qw/jackrabbit quartz hibernate/){
-        $pg_backup_file = "$backup_dir/${_}_$timestamp.sql";
-        tprint "Backing up PostgreSQL database '$_' to '$backup_dir'";
-        if($ENV{uc "${_}_PGUSER"}){
-            $ENV{"PGUSER"} = $ENV{uc "${_}_PGUSER"};
-        } elsif($pg_user){
-            $ENV{"PGUSER"} = $pg_user;
-        } else {
-            $ENV{"PGUSER"} = $postgres_users{$_};
+sub backup_dbs(;$){
+    my $di = shift || "";
+    $di = "di_" if $di;
+    unless($no_postgres){
+        my $db;
+        my $pg_backup_file;
+        my $pg_user = $ENV{"PGUSER"};
+        foreach(qw/jackrabbit quartz hibernate/){
+            $db = "$di$_";
+            $pg_backup_file = "$backup_dir/${db}_$timestamp.sql";
+            tprint "Backing up PostgreSQL database '$db' to '$backup_dir'";
+            if($ENV{uc "${db}_PGUSER"}){
+                $ENV{"PGUSER"} = $ENV{uc "${db}_PGUSER"};
+            } elsif($pg_user){
+                $ENV{"PGUSER"} = $pg_user;
+            } else {
+                $ENV{"PGUSER"} = $postgres_users{$_};
+            }
+            $ENV{"PGPASSWORD"} = $ENV{uc "${db}_PGPASSWORD"} if $ENV{uc "${db}_PGPASSWORD"};
+            tprint "connecting to database $db with user $ENV{PGUSER}";
+            cmd("$install_dir/postgresql/bin/pg_dump $_ -f '$pg_backup_file'", 1);
+            cmd("gzip -9 '$pg_backup_file'", 1);
+            $pg_backup_file .= ".gz";
+            cmd("md5sum '$pg_backup_file' > '${pg_backup_file}.md5'", 1);
+            tprint "Finished backing up PostgreSQL database '$db'\n";
         }
-        $ENV{"PGPASSWORD"} = $ENV{uc "${_}_PGPASSWORD"} if $ENV{uc "${_}_PGPASSWORD"};
-        tprint "connecting to database $_ with user $ENV{PGUSER}";
-        cmd("$install_dir/postgresql/bin/pg_dump $_ -f '$pg_backup_file'", 1);
-        cmd("gzip -9 '$pg_backup_file'", 1);
-        $pg_backup_file .= ".gz";
-        cmd("md5sum '$pg_backup_file' > '${pg_backup_file}.md5'", 1);
-        tprint "Finished backing up PostgreSQL database '$_'\n";
     }
 }
 
-
 if($ba_server or $backup_ba_di){
     tprint "Backing up BA Server to $backup_dir";
+    backup_dbs();
     cmd("rm -vf ~/ba_backconfigandshell.zip ~/ba_backnewtomcatjars.zip", 1);
     cmd("$install_dir/backup_utils/BAServerConfigAndSolutionsBackup.sh '$install_dir/server/biserver-ee'", 1);
     cmd("mv -v ~/ba_backconfigandshell.zip 'ba_backconfigandshell.$timestamp.zip'", 1);
@@ -158,6 +164,7 @@ if($ba_server or $backup_ba_di){
 
 if($di_server or $backup_ba_di){
     tprint "Backing up DI Server to $backup_dir";
+    backup_dbs("di");
     cmd("rm -vf ~/di_backconfigandshell.zip ~/di_backnewtomcatjars.zip", 1);
     cmd("$install_dir/backup_utils/DIServerConfigAndSolutionsBackup.sh '$install_dir/server/data-integration-server'", 1);
     cmd("mv -v ~/di_backconfigandshell.zip 'di_backconfigandshell.$timestamp.zip'", 1);
