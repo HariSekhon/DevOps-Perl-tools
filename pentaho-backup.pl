@@ -88,7 +88,7 @@ $ENV{"PGPASSWORD"} = "password" unless $ENV{"PGPASSWORD"};
     "b|backup-dir=s"    =>  [ \$backup_dir,   "Backup directory to place backups in, will create subdirectories date + timestamped under this directory" ],
     "ba-server"         =>  [ \$ba_server,    "Only back up the BA Server (default backs up both BA and DI server)" ],
     "di-server"         =>  [ \$di_server,    "Only back up the DI Server (default backs up both BA and DI server)" ],
-    "no-postgres"       =>  [ \$no_postgres,  "Don't back up embedded PostgreSQL DBs. Specify if using customer databases backing Pentaho - back up those yourself" ],
+    "no-postgres"       =>  [ \$no_postgres,  "Don't back up embedded PostgreSQL DBs. Specify if using custom databases backing Pentaho - back up those yourself" ],
 );
 @usage_order = qw/install-dir backup-dir ba-server di-server no-postgres/;
 
