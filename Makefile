@@ -14,7 +14,9 @@ install:
 	# don't track and commit your personal name, company name etc additions to scrub_custom.conf back to Git since they are personal to you
 	git update-index --assume-unchanged scrub_custom.conf
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
-	sudo cpan LWP::Simple \
+	sudo cpan \
+		 JSON \
+		 LWP::Simple \
 		 LWP::UserAgent \
 		 Term::ReadKey \
 		 Text::Unidecode \
