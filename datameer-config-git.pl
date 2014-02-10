@@ -163,7 +163,7 @@ foreach $type (sort keys %selected_types){
                 print "failed to fetch $type id $id, skipping...\n";
                 next;
             } else {
-                quit("UNKNOWN", $response->code . " " . $response->message);
+                quit("UNKNOWN", $response->code . " " . $response->message . "\n\n" . $response->content);
             }
         }
         unless($json){
