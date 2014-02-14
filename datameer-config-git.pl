@@ -34,9 +34,9 @@ Can optionally specify just a subset of one or more of the following config type
 
 " . join("\n", @valid_types) . " 
 
-Tested on Datameer 3.0.11";
+Tested on Datameer 3.0.11 and 3.1.1";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -137,7 +137,12 @@ vlog "fetching all configurations for: " . join(" ", sort keys %selected_types);
 foreach $type (sort keys %selected_types){
     vlog "fetching configurations for: $type";
     $start_time_type = time;
-    $json = datameer_curl "$url/$type", $user, $password;
+    try {
+        $json = datameer_curl "$url/$type", $user, $password;
+    };
+    catch {
+        quit "CRITICAL", "failed to query datameer: $@";
+    };
     # iterate over ids, fetch and save to file hierarchy under git
     foreach $json (@{$json}){
         defined($json->{"id"}) or die "Error: Datameer returned a $type with no id!";
@@ -169,15 +174,16 @@ foreach $type (sort keys %selected_types){
         unless($json){
             quit("CRITICAL", "blank content returned from '$url/$type/$id'");
         }
-        $output = Dumper($json) || die "Failed to convert json config to string: $!";
-        $output =~ s/^'//;
-        $output =~ s/\n'//;
-        vlog3($output);
+        # This ends up escaping \u0000 unicode and makes the saved files invalid to be PUT back to Datameer
+        #$output = Dumper($json) || die "Failed to convert json config to string: $!";
+        #$output =~ s/^'//;
+        #$output =~ s/\n'//;
+        #vlog3($output);
         ( -d $type ) or mkdir $type or die "Failed to create directory '$dir': $!\n";
         $filename = "$dir/$type/$id";
         vlog2 "writing config to file '$filename'";
         open ($fh, ">", $filename) or die "Failed to open file '$filename': $!\n";
-        print $fh $output or die "Failed to write to file '$filename': $!\n";
+        print $fh $json or die "Failed to write to file '$filename': $!\n";
         close $fh;
         $selected_types{$type}++;
         vlog2;
