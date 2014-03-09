@@ -45,10 +45,10 @@ my $tstamp2;
 my $url;
 my %stats;
 
-$usage_line = "usage: $progname --url http://host/blah --interval=1 --count=0 (unlimited)";
+$usage_line = "usage: $progname --url http://host.domain.com/page [ --interval=1 --count=0 ]";
 
 %options = (
-    "u|url=s"           => [ \$url,           "URL to GET. Will use first arg as url if this switch is omitted" ],
+    "u|url=s"           => [ \$url,           "URL to GET. Will use first arg as URL if this switch is omitted. URL may optionally be prefixed with http:// or https:// for SSL" ],
     "c|count=i"         => [ \$count,         "Number of times to request the given URL. Default: 0 (unlimited)" ],
     "i|interval=f"      => [ \$interval,      "Interval in secs between URL requests. Default: 1" ],
     "o|output"          => [ \$output,        "Show raw output at end of each line or on new line if output contains carriage returns or newlines or is longer than --output-length characters" ],
