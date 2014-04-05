@@ -78,7 +78,7 @@ sub uppercase_sql ($) {
     }
     if($string){
         # cannot simply use word boundary here since NULL would match /dev/null
-        my $sep = '\s|\(|\)|\[|\]|,|\.\.\.|;|\n|\r\n|\"|' . "'";
+        my $sep = '\s|\(|\)|\[|\]|,|\.|\.|\.|;|\n|\r\n|\"|' . "'";
         foreach my $sql (sort keys %sql_keywords){
             if($string =~ /($sep)?($sql)($sep|$)/gi){
                 my $uc_sql;
