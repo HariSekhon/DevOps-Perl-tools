@@ -12,7 +12,7 @@ $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (defau
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.8";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -163,9 +163,11 @@ while (<$fh>){
             # - oh and I should probably omit the CM canary files given I work for Cloudera now...
             # - Also, omitting the Hive warehouse directory since removing Hive managed tables seems scary
             # - share/lib/ is under /user/oozie, don't remove that either
-            # not anchoring /tmp intentionally since hadoop fs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
+            # - not anchoring /tmp intentionally since hadoop fs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
+            # - added /apps/ to cover /apps/hive, /apps/hbase, /apps/hcatalog on HDP
             if ($filename =~ qr{ 
                                     /tmp/mapred/ |
+                                    /apps/       |
                                     /hbase/      |
                                     /solr/       |
                                     \.Trash/     |
