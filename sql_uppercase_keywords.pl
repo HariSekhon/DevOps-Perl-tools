@@ -30,6 +30,7 @@ use HariSekhonUtils;
 
 my $file;
 my $comments;
+my $pig = 0;
 
 %options = (
     "f|files=s"      => [ \$file,       "File(s) to uppercase SQL from. Non-option arguments are added to the list of files" ],
@@ -42,6 +43,7 @@ if($progname eq "pig_uppercase_keywords.pl"){
     $DESCRIPTION =~ s/various SQL.*/Pig code and documentation/;
     $DESCRIPTION =~ s/SQL-like/Pig/;
     @{$options{"f|files=s"}}[1] =~ s/SQL/Pig Latin/;
+    $pig = 1;
 }
 
 get_options();
@@ -79,7 +81,12 @@ sub uppercase_sql ($) {
         my $sep = '\s|\(|\)|\[|\]|,|\.\.\.|;|\n|\r\n|\"|' . "'";
         foreach my $sql (sort keys %sql_keywords){
             if($string =~ /($sep)?($sql)($sep|$)/gi){
-                my $uc_sql = uc $2;
+                my $uc_sql;
+                if($pig){
+                    $uc_sql = $2;
+                } else {
+                    my $uc_sql = uc $2;
+                }
                 # have to redefine comment chars here because variable length negative lookbehind isn't implemented
                 $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$sql($sep|$)/$1$uc_sql$2/gi;
             }
