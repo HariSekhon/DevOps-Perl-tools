@@ -1,7 +1,7 @@
-Hadoop & Web Scale SysAdmin Tools
-=================================
+Hari's Toolbox - Hadoop, Web and Misc Unix Tools
+================================================
 
-A few of the Hadoop & Web Scale sysadmin and other nifty tools I've written over the years that are generally useful across environments.
+A few of the Hadoop, Web and other nifty tools I've written over the years that are generally useful across environments.
 
 ### Setup ###
 
