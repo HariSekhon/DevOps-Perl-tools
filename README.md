@@ -1,5 +1,5 @@
-Hari's Toolbox - Hadoop, Web and Misc Unix Tools
-================================================
+Hadoop, Web and other Unix Tools
+================================
 
 A few of the Hadoop, Web and other nifty tools I've written over the years that are generally useful across environments.
 
