@@ -8,16 +8,17 @@
 #  License: see accompanying LICENSE file
 #
 
-my $CONF = "sql_keywords.conf";
+my $CONF     = "sql_keywords.conf";
+my $PIG_CONF = "pig_keywords.conf";
 
-$DESCRIPTION = "Util to uppercase SQL-like keywords from stdin or file(s), prints to standard output
+our $DESCRIPTION = "Util to uppercase SQL-like keywords from stdin or file(s), prints to standard output
 
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc.
 
 Uses a regex list of keywords located in the same directory as this program
 called $CONF for easy maintainance and addition of keywords";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -35,6 +36,13 @@ my $comments;
     "c|comments"     => [ \$comments,   "Apply transformations even to lines that are commented out using -- or #" ],
 );
 @usage_order = qw/files comments/;
+
+if($progname eq "pig_uppercase_keywords.pl"){
+    $CONF = $PIG_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Pig code and documentation/;
+    $DESCRIPTION =~ s/SQL-like/Pig/;
+    @{$options{"f|files=s"}}[1] =~ s/SQL/Pig Latin/;
+}
 
 get_options();
 
