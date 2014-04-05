@@ -8,18 +8,18 @@ A few of the Hadoop, Web and other nifty tools I've written over the years that 
 The 'make' command will initialize my library submodule and  use 'sudo' to install the required CPAN modules:
 
 ```
-git clone https://github.com/harisekhon/sysadmin
-cd sysadmin
+git clone https://github.com/harisekhon/toolbox
+cd toolbox
 make
 ```
 
 #### OR: Manual Setup ####
 
-Enter the sysadmin directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
+Enter the toolbox directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
 ```
-git clone https://github.com/harisekhon/sysadmin
-cd sysadmin
+git clone https://github.com/harisekhon/toolbox
+cd toolbox
 git submodule init
 git submodule update
 ```
