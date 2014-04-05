@@ -83,9 +83,9 @@ sub uppercase_sql ($) {
             if($string =~ /($sep)?($sql)($sep|$)/gi){
                 my $uc_sql;
                 if($pig){
-                    $uc_sql = $2;
+                    $uc_sql = $sql;
                 } else {
-                    my $uc_sql = uc $2;
+                    $uc_sql = uc $2;
                 }
                 # have to redefine comment chars here because variable length negative lookbehind isn't implemented
                 $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$sql($sep|$)/$1$uc_sql$2/gi;
