@@ -41,7 +41,8 @@ my $pig = 0;
 if($progname eq "pig_uppercase_keywords.pl"){
     $CONF = $PIG_CONF;
     $DESCRIPTION =~ s/various SQL.*/Pig code and documentation/;
-    $DESCRIPTION =~ s/SQL-like/Pig/;
+    $DESCRIPTION =~ s/SQL(?:-like)?/Pig/g;
+    $DESCRIPTION =~ s/sql/pig/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/Pig Latin/;
     $pig = 1;
 }
