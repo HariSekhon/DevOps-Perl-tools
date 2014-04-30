@@ -3,6 +3,8 @@ Hadoop, Web and other Unix Tools
 
 A few of the Hadoop, Web and other nifty tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
 
+For many more tools, see the Advanced Nagios Plugins Collection which contains many Hadoop, Web, NoSQL and infrastructure monitoring cli programs that integrate with Nagios - https://github.com/harisekhon/nagios-plugins.
+
 ### Setup ###
 
 The 'make' command will initialize my library submodule and  use 'sudo' to install the required CPAN modules:
