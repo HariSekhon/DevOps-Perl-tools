@@ -87,7 +87,7 @@ sub uppercase_sql ($) {
     }
     if($string){
         # cannot simply use word boundary here since NULL would match /dev/null
-        my $sep = '\s|\(|\)|\[|\]|\.|,|:|;|\n|\r\n|\"|' . "'|#|--";
+        my $sep = '\s|=|\(|\)|\[|\]|\.|,|:|;|\n|\r\n|\"|' . "'|#|--";
         # don't uppercase group.domain => GROUP.domain
         # but do camelCase org.apache.hcatalog.pig.HCatLoader()
         if($pig){
