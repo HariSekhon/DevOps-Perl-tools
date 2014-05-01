@@ -18,7 +18,7 @@ Primarily written to help me clean up various SQL across Hive / Impala / MySQL /
 Uses a regex list of keywords located in the same directory as this program
 called $CONF for easy maintainance and addition of keywords";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -61,8 +61,8 @@ my $fh = open_file dirname(__FILE__) . "/$CONF";
 foreach(<$fh>){
     chomp;
     s/(?:#|--).*//;
-    /^\s*$/ and next;
     $_ = trim($_);
+    /^\s*$/ and next;
     my $sql = $_;
     $sql =~ s/\s+/\\s+/g;
     # protection against ppl leaving matching brackets in sql_keywords.txt
@@ -87,15 +87,26 @@ sub uppercase_sql ($) {
     }
     if($string){
         # cannot simply use word boundary here since NULL would match /dev/null
-        my $sep = '\s|\(|\)|\[|\]|\.|,|:|;|\n|\r\n|\"|' . "'";
+        my $sep = '\s|\(|\)|\[|\]|\.|,|:|;|\n|\r\n|\"|' . "'|#|--";
+        # don't uppercase group.domain => GROUP.domain
+        # but do camelCase org.apache.hcatalog.pig.HCatLoader()
+        if($pig){
+            $sep =~ s/\.\|//;
+            $sep .= '|org\.apache\.(?:\w+\.)*';
+        }
         foreach my $sql (sort keys %sql_keywords){
-            if($string =~ /($sep)?($sql)($sep|$)/gi){
+            if($string =~ /(^|$sep)($sql)($sep|$)/gi){
                 my $uc_sql;
                 if($pig){
                     if(not $no_upper_variables and $sql eq '\$\w+'){
                         $uc_sql = uc $2;
                     } else {
-                        $uc_sql = $sql;
+                        # this would have included regex chars instead of just the case replacements
+                        #$uc_sql = $sql;
+                        $uc_sql = $2;
+                        foreach(split(/[^A-Za-z_]/, $sql)){
+                            $uc_sql =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi;
+                        }
                     }
                 } else {
                     $uc_sql = uc $2;
