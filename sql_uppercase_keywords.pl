@@ -18,7 +18,7 @@ Primarily written to help me clean up various SQL across Hive / Impala / MySQL /
 Uses a regex list of keywords located in the same directory as this program
 called $CONF for easy maintainance and addition of keywords";
 
-$VERSION = "0.5";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -87,11 +87,15 @@ sub uppercase_sql ($) {
     }
     if($string){
         # cannot simply use word boundary here since NULL would match /dev/null
-        my $sep = '\s|=|\(|\)|\[|\]|\.|,|:|;|\n|\r\n|\"|' . "'|#|--";
+        # removed \. because of WITH PARAMETERS (credentials.file=file.txt)
+        # removed :  because of "jdbc:oracle:..."
+        my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|' . "'|#|--";
         # don't uppercase group.domain => GROUP.domain
         # but do camelCase org.apache.hcatalog.pig.HCatLoader()
+        # TODO: do this for Hive
+        # TODO: separate out each DB keywords
         if($pig){
-            $sep =~ s/\.\|//;
+            #$sep =~ s/\.\|//;
             $sep .= '|org\.apache\.(?:\w+\.)*';
         }
         foreach my $sql (sort keys %sql_keywords){
