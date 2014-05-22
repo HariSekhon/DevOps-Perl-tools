@@ -10,6 +10,7 @@
 
 my $CONF     = "sql_keywords.conf";
 my $PIG_CONF = "pig_keywords.conf";
+my $NEO4J_CYPHER_CONF = "neo4j_cypher_keywords.conf";
 
 our $DESCRIPTION = "Util to uppercase SQL-like keywords from stdin or file(s), prints to standard output
 
@@ -18,7 +19,7 @@ Primarily written to help me clean up various SQL across Hive / Impala / MySQL /
 Uses a regex list of keywords located in the same directory as this program
 called $CONF for easy maintainance and addition of keywords";
 
-$VERSION = "0.5.1";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -30,7 +31,8 @@ use HariSekhonUtils;
 
 my $file;
 my $comments;
-my $pig = 0;
+my $pig   = 0;
+my $neo4j = 0;
 my $no_upper_variables = 0;
 
 %options = (
@@ -49,6 +51,15 @@ if($progname eq "pig_uppercase_keywords.pl"){
         "no-upper-variables" => [ \$no_upper_variables, "Do not uppercase Pig dollar variables (eg. \$date => \$DATE)" ],
     );
     $pig = 1;
+} elsif($progname eq "neo4j_cypher_uppercase_keywords.pl" or
+        $progname eq "neo4j_uppercase_keywords.pl"        or
+        $progname eq "cypher_uppercase_keywords.pl"){
+    $CONF = $NEO4J_CYPHER_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Neo4j Cypher code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)?/Neo4j Cypher/g;
+    $DESCRIPTION =~ s/sql/neo4j_cypher/g;
+    @{$options{"f|files=s"}}[1] =~ s/SQL/Neo4j Cypher keywords/;
+    $neo4j = 1;
 }
 
 get_options();
