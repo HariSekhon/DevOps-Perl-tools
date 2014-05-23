@@ -88,6 +88,7 @@ USAGE: %s [options] <list of HDFS files and/or directories>
 Known Issues:
 
 - no way to direct HDFS API to fetch blocks from specific datanodes
+- GPFS is not supported at this time even on Hadoop clusters due to differences in the GPFS API. (I've tried this on IBM's GPFS-FPO as a drop-in replacement to HDFS on a Hadoop cluster running IBM BigInsights 2.1.2 but it results in the following exception: 'com.ibm.biginsights.fs.gpfs.GeneralParallelFileSys' object has no attribute 'getClient')
 
 ================================================================================
 Implications:
