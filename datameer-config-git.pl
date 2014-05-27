@@ -36,7 +36,7 @@ Can optionally specify just a subset of one or more of the following config type
 
 Tested on Datameer 3.0.11 and 3.1.1";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -123,6 +123,7 @@ flock $lock_fh, LOCK_EX|LOCK_NB or die "Failed to acquire lock on '$dir', anothe
 my $url = "http://$host:$port/rest";
 
 my $json;
+my $content;
 my $id;
 my $filename;
 my $fh;
@@ -159,8 +160,8 @@ foreach $type (sort keys %selected_types){
         $req = HTTP::Request->new('GET', "$url/$type/$id");
         $req->authorization_basic($user, $password) if (defined($user) and defined($password));
         $response = $ua->request($req);
-        $json  = $response->content;
-        vlog3 "returned HTML:\n\n" . ( $json ? $json : "<blank>" ) . "\n";
+        $content  = $response->content;
+        vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
         vlog2 "http status code:     " . $response->code;
         vlog2 "http status message:  " . $response->message . "\n";
         unless($response->code eq "200"){
@@ -168,7 +169,7 @@ foreach $type (sort keys %selected_types){
                 print "failed to fetch $type id $id, skipping...\n";
                 next;
             } else {
-                quit("UNKNOWN", $response->code . " " . $response->message . "\n\n" . $response->content);
+                quit("UNKNOWN", $response->code . " " . $response->message . "\n\n" . $content);
             }
         }
         unless($json){
@@ -181,6 +182,8 @@ foreach $type (sort keys %selected_types){
         #vlog3($output);
         ( -d $type ) or mkdir $type or die "Failed to create directory '$dir': $!\n";
         $filename = "$dir/$type/$id";
+        $json = isJson($content) or die "failed to interpret json for workbook id '$id' in order to pretty print\n";
+        $json = to_json($json, { pretty => 1}) or die "Failed to convert json for pretty printing";
         vlog2 "writing config to file '$filename'";
         open ($fh, ">", $filename) or die "Failed to open file '$filename': $!\n";
         print $fh $json or die "Failed to write to file '$filename': $!\n";
