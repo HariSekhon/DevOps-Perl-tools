@@ -48,6 +48,7 @@ my $git = "git";
 my $no_git;
 my $quiet;
 my $output;
+my $skip_error;
 
 set_port_default(8080);
 
@@ -63,6 +64,7 @@ my $api = "data/controller";
     "git-binary=s", [ \$git,        "Path to git binary if not in \$PATH ($ENV{PATH})" ],
     "no-git",       [ \$no_git,     "Do not commit to Git (must still specify a directory to download it but skips checks for .git since it doesn't invoke Git)" ],
     "q|quiet",      [ \$quiet,      "Quiet mode" ],
+    #"skip-error",   [ \$skip_error, "Skip errors from BigInsights Console for single workbooks, attempt to fetch other workbooks" ],
 );
 @usage_order = qw/host port user password git-dir git-binary no-git quiet/;
 
@@ -159,22 +161,55 @@ catch {
 vlog3(Dumper($json));
 #####################
 
-my $fetch_time = time - $start_time;
-plural $fetch_time;
-vlog2 "fetched workbook data in $fetch_time sec$plural";
-
 # iterate over workbooks, fetch and save to file hierarchy under git
 defined($json->{"workbooks"}) or die "Error: no 'workbook' field returned from BigInsights Console!";
 isArray($json->{"workbooks"}) or die "Error: 'workbooks' field is not an array as expected!";
 
+my $json2;
+my $json3;
+my $errmsg;
 foreach my $workbook (@{$json->{"workbooks"}}){
     defined($workbook->{"name"}) or die "Error: no 'name' field for workbook!";
     $name = $workbook->{"name"};
     $name = validate_filename($name, 0, "workbook", 1);
     $filename = "$dir/$name";
+    vlog "fetching workbook '$name'";
+    vlog3 "GET $url/$name?type=exportmetadata";
+    $req = HTTP::Request->new('GET', "$url/$name?type=exportmetadata");
+    $req->authorization_basic($user, $password) if (defined($user) and defined($password));
+    $response = $ua->request($req);
+    $json2  = $response->content;
+    vlog3 "returned HTML:\n\n" . ( $json2 ? $json2 : "<blank>" ) . "\n";
+    vlog2 "http status code:     " . $response->code;
+    vlog2 "http status message:  " . $response->message . "\n";
+    $errmsg = "";
+    if($json3 = isJson($json2)){
+        if(defined($json3->{"status"})){
+            $errmsg .= ". Status: " . $json->{"status"};
+        }
+        if(defined($json3->{"errorMsg"})){
+            $errmsg .= ". Reason: " . $json->{"errorMsg"};
+        }
+    }
+    if((not($response->code eq "200" or $response->code eq "201")) or $errmsg){
+        if($skip_error){
+            print "failed to fetch workbook '$name', skipping...\n";
+            next;
+        } else {
+            quit "CRITICAL", $response->code . " " . $response->message . $errmsg;
+        }
+    }
+    unless($json2){
+        quit("CRITICAL", "blank content returned from '$url/$name?type=exportmetadata'");
+    }
+    $json3 = isJson($json2) or die "failed to interpret json for workbook '$name' in order to pretty print\n";
+    defined($json3->{"workbooks"}) or die "Error: workbook '$name' is missing 'workbook' field returned from BigInsights Console!";
+    isArray($json3->{"workbooks"}) or die "Error: workbook '$name' has returned 'workbooks' field that is not an array as expected!";
+    scalar @{$json3->{"workbooks"}} != 1 and die sprintf("Error: workbook '%s' has returned 'workbooks' array of length %s instead of expected length 1\n", $name, scalar @{$json3->{"workbooks"}});
+    $workbook = @{$json3->{"workbooks"}}[0];
     vlog2 "writing workbook '$name' to file '$filename'";
     open ($fh, ">", $filename) or die "Failed to open file '$filename': $!\n";
-    print $fh Dumper($workbook) or die "Failed to write to file '$filename': $!\n";
+    print $fh to_json($workbook, { pretty => 1}) or die "Failed to write to file '$filename': $!\n";
     close $fh;
     vlog2;
 }
