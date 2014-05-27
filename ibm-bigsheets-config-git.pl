@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Program to revision control IBM BigSheets workbooks to Git
 
-Inspired by Rancid and bigsheets-config-git.pl from this same Toolbox
+Inspired by Rancid and datameer-config-git.pl from this same Toolbox
 
 Fetches configuration via the IBM BigSheets Rest API and writes it to files under specified Git directory repo, then commits those files to Git
 
@@ -165,6 +165,7 @@ vlog3(Dumper($json));
 defined($json->{"workbooks"}) or die "Error: no 'workbook' field returned from BigInsights Console!";
 isArray($json->{"workbooks"}) or die "Error: 'workbooks' field is not an array as expected!";
 
+# TODO: clean this up and dedupe with fetch above
 my $json2;
 my $json3;
 my $errmsg;
