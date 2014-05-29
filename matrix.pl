@@ -14,7 +14,7 @@ Thanks to my colleagues Chris Greatbanks and Sameer Charania at BSkyB for sharin
 
 http://www.climagic.org/coolstuff/matrix-effect.html";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -95,7 +95,7 @@ while(1){
                 # ESC bold;white   fg (1;37)  print $char
         printf "${ESC}[%s;%sH"  .
                "${ESC}[1;40m"   .
-               "${ESC}[2;32m%s" .
+               "${ESC}[0;32m%s" . # in Putty faint "2;" comes out with an underline ruining the effect, set to 0 for now
                "${ESC}[%s;%sH"  .
                "${ESC}[0;40m"   .
                "${ESC}[1;37m%s" ,
