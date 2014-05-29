@@ -95,7 +95,8 @@ while(1){
                 # ESC bold;white   fg (1;37)  print $char
         printf "${ESC}[%s;%sH"  .
                "${ESC}[1;40m"   .
-               "${ESC}[0;32m%s" . # in Putty faint "2;" comes out with an underline ruining the effect, set to 0 for now
+                # XXX: in Putty faint "2;" comes out with an underline ruining the effect, set to "0;" for now
+               "${ESC}[0;32m%s" .
                "${ESC}[%s;%sH"  .
                "${ESC}[0;40m"   .
                "${ESC}[1;37m%s" ,
@@ -106,7 +107,8 @@ while(1){
         # reset to 0,0 coordinates
         #printf "${ESC}[0;0H";
         if($cursor{$column} >= $lines){
-            printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[2;32m%s", $cursor{$column}, $column, $chars[rand @chars];
+            # XXX: changed faint "2;" to "0;" here as well, add detection to solve this based on terminal later
+            printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[0;32m%s", $cursor{$column}, $column, $chars[rand @chars];
             $cursor{$column} = 0;
         }
     }
