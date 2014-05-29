@@ -14,7 +14,7 @@ Thanks to my colleagues Chris Greatbanks and Sameer Charania at BSkyB for sharin
 
 http://www.climagic.org/coolstuff/matrix-effect.html";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -81,6 +81,10 @@ set_timeout($timeout, sub { printf "${ESC}[%s;%sH${ESC}[0;40m${ESC}[1;37m%s${ESC
 # clear screen     # cursor position to 0,0
 print "${ESC}[2J"; # ${ESC}[0;0H";
 my (%cursor, $char, $line, $column);
+# Make all but the lowest descending character faint only on Macs as on Linux via Putty it results in underscoring each character and ruining the effect
+# XXX: Could try to improve this to detect terminal
+my $faint = 0;
+$faint = 2 if isMac;
 while(1){
     $cursor{int(rand $columns)} = 0;
     foreach $column (keys %cursor){
@@ -95,20 +99,18 @@ while(1){
                 # ESC bold;white   fg (1;37)  print $char
         printf "${ESC}[%s;%sH"  .
                "${ESC}[1;40m"   .
-                # XXX: in Putty faint "2;" comes out with an underline ruining the effect, set to "0;" for now
-               "${ESC}[0;32m%s" .
+               "${ESC}[%s;32m%s" .
                "${ESC}[%s;%sH"  .
                "${ESC}[0;40m"   .
                "${ESC}[1;37m%s" ,
                 $line, $column,
-                $char,
+                $faint, $char,
                 $cursor{$column}, $column,
                 $char;
         # reset to 0,0 coordinates
         #printf "${ESC}[0;0H";
         if($cursor{$column} >= $lines){
-            # XXX: changed faint "2;" to "0;" here as well, add detection to solve this based on terminal later
-            printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[0;32m%s", $cursor{$column}, $column, $chars[rand @chars];
+            printf "${ESC}[%s;%sH${ESC}[1;40m${ESC}[%s;32m%s", $cursor{$column}, $column, $faint, $chars[rand @chars];
             $cursor{$column} = 0;
         }
     }
