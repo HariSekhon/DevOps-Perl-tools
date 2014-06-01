@@ -50,7 +50,8 @@ use Data::Dumper;
 use Fcntl ':flock';
 use File::Spec;
 use LWP::Simple '$ua';
-#use Time::HiRes 'sleep';
+use POSIX 'ceil';
+use Time::HiRes;
 
 $Data::Dumper::Terse  = 1;
 $Data::Dumper::Indent = 1;
@@ -192,11 +193,11 @@ foreach $type (sort keys %selected_types){
         vlog2;
         #sleep 0.5
     }
-    $timings{$type} = time - $start_time_type;
+    $timings{$type} = ceil(time - $start_time_type);
     plural $selected_types{$type};
     vlog "finished fetching $type: $selected_types{$type} fetched in $timings{$type} secs"
 }
-my $total_time = time - $start_time;
+my $total_time = ceil(time - $start_time);
 
 vlog "\nCompleted all configuration fetching in $total_time secs:\n";
 foreach(sort keys %selected_types){
