@@ -22,7 +22,7 @@ Requirements:
 - a valid Git repository checkout (specify the top level directory to --git-dir)
 - a safety dot file '.bigsheets.git' at the top level of the git directory checkout indicating that this repo is owned by this program before it will write to it
 
-Tested on BigInsights 2.1.2";
+Tested on BigInsights 2.1.2.0";
 
 $VERSION = "0.2";
 
