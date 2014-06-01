@@ -37,7 +37,8 @@ use HariSekhon::IBM::BigInsights;
 use Fcntl ':flock';
 use File::Spec;
 use JSON;
-#use Time::HiRes 'sleep';
+use POSIX 'ceil';
+use Time::HiRes;
 use URI::Escape;
 
 $Data::Dumper::Terse  = 1;
@@ -124,10 +125,10 @@ foreach my $workbook (@{$json->{"workbooks"}}){
     vlog2;
 }
 
-my $total_time = time - $start_time;
+my $total_time = ceil(time - $start_time);
 
 plural $total_time;
-vlog "\nCompleted fetching and writing all workbook configurations $total_time sec$plural\n";
+vlog "\nCompleted fetching and writing all workbook configurations in $total_time sec$plural\n";
 
 unless($no_git){
     vlog "committing any changes to git";
