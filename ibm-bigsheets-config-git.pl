@@ -8,8 +8,6 @@
 #  License: see accompanying LICENSE file
 #
 
-# http://www.bigsheets.com/documentation/current/Accessing+Datameer+Using+the+REST+API
-
 $DESCRIPTION = "Program to revision control IBM BigSheets workbooks to Git
 
 Inspired by Rancid and datameer-config-git.pl from this same Toolbox
