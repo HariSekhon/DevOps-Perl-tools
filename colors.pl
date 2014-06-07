@@ -20,9 +20,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 
-%options = (
-);
-
+remove_timeout();
 get_options();
 
 autoflush();
