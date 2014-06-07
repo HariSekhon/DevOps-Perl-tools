@@ -36,7 +36,7 @@ for(my $bg=40; $bg <= 47; $bg++){
     printf "  %-${len}s  ", "${bg}m";
 }
 printf "\n%5s\n", "FG";
-for(my $fg=29; $fg <= 38; $fg++){
+for(my $fg=30; $fg <= 38; $fg++){
     foreach(my $effect=0; $effect <= 1; $effect++){
         printf "%2s%sm  ", $effect ? "$effect;" : "", $fg;
         for(my $bg=40; $bg <= 47; $bg++){
