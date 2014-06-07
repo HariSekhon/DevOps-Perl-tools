@@ -28,11 +28,12 @@ get_options();
 autoflush();
 
 my $text = "hari";
+my $len  = length($text) + 2;
 
 print "\nASCII Terminal Codes Color Key:\n\n";
 print "      BG";
 for(my $bg=40; $bg <= 47; $bg++){
-    printf " %-9s", "${bg}m";
+    printf "  %-${len}s  ", "${bg}m";
 }
 printf "\n%5s\n", "FG";
 for(my $fg=29; $fg <= 38; $fg++){
