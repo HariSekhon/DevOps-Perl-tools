@@ -28,20 +28,32 @@ autoflush();
 my $text = "hari";
 my $len  = length($text) + 2;
 
+# effects 4 = underline, 5 = blink, look ugly
+my @effects = qw/0 1/;
+
 print "\nASCII Terminal Codes Color Key:\n\n";
-print "      BG";
+printf "%5s BG %-${len}s  ", "", "none";
 for(my $bg=40; $bg <= 47; $bg++){
-    printf "  %-${len}s  ", "${bg}m";
+    printf "  %-${len}s ", "${bg}m";
 }
-printf "\n%5s\n", "FG";
-for(my $fg=30; $fg <= 38; $fg++){
-    foreach(my $effect=0; $effect <= 1; $effect++){
-        printf "%2s%sm  ", $effect ? "$effect;" : "", $fg;
+printf "\n %5s\n", "TXT";
+sub print_line($){
+    my $txt = shift;
+    foreach my $effect (@effects){
+        printf " %4sm ", $effect ? "$effect;$txt" : "$txt";
+        printf "\e[0m\e[${txt}m  $text  \e[0m  ";
         for(my $bg=40; $bg <= 47; $bg++){
-            printf "\e[$effect;${fg}m\e[${bg}m  $text  \e[0m  ", $fg, $bg;
+            printf "\e[$effect;${txt}m\e[${bg}m  $text  \e[0m ";
         }
         print "\n";
+        last if $txt eq 0 or $txt eq 1;
     }
 }
+print_line 0;
+print_line 1;
+for(my $txt=30; $txt <= 37; $txt++){
+    print_line $txt;
+}
+print "\n";
 
 exit 0;
