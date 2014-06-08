@@ -30,11 +30,12 @@ my $len  = length($text) + 2;
 
 # effects 4 = underline, 5 = blink, look ugly
 my @effects = qw/0 1/;
+push(@effects, qw/4 5/) if $verbose;
 
 print "\nASCII Terminal Codes Color Key:
 
-EF  = Effect (1 = bold, 4 = underline, 5 = blink)
-TXT = Foreground text color code
+EF  = Effect (1 = bold, 4 = underline & 5 = blink only shown in verbose mode)
+TXT = Foreground text color
 BG  = Background solid color
 \n";
 printf "%5s BG %-${len}s  ", "", "none";
