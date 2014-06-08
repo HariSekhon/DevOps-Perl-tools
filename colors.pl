@@ -31,12 +31,17 @@ my $len  = length($text) + 2;
 # effects 4 = underline, 5 = blink, look ugly
 my @effects = qw/0 1/;
 
-print "\nASCII Terminal Codes Color Key:\n\n";
+print "\nASCII Terminal Codes Color Key:
+
+EF  = Effect (1 = bold, 4 = underline, 5 = blink)
+TXT = Foreground text color code
+BG  = Background solid color
+\n";
 printf "%5s BG %-${len}s  ", "", "none";
 for(my $bg=40; $bg <= 47; $bg++){
     printf "  %-${len}s ", "${bg}m";
 }
-printf "\n %5s\n", "TXT";
+printf "\n%5s\n", "EF;TXT";
 sub print_line($){
     my $txt = shift;
     foreach my $effect (@effects){
