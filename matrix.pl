@@ -84,7 +84,7 @@ my (%cursor, $char, $line, $column);
 # Make all but the lowest descending character faint only on Macs as on Linux via Putty it results in underscoring each character and ruining the effect
 # XXX: Could try to improve this to detect terminal
 my $faint = 0;
-$faint = 2 if isMac;
+#$faint = 2 if isMac;
 while(1){
     $cursor{int(rand $columns)} = 0;
     foreach $column (keys %cursor){
