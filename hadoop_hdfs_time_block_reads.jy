@@ -99,7 +99,6 @@ Implications:
 ================================================================================
 """ % (os.path.basename(__file__), __version__, os.path.basename(__file__)), ERRORS["UNKNOWN"])
 #-a --all-blocks         Fetch all copies of all blocks from all datanodes (--one-block-per-DN shortcuts this) [Not implemented yet]
-# TODO: add multiple files and dir recursion
 
 
 def main():
