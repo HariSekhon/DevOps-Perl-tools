@@ -19,7 +19,7 @@ Create a list of phrases to scrub from config by placing them in scrub_custom.tx
 
 Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin";
 
-$VERSION = "0.2.3";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
