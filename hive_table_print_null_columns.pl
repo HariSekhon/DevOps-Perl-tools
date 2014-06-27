@@ -13,7 +13,7 @@ $DESCRIPTION = "Hive tool to print any columns from a table that contain entirel
 
 Written to find and clean data before importing to 0xdata H2O since there is a Java bug relating to entirely null columns";
 
-$VERSION = "0.1.0";
+$VERSION = "0.2.0";
 
 my $hive        = "hive";
 my $hive_opts   = "";
@@ -46,17 +46,28 @@ $hive    = validate_program_path($hive, "hive");
 vlog2;
 set_timeout();
 
+sub hive_check_output_line($){
+    my $line = shift;
+    if($line =~
+    /^(?:
+    \s*$                 |
+    OK$                  |
+    Time\staken          |
+    Logging\sinitialized |
+    Hive\shistory
+    )/ix){
+        return 1;
+    }
+    /(?:^(?:FAIL|ERROR)|not exist)/i and die "HIVE $_\n";
+    return 0;
+}
+
 $hive_opts .= "-S" unless $verbose;
 $hive_opts .= " " if $hive_opts;
 my @output = cmd("$hive $hive_opts-e 'DESCRIBE $table;'", 1);
 my $column_name;
 foreach(@output){
-    $_ or next;
-    /^OK$/i and next;
-    /^Time taken/i and next;
-    /^Logging initialized/i and next;
-    /^Hive history/i and next;
-    /(?:^(?:FAIL|ERROR)|not exist)/i and die "HIVE $_\n";
+    hive_check_output_line($_) and next;
     #my @tmp = split(/\s+/, $_);
     #my $column_name=$tmp[0];
     $column_name = (split(/\s+/, $_))[0];
@@ -68,11 +79,29 @@ my $query;
 my $sum_part = "";
 foreach(@columns){
     #$sum_part .= "SUM(IF($_ IS NULL, 1, 0)) as $_, ";
-    $sum_part .= "IF(SUM(IF($_ IS NULL, 1, 0)) > 0, TRUE, FALSE) as $_, ";
+    #                count number of NULLs    vs total  => output 1 to indicate all NULLs, else 0
+    $sum_part .= "IF(SUM(IF($_ IS NULL, 1, 0)) = COUNT(*), 1, 0) as $_, ";
 }
 $sum_part =~ s/, $//;
 $query = "SELECT $sum_part FROM $table WHERE " . join(" IS NULL OR ", @columns) . " IS NULL";
 
-my $cmd = "$hive $hive_opts-e 'set hive.cli.print.header=true; $query';";
-print "$cmd\n";
-system("$cmd");
+my $cmd = "$hive $hive_opts-e 'set hive.cli.print.header=false; $query';";
+@output = cmd("$cmd", 1);
+my @null_cols;
+foreach(@output){
+    hive_check_output_line($_) and next;
+    @null_cols = split(/\s+/);
+    last;
+}
+my $num_null_cols = 0;
+foreach(@null_cols){
+    $_ and $num_null_cols++;
+}
+if($num_null_cols){
+    print "Columns with all NULLs:\n\n";
+    foreach(my $i=0; $i < length(@null_cols); $i++){
+        $null_cols[$i] and print $columns[$i] . "\n";
+    }
+} else {
+    print "No columns with all NULLs\n";
+}
