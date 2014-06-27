@@ -14,7 +14,7 @@ $DESCRIPTION = "Hive tool to check a table for NULLS. Returns the number of rows
 
 Wrote this during Data Science course in Cloudera in 2013";
 
-$VERSION = "0.1.3";
+$VERSION = "0.2.0";
 
 my $hive        = "hive";
 my $hive_opts   = "";
@@ -64,7 +64,7 @@ foreach(@output){
     push(@columns, $column_name);
 }
 
-my $query = "SELECT COUNT(*) FROM $table WHERE " . join("=NULL OR ", @columns) . "=NULL";
+my $query = "SELECT COUNT(*) FROM $table WHERE " . join(" IS NULL OR ", @columns) . " IS NULL";
 
 my $cmd = "$hive $hive_opts-e '$query;'";
 print "$cmd\n";
