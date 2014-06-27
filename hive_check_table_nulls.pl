@@ -10,9 +10,11 @@
 
 # Wrote this while on a data science course, everything on this course so far is old news to me... I guess that's good?
 
-$DESCRIPTION = "Hive tool to check a table for NULLS";
+$DESCRIPTION = "Hive tool to check a table for NULLS. Returns the number of rows containing NULLs in any field
 
-$VERSION = "0.1.2";
+Wrote this during Data Science course in Cloudera in 2013";
+
+$VERSION = "0.1.3";
 
 my $hive        = "hive";
 my $hive_opts   = "";
@@ -33,12 +35,14 @@ my $table;
 my @columns;
 
 %options = (
-    "T|table=s" => [ \$table, "Table name to check for all nulls" ],
+    "T|table=s"   => [ \$table, "Table name to check for all nulls" ],
+    "hive-path=s" => [ \$hive,  "Path to Hive command (defaults to 'hive' searching /bin:/usr/bin)" ],
 );
 
 get_options();
 
 $table   = validate_database_tablename($table, "allow_qualified");
+$hive    = validate_program_path($hive, "hive");
 
 vlog2;
 set_timeout();
@@ -47,6 +51,7 @@ $hive_opts .= "-S" unless $verbose;
 $hive_opts .= " " if $hive_opts;
 my @output = cmd("$hive $hive_opts-e 'DESCRIBE $table;'", 1);
 foreach(@output){
+    $_ or next;
     /^OK$/i and next;
     /^Time taken/i and next;
     /^Logging initialized/i and next;
@@ -59,7 +64,7 @@ foreach(@output){
     push(@columns, $column_name);
 }
 
-my $query = "SELECT COUNT(*) from $table where " . join("=NULL OR ", @columns) . "=NULL";
+my $query = "SELECT COUNT(*) FROM $table WHERE " . join("=NULL OR ", @columns) . "=NULL";
 
 my $cmd = "$hive $hive_opts-e '$query;'";
 print "$cmd\n";
