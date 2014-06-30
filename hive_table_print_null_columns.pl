@@ -13,7 +13,7 @@ $DESCRIPTION = "Hive tool to print any columns from a table that contain entirel
 
 Written to find and clean data before importing to 0xdata H2O since there is a Java bug relating to entirely null columns";
 
-$VERSION = "0.2.0";
+$VERSION = "0.2.1";
 
 my $hive        = "hive";
 my $hive_opts   = "";
@@ -64,7 +64,7 @@ sub hive_check_output_line($){
 
 $hive_opts .= "-S" unless $verbose;
 $hive_opts .= " " if $hive_opts;
-my @output = cmd("$hive $hive_opts-e 'DESCRIBE $table;'", 1);
+my @output = cmd("$hive $hive_opts-e 'set hive.cli.print.header=false; DESCRIBE $table;'", 1);
 my $column_name;
 foreach(@output){
     hive_check_output_line($_) and next;
