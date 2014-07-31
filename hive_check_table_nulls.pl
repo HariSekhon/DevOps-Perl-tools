@@ -14,7 +14,7 @@ $DESCRIPTION = "Hive tool to check a table for NULLS. Returns the number of rows
 
 Wrote this during Data Science course in Cloudera in 2013";
 
-$VERSION = "0.2.0";
+$VERSION = "0.2.1";
 
 my $hive        = "hive";
 my $hive_opts   = "";
@@ -49,7 +49,7 @@ set_timeout();
 
 $hive_opts .= "-S" unless $verbose;
 $hive_opts .= " " if $hive_opts;
-my @output = cmd("$hive $hive_opts-e 'DESCRIBE $table;'", 1);
+my @output = cmd("$hive $hive_opts-e 'set hive.cli.print.header=false; DESCRIBE $table;'", 1);
 foreach(@output){
     $_ or next;
     /^OK$/i and next;

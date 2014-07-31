@@ -19,7 +19,7 @@ Create a list of phrases to scrub from config by placing them in scrub_custom.tx
 
 Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin";
 
-$VERSION = "0.3.0";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -126,8 +126,9 @@ sub scrub_ip($){
 
 sub scrub_host($){
     my $string = shift;
+    $string =~ s/$fqdn_regex/<fqdn>/go;
+    $string =~ s/$host_regex:(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
     # This currently matches too much stuff
-    #$string =~ s/$fqdn_regex/<fqdn>/go;
     #$string =~ s/$domain_regex/<domain>/go;
     return $string;
 }
