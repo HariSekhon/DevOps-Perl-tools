@@ -7,8 +7,9 @@
 #
 
 c = get_config()
-# set this to connect to listen on outside interface
-#c.NotebookApp.ip = 'x.x.x.x'
+# Set to 0.0.0.0 for portability but better set to your IP
+# for feedback to users for the correct URL
+c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.password = u'{{ password }}'
 c.NotebookApp.open_browser = False
 c.IPKernelApp.pylab = 'inline'
