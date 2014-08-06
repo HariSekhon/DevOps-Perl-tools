@@ -6,7 +6,12 @@
 
 # Quick Wrapper for IPython Notebook per user
 
+# ipython and pyspark should be in your $PATH
+
 # Intentionally no error handling or option handling. This suits my needs today
+
+__author__  = "Hari Sekhon"
+__version__ = "0.1"
 
 import os
 import sys
@@ -47,6 +52,6 @@ try:
     config = open(nbserver + "/ipython_notebook_config.py", "w")
     config.write(template.render(password = passwd(password), name = os.path.basename(sys.argv[0]), date = time.ctime(), template_path = os.path.abspath(template_file) ) )
     config.close()
-    os.system("IPYTHON_OPTS='notebook --profile=nbserver' /opt/spark/bin/pyspark")
+    os.system("IPYTHON_OPTS='notebook --profile=nbserver' pyspark")
 except KeyboardInterrupt:
     sys.exit(0)
