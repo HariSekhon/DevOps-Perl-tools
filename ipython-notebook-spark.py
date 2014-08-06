@@ -53,6 +53,7 @@ try:
     config.write(template.render(password = passwd(password), name = os.path.basename(sys.argv[0]), date = time.ctime(), template_path = os.path.abspath(template_file) ) )
     config.close()
     os.system("IPYTHON_OPTS='notebook --profile=nbserver' pyspark")
+    # don't hog the whole cluster in standalone mode, limit cores and possibly executor ram
     #os.system("MASTER=spark://master:7077 IPYTHON_OPTS='notebook --profile=nbserver' pyspark --total-executor-cores 20")
 except KeyboardInterrupt:
     sys.exit(0)
