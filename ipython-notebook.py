@@ -29,7 +29,7 @@ def get_password():
     global password2
     #password  = raw_input("Enter password to protect your personal IPython NoteBook\n\npassword: ")
     #password2 = raw_input("confirm password: ")
-    print "Enter password to protect your personal IPython NoteBook\n"
+    print "\nEnter a password to protect your personal IPython NoteBook\n"
     password = getpass.getpass()
     password2 = getpass.getpass("Confirm Password: ")
 
