@@ -20,7 +20,7 @@ import getpass
 from IPython.lib import passwd
 from jinja2 import Template
 
-dir = os.path.normpath(os.path.dirname(sys.argv[0]))
+dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 template_file = dir + "/ipython_notebook_config.py.tmpl"
 
@@ -55,7 +55,7 @@ try:
         os.system("ipython profile create nbserver")
     
     config = open(nbserver + "/ipython_notebook_config.py", "w")
-    config.write(template.render(password = passwd(password), name = os.path.basename(sys.argv[0]), date = time.ctime(), template_path = os.path.abspath(template_file) ) )
+    config.write(template.render(password = passwd(password), name = os.path.basename(sys.argv[0]), date = time.ctime(), template_path = template_file ) )
     config.close()
     os.system("IPYTHON_OPTS='notebook --profile=nbserver' pyspark")
     # don't hog the whole cluster in standalone mode, limit cores and possibly executor ram
