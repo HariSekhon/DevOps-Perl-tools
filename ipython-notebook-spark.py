@@ -30,7 +30,7 @@ password  = "1"
 password2 = "2"
 
 # config goes in /root/.config/ipython/ not $HOME/.ipython for root - and this is a script for users should not be running as root
-if os.environ['USER'] == 'root':
+if getpass.getuser() == 'root':
     print "running as root is not supported, please use your regular user account"
     sys.exit(1)
 
