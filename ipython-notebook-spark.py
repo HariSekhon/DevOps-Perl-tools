@@ -22,7 +22,7 @@ from jinja2 import Template
 
 dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-template_file = dir + "/ipython_notebook_config.py.tmpl"
+template_file = dir + "/ipython_notebook_config.py.j2"
 
 template = Template(open(template_file).read())
 
