@@ -10,7 +10,9 @@
 
 $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (default /tmp) that are older than the given Days Hours Mins. Deletes files if specifying --rm
 
-Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
+Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch
+
+Tested on CDH 4.x and HDP 2.1";
 
 $VERSION = "0.8.2";
 
