@@ -12,7 +12,7 @@ $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (defau
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch";
 
-$VERSION = "0.8.1";
+$VERSION = "0.8.2";
 
 use strict;
 use warnings;
@@ -81,6 +81,7 @@ if ($rm and not $debug){
     $print_only = 0; # actually run the hadoop fs -rm command instead of just echo'ing it out
 }
 $skipTrash = "-skipTrash" if $skipTrash;
+usage unless ($days or $hours or $mins);
 
 $days    = validate_float($days,  "days",  0, 3650);
 $hours   = validate_float($hours, "hours", 0, 23);
@@ -140,7 +141,7 @@ while (<$fh>){
     chomp;
     my $line = $_;
     $line =~ /^Found\s\d+\sitems/ and next;
-    if($line =~ /^([d-])$rwxt_regex\s+(?:\d+|-)\s+\w+\s+\w+\s+\d+\s+(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})\s+($filename_regex)$/){
+    if($line =~ /^([d-])$rwxt_regex\+?\s+(?:\d+|-)\s+[\w-]+\s+[\w-]+\s+\d+\s+(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})\s+($filename_regex)$/){
         my $dir      = $1;
         next if $dir eq "d"; # Not supporting dirs as there is no -rmdir and it would require a dangerous -rmr operation and should therefore be done by hand
         $file_count++;
