@@ -41,14 +41,16 @@ dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 #
 
 ## local mode - default anyway just give it 2 cores
-#master = "local[2]"
+#default_master = "local[2]"
 
 ## standalone master mode
-#master = "spark://master:7077"
+#default_master = "spark://master:7077"
 
 ## Yarn mode - this is what I use now on Hortonworks
-master = "yarn_client"
+default_master = "yarn_client"
 
+master = os.getenv('MASTER', default_master)
+    
 # used for both standalone and Yarn client
 num_executors   = 5
 executor_cores  = 5
@@ -87,8 +89,6 @@ if not (os.getenv('HADOOP_CONF_DIR', None) or os.getenv('YARN_CONF_DIR', None)):
     print "warning: YARN_CONF_DIR not set, temporarily setting /etc/hadoop/conf"
     os.environ['YARN_CONF_DIR'] = '/etc/hadoop/conf'
 
-master = os.getenv('MASTER', master)
-    
 if not os.getenv('PYSPARK_SUBMIT_ARGS', None):
     # don't hog the whole cluster - limit executor / RAM / CPU usage
     os.environ['PYSPARK_SUBMIT_ARGS'] = "--num-executors %d --total-executor-cores %d --executor-memory %s" % (num_executors, executor_cores, executor_memory)
