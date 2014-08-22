@@ -51,7 +51,7 @@ default_master = "yarn_client"
 
 master = os.getenv('MASTER', default_master)
     
-# used for both standalone and Yarn client
+# defaults resources to use if not setting PYSPARK_SUBMIT_ARGS
 num_executors   = 5
 executor_cores  = 5
 executor_memory = "10g"
@@ -160,11 +160,9 @@ try:
     if not os.path.exists(ipython_notebook_config) or passwd_txt not in open(ipython_notebook_config).read():
         print "writing new ipython notebook config"
         config = open(ipython_notebook_config, "w")
-        #config.write(template.render(password = passwd(password), ip = ip, name = os.path.basename(sys.argv[0]), date = time.ctime(), template_path = template_file ) )
         config.write(template.render(passwd_txt = passwd_txt, ip = ip, name = os.path.basename(sys.argv[0]), date = time.ctime(), template_path = template_file ) )
         config.close()
         os.chmod(ipython_notebook_config, 0600)
-    #cmd = "IPYTHON_OPTS='notebook --profile=%s' PYSPARK_SUBMIT_ARGS='%s' pyspark --master yarn_client" % (ipython_profile_name, os.getenv("PYSPARK_SUBMIT_ARGS", ""))
     # PYSPARK_SUBMIT_ARGS is reset to "" by pyspark wrapper script, call IPython Notebook drectly to avoid this :-/
     #cmd = "IPYTHON_OPTS='notebook --profile=%s' pyspark" % ipython_profile_name
     cmd = "ipython notebook --profile=%s" % ipython_profile_name
