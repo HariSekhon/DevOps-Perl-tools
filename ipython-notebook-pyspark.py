@@ -39,12 +39,19 @@ dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 ###########################
 # PySpark Settings
 #
-# host of standalone spark master daemon - only for standalone cluster mode
-spark_master      = "master"
-spark_master_port = 7077
+
+## local mode - default anyway just give it 2 cores
+#master = "local[2]"
+
+## standalone master mode
+#master = "spark://master:7077"
+
+## Yarn mode - this is what I use now on Hortonworks
+master = "yarn_client"
+
 # used for both standalone and Yarn client
 num_executors   = 5
-executor_cores  = 2
+executor_cores  = 5
 executor_memory = "10g"
 
 SPARK_HOME = os.getenv('SPARK_HOME', None)
@@ -80,20 +87,12 @@ if not (os.getenv('HADOOP_CONF_DIR', None) or os.getenv('YARN_CONF_DIR', None)):
     print "warning: YARN_CONF_DIR not set, temporarily setting /etc/hadoop/conf"
     os.environ['YARN_CONF_DIR'] = '/etc/hadoop/conf'
 
-if not os.getenv('MASTER', None):
-    # Convenient Default to save users having to specify
-    # local mode - default anyway
-    #os.environ['MASTER'] = "local[2]"
-    # standalone master mode
-    #os.environ['MASTER'] = spark://%s:%s" % (spark_master, spark_master_port)
-    # Yarn mode - this is what I use now on Hortonworks
-    # PYSPARK_SUBMIT_ARGS doesn't work for --master
-    #os.environ['PYSPARK_SUBMIT_ARGS'] = "--master yarn --deploy-mode yarn_client"
-    os.environ['MASTER'] = "yarn_client"
+master = os.getenv('MASTER', master)
     
 if not os.getenv('PYSPARK_SUBMIT_ARGS', None):
     # don't hog the whole cluster - limit executor / RAM / CPU usage
     os.environ['PYSPARK_SUBMIT_ARGS'] = "--num-executors %d --total-executor-cores %d --executor-memory %s" % (num_executors, executor_cores, executor_memory)
+os.environ['PYSPARK_SUBMIT_ARGS'] = "--master %s %s" % (master, os.environ['PYSPARK_SUBMIT_ARGS'])
 
 ###########################
 # IPython Notebook Settings
@@ -154,10 +153,9 @@ try:
         passwd_fh.close()
         os.chmod(passwd_txt, 0600)
     
-    # really only useful for local mode spark, doesn't support YARN at this time
-    if not os.path.exists(setup_py):
-        shutil.copy(pyspark_startup_src, setup_py)
-        os.chmod(setup_py, 0600)
+    #if not os.path.exists(setup_py):
+    shutil.copy(pyspark_startup_src, setup_py)
+    os.chmod(setup_py, 0600)
  
     if not os.path.exists(ipython_notebook_config) or passwd_txt not in open(ipython_notebook_config).read():
         print "writing new ipython notebook config"
@@ -167,9 +165,11 @@ try:
         config.close()
         os.chmod(ipython_notebook_config, 0600)
     #cmd = "IPYTHON_OPTS='notebook --profile=%s' PYSPARK_SUBMIT_ARGS='%s' pyspark --master yarn_client" % (ipython_profile_name, os.getenv("PYSPARK_SUBMIT_ARGS", ""))
-    cmd = "IPYTHON_OPTS='notebook --profile=%s' pyspark" % ipython_profile_name
-    #print "MASTER=%s\nPYSPARK_SUBMIT_ARGS=%s" % (os.environ['MASTER'], os.environ['PYSPARK_SUBMIT_ARGS'])
-    #print cmd
+    # PYSPARK_SUBMIT_ARGS is reset to "" by pyspark wrapper script, call IPython Notebook drectly to avoid this :-/
+    #cmd = "IPYTHON_OPTS='notebook --profile=%s' pyspark" % ipython_profile_name
+    cmd = "ipython notebook --profile=%s" % ipython_profile_name
+    print "PYSPARK_SUBMIT_ARGS=%s" % os.environ['PYSPARK_SUBMIT_ARGS']
+    print cmd
     os.system(cmd)
 except KeyboardInterrupt:
     sys.exit(0)
