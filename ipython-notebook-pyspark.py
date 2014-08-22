@@ -80,15 +80,18 @@ if not (os.getenv('HADOOP_CONF_DIR', None) or os.getenv('YARN_CONF_DIR', None)):
     print "warning: YARN_CONF_DIR not set, temporarily setting /etc/hadoop/conf"
     os.environ['YARN_CONF_DIR'] = '/etc/hadoop/conf'
 
-if not os.getenv('PYSPARK_SUBMIT_ARGS', None):
+if not os.getenv('MASTER', None):
     # Convenient Default to save users having to specify
-    # local mode
-    #master = "local"
+    # local mode - default anyway
+    #os.environ['MASTER'] = "local[2]"
     # standalone master mode
-    #master = spark://%s:%s" % (spark_master, spark_master_port)
-    # Yarn mode - this is what I use now
+    #os.environ['MASTER'] = spark://%s:%s" % (spark_master, spark_master_port)
+    # Yarn mode - this is what I use now on Hortonworks
+    # PYSPARK_SUBMIT_ARGS doesn't work for --master
     #os.environ['PYSPARK_SUBMIT_ARGS'] = "--master yarn --deploy-mode yarn_client"
-    master = "yarn_client"
+    os.environ['MASTER'] = "yarn_client"
+    
+if not os.getenv('PYSPARK_SUBMIT_ARGS', None):
     # don't hog the whole cluster - limit executor / RAM / CPU usage
     os.environ['PYSPARK_SUBMIT_ARGS'] = "--num-executors %d --total-executor-cores %d --executor-memory %s" % (num_executors, executor_cores, executor_memory)
 
@@ -164,8 +167,9 @@ try:
         config.close()
         os.chmod(ipython_notebook_config, 0600)
     #cmd = "IPYTHON_OPTS='notebook --profile=%s' PYSPARK_SUBMIT_ARGS='%s' pyspark --master yarn_client" % (ipython_profile_name, os.getenv("PYSPARK_SUBMIT_ARGS", ""))
-    cmd = "IPYTHON_OPTS='notebook --profile=%s' pyspark --master %s" % (ipython_profile_name, master)
-    print cmd
+    cmd = "IPYTHON_OPTS='notebook --profile=%s' pyspark" % ipython_profile_name
+    #print "MASTER=%s\nPYSPARK_SUBMIT_ARGS=%s" % (os.environ['MASTER'], os.environ['PYSPARK_SUBMIT_ARGS'])
+    #print cmd
     os.system(cmd)
 except KeyboardInterrupt:
     sys.exit(0)
