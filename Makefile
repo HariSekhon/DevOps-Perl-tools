@@ -38,9 +38,8 @@ apt-packages:
 .PHONY: yum-packages
 yum-packages:
 	yum install -y gcc || :
-	# needed to fetch the library submodule at end of build
-	yum install -y git || :
-	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
+	# needed to fetch the library submodule and CPAN modules
+	yum install -y perl-CPAN git || :
 
 .PHONY: update
 update:
