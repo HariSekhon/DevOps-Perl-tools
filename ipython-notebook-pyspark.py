@@ -168,8 +168,8 @@ try:
     # PYSPARK_SUBMIT_ARGS is reset to "" by pyspark wrapper script, call IPython Notebook drectly to avoid this :-/
     #cmd = "IPYTHON_OPTS='notebook --profile=%s' pyspark" % ipython_profile_name
     cmd = "ipython notebook --profile=%s" % ipython_profile_name
-    print "PYSPARK_SUBMIT_ARGS=%s" % os.environ['PYSPARK_SUBMIT_ARGS']
-    print cmd
+    #print "PYSPARK_SUBMIT_ARGS=%s" % os.environ['PYSPARK_SUBMIT_ARGS']
+    #print cmd
     os.system(cmd)
 except KeyboardInterrupt:
     sys.exit(0)
