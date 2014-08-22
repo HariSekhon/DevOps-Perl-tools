@@ -74,7 +74,6 @@ if os.getenv('SPARK_YARN_USER_ENV', None):
     os.environ['SPARK_YARN_USER_ENV'] = os.environ['SPARK_YARN_USER_ENV'] + ",PYTHONPATH=" + ":".join(sys.path)
 else:
     os.environ['SPARK_YARN_USER_ENV'] = "PYTHONPATH=" + ":".join(sys.path)
-print "SPARK_YARN_USER_ENV=%s" % os.environ['SPARK_YARN_USER_ENV']
 
 # Set some sane likely defaults
 if not (os.getenv('HADOOP_CONF_DIR', None) or os.getenv('YARN_CONF_DIR', None)):
