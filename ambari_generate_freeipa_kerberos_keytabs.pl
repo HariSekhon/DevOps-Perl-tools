@@ -21,13 +21,15 @@ Requirements:
 
 This program uses the 'ipa' command line tool to generate the Kerberos principals (ipa-admintools package). This requires a valid Kerberos ticket.
 
-Re-exporting keytabs invalidates all currently existing keytabs for given principals - will prompt for confirmation before proceeding to export keytabs (will also require LDAP bind credentials).
+Re-exporting keytabs invalidates all currently existing keytabs for given principals - will prompt for confirmation before proceeding to export keytabs.
 
-Requires LDAP bind credentials (eg uid=admin,cn=users,cn=accounts,dc=domain,dc=com) if exporting the keytabs [relying on kerberos ticket doesn't work in IPA and always results in error code 9 \"SASL Bind failed Local error (-2) SASL(-1): generic failure: GSSAPI Error: Unspecified GSS failure. Minor code may provide more information (Server ldap/localhost@LOCAL not found in Kerberos database)!]\"
+Requires LDAP bind credentials if exporting keytabs (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
 
 Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
 # Heavily leverages personal library for lots of error checking
+
+# Relying on Kerberos ticket doesn't work in IPA for fetching keytab and results in error code 9 - \"SASL Bind failed Local error (-2) SASL(-1): generic failure: GSSAPI Error: Unspecified GSS failure. Minor code may provide more information (Server ldap/localhost@LOCAL not found in Kerberos database)!]\"
 
 $VERSION = "0.1";
 
@@ -53,9 +55,8 @@ env_vars("IPA_SERVER",        $ipa_server);
 env_vars("IPA_BIND_DN",       $bind_dn);
 env_vars("IPA_BIND_PASSWORD", $bind_password);
 
-# relies on finding these in /usr/bin. Set full paths here if different
-#my $KINIT = "kinit";
-#my $KLIST = "klist";
+my $KINIT = "/usr/bin/kinit";
+my $KLIST = "/usr/bin/klist";
 
 my $IPA="/usr/bin/ipa";
 my $IPA_GETKEYTAB="/usr/sbin/ipa-getkeytab";
@@ -71,10 +72,10 @@ $verbose = 2;
 my $quiet;
 
 %options = (
-    "f|file=s"          =>  [ \$csv,            "CSV file exported from Ambari containing the list of Kerberos principals and hosts" ],
+    "f|file=s"          =>  [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
     "s|server=s"        =>  [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Defaults to localhost, otherwise requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed'] (default: localhost, \$IPA_SERVER)" ],
-    "d|bind-dn=s"       => [ \$bind_dn,         "Bind DN to connect with (\$IPA_BIND_DN)" ],
-    "p|bind-password=s" => [ \$bind_password,   "Bind password to connect with (\$IPA_BIND_PASSWORD)" ],
+    "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN for exporting keytabs (\$IPA_BIND_DN)" ],
+    "p|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password for exporting keytabs (\$IPA_BIND_PASSWORD)" ],
     "q|quiet"           => [ \$quiet,           "Quiet mode" ],
 );
 splice @usage_order, 6, 0, qw/file server bind-dn bind-password quiet/;
@@ -90,6 +91,8 @@ set_timeout(60);
 
 $status = "OK";
 
+# simple check to see if we have a kerberos ticket in cache
+cmd("$KLIST", 1);
 #@output = cmd("$KLIST");
 #vlog2;
 #
@@ -218,6 +221,9 @@ $bind_dn       = validate_ldap_dn($bind_dn,        "IPA bind") if $bind_dn;
 $bind_password = validate_password($bind_password, "IPA bind") if $bind_password;
 vlog2;
 
+my $timestamp = strftime("%F_%H%M%S", localtime);
+my $keytab_backups = "keytab-backups-$timestamp";
+vlog2 "will backup any existing keytabs to sub-directory $keytab_backups at same location as originals\n";
 foreach(@principals){
     my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
     if( -d $keytab_dir ){
@@ -227,10 +233,13 @@ foreach(@principals){
         vlog2 "creating keytab directory '$keytab_dir'";
         make_path($keytab_dir, "mode" => "0700") or die "ERROR: failed to create directory: $!\n";
     }
-    if(-f $keytab){
-        my $keytab_backup = "$keytab_dir/$keytab.bak." . strftime("%F_%H%M%S", localtime);
-        vlog2 "backing up existing keytab '$keytab_dir/$keytab' => '$keytab_backup";
-        move("$keytab_dir/$keytab", "$keytab_backup") or die "ERROR: failed to back up existing keytab: $!";
+    if(-f "$keytab_dir/$keytab"){
+        my $keytab_backup_dir = "$keytab_dir/$keytab_backups";
+        unless ( -d $keytab_backup_dir ){
+            make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
+        }
+        vlog3 "backing up existing keytab '$keytab_dir/$keytab' to $keytab_backup_dir";
+        move("$keytab_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab: $!";
     }
     my $tempfile = tmpnam();
     vlog2 "exporting keytab for principal '$principal' to '$keytab_dir/$keytab'";
