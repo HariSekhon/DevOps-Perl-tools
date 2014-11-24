@@ -221,9 +221,23 @@ $bind_dn       = validate_ldap_dn($bind_dn,        "IPA bind") if $bind_dn;
 $bind_password = validate_password($bind_password, "IPA bind") if $bind_password;
 vlog2;
 
+my %dup_princs;
+foreach(@principals){
+    my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain) = @{$_};
+    if(defined($dup_princs{$principal})){
+        if($dup_princs{$principal}{"keytab"} eq "$keytab_dir/$keytab"){
+            # harmless we'll overwrite the 
+            warn "WARNING: duplicate principal '$principal' detected ($description), but keytab is the same '$keytab_dir/$keytab' so this shouldn't cause problems\n" if $verbose >= 3;
+        } else {
+            die "ERROR: duplicate principal '$principal' detected with differing keytabs ('$dup_princs{$principal}{keytab}' vs '$keytab_dir/$keytab'), something will break if we do this!\n";
+        }
+    }
+    $dup_princs{$principal}{"keytab"} = "$keytab_dir/$keytab";
+}
+
 my $timestamp = strftime("%F_%H%M%S", localtime);
 my $keytab_backups = "keytab-backups-$timestamp";
-vlog2 "will backup any existing keytabs to sub-directory $keytab_backups at same location as originals\n";
+vlog2 "\nwill backup any existing keytabs to sub-directory $keytab_backups at same location as originals\n";
 foreach(@principals){
     my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
     if( -d $keytab_dir ){
