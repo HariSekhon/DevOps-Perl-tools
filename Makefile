@@ -11,11 +11,11 @@
 install:
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 
-	# don't track and commit your personal name, company name etc additions to scrub_custom.conf back to Git since they are personal to you
-	git update-index --assume-unchanged scrub_custom.conf
-
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
 	[ -x /usr/bin/yum ]     && make yum-packages || :
+
+	# don't track and commit your personal name, company name etc additions to scrub_custom.conf back to Git since they are personal to you
+	git update-index --assume-unchanged scrub_custom.conf
 
 	yes | sudo cpan \
 		 JSON \
