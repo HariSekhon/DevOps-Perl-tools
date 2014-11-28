@@ -23,9 +23,9 @@ This program uses the 'ipa' command line tool to generate the Kerberos principal
 
 Re-exporting keytabs invalidates all currently existing keytabs for given principals - will prompt for confirmation before proceeding to export keytabs (unless --export-keytabs=yes).
 
-If exporting keytabs and not using the correct --server FQDN, must supply LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword).
+If --export-keytabs=yes and not using the correct --server FQDN, must supply LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword).
 
-If copying keytabs to hosts, requires ssh-client and rsync to be installed on all hosts along with an SSH key to root on those hosts as it will try to rsync the keytabs over SSH. Can supply a specific SSH private via --ssh-key.
+If --rsync-keytabs=yes copying keytabs to hosts, requires openssh-clients and rsync to be installed on all hosts along with an SSH key to root on those hosts to rsync the keytabs over SSH. Can supply a specific SSH private via --ssh-key.
 
 The host that this is run on should be able to resolve all the Hadoop user and group accounts IDs from FreeIPA in order to set the right permmissions, otherwise they'll be set to root:root.
 
