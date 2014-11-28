@@ -31,9 +31,7 @@ The host that this is run on should be able to resolve all the Hadoop user and g
 
 Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
-# Heavily leverages personal library for lots of error checking
-
-# Relying on Kerberos ticket doesn't work in IPA for fetching keytab and results in error code 9 - \"SASL Bind failed Local error (-2) SASL(-1): generic failure: GSSAPI Error: Unspecified GSS failure. Minor code may provide more information (Server ldap/localhost@LOCAL not found in Kerberos database)!]\"
+# Heavily leverages my personal library for lots of error checking
 
 $VERSION = "0.2.1";
 
@@ -56,7 +54,6 @@ $github_repo = "toolbox";
 my $ipa_server;
 my $bind_dn;
 my $bind_password;
-
 env_vars("IPA_SERVER",        $ipa_server);
 env_vars("IPA_BIND_DN",       $bind_dn);
 env_vars("IPA_BIND_PASSWORD", $bind_password);
@@ -75,7 +72,8 @@ set_timeout_max(3600);
 set_timeout_default(300);
 
 my $csv;
-$ipa_server = "localhost" unless $ipa_server;
+my $my_fqdn = hostfqdn() or warn "unable to determine FQDN of this host (you must specify --server fqdn or use \$IPA_SERVER environment variable, will also end up ssh+rsync back to self since cannot differentiate from other hosts)";
+$ipa_server = $my_fqdn unless $ipa_server;
 my @output;
 $verbose = 2;
 my $quiet;
@@ -85,9 +83,9 @@ my $ssh_key;
 
 %options = (
     "f|file=s"          =>  [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
-    "s|server=s"        =>  [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Defaults to localhost, otherwise requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed'] (default: localhost, \$IPA_SERVER)" ],
-    "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN for exporting keytabs (\$IPA_BIND_DN)" ],
-    "p|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password for exporting keytabs (\$IPA_BIND_PASSWORD)" ],
+    "s|server=s"        =>  [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed' or 'SASL Bind failed...'] (default: $my_fqdn, \$IPA_SERVER)" ],
+    "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN for exporting keytabs (optional, can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_DN)" ],
+    "p|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password for exporting keytabs (optional, can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_PASSWORD)" ],
     "export-keytabs=s"  => [ \$export_keytabs,  "Export keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs)" ],
     "rsync-keytabs=s"   => [ \$rsync_keytabs,   "Rsync keytabs without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
     "i|ssh-key=s"       => [ \$ssh_key,         "SSH private key to use to SSH the nodes as root (optional, will search for defaults ~/.ssh/id_dsa, ~/.ssh/id_ecdsa, ~/.ssh/id_rsa if not specified)" ],
@@ -225,7 +223,6 @@ foreach(@principals){
 }
 vlog2;
 
-my $my_fqdn = hostfqdn() or warn "unable to determine FQDN of this host (will ssh+rsync back to self)";
 my $timestamp = strftime("%F_%H%M%S", localtime);
 my $keytab_backups = "keytab-backups-$timestamp";
 
@@ -233,10 +230,11 @@ sub export_keytabs(){
     vlog2 "\n* Exporting IPA Kerberos keytabs from IPA server '$ipa_server' via LDAPS:\n";
 
     $ipa_server      = validate_host($ipa_server, "KDC");
-    if($ipa_server ne "localhost"){
-        vlog2 "checking IPA server has been given as an FQDN in order for successful bind with certificate validation";
-        $ipa_server  = validate_fqdn($ipa_server, "KDC");
-    }
+    isFqdn($ipa_server) or warn "WARNING: KDC host --server is not an FQDN, this may cause a SASL Bind error due to not validating the LDAP SSL certificate (may still work with straight LDAP credentials --bind-dn and --bind-password\n";
+    #if($ipa_server ne "localhost"){
+    #    vlog2 "checking IPA server has been given as an FQDN in order for successful bind with certificate validation";
+    #    $ipa_server  = validate_fqdn($ipa_server, "KDC");
+    #}
     $bind_dn       = validate_ldap_dn($bind_dn,        "IPA bind") if $bind_dn;
     $bind_password = validate_password($bind_password, "IPA bind") if $bind_password;
     vlog2;
@@ -275,7 +273,9 @@ sub export_keytabs(){
         }
         my $tempfile = tmpnam();
         vlog2 "exporting keytab for principal '$principal' to '$keytab_dir/$host/$keytab'";
-        @output = cmd("$IPA_GETKEYTAB -s '$ipa_server' -p '$principal' -D '$bind_dn' -w '$bind_password' -k '$tempfile'", 1);
+        my $cmd = "$IPA_GETKEYTAB -s '$ipa_server' -p '$principal' -k '$tempfile'";
+        $cmd .= " -D '$bind_dn' -w '$bind_password'" if($bind_dn and $bind_password);
+        @output = cmd($cmd, 1);
         move($tempfile, "$keytab_dir/$host/$keytab") or die "ERROR: failed to move temp file '$tempfile' to '$keytab_dir/$host/$keytab': $!";
         my $uid = getpwnam $owner;
         my $gid = getgrnam $group;
@@ -320,6 +320,11 @@ sub rsync_keytabs(){
         foreach my $keytab_dir (sort keys %{$hosts{$host}}){
             ( -e $keytab_dir ) or die "keytab dir '$keytab_dir' does not exist, did you skip exporting keytabs?\n";
             ( -d $keytab_dir ) or die "keytab dir '$keytab_dir' is not a directory, unexpected condition, aborting\n";
+            my $keytab_list;
+            foreach my $keytab(@{$hosts{$host}{$keytab_dir}}){
+                ( -f "$keytab_dir/$host/$keytab" ) or die "keytab '$keytab_dir/$host/$keytab' not found, did you skip exporting keytabs?\n";
+                $keytab_list .= "'$keytab_dir/$host/$keytab' ";
+            }
             my $keytab_backup_dir = "$keytab_dir/$keytab_backups";
             vlog2 "backing up any existing keytab in keytab dir '$keytab_dir' => '$keytab_backup_dir/' on host $host";
             cmd("ssh -oPreferredAuthentications=publickey $ssh_key root\@'$host' '
@@ -340,8 +345,9 @@ sub rsync_keytabs(){
                         exit 1
                     fi
                 fi' ", 1);
-            my $keytab_list = "'$keytab_dir/$host/" . join("' '$keytab_dir/$host/", @{$hosts{$host}{$keytab_dir}}) . "'";
             vlog2 "copying keytabs to '$keytab_dir/' on host $host";
+            # done further above now
+            #my $keytab_list = "'$keytab_dir/$host/" . join("' '$keytab_dir/$host/", @{$hosts{$host}{$keytab_dir}}) . "'";
             cmd("rsync -av -e 'ssh -o PreferredAuthentications=publickey $ssh_key' $keytab_list root\@'$host':'$keytab_dir/' ", 1);
         }
     }
