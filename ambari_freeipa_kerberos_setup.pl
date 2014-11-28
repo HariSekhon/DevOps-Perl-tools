@@ -23,9 +23,9 @@ This program uses the 'ipa' command line tool to generate the Kerberos principal
 
 Re-exporting keytabs invalidates all currently existing keytabs for given principals - will prompt for confirmation before proceeding to export keytabs (unless --export-keytabs=yes).
 
-Requires LDAP bind credentials if exporting keytabs (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
+If exporting keytabs and not using the correct --server FQDN, must supply LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword).
 
-Requires ssh-client and rsync to be installed on all hosts along with SSH key to root on all hosts as it will try to rsync the keytabs to the correct hosts.
+If copying keytabs to hosts, requires ssh-client and rsync to be installed on all hosts along with an SSH key to root on those hosts as it will try to rsync the keytabs over SSH. Can supply a specific SSH private via --ssh-key.
 
 The host that this is run on should be able to resolve all the Hadoop user and group accounts IDs from FreeIPA in order to set the right permmissions, otherwise they'll be set to root:root.
 
@@ -33,7 +33,7 @@ Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
 # Heavily leverages my personal library for lots of error checking
 
-$VERSION = "0.2.1";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -237,6 +237,9 @@ sub export_keytabs(){
     #}
     $bind_dn       = validate_ldap_dn($bind_dn,        "IPA bind") if $bind_dn;
     $bind_password = validate_password($bind_password, "IPA bind") if $bind_password;
+    if(($bind_dn and not $bind_password) or ($bind_password and not $bind_dn)){
+        usage "if specifying one must specify both of --bind-dn and --bind-password";
+    }
     vlog2;
 
     my %dup_princs;
