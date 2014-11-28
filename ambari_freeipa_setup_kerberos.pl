@@ -9,7 +9,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Generates Ambari Kerberos principals and keytabs in FreeIPA / Redhat IPA for use in Hadoop on the Hortonworks Data platform
+$DESCRIPTION = "Sets up FreeIPA Kerberos for Hortonworks Ambari, including creating Kerberos principals, exporting keytabs and distributing to nodes.
 
 MAKE SURE YOU 'export KRB5CCNAME=/tmp/blah; kinit' BEFORE RUNNING THIS PROGRAM - you will need to have a valid Kerberos ticket to create IPA users.
 
@@ -21,7 +21,7 @@ Requirements:
 
 This program uses the 'ipa' command line tool to generate the Kerberos principals (ipa-admintools package). This requires a valid Kerberos ticket.
 
-Re-exporting keytabs invalidates all currently existing keytabs for given principals - will prompt for confirmation before proceeding to export keytabs.
+Re-exporting keytabs invalidates all currently existing keytabs for given principals - will prompt for confirmation before proceeding to export keytabs (unless --export-keytabs=yes).
 
 Requires LDAP bind credentials if exporting keytabs (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
 
