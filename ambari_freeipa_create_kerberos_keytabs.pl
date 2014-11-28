@@ -31,7 +31,7 @@ Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
 # Relying on Kerberos ticket doesn't work in IPA for fetching keytab and results in error code 9 - \"SASL Bind failed Local error (-2) SASL(-1): generic failure: GSSAPI Error: Unspecified GSS failure. Minor code may provide more information (Server ldap/localhost@LOCAL not found in Kerberos database)!]\"
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 use strict;
 use warnings;
@@ -176,7 +176,7 @@ foreach(@principals){
     if($principal =~ /\//o){
         if(not grep { $host eq $_ } @{$ipa{"host"}}){
             vlog2 "creating host '$host' in IPA system";
-            cmd("$IPA host-add --force '$host'");
+            cmd("$IPA host-add --force '$host'", 1);
         } else {
         vlog3 "IPA host '$host' already exists, skipping...";
         }
