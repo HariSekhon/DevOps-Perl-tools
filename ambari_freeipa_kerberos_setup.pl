@@ -84,8 +84,8 @@ my $ssh_key;
 %options = (
     "f|file=s"          =>  [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
     "s|server=s"        =>  [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed' or 'SASL Bind failed...'] (default: $my_fqdn, \$IPA_SERVER)" ],
-    "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN for exporting keytabs (optional, can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_DN)" ],
-    "p|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password for exporting keytabs (optional, can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_PASSWORD)" ],
+    "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN for exporting keytabs (optional, better to use Kerberos, but can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_DN)" ],
+    "p|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password for exporting keytabs (optional, better to use Kerberos, can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_PASSWORD)" ],
     "export-keytabs=s"  => [ \$export_keytabs,  "Export keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs)" ],
     "rsync-keytabs=s"   => [ \$rsync_keytabs,   "Rsync keytabs without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
     "i|ssh-key=s"       => [ \$ssh_key,         "SSH private key to use to SSH the nodes as root (optional, will search for defaults ~/.ssh/id_dsa, ~/.ssh/id_ecdsa, ~/.ssh/id_rsa if not specified)" ],
