@@ -303,6 +303,7 @@ sub export_keytabs(){
 }
 
 sub rsync_keytabs(){
+    vlog "\n* Copying keytabs to hosts:\n";
     my %hosts;
     foreach(@principals){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
