@@ -1,4 +1,4 @@
-Hadoop, Web and other Unix Tools
+Hadoop, Web and other Unix Tools [![Build Status](https://travis-ci.org/harisekhon/toolbox.svg?branch=master)](https://travis-ci.org/harisekhon/toolbox)
 ================================
 
 A few of the Hadoop, Web and other nifty tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
