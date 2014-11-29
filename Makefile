@@ -35,7 +35,6 @@ apt-packages:
 	apt-get install -y gcc || :
 	# needed to fetch the library submodule at end of build
 	apt-get install -y git || :
-	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 
 .PHONY: yum-packages
 yum-packages:
