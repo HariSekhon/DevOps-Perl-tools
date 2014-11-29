@@ -39,7 +39,7 @@ Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
 # Heavily leverages my personal library for lots of error checking
 
-$VERSION = "0.3.1";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -136,103 +136,117 @@ cmd("$KLIST", 1);
 #@output = cmd("$KINIT $user <<EOF\n$password\nEOF\n", 1) unless $found_princ;
 #vlog2;
 
-# error handling is handled in my library function open_file()
-my $fh = open_file $csv;
-vlog2;
-
-my %ipa;
-foreach my $type (qw/host user service/){
-    vlog2 "fetching IPA $type list";
-    @output = cmd("$IPA $type-find", 1);
-    foreach(@output){
-        if(/^\s*Host\s+name:\s+(.+)\s*$/  or
-           /^\s*User\s+login:\s+(.+)\s*$/ or
-           /^\s*Principal:\s+(.+)\s*$/
-          ){
-            push(@{$ipa{$type}}, $1);
-        }
-    }
-}
-vlog2;
-
-my @principals;
-
-while (<$fh>){
-    chomp;
-    #(my $host, my $description, my $principal, my $keytab, my $keytab_dir, my $owner, my $group, my $perm) = split($_, 8);
-    /^([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+)$/ or die "ERROR: invalid CSV format detected on line $.: '$_' (expected 8 comma separated fields)\n";
-    my $host        = $1;
-    my $description = $2;
-    my $principal   = $3;
-    my $keytab      = $4;
-    my $keytab_dir  = $5;
-    my $owner       = $6;
-    my $group       = $7;
-    my $perm        = $8;
-    ###
-    $host =~ /^($host_regex)$/ or die "ERROR: invalid host '$host' (field 1) on line $.: '$_' - failed host regex validation\n";
-    $host = $1;
-    $description =~ /^([\w\s-]+)$/ or die "ERROR: invalid description '$description' (field 2) on line $.: '$_' - may only contain alphanumeric characters";
-    $description = $1;
-    $principal   =~ /^(($user_regex)(?:\/($host_regex))?\@($host_regex))$/ or die "ERROR: invalid/unrecognized principal format found on line $.: '$principal'\n";
-    $principal   = $1;
-    my $user     = $2;
-    my $host_component = $3;
-    if($host_component and $host_component ne $host){
-        die "ERROR: host '$host' (field 1) and host component '$host_component' from principal '$principal' (field 3) do not match on line $.: '$_'\n"
-    }
-    my $domain = $4;
-    $keytab =~ /^($filename_regex)$/ or die "ERROR: invalid keytab file name '$keytab' (field 4) on line $.: '$_' - failed regex validation\n";
-    $keytab = $1;
-    $keytab_dir =~ /^($filename_regex)$/ or die "ERROR: invalid keytab directory '$keytab_dir' (field 5) on line $.: '$_' - failed regex validation\n";
-    $keytab_dir = $1;
-    $owner =~ /^($user_regex)$/ or die "ERROR: invalid owner '$owner' (field 6) on line $.: '$_' - failed regex validation\n";
-    $owner = $1;
-    $group =~ /^($user_regex)$/ or die "ERROR: invalid group '$group' (field 7) on line $.: '$_' - failed regex validation\n";
-    $group = $1;
-    $perm =~ /^(0?\d{3})$/ or die "ERROR: invalid perm '$perm' (field 8) on line $.: '$_' - failed regex validation\n";
-    $perm = $1;
-    push(@principals, [$host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain]);
-}
-close $fh;
-
-vlog2 "* Creating IPA Kerberos principals:\n";
-foreach(@principals){
-    my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain) = @{$_};
-    my $email;
-    if($EMAIL){
-        $email = $EMAIL
-    } else {
-        $email = "$user\@$domain";
-    }
-    if($principal =~ /\//o){
-        if(not grep { $host eq $_ } @{$ipa{"host"}}){
-            vlog2 "creating host '$host' in IPA system";
-            cmd("$IPA host-add --force '$host'", 1);
-        } else {
-        vlog3 "IPA host '$host' already exists, skipping...";
-        }
-        if(not grep { $principal eq $_ } @{$ipa{"service"}}){
-            vlog2 "creating host service principal '$principal'";
-            cmd("$IPA service-add --force '$principal'", 1);
-        } else {
-            vlog2 "service principal '$principal' already exists, skipping...";
-        }
-    } else {
-        if(not grep { $user eq $_ } @{$ipa{"user"}}){
-            vlog2 "creating user principal '$principal'";
-            cmd("$IPA user-add --first='$description' --last='$description' --displayname='$principal' --email='$email' --principal='$principal' --random '$user'", 1);
-        } else {
-            vlog2 "user principal '$principal' already exists, skipping...";
-        }
-    }
-}
-vlog2;
-
 my $timestamp = strftime("%F_%H%M%S", localtime);
 my $keytab_backups = "keytab-backups-$timestamp";
 
-sub export_keytabs(){
+my %ipa;
+
+sub parse_csv(){
+    my @principals;
+    # error handling is handled in my library function open_file()
+    my $fh = open_file $csv;
+    vlog2;
+
+    foreach my $type (qw/host user service/){
+        vlog2 "fetching IPA $type list";
+        @output = cmd("$IPA $type-find", 1);
+        foreach(@output){
+            if(/^\s*Host\s+name:\s+(.+)\s*$/  or
+               /^\s*User\s+login:\s+(.+)\s*$/ or
+               /^\s*Principal:\s+(.+)\s*$/
+              ){
+                push(@{$ipa{$type}}, $1);
+            }
+        }
+    }
+    vlog2;
+
+    while (<$fh>){
+        chomp;
+        #(my $host, my $description, my $principal, my $keytab, my $keytab_dir, my $owner, my $group, my $perm) = split($_, 8);
+        /^([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+)$/ or die "ERROR: invalid CSV format detected on line $.: '$_' (expected 8 comma separated fields)\n";
+        my $host        = $1;
+        my $description = $2;
+        my $principal   = $3;
+        my $keytab      = $4;
+        my $keytab_dir  = $5;
+        my $owner       = $6;
+        my $group       = $7;
+        my $perm        = $8;
+        ###
+        $host =~ /^($host_regex)$/ or die "ERROR: invalid host '$host' (field 1) on line $.: '$_' - failed host regex validation\n";
+        $host = $1;
+        $description =~ /^([\w\s-]+)$/ or die "ERROR: invalid description '$description' (field 2) on line $.: '$_' - may only contain alphanumeric characters";
+        $description = $1;
+        $principal   =~ /^(($user_regex)(?:\/($host_regex))?\@($host_regex))$/ or die "ERROR: invalid/unrecognized principal format found on line $.: '$principal'\n";
+        $principal   = $1;
+        my $user     = $2;
+        my $host_component = $3;
+        if($host_component and $host_component ne $host){
+            die "ERROR: host '$host' (field 1) and host component '$host_component' from principal '$principal' (field 3) do not match on line $.: '$_'\n"
+        }
+        my $domain = $4;
+        $keytab =~ /^($filename_regex)$/ or die "ERROR: invalid keytab file name '$keytab' (field 4) on line $.: '$_' - failed regex validation\n";
+        $keytab = $1;
+        $keytab_dir =~ /^($filename_regex)$/ or die "ERROR: invalid keytab directory '$keytab_dir' (field 5) on line $.: '$_' - failed regex validation\n";
+        $keytab_dir = $1;
+        $owner =~ /^($user_regex)$/ or die "ERROR: invalid owner '$owner' (field 6) on line $.: '$_' - failed regex validation\n";
+        $owner = $1;
+        $group =~ /^($user_regex)$/ or die "ERROR: invalid group '$group' (field 7) on line $.: '$_' - failed regex validation\n";
+        $group = $1;
+        $perm =~ /^(0?\d{3})$/ or die "ERROR: invalid perm '$perm' (field 8) on line $.: '$_' - failed regex validation\n";
+        $perm = $1;
+        push(@principals, [$host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain]);
+    }
+    close $fh;
+    vlog2;
+    return @principals;
+}
+
+sub create_principals(@){
+    my @principals = @_;
+    vlog2 "* Creating IPA Kerberos principals:\n";
+    my %dup_princs;
+    foreach(@principals){
+        my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain) = @{$_};
+        my $email;
+        if($EMAIL){
+            $email = $EMAIL
+        } else {
+            $email = "$user\@$domain";
+        }
+        if(defined($dup_princs{$principal})){
+            warn "WARNING: duplicate principal '$principal' for host '$host' detected ($description), skipping create...\n" if $verbose >= 2;
+            next;
+        }
+        $dup_princs{$principal} = 1;
+        if($principal =~ /\//o){
+            if(not grep { $host eq $_ } @{$ipa{"host"}}){
+                vlog2 "creating host '$host' in IPA system";
+                cmd("$IPA host-add --force '$host'", 1);
+            } else {
+                vlog3 "IPA host '$host' already exists, skipping...";
+            }
+            if(not grep { $principal eq $_ } @{$ipa{"service"}}){
+                vlog2 "creating host service principal '$principal'";
+                cmd("$IPA service-add --force '$principal'", 1);
+            } else {
+                vlog2 "service principal '$principal' already exists, skipping...";
+            }
+        } else {
+            if(not grep { $user eq $_ } @{$ipa{"user"}}){
+                vlog2 "creating user principal '$principal'";
+                cmd("$IPA user-add --first='$description' --last='$description' --displayname='$principal' --email='$email' --principal='$principal' --random '$user'", 1);
+            } else {
+                vlog2 "user principal '$principal' already exists, skipping...";
+            }
+        }
+    }
+    vlog2;
+}
+
+sub export_keytabs(@){
+    my @principals = @_;
     vlog2 "\n* Exporting IPA Kerberos keytabs from IPA server '$ipa_server' via LDAPS:\n";
 
     $ipa_server      = validate_host($ipa_server, "KDC");
@@ -302,7 +316,8 @@ sub export_keytabs(){
     vlog2;
 }
 
-sub rsync_keytabs(){
+sub rsync_keytabs(@){
+    my @principals = @_;
     vlog "\n* Copying keytabs to hosts:\n";
     my %hosts;
     foreach(@principals){
@@ -364,48 +379,54 @@ sub rsync_keytabs(){
     vlog2;
 }
 
-my $response;
-if($export_keytabs){
-    if($export_keytabs =~ /^y(?:es)?$/){
-        export_keytabs();
+sub main(){
+    my @principals = parse_csv();
+    create_principals @principals;
+
+    my $response;
+    if($export_keytabs){
+        if($export_keytabs =~ /^y(?:es)?$/){
+            export_keytabs(@principals);
+        } else {
+            print "not exporting keytabs\n\n";
+        }
     } else {
-        print "not exporting keytabs\n\n";
+        print "\nAbout to export keytabs:
+
+        WARNING: re-exporting keytabs will invalidate all currently existing keytabs for these principals.
+
+        Are you sure that you want to export keytabs?(y/N) ";
+        $response = <STDIN>;
+        chomp $response;
+        vlog2;
+
+        if($response =~ /^y(?:es)?$/){
+            export_keytabs(@principals);
+        } else {
+            print "not exporting keytabs\n\n";
+        }
     }
-} else {
-    print "\nAbout to export keytabs:
 
-    WARNING: re-exporting keytabs will invalidate all currently existing keytabs for these principals.
-
-    Are you sure that you want to export keytabs?(y/N) ";
-    $response = <STDIN>;
-    chomp $response;
-    vlog2;
-
-    if($response =~ /^y(?:es)?$/){
-        export_keytabs();
+    if($rsync_keytabs){
+        if($rsync_keytabs =~ /^y(?:es)?$/){
+            rsync_keytabs(@principals);
+        } else {
+            print "not rsyncing keytabs\n\n";
+        }
     } else {
-        print "not exporting keytabs\n\n";
+        print "\nWould you like to rsync keytabs to hosts?(y/N) ";
+        $response = <STDIN>;
+        chomp $response;
+        vlog2;
+
+        if($response =~ /^y(?:es)?$/){
+            rsync_keytabs(@principals);
+        } else {
+            print "not rsyncing keytabs\n\n";
+        }
     }
+    print "Complete\n";
 }
 
-if($rsync_keytabs){
-    if($rsync_keytabs =~ /^y(?:es)?$/){
-        rsync_keytabs();
-    } else {
-        print "not rsyncing keytabs\n\n";
-    }
-} else {
-    print "\nWould you like to rsync keytabs to hosts?(y/N) ";
-    $response = <STDIN>;
-    chomp $response;
-    vlog2;
-
-    if($response =~ /^y(?:es)?$/){
-        rsync_keytabs();
-    } else {
-        print "not rsyncing keytabs\n\n";
-    }
-}
-
-print "Complete\n";
+main();
 exit 0;
