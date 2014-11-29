@@ -7,16 +7,20 @@
 #  License: see accompanying LICENSE file
 #
 
-.PHONY: install
-install:
-	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
-
+.PHONY: make
+make:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
 	[ -x /usr/bin/yum ]     && make yum-packages || :
+
+	git submodule init
+	git submodule update
+
+	cd lib && make
 
 	# don't track and commit your personal name, company name etc additions to scrub_custom.conf back to Git since they are personal to you
 	git update-index --assume-unchanged scrub_custom.conf
 
+	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	yes | sudo cpan \
 		 JSON \
 		 LWP::Simple \
@@ -25,8 +29,6 @@ install:
 		 Text::Unidecode \
 		 Time::HiRes \
 		 XML::Validate
-	git submodule init
-	git submodule update
 
 .PHONY: apt-packages
 apt-packages:
@@ -41,8 +43,18 @@ yum-packages:
 	# needed to fetch the library submodule and CPAN modules
 	yum install -y perl-CPAN git || :
 
+.PHONY: test
+test:
+	cd lib && make test
+	# TODO: add my functional tests back in here	
+
+.PHONY: install
+install:
+	@echo "No installation needed, just add '$(PWD)' to your \$$PATH"
+
 .PHONY: update
 update:
 	git pull
 	git submodule update
-	make install
+	make
+	make test
