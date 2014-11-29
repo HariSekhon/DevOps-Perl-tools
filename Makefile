@@ -25,6 +25,9 @@ make:
 		 JSON \
 		 LWP::Simple \
 		 LWP::UserAgent \
+		 Net::LDAP  \
+		 Net::LDAPI \
+		 Net::LDAPS \
 		 Term::ReadKey \
 		 Text::Unidecode \
 		 Time::HiRes \
