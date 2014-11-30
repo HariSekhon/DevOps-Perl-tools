@@ -157,8 +157,10 @@ set_timeout();
 
 $status = "OK";
 
+( -f $KLIST ) or die "ERROR: couldn't find '$KLIST', make sure you have ipa-client installed (includes krb5-workstation)\n";
+
 # simple check to see if we have a kerberos ticket in cache
-cmd("$KLIST", 1);
+cmd($KLIST, 1);
 # Not going to kinit for user, they can do that themselves
 #@output = cmd("$KLIST");
 #vlog;
@@ -179,6 +181,7 @@ my %ipa;
 sub get_ipa_info(){
     foreach my $type (qw/host user service/){
         vlog "fetching IPA $type list";
+        ( -f $IPA ) or die "ERROR: couldn't find '$IPA', make sure you have ipa-admintools installed\n";
         @output = cmd("$IPA $type-find", 1);
         foreach(@output){
             if(/^\s*Host\s+name:\s+(.+)\s*$/  or
@@ -325,6 +328,8 @@ sub create_principals(@){
 sub export_keytabs(@){
     my @principals = @_;
     vlog "\n* Exporting IPA Kerberos keytabs from IPA server '$ipa_server' via LDAPS:\n";
+
+    ( -f $IPA_GETKEYTAB ) or die "ERROR: couldn't find '$IPA_GETKEYTAB', make sure you have ipa-client installed (WARNING: this should have been caught earlier)\n";
 
     my %dup_princs;
     foreach(@principals){
