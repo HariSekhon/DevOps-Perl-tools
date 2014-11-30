@@ -32,7 +32,7 @@ Requirements:
     - re-exporting keytabs invalidates all currently existing keytabs for those given principals - will prompt for confirmation before proceeding to export keytabs (unless --export-keytabs=yes)
     - if exporting keytabs and not using --server FQDN matching LDAP SSL certificate, export will fail unless supplying LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
 
-3. Rsyncing keytabs to hosts requires:
+3. Deploying keytabs to hosts requires:
     - openssh-clients and rsync to be installed on all hosts
     - an SSH key to root on those hosts
     - can supply a specific SSH private via --ssh-key
@@ -48,7 +48,7 @@ Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 #   - LDAP 'cn=Directory Manager' --password (optional) to remove immediate IPA expiry of new accounts for Hadoop smoke test users (ambari-qa, hdfs, hbase), otherwise you'll end up with service start failures 'kinit: Password has expired while getting initial credentials'
 #   - /etc/ipa/ca.crt to verify LDAPS certificate on FreeIPA server (set up automatically by IPA client install)
 
-$VERSION = "0.5.0";
+$VERSION = "0.6.0";
 
 use strict;
 use warnings;
@@ -92,13 +92,13 @@ set_timeout_max(3600);
 set_timeout_default(300);
 
 my $csv;
-my $my_fqdn = hostfqdn() or warn "unable to determine FQDN of this host (you must specify --server fqdn or use \$IPA_SERVER environment variable, will also end up ssh+rsync back to self since cannot differentiate from other hosts)";
-$ipa_server = $my_fqdn unless $ipa_server;
+my $my_fqdn = hostfqdn() or warn "unable to determine FQDN of this host (will ssh+rsync back to self since cannot differentiate from other hosts)";
+#$ipa_server = $my_fqdn unless $ipa_server;
 my @output;
 $verbose = 1;
 my $quiet;
 my $export_keytabs;
-my $rsync_keytabs;
+my $deploy_keytabs;
 my $ssh_key;
 
 %options = (
@@ -109,18 +109,18 @@ my $ssh_key;
     "w|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password (\$IPA_BIND_PASSWORD)" ],
     #"b|base-dn=s"       => [ \$base_dn,         "Base DN of FreeIPA LDAP (will try to determine it from --bind-dn, otherwise must be specified)" ],
     "export-keytabs=s"  => [ \$export_keytabs,  "Export keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs)" ],
-    "rsync-keytabs=s"   => [ \$rsync_keytabs,   "Rsync keytabs without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
+    "deploy-keytabs=s"  => [ \$deploy_keytabs,   "Deploy keytabs via rsync without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
     "i|ssh-key=s"       => [ \$ssh_key,         "SSH private key to use to SSH the nodes as root (optional, will search for defaults ~/.ssh/id_dsa, ~/.ssh/id_ecdsa, ~/.ssh/id_rsa if not specified)" ],
     "q|quiet"           => [ \$quiet,           "Quiet mode" ],
 );
-splice @usage_order, 0, 0, qw/file server password bind-dn bind-password base-dn export-keytabs rsync-keytabs ssh-key quiet/;
+splice @usage_order, 0, 0, qw/file server password bind-dn bind-password base-dn export-keytabs deploy-keytabs ssh-key quiet/;
 
 get_options();
 
 $verbose-- if $quiet;
 
 $csv = validate_file($csv, 0, "Principals CSV");
-$ipa_server = validate_host($ipa_server, "KDC");
+$ipa_server = validate_host($ipa_server, "IPA");
 isFqdn($ipa_server) or warn "WARNING: KDC host --server is not an FQDN, this may cause a SASL Bind error due to not validating the LDAP SSL certificate (may still work with straight LDAP credentials --bind-dn and --bind-password\n";
 #if($ipa_server ne "localhost"){
 #    vlog2 "checking IPA server has been given as an FQDN in order for successful bind with certificate validation";
@@ -142,8 +142,8 @@ if(($bind_dn and not $bind_password) or ($bind_password and not $bind_dn)){
 if(defined($export_keytabs)){
     $export_keytabs =~ /^y(?:es)?|n(?:o)?$/i or usage "--export-keytabs option invalid, must be 'yes' or 'no'";
 }
-if(defined($rsync_keytabs)){
-    $rsync_keytabs =~ /^y(?:es)?|n(?:o)?$/i or usage "--rsync-keytabs option invalid, must be 'yes' or 'no'";
+if(defined($deploy_keytabs)){
+    $deploy_keytabs =~ /^y(?:es)?|n(?:o)?$/i or usage "--deploy-keytabs option invalid, must be 'yes' or 'no'";
 }
 if(defined($ssh_key)){
     $ssh_key = validate_file($ssh_key, 0, "ssh private key");
@@ -271,7 +271,7 @@ sub create_principals(@){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain) = @{$_};
         my $email;
         if($EMAIL){
-            $email = $EMAIL
+            $email = $EMAIL;
         } else {
             $email = "$user\@$domain";
         }
@@ -331,21 +331,8 @@ sub export_keytabs(@){
 
     ( -f $IPA_GETKEYTAB ) or die "ERROR: couldn't find '$IPA_GETKEYTAB', make sure you have ipa-client installed (WARNING: this should have been caught earlier)\n";
 
-    my %dup_princs;
-    foreach(@principals){
-        my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain) = @{$_};
-        if(defined($dup_princs{$principal})){
-            if($dup_princs{$principal}{"keytab"} eq "$keytab_dir/$keytab"){
-                # harmless we'll overwrite the 
-                warn "WARNING: duplicate principal '$principal' detected ($description), but keytab is the same '$keytab_dir/$keytab' so this shouldn't cause problems\n" if $verbose >= 3;
-            } else {
-                die "ERROR: duplicate principal '$principal' detected with differing keytabs ('$dup_princs{$principal}{keytab}' vs '$keytab_dir/$keytab'), something will break if we do this!\n";
-            }
-        }
-        $dup_princs{$principal}{"keytab"} = "$keytab_dir/$keytab";
-    }
-
     vlog "will backup any existing keytabs to sub-directory $keytab_backups at same location as originals\n";
+    my %seen_princs;
     foreach(@principals){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
         if( -d "$keytab_dir/$host" ){
@@ -355,20 +342,32 @@ sub export_keytabs(@){
             vlog "creating keytab directory '$keytab_dir/$host'";
             make_path("$keytab_dir/$host", "mode" => "0700") or die "ERROR: failed to create directory '$keytab_dir/$host': $!\n";
         }
-        if(-f "$keytab_dir/$host/$keytab"){
-            my $keytab_backup_dir = "$keytab_dir/$host/$keytab_backups";
-            unless ( -d $keytab_backup_dir ){
-                make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
+        if(defined($seen_princs{$principal})){
+            defined($seen_princs{$principal}{"keytab"}) or code_error "principal '$principal' has already been exported but it's keytab path wasn't recorded!";
+            if($seen_princs{$principal}{"keytab"} eq "$keytab_dir/$host/$keytab"){
+                ( -f $seen_princs{$principal}{"keytab"}) or die "previously exported keytab '$seen_princs{$principal}{keytab}' from seen principal not found!\n";
+                vlog "skipping duplicate principal '$principal' and keytab '$keytab_dir/$host/$keytab'";# (matches existing '$seen_princs{$principal}{keytab}')";
+            } else {
+                vlog "copying keytab for principal '$principal' keytab '$keytab_dir/$host/$keytab' from already exported keytab '$seen_princs{$principal}{keytab}'"; # (to avoid resetting and invalidating the previously exported keytab)";
+                copy($seen_princs{$principal}{"keytab"}, "$keytab_dir/$host/$keytab") or die "ERROR: failed to copy keytab '$seen_princs{$principal}{keytab}' => '$keytab_dir/$host/$keytab'\n";
             }
-            vlog2 "backing up existing keytab '$keytab_dir/$host/$keytab' => '$keytab_backup_dir/'";
-            move("$keytab_dir/$host/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$host/$keytab' => '$keytab_backup_dir/': $!";
+        } else {
+            if(-f "$keytab_dir/$host/$keytab"){
+                my $keytab_backup_dir = "$keytab_dir/$host/$keytab_backups";
+                unless ( -d $keytab_backup_dir ){
+                    make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
+                }
+                vlog2 "backing up existing keytab '$keytab_dir/$host/$keytab' => '$keytab_backup_dir/'";
+                move("$keytab_dir/$host/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$host/$keytab' => '$keytab_backup_dir/': $!";
+            }
+            my $tempfile = tmpnam();
+            vlog "exporting keytab for principal '$principal' to '$keytab_dir/$host/$keytab'";
+            my $cmd = "$IPA_GETKEYTAB -s '$ipa_server' -p '$principal' -k '$tempfile'";
+            $cmd .= " -D '$bind_dn' -w '$bind_password'" if($bind_dn and $bind_password);
+            @output = cmd($cmd, 1);
+            move($tempfile, "$keytab_dir/$host/$keytab") or die "ERROR: failed to move temp file '$tempfile' to '$keytab_dir/$host/$keytab': $!";
+            $seen_princs{$principal}{"keytab"} = "$keytab_dir/$host/$keytab";
         }
-        my $tempfile = tmpnam();
-        vlog "exporting keytab for principal '$principal' to '$keytab_dir/$host/$keytab'";
-        my $cmd = "$IPA_GETKEYTAB -s '$ipa_server' -p '$principal' -k '$tempfile'";
-        $cmd .= " -D '$bind_dn' -w '$bind_password'" if($bind_dn and $bind_password);
-        @output = cmd($cmd, 1);
-        move($tempfile, "$keytab_dir/$host/$keytab") or die "ERROR: failed to move temp file '$tempfile' to '$keytab_dir/$host/$keytab': $!";
         my $uid = getpwnam $owner;
         my $gid = getgrnam $group;
         unless(defined($uid)){
@@ -379,16 +378,17 @@ sub export_keytabs(@){
             warn "WARNING: failed to resolve GID for group '$group', defaulting to GID 0 for keytab '$keytab'\n" if ($verbose >= 3);
             $gid = 0;
         }
-        chown($uid, $gid, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chmod keytab '$keytab_dir/$keytab' to $perm: $!\n";
-        chmod($perm, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chmod keytab '$keytab_dir/$keytab' to $perm: $!\n";
+        chown($uid, $gid, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chown keytab '$keytab_dir/$host/$keytab' to $owner:$group ($uid:$gid) : $!\n";
+        chmod($perm, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chmod keytab '$keytab_dir/$host/$keytab' to $perm: $!\n";
     }
     vlog;
 }
 
-sub rsync_keytabs(@){
+sub deploy_keytabs(@){
     my @principals = @_;
-    vlog "\n* Copying keytabs to hosts:\n";
+    vlog "\n* Deploying keytabs to hosts:\n";
     my %hosts;
+    my $local_copy;
     foreach(@principals){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
         # Would have like to have made this a global bulk but each keytab could theoretically have a different dir
@@ -400,15 +400,15 @@ sub rsync_keytabs(@){
             vlog3 "backing up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir/'";
             copy("$keytab_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir': $!";
             if($host eq $my_fqdn){
-                foreach my $keytab_path (<$keytab_dir/$host/*.keytab>){
-                    vlog "copying '$keytab_path' => '$keytab_dir/'";
-                    copy($keytab_path, "$keytab_dir/") or die "ERROR: failed to copy '$keytab_path' => $keytab_dir/: $!\n";
-                }
+                vlog2 "copying locally '$keytab_dir/$host/$keytab' => '$keytab_dir/'";
+                copy("$keytab_dir/$host/$keytab", "$keytab_dir/") or die "ERROR: failed to copy '$keytab_dir/$host/$keytab' => $keytab_dir/: $!\n";
+                $local_copy = 1;
             }
         } else {
             push(@{$hosts{$host}{$keytab_dir}}, $keytab);
         }
     }
+    vlog "Copied keytabs locally for $my_fqdn" if $local_copy;
     foreach my $host (sort keys %hosts){
         vlog "* Copying keytabs to host $host";
         foreach my $keytab_dir (sort keys %{$hosts{$host}}){
@@ -477,22 +477,22 @@ Are you sure that you want to export keytabs?(y/N) ";
         }
     }
 
-    if($rsync_keytabs){
-        if($rsync_keytabs =~ /^y(?:es)?$/){
-            rsync_keytabs(@principals);
+    if($deploy_keytabs){
+        if($deploy_keytabs =~ /^y(?:es)?$/){
+            deploy_keytabs(@principals);
         } else {
-            print "not rsyncing keytabs\n\n";
+            print "not deploying keytabs\n\n";
         }
     } else {
-        print "\nWould you like to rsync keytabs to hosts?(y/N) ";
+        print "\nWould you like to deploy keytabs to hosts?(y/N) ";
         $response = <STDIN>;
         chomp $response;
         vlog;
 
         if($response =~ /^y(?:es)?$/){
-            rsync_keytabs(@principals);
+            deploy_keytabs(@principals);
         } else {
-            print "not rsyncing keytabs\n\n";
+            print "not deploying keytabs\n\n";
         }
     }
     print "Complete\n";
