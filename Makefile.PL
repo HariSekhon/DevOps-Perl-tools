@@ -8,4 +8,4 @@
 
 # Dummy Makefile.PL for Travis CI
 
-exit 0;
+`make`
