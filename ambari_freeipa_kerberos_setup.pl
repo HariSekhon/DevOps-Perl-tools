@@ -258,8 +258,7 @@ sub create_principals(@){
 #                                    'cafile' => '/etc/ipa/ca.crt') or die "ERROR: failed to connect to ldaps://$ipa_server:636: $!. $@\n";
 #        vlog "binding to LDAPS service on $ipa_server as 'cn=Directory Manager'";
 #        my $ldap_result = $ldaps->bind('cn=Directory Manager', 'password' => $password);
-#        # TODO: vlog3
-#        vlog2 Dumper($ldap_result);
+#        vlog3 Dumper($ldap_result);
 #        if($ldap_result->{'resultCode'} ne 0){
 #            my $err = $ldap_result->{'errorMessage'};
 #            $err = "invalid bind --password?" unless ($err);
@@ -314,8 +313,7 @@ sub create_principals(@){
 #                        }
 #                        die "ERROR: failed to replace krbPasswordExpiration attribute for principal '$principal', result code " . $ldap_result->{'resultCode'} . ": $err\n";
 #                    }
-#                    # TODO: vlog3
-#                    vlog2 Dumper($ldap_result) . "\n";
+#                    vlog3 Dumper($ldap_result) . "\n";
 #                }
             } else {
                 vlog "user principal '$principal' already exists, skipping...";
