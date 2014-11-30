@@ -458,9 +458,9 @@ sub main(){
     } else {
         print "\nAbout to export keytabs:
 
-        WARNING: re-exporting keytabs will invalidate all currently existing keytabs for these principals.
+WARNING: re-exporting keytabs will invalidate all currently existing keytabs for these principals.
 
-        Are you sure that you want to export keytabs?(y/N) ";
+Are you sure that you want to export keytabs?(y/N) ";
         $response = <STDIN>;
         chomp $response;
         vlog;
