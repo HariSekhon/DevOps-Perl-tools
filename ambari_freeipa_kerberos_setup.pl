@@ -21,25 +21,34 @@ Host,Description,Principal,Keytab Name,Export Dir,User,Group,Octal permissions
 
 Requirements:
 
-1. This program uses the 'ipa' command line tool to generate the Kerberos principals (ipa-admintools package). This requires a valid Kerberos ticket.
+1. Creating Kerberos principals:
+    - uses 'ipa' command line tool (ipa-admintools package)
+    - Kerberos ticket:
+        - export KRB5CCNAME=/tmp/krb5cc_\$UID
+        - krb5.conf 'forwardable = yes' (should be set up as part of IPA client install, this allows FreeIPA's XML RPC server to use your credential to create users)
+        - kinit admin
 
 2. Exporting keytabs:
-   - re-exporting keytabs invalidates all currently existing keytabs for those given principals - will prompt for confirmation before proceeding to export keytabs (unless --export-keytabs=yes)
-   - if exporting keytabs and not using the correct --server FQDN, must supply LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
+    - re-exporting keytabs invalidates all currently existing keytabs for those given principals - will prompt for confirmation before proceeding to export keytabs (unless --export-keytabs=yes)
+    - if exporting keytabs and not using --server FQDN matching LDAP SSL certificate, export will fail unless supplying LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
 
 3. Rsyncing keytabs to hosts requires:
-   - openssh-clients and rsync to be installed on all hosts
-   - an SSH key to root on those hosts
-   - can supply a specific SSH private via --ssh-key
+    - openssh-clients and rsync to be installed on all hosts
+    - an SSH key to root on those hosts
+    - can supply a specific SSH private via --ssh-key
 
-4. The host that this program is run on should be able to resolve all the Hadoop user and group accounts IDs from FreeIPA in order to set the right permmissions, otherwise they'll be set to root:root.
+4. The host that this program is run on should be able to resolve all the Hadoop user and group account IDs from FreeIPA in order to set the right permmissions, otherwise they'll be set to root:root.
 
 
 Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
 # Heavily leverages my personal library for lots of error checking
 
-$VERSION = "0.4.0";
+# No longer setting --random password and not longer having to deal with all the extra complexity of hacking the krbPasswordExpiration
+#   - LDAP 'cn=Directory Manager' --password (optional) to remove immediate IPA expiry of new accounts for Hadoop smoke test users (ambari-qa, hdfs, hbase), otherwise you'll end up with service start failures 'kinit: Password has expired while getting initial credentials'
+#   - /etc/ipa/ca.crt to verify LDAPS certificate on FreeIPA server (set up automatically by IPA client install)
+
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -48,18 +57,23 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
+use Data::Dumper;
 use File::Copy;
 use File::Glob  ':globally';
 use File::Path  'make_path';
 use File::Temp  ':POSIX'   ;
 use Net::Domain 'hostfqdn' ;
+#use Net::LDAPS;
+#use Net::LDAP::Filter;
 use POSIX;
 
 $github_repo = "toolbox";
 
 my $ipa_server;
+#my $base_dn;
 my $bind_dn;
 my $bind_password;
+#env_creds(["IPA_LDAP", "LDAP"], "LDAP");
 env_vars("IPA_SERVER",        $ipa_server);
 env_vars("IPA_BIND_DN",       $bind_dn);
 env_vars("IPA_BIND_PASSWORD", $bind_password);
@@ -81,7 +95,7 @@ my $csv;
 my $my_fqdn = hostfqdn() or warn "unable to determine FQDN of this host (you must specify --server fqdn or use \$IPA_SERVER environment variable, will also end up ssh+rsync back to self since cannot differentiate from other hosts)";
 $ipa_server = $my_fqdn unless $ipa_server;
 my @output;
-$verbose = 2;
+$verbose = 1;
 my $quiet;
 my $export_keytabs;
 my $rsync_keytabs;
@@ -90,18 +104,41 @@ my $ssh_key;
 %options = (
     "f|file=s"          =>  [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
     "s|server=s"        =>  [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed' or 'SASL Bind failed...'] (default: $my_fqdn, \$IPA_SERVER)" ],
-    "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN for exporting keytabs (optional, better to use Kerberos, but can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_DN)" ],
-    "p|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password for exporting keytabs (optional, better to use Kerberos, can be used to work around keytab export SASL bind without FQDN, \$IPA_BIND_PASSWORD)" ],
+    #"p|password=s"      => [ \$password,        "'cn=Directory Manager' password (required to reset the expiry on new user accounts, \$IPA_LDAP_PASSWORD, \$LDAP_PASSWORD, \$PASSWORD)" ],
+    "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN (optional \$IPA_BIND_DN)" ],
+    "w|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password (\$IPA_BIND_PASSWORD)" ],
+    #"b|base-dn=s"       => [ \$base_dn,         "Base DN of FreeIPA LDAP (will try to determine it from --bind-dn, otherwise must be specified)" ],
     "export-keytabs=s"  => [ \$export_keytabs,  "Export keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs)" ],
     "rsync-keytabs=s"   => [ \$rsync_keytabs,   "Rsync keytabs without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
     "i|ssh-key=s"       => [ \$ssh_key,         "SSH private key to use to SSH the nodes as root (optional, will search for defaults ~/.ssh/id_dsa, ~/.ssh/id_ecdsa, ~/.ssh/id_rsa if not specified)" ],
     "q|quiet"           => [ \$quiet,           "Quiet mode" ],
 );
-splice @usage_order, 6, 0, qw/file server bind-dn bind-password export-keytabs rsync-keytabs ssh-key quiet/;
+splice @usage_order, 0, 0, qw/file server password bind-dn bind-password base-dn export-keytabs rsync-keytabs ssh-key quiet/;
 
 get_options();
 
+$verbose-- if $quiet;
+
 $csv = validate_file($csv, 0, "Principals CSV");
+$ipa_server = validate_host($ipa_server, "KDC");
+isFqdn($ipa_server) or warn "WARNING: KDC host --server is not an FQDN, this may cause a SASL Bind error due to not validating the LDAP SSL certificate (may still work with straight LDAP credentials --bind-dn and --bind-password\n";
+#if($ipa_server ne "localhost"){
+#    vlog2 "checking IPA server has been given as an FQDN in order for successful bind with certificate validation";
+#    $ipa_server  = validate_fqdn($ipa_server, "KDC");
+#}
+#$password = validate_password($password, "Directory Manager") if $password;
+#$base_dn = validate_ldap_dn($base_dn, "base") if $base_dn;
+$bind_dn = validate_ldap_dn($bind_dn, "IPA bind") if $bind_dn;
+$bind_password = validate_password($bind_password, "ldap IPA bind") if $bind_password;
+if(($bind_dn and not $bind_password) or ($bind_password and not $bind_dn)){
+    usage "if specifying one must specify both of --bind-dn and --bind-password";
+}
+#if(not $base_dn and $password and $bind_dn and $bind_dn =~ /cn\s*=\s*accounts\s*,/){
+#    vlog2 "attempting to determine base-dn from --bind-dn '$bind_dn'";
+#    $base_dn = $bind_dn;
+#    $base_dn =~ s/^.*cn\s*=\s*accounts\s*,//; # or die "unrecognized --bind-dn format (not under cn=accounts), couldn't determine base dn from it, please specify --base-dn manually";
+#    vlog2 "determined base-dn to be '$base_dn'";
+#}
 if(defined($export_keytabs)){
     $export_keytabs =~ /^y(?:es)?|n(?:o)?$/i or usage "--export-keytabs option invalid, must be 'yes' or 'no'";
 }
@@ -115,9 +152,7 @@ if(defined($ssh_key)){
     $ssh_key = "";
 }
 
-$verbose-- if $quiet;
-
-vlog2;
+vlog;
 set_timeout();
 
 $status = "OK";
@@ -126,7 +161,7 @@ $status = "OK";
 cmd("$KLIST", 1);
 # Not going to kinit for user, they can do that themselves
 #@output = cmd("$KLIST");
-#vlog2;
+#vlog;
 #
 #my $found_princ = 0;
 #foreach(@output){
@@ -134,21 +169,16 @@ cmd("$KLIST", 1);
 #}
 #
 #@output = cmd("$KINIT $user <<EOF\n$password\nEOF\n", 1) unless $found_princ;
-#vlog2;
+#vlog;
 
 my $timestamp = strftime("%F_%H%M%S", localtime);
 my $keytab_backups = "keytab-backups-$timestamp";
 
 my %ipa;
 
-sub parse_csv(){
-    my @principals;
-    # error handling is handled in my library function open_file()
-    my $fh = open_file $csv;
-    vlog2;
-
+sub get_ipa_info(){
     foreach my $type (qw/host user service/){
-        vlog2 "fetching IPA $type list";
+        vlog "fetching IPA $type list";
         @output = cmd("$IPA $type-find", 1);
         foreach(@output){
             if(/^\s*Host\s+name:\s+(.+)\s*$/  or
@@ -159,7 +189,15 @@ sub parse_csv(){
             }
         }
     }
-    vlog2;
+    vlog;
+}
+
+
+sub parse_csv(){
+    my @principals;
+    # error handling is handled in my library function open_file()
+    vlog "parsing CSV '$csv'";
+    my $fh = open_file $csv;
 
     while (<$fh>){
         chomp;
@@ -199,13 +237,32 @@ sub parse_csv(){
         push(@principals, [$host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain]);
     }
     close $fh;
-    vlog2;
+    vlog;
     return @principals;
 }
 
 sub create_principals(@){
     my @principals = @_;
-    vlog2 "* Creating IPA Kerberos principals:\n";
+    vlog "* Creating IPA Kerberos principals:\n";
+#    my $ldaps;
+#    my $ldap_result;
+#    if($password){
+#        $base_dn or usage "--base-dn could not be determined, must be set explicitly\n";
+#        vlog "connecting to LDAPS service on $ipa_server";
+#        $ldaps = Net::LDAPS->new($ipa_server,
+#                                    'port'   => 636,
+#                                    'verify' => 'require',
+#                                    'cafile' => '/etc/ipa/ca.crt') or die "ERROR: failed to connect to ldaps://$ipa_server:636: $!. $@\n";
+#        vlog "binding to LDAPS service on $ipa_server as 'cn=Directory Manager'";
+#        my $ldap_result = $ldaps->bind('cn=Directory Manager', 'password' => $password);
+#        # TODO: vlog3
+#        vlog2 Dumper($ldap_result);
+#        if($ldap_result->{'resultCode'} ne 0){
+#            my $err = $ldap_result->{'errorMessage'};
+#            $err = "invalid bind --password?" unless ($err);
+#            die "ERROR: failed to bind to ldaps://$ipa_server:636 with bind dn 'cn=Directory Manager', result code " . $ldap_result->{'resultCode'} . ": $err\n";
+#        }
+#    }
     my %dup_princs;
     foreach(@principals){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm, $user, $domain) = @{$_};
@@ -222,45 +279,52 @@ sub create_principals(@){
         $dup_princs{$principal} = 1;
         if($principal =~ /\//o){
             if(not grep { $host eq $_ } @{$ipa{"host"}}){
-                vlog2 "creating host '$host' in IPA system";
+                vlog "creating host '$host' in IPA system";
                 cmd("$IPA host-add --force '$host'", 1);
             } else {
                 vlog3 "IPA host '$host' already exists, skipping...";
             }
             if(not grep { $principal eq $_ } @{$ipa{"service"}}){
-                vlog2 "creating host service principal '$principal'";
+                vlog "creating host service principal '$principal'";
                 cmd("$IPA service-add --force '$principal'", 1);
             } else {
-                vlog2 "service principal '$principal' already exists, skipping...";
+                vlog "service principal '$principal' already exists, skipping...";
             }
         } else {
             if(not grep { $user eq $_ } @{$ipa{"user"}}){
-                vlog2 "creating user principal '$principal'";
-                cmd("$IPA user-add --first='$description' --last='$description' --displayname='$principal' --email='$email' --principal='$principal' --random '$user'", 1);
+                vlog "creating user principal '$principal'";
+                #cmd("$IPA user-add --first='$description' --last='$description' --displayname='$principal' --email='$email' --principal='$principal' --random '$user'", 1);
+                cmd("$IPA user-add --first='$description' --last='$description' --displayname='$principal' --email='$email' --principal='$principal' '$user'", 1);
+#                if($password){
+#                    $base_dn or usage "base-dn could not be determined, please supply --base-dn explicitly\n";
+#                    my $dn = "uid=$user,cn=users,cn=accounts,$base_dn";
+#                    vlog "disabling password expiry for dn='$dn' for principal '$principal' to allow keytab to be used immediately";
+#                    # krbPasswordExpiration
+#                    # could also do this via ipa command, but admin doesn't have permission to modify this attribute
+#                    # ipa user-mod --setattr='krbPasswordExpiration=20380101000000Z' hdfs
+#                    # ipa: ERROR: Insufficient access: Insufficient 'write' privilege to the 'krbPasswordExpiration' attribute of entry 'uid=hdfs,cn=users,cn=accounts,dc=local'.
+#                    $ldap_result = $ldaps->modify($dn, 'replace' => { 'krbPasswordExpiration' => ['20380101000000Z'] });
+#                    if($ldap_result->{'resultCode'} ne 0){
+#                        my $err = $ldap_result->{'errorMessage'};
+#                        if($ldap_result->{'resultCode'} eq 32){
+#                            $err .= " (wrong --base-dn?)";
+#                        }
+#                        die "ERROR: failed to replace krbPasswordExpiration attribute for principal '$principal', result code " . $ldap_result->{'resultCode'} . ": $err\n";
+#                    }
+#                    # TODO: vlog3
+#                    vlog2 Dumper($ldap_result) . "\n";
+#                }
             } else {
-                vlog2 "user principal '$principal' already exists, skipping...";
+                vlog "user principal '$principal' already exists, skipping...";
             }
         }
     }
-    vlog2;
+    vlog;
 }
 
 sub export_keytabs(@){
     my @principals = @_;
-    vlog2 "\n* Exporting IPA Kerberos keytabs from IPA server '$ipa_server' via LDAPS:\n";
-
-    $ipa_server      = validate_host($ipa_server, "KDC");
-    isFqdn($ipa_server) or warn "WARNING: KDC host --server is not an FQDN, this may cause a SASL Bind error due to not validating the LDAP SSL certificate (may still work with straight LDAP credentials --bind-dn and --bind-password\n";
-    #if($ipa_server ne "localhost"){
-    #    vlog2 "checking IPA server has been given as an FQDN in order for successful bind with certificate validation";
-    #    $ipa_server  = validate_fqdn($ipa_server, "KDC");
-    #}
-    $bind_dn       = validate_ldap_dn($bind_dn,        "IPA bind") if $bind_dn;
-    $bind_password = validate_password($bind_password, "IPA bind") if $bind_password;
-    if(($bind_dn and not $bind_password) or ($bind_password and not $bind_dn)){
-        usage "if specifying one must specify both of --bind-dn and --bind-password";
-    }
-    vlog2;
+    vlog "\n* Exporting IPA Kerberos keytabs from IPA server '$ipa_server' via LDAPS:\n";
 
     my %dup_princs;
     foreach(@principals){
@@ -276,14 +340,14 @@ sub export_keytabs(@){
         $dup_princs{$principal}{"keytab"} = "$keytab_dir/$keytab";
     }
 
-    vlog2 "\nwill backup any existing keytabs to sub-directory $keytab_backups at same location as originals\n";
+    vlog "will backup any existing keytabs to sub-directory $keytab_backups at same location as originals\n";
     foreach(@principals){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
         if( -d "$keytab_dir/$host" ){
             #vlog2 "found keytab directory '$keytab_dir/$host'";
             ( -w "$keytab_dir/$host" ) or die "ERROR: keytab directory '$keytab_dir/$host' is not writeable!\n";
         } else {
-            vlog2 "creating keytab directory '$keytab_dir/$host'";
+            vlog "creating keytab directory '$keytab_dir/$host'";
             make_path("$keytab_dir/$host", "mode" => "0700") or die "ERROR: failed to create directory '$keytab_dir/$host': $!\n";
         }
         if(-f "$keytab_dir/$host/$keytab"){
@@ -295,7 +359,7 @@ sub export_keytabs(@){
             move("$keytab_dir/$host/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$host/$keytab' => '$keytab_backup_dir/': $!";
         }
         my $tempfile = tmpnam();
-        vlog2 "exporting keytab for principal '$principal' to '$keytab_dir/$host/$keytab'";
+        vlog "exporting keytab for principal '$principal' to '$keytab_dir/$host/$keytab'";
         my $cmd = "$IPA_GETKEYTAB -s '$ipa_server' -p '$principal' -k '$tempfile'";
         $cmd .= " -D '$bind_dn' -w '$bind_password'" if($bind_dn and $bind_password);
         @output = cmd($cmd, 1);
@@ -313,7 +377,7 @@ sub export_keytabs(@){
         chown($uid, $gid, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chmod keytab '$keytab_dir/$keytab' to $perm: $!\n";
         chmod($perm, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chmod keytab '$keytab_dir/$keytab' to $perm: $!\n";
     }
-    vlog2;
+    vlog;
 }
 
 sub rsync_keytabs(@){
@@ -332,7 +396,7 @@ sub rsync_keytabs(@){
             copy("$keytab_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir': $!";
             if($host eq $my_fqdn){
                 foreach my $keytab_path (<$keytab_dir/$host/*.keytab>){
-                    vlog2 "copying '$keytab_path' => '$keytab_dir/'";
+                    vlog "copying '$keytab_path' => '$keytab_dir/'";
                     copy($keytab_path, "$keytab_dir/") or die "ERROR: failed to copy '$keytab_path' => $keytab_dir/: $!\n";
                 }
             }
@@ -376,11 +440,12 @@ sub rsync_keytabs(@){
             cmd("rsync -av -e 'ssh -o PreferredAuthentications=publickey $ssh_key' $keytab_list root\@'$host':'$keytab_dir/' ", 1);
         }
     }
-    vlog2;
+    vlog;
 }
 
 sub main(){
     my @principals = parse_csv();
+    get_ipa_info();
     create_principals @principals;
 
     my $response;
@@ -398,7 +463,7 @@ sub main(){
         Are you sure that you want to export keytabs?(y/N) ";
         $response = <STDIN>;
         chomp $response;
-        vlog2;
+        vlog;
 
         if($response =~ /^y(?:es)?$/){
             export_keytabs(@principals);
@@ -417,7 +482,7 @@ sub main(){
         print "\nWould you like to rsync keytabs to hosts?(y/N) ";
         $response = <STDIN>;
         chomp $response;
-        vlog2;
+        vlog;
 
         if($response =~ /^y(?:es)?$/){
             rsync_keytabs(@principals);
