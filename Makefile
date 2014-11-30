@@ -22,28 +22,34 @@ make:
 
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	yes | sudo cpan \
-		 JSON \
-		 LWP::Simple \
-		 LWP::UserAgent \
-		 Net::LDAP  \
-		 Net::LDAPI \
-		 Net::LDAPS \
-		 Term::ReadKey \
-		 Text::Unidecode \
-		 Time::HiRes \
-		 XML::Validate
+		JSON \
+		LWP::Simple \
+		LWP::UserAgent \
+		Term::ReadKey \
+		Text::Unidecode \
+		Time::HiRes \
+		XML::Validate
+#		IO::Socket::SSL \
+#		Net::LDAP  \
+#		Net::LDAP::Filter \
+#		Net::LDAPI \
+#		Net::LDAPS \
 
 .PHONY: apt-packages
 apt-packages:
 	apt-get install -y gcc || :
 	# needed to fetch the library submodule at end of build
 	apt-get install -y git || :
+	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+	#apt-get install -y libssl-dev || :
 
 .PHONY: yum-packages
 yum-packages:
 	yum install -y gcc || :
 	# needed to fetch the library submodule and CPAN modules
 	yum install -y perl-CPAN git || :
+	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+	#yum install -y openssl-devel || :
 
 .PHONY: test
 test:
