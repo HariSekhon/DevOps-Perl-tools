@@ -39,6 +39,11 @@ Requirements:
 
 4. The host that this program is run on should be able to resolve all the Hadoop user and group account IDs from FreeIPA in order to set the right permmissions, otherwise they'll be set to root:root.
 
+5. If deploying subsequent Hortonworks clusters within a single IPA realm either, avoid re-exporting smoketest user keytabs (ambari-qa, hdfs, hbase) otherwise it'll break the Ambari service startup checks on already existing clusters:
+    a. specify different smoketest user principals per cluster in the Enable Security Wizard
+    b. run this program from same host with --no-user-export for the 2nd cluster onwards to re-use the previously exported user keytabs
+
+6. Ambari creates local system accounts on all servers. If there is a user/group ID resolution problem when doing the chown of the headless keytabs then the local account UIDs will be set instead. To avoid this try to pre-stage the local system accounts for ambari-qa/hdfs/hbase with the same UIDs across servers and set the FreeIPA UIDs for those user accounts to be the same.
 
 Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
@@ -48,7 +53,7 @@ Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 #   - LDAP 'cn=Directory Manager' --password (optional) to remove immediate IPA expiry of new accounts for Hadoop smoke test users (ambari-qa, hdfs, hbase), otherwise you'll end up with service start failures 'kinit: Password has expired while getting initial credentials'
 #   - /etc/ipa/ca.crt to verify LDAPS certificate on FreeIPA server (set up automatically by IPA client install)
 
-$VERSION = "0.6.0";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -100,6 +105,7 @@ my $quiet;
 my $export_keytabs;
 my $deploy_keytabs;
 my $ssh_key;
+my $no_export_users;
 
 %options = (
     "f|file=s"          =>  [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
@@ -109,7 +115,8 @@ my $ssh_key;
     "w|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password (\$IPA_BIND_PASSWORD)" ],
     #"b|base-dn=s"       => [ \$base_dn,         "Base DN of FreeIPA LDAP (will try to determine it from --bind-dn, otherwise must be specified)" ],
     "export-keytabs=s"  => [ \$export_keytabs,  "Export keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs)" ],
-    "deploy-keytabs=s"  => [ \$deploy_keytabs,   "Deploy keytabs via rsync without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
+    "no-export-users"   => [ \$no_export_users, "Do not export user keytabs (use on 2nd cluster onwards for same IPA realm to prevent invalidating the first cluster's smoketest accounts needed for service startups" ],
+    "deploy-keytabs=s"  => [ \$deploy_keytabs,  "Deploy keytabs via rsync without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
     "i|ssh-key=s"       => [ \$ssh_key,         "SSH private key to use to SSH the nodes as root (optional, will search for defaults ~/.ssh/id_dsa, ~/.ssh/id_ecdsa, ~/.ssh/id_rsa if not specified)" ],
     "q|quiet"           => [ \$quiet,           "Quiet mode" ],
 );
@@ -279,7 +286,7 @@ sub create_principals(@){
             next;
         }
         $dup_princs{$principal} = 1;
-        if($principal =~ /\//o){
+        if($principal =~ /\//){
             if(not grep { $host eq $_ } @{$ipa{"host"}}){
                 vlog "creating host '$host' in IPA system";
                 cmd("$IPA host-add --force '$host'", 1);
@@ -333,38 +340,46 @@ sub export_keytabs(@){
     my %seen_princs;
     foreach(@principals){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
-        if( -d "$keytab_dir/$host" ){
-            #vlog2 "found keytab directory '$keytab_dir/$host'";
-            ( -w "$keytab_dir/$host" ) or die "ERROR: keytab directory '$keytab_dir/$host' is not writeable!\n";
+        my $keytab_staging_dir = "$keytab_dir/$host";
+        if(not $principal =~ /\//){
+            if($no_export_users){
+                vlog "not exporting user keytab";
+                next;
+            }
+            $keytab_staging_dir = "$keytab_dir/users";
+        }
+        if( -d "$keytab_staging_dir" ){
+            #vlog2 "found keytab directory '$keytab_staging_dir'";
+            ( -w "$keytab_staging_dir" ) or die "ERROR: keytab directory '$keytab_staging_dir' is not writeable!\n";
         } else {
-            vlog "creating keytab directory '$keytab_dir/$host'";
-            make_path("$keytab_dir/$host", "mode" => "0700") or die "ERROR: failed to create directory '$keytab_dir/$host': $!\n";
+            vlog "creating keytab directory '$keytab_staging_dir'";
+            make_path("$keytab_staging_dir", "mode" => "0700") or die "ERROR: failed to create directory '$keytab_staging_dir': $!\n";
         }
         if(defined($seen_princs{$principal})){
             defined($seen_princs{$principal}{"keytab"}) or code_error "principal '$principal' has already been exported but it's keytab path wasn't recorded!";
-            if($seen_princs{$principal}{"keytab"} eq "$keytab_dir/$host/$keytab"){
+            if($seen_princs{$principal}{"keytab"} eq "$keytab_staging_dir/$keytab"){
                 ( -f $seen_princs{$principal}{"keytab"}) or die "previously exported keytab '$seen_princs{$principal}{keytab}' from seen principal not found!\n";
-                vlog "skipping duplicate principal '$principal' and keytab '$keytab_dir/$host/$keytab'";# (matches existing '$seen_princs{$principal}{keytab}')";
+                vlog "skipping duplicate principal '$principal' and keytab '$keytab_staging_dir/$keytab'";# (matches existing '$seen_princs{$principal}{keytab}')";
             } else {
-                vlog "copying keytab for principal '$principal' keytab '$keytab_dir/$host/$keytab' from already exported keytab '$seen_princs{$principal}{keytab}'"; # (to avoid resetting and invalidating the previously exported keytab)";
-                copy($seen_princs{$principal}{"keytab"}, "$keytab_dir/$host/$keytab") or die "ERROR: failed to copy keytab '$seen_princs{$principal}{keytab}' => '$keytab_dir/$host/$keytab'\n";
+                vlog "copying keytab for principal '$principal' keytab '$keytab_staging_dir/$keytab' from already exported keytab '$seen_princs{$principal}{keytab}'"; # (to avoid resetting and invalidating the previously exported keytab)";
+                copy($seen_princs{$principal}{"keytab"}, "$keytab_staging_dir/$keytab") or die "ERROR: failed to copy keytab '$seen_princs{$principal}{keytab}' => '$keytab_staging_dir/$keytab'\n";
             }
         } else {
-            if(-f "$keytab_dir/$host/$keytab"){
-                my $keytab_backup_dir = "$keytab_dir/$host/$keytab_backups";
+            if(-f "$keytab_staging_dir/$keytab"){
+                my $keytab_backup_dir = "$keytab_staging_dir/$keytab_backups";
                 unless ( -d $keytab_backup_dir ){
                     make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
                 }
-                vlog2 "backing up existing keytab '$keytab_dir/$host/$keytab' => '$keytab_backup_dir/'";
-                move("$keytab_dir/$host/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$host/$keytab' => '$keytab_backup_dir/': $!";
+                vlog2 "backing up existing keytab '$keytab_staging_dir/$keytab' => '$keytab_backup_dir/'";
+                move("$keytab_staging_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_staging_dir/$keytab' => '$keytab_backup_dir/': $!";
             }
             my $tempfile = tmpnam();
-            vlog "exporting keytab for principal '$principal' to '$keytab_dir/$host/$keytab'";
+            vlog "exporting keytab for principal '$principal' to '$keytab_staging_dir/$keytab'";
             my $cmd = "$IPA_GETKEYTAB -s '$ipa_server' -p '$principal' -k '$tempfile'";
             $cmd .= " -D '$bind_dn' -w '$bind_password'" if($bind_dn and $bind_password);
             @output = cmd($cmd, 1);
-            move($tempfile, "$keytab_dir/$host/$keytab") or die "ERROR: failed to move temp file '$tempfile' to '$keytab_dir/$host/$keytab': $!";
-            $seen_princs{$principal}{"keytab"} = "$keytab_dir/$host/$keytab";
+            move($tempfile, "$keytab_staging_dir/$keytab") or die "ERROR: failed to move temp file '$tempfile' to '$keytab_staging_dir/$keytab': $!";
+            $seen_princs{$principal}{"keytab"} = "$keytab_staging_dir/$keytab";
         }
         my $uid = getpwnam $owner;
         my $gid = getgrnam $group;
@@ -376,8 +391,8 @@ sub export_keytabs(@){
             warn "WARNING: failed to resolve GID for group '$group', defaulting to GID 0 for keytab '$keytab'\n" if ($verbose >= 3);
             $gid = 0;
         }
-        chown($uid, $gid, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chown keytab '$keytab_dir/$host/$keytab' to $owner:$group ($uid:$gid) : $!\n";
-        chmod($perm, "$keytab_dir/$host/$keytab") or die "ERROR: failed to chmod keytab '$keytab_dir/$host/$keytab' to $perm: $!\n";
+        chown($uid, $gid, "$keytab_staging_dir/$keytab") or die "ERROR: failed to chown keytab '$keytab_staging_dir/$keytab' to $owner:$group ($uid:$gid) : $!\n";
+        chmod($perm, "$keytab_staging_dir/$keytab") or die "ERROR: failed to chmod keytab '$keytab_staging_dir/$keytab' to $perm: $!\n";
     }
     vlog;
 }
@@ -391,6 +406,7 @@ sub deploy_keytabs(@){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
         # Would have like to have made this a global bulk but each keytab could theoretically have a different dir
         my $keytab_backup_dir = "$keytab_dir/$keytab_backups";
+        my $keytab_staging_dir = "$keytab_dir/$host";
         if($host eq $my_fqdn){
             unless ( -d $keytab_backup_dir ){
                 make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
@@ -398,8 +414,8 @@ sub deploy_keytabs(@){
             vlog3 "backing up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir/'";
             copy("$keytab_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir': $!";
             if($host eq $my_fqdn){
-                vlog2 "copying locally '$keytab_dir/$host/$keytab' => '$keytab_dir/'";
-                copy("$keytab_dir/$host/$keytab", "$keytab_dir/") or die "ERROR: failed to copy '$keytab_dir/$host/$keytab' => $keytab_dir/: $!\n";
+                vlog2 "copying locally '$keytab_staging_dir/$keytab' => '$keytab_dir/'";
+                copy("$keytab_staging_dir/$keytab", "$keytab_dir/") or die "ERROR: failed to copy '$keytab_staging_dir/$keytab' => $keytab_dir/: $!\n";
                 $local_copy = 1;
             }
         } else {
@@ -414,9 +430,9 @@ sub deploy_keytabs(@){
             ( -d $keytab_dir ) or die "keytab dir '$keytab_dir' is not a directory, unexpected condition, aborting\n";
             my $keytab_list;
             # iterating to check for each keytab's existence to catch when keytabs have not been previously exported
-            #my $keytab_list = "'$keytab_dir/$host/" . join("' '$keytab_dir/$host/", @{$hosts{$host}{$keytab_dir}}) . "'";
+            #my $keytab_list = "'$keytab_dir/$host/" . join("' '$keytab_staging_dir/", @{$hosts{$host}{$keytab_dir}}) . "'";
             foreach my $keytab(@{$hosts{$host}{$keytab_dir}}){
-                ( -f "$keytab_dir/$host/$keytab" ) or die "keytab '$keytab_dir/$host/$keytab' not found, did you skip exporting keytabs?\n";
+                ( -f "$keytab_dir/$host/$keytab" ) or die "keytab '$keytab_staging_dir/$keytab' not found, did you skip exporting keytabs?\n";
                 $keytab_list .= "'$keytab_dir/$host/$keytab' ";
             }
             my $keytab_backup_dir = "$keytab_dir/$keytab_backups";
