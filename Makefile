@@ -28,6 +28,7 @@ make:
 		Term::ReadKey \
 		Text::Unidecode \
 		Time::HiRes \
+		XML::LibXML \
 		XML::Validate
 #		IO::Socket::SSL \
 #		Net::LDAP  \
@@ -42,6 +43,8 @@ apt-packages:
 	apt-get install -y git || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 	#apt-get install -y libssl-dev || :
+	# needed to build XML::LibXML
+	apt-get install -y libxml2-dev || :
 
 .PHONY: yum-packages
 yum-packages:
@@ -50,6 +53,8 @@ yum-packages:
 	yum install -y perl-CPAN git || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 	#yum install -y openssl-devel || :
+	# needed to build XML::LibXML
+	yum install -y libxml2-devel || :
 
 .PHONY: test
 test:
