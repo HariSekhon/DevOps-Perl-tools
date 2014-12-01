@@ -8,6 +8,8 @@
 #  License: see accompanying LICENSE file
 #  
 
+# TODO: rewrite with native XML parsing
+
 $DESCRIPTION = "Diff 2 XML files or URLs' XML by first converting them to name=value pairs via XSLT, sorting the results and then diffing that.
 
 Very useful for comparing the configuration of 2 Hadoop clusters from their '/conf' URLs.
@@ -29,9 +31,11 @@ Breaks this process down into multiple stages, validates at each stage so you do
 Limitations:
 
 Slurps the whole of both XML files or URLs in to memory for XML validating purposes to catch broken XML rather than silently failing and resulting in a one sided or worse blank diff (hard to spot you may think the 2 XMLs are equal in that case). Don't abuse this against massive files or you'll run out of memory.
+
+Multi-line values are not supported at this time.
  ";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -128,7 +132,11 @@ sub xsltproc($){
     my $tokenized_xml = "";
     open my $fh, "xsltproc '$xsl_path' '$xml_path' |";
     while(<$fh>){
-        /^\s*(.+=.+)?\s*$/ or die "Failed basic line validation on xlstproc output from '$xml_path', got '$_' instead of key=value pair\n";
+        # This breaks on multi-line XML like core-site.xml hadoop.security.auth_to_local RULEs
+        #unless(/^\s*(.*=.*)?\s*$/){
+	#    chomp $_;
+	#    die "Failed basic line validation on xlstproc output from '$xml_path', got '$_' instead of key=value pair\n";
+        #}
         $tokenized_xml .= $_;
     }
     if($tokenized_xml =~ /^\s*$/){
