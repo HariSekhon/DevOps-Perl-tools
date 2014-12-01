@@ -383,11 +383,19 @@ sub export_keytabs(@){
         }
         my $uid = getpwnam $owner;
         my $gid = getgrnam $group;
-        unless(defined($uid)){
+        if(defined($uid)){
+            if($uid < 209800000){
+                warn "owner $owner resolved to $uid, less than < 209800000 implies that this is the local user account UID and not the UID from the IPA user, this may cause permissions issues on host '$host' keytab '$keytab'\n";
+            }
+        } else {
             warn "WARNING: failed to resolve UID for user '$owner', defaulting to UID 0 for keytab '$keytab'\n" if($verbose >= 3);
             $uid = 0;
         }
-        unless(defined($gid)){
+        if(defined($gid)){
+            if($gid < 209800000){
+                warn "group $group resolved to $gid, less than < 209800000 implies that this is the local group account GID and not the GID from the IPA group, this may cause permissions issues on host '$host' keytab '$keytab'\n";
+            }
+        } else {
             warn "WARNING: failed to resolve GID for group '$group', defaulting to GID 0 for keytab '$keytab'\n" if ($verbose >= 3);
             $gid = 0;
         }
