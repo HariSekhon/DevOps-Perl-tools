@@ -29,8 +29,10 @@ Requirements:
         - kinit admin
 
 2. Exporting keytabs:
-    - re-exporting keytabs invalidates all currently existing keytabs for those given principals - will prompt for confirmation before proceeding to export keytabs (unless --export-keytabs=yes)
+    - re-exporting keytabs invalidates all currently existing keytabs for those given principals - will prompt for confirmation before proceeding to export keytabs (if this is your first cluster initial setup use --export-service-keytabs=yes --export-user-keytabs=yes to skip prompts)
     - if exporting keytabs and not using --server FQDN matching LDAP SSL certificate, export will fail unless supplying LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
+    - adding hosts to an existing cluster or building subsequent clusters in same IPA realm should specify \"--export-user-keytabs=no\" and run from the original host to pick up the previously exported user keytabs for distribution. Re-exporting user principal keytabs will invalidate the smoketest users that Ambari uses as part of service startup on the existing services
+    - if adding services and the CSV only contains the new service principals then you should export for service and user keytabs for that service
 
 3. Deploying keytabs to hosts requires:
     - openssh-clients and rsync to be installed on all hosts
@@ -43,7 +45,7 @@ Requirements:
     a. specify different smoketest user principals per cluster in the Enable Security Wizard
     b. run this program from same host with --no-user-export for the 2nd cluster onwards to re-use the previously exported user keytabs
 
-6. Ambari creates local system accounts on all servers. If there is a user/group ID resolution problem when doing the chown of the headless keytabs then the local account UIDs will be set instead. To avoid this try to pre-stage the local system accounts for ambari-qa/hdfs/hbase with the same UIDs across servers and set the FreeIPA UIDs for those user accounts to be the same.
+6. Ambari creates local system accounts on all servers. If nsswitch lists files first or there is an SSSD user/group ID resolution problem when doing the chown of the headless keytabs then the local account UIDs will be set instead. To avoid this try to pre-stage the local system accounts for ambari-qa/hdfs/hbase with the same UIDs across servers and set the FreeIPA UIDs for those user accounts to be the same.
 
 Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
 
@@ -102,25 +104,25 @@ my $my_fqdn = hostfqdn() or warn "unable to determine FQDN of this host (will ss
 my @output;
 $verbose = 1;
 my $quiet;
-my $export_keytabs;
+my $export_service_keytabs;
 my $deploy_keytabs;
 my $ssh_key;
-my $no_export_users;
+my $export_user_keytabs;
 
 %options = (
-    "f|file=s"          =>  [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
-    "s|server=s"        =>  [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed' or 'SASL Bind failed...'] (default: $my_fqdn, \$IPA_SERVER)" ],
-    #"p|password=s"      => [ \$password,        "'cn=Directory Manager' password (required to reset the expiry on new user accounts, \$IPA_LDAP_PASSWORD, \$LDAP_PASSWORD, \$PASSWORD)" ],
+    "f|file=s"          => [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
+    "s|server=s"        => [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed' or 'SASL Bind failed...'] (default: $my_fqdn, \$IPA_SERVER)" ],
+    #"p|password=s"     => [ \$password,        "'cn=Directory Manager' password (required to reset the expiry on new user accounts, \$IPA_LDAP_PASSWORD, \$LDAP_PASSWORD, \$PASSWORD)" ],
     "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN (optional \$IPA_BIND_DN)" ],
     "w|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password (\$IPA_BIND_PASSWORD)" ],
-    #"b|base-dn=s"       => [ \$base_dn,         "Base DN of FreeIPA LDAP (will try to determine it from --bind-dn, otherwise must be specified)" ],
-    "export-keytabs=s"  => [ \$export_keytabs,  "Export keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs)" ],
-    "no-export-users"   => [ \$no_export_users, "Do not export user keytabs (use on 2nd cluster onwards for same IPA realm to prevent invalidating the first cluster's smoketest accounts needed for service startups" ],
+    #"b|base-dn=s"      => [ \$base_dn,         "Base DN of FreeIPA LDAP (will try to determine it from --bind-dn, otherwise must be specified)" ],
+    "export-service-keytabs=s" => [ \$export_service_keytabs, "Export service keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs, you must --deploy-keytabs to keep your cluser working once you do this" ],
+    "export-user-keytabs=s"    => [ \$export_user_keytabs,    "Export user keytabs without prompting (yes/no). Choose NO unless this is the very first cluster setup in this IPA realm to prevent invalidating the first cluster's smoketest accounts needed for service startups" ],
     "deploy-keytabs=s"  => [ \$deploy_keytabs,  "Deploy keytabs via rsync without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
     "i|ssh-key=s"       => [ \$ssh_key,         "SSH private key to use to SSH the nodes as root (optional, will search for defaults ~/.ssh/id_dsa, ~/.ssh/id_ecdsa, ~/.ssh/id_rsa if not specified)" ],
     "q|quiet"           => [ \$quiet,           "Quiet mode" ],
 );
-splice @usage_order, 0, 0, qw/file server password bind-dn bind-password base-dn export-keytabs deploy-keytabs ssh-key quiet/;
+splice @usage_order, 0, 0, qw/file server password bind-dn bind-password base-dn export-service-keytabs export-user-keytabs deploy-keytabs ssh-key quiet/;
 
 get_options();
 
@@ -146,11 +148,23 @@ if(($bind_dn and not $bind_password) or ($bind_password and not $bind_dn)){
 #    $base_dn =~ s/^.*cn\s*=\s*accounts\s*,//; # or die "unrecognized --bind-dn format (not under cn=accounts), couldn't determine base dn from it, please specify --base-dn manually";
 #    vlog2 "determined base-dn to be '$base_dn'";
 #}
-if(defined($export_keytabs)){
-    $export_keytabs =~ /^y(?:es)?|n(?:o)?$/i or usage "--export-keytabs option invalid, must be 'yes' or 'no'";
+sub parse_response($$;$){
+    my $var_ref = shift;
+    my $val     = shift;
+    my $name    = shift() || "";
+    $name = ( $name ? "--$name option" : "response" );
+    $val  =~ /^\s*(?:y(?:es)?|n(?:o)?)?\s*$/i or die "$name invalid, must be 'yes' or 'no'\n";
+    $$var_ref = 0 unless $val =~ /^\s*y(?:es)?\s*$/i;
+}
+
+if(defined($export_service_keytabs)){
+    parse_response(\$export_service_keytabs, $export_service_keytabs, "export-service-keytabs");
+}
+if(defined($export_user_keytabs)){
+    parse_response(\$export_user_keytabs, $export_user_keytabs, "export-user-keytabs");
 }
 if(defined($deploy_keytabs)){
-    $deploy_keytabs =~ /^y(?:es)?|n(?:o)?$/i or usage "--deploy-keytabs option invalid, must be 'yes' or 'no'";
+    parse_response(\$deploy_keytabs, $deploy_keytabs, "deploy-keytabs");
 }
 if(defined($ssh_key)){
     $ssh_key = validate_file($ssh_key, 0, "ssh private key");
@@ -342,8 +356,8 @@ sub export_keytabs(@){
         my ($host, $description, $principal, $keytab, $keytab_dir, $owner, $group, $perm) = @{$_};
         my $keytab_staging_dir = "$keytab_dir/$host";
         if(not $principal =~ /\//){
-            if($no_export_users){
-                vlog "not exporting user keytab";
+            unless($export_user_keytabs){
+                vlog "not exporting user keytab for principal '$principal'";
                 next;
             }
             $keytab_staging_dir = "$keytab_dir/users";
@@ -371,7 +385,7 @@ sub export_keytabs(@){
                     make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
                 }
                 vlog2 "backing up existing keytab '$keytab_staging_dir/$keytab' => '$keytab_backup_dir/'";
-                move("$keytab_staging_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_staging_dir/$keytab' => '$keytab_backup_dir/': $!";
+                copy("$keytab_staging_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_staging_dir/$keytab' => '$keytab_backup_dir/': $!";
             }
             my $tempfile = tmpnam();
             vlog "exporting keytab for principal '$principal' to '$keytab_staging_dir/$keytab'";
@@ -385,7 +399,7 @@ sub export_keytabs(@){
         my $gid = getgrnam $group;
         if(defined($uid)){
             if($uid < 209800000){
-                warn "owner $owner resolved to $uid, less than < 209800000 implies that this is the local user account UID and not the UID from the IPA user, this may cause permissions issues on host '$host' keytab '$keytab'\n";
+                vlog3 "owner $owner resolved to $uid, less than < 209800000 implies that this is the local user account UID and not the UID from the IPA user, this may cause permissions issues on host '$host' keytab '$keytab'\n";
             }
         } else {
             warn "WARNING: failed to resolve UID for user '$owner', defaulting to UID 0 for keytab '$keytab'\n" if($verbose >= 3);
@@ -393,7 +407,7 @@ sub export_keytabs(@){
         }
         if(defined($gid)){
             if($gid < 209800000){
-                warn "group $group resolved to $gid, less than < 209800000 implies that this is the local group account GID and not the GID from the IPA group, this may cause permissions issues on host '$host' keytab '$keytab'\n";
+                vlog3 "group $group resolved to $gid, less than < 209800000 implies that this is the local group account GID and not the GID from the IPA group, this may cause permissions issues on host '$host' keytab '$keytab'\n";
             }
         } else {
             warn "WARNING: failed to resolve GID for group '$group', defaulting to GID 0 for keytab '$keytab'\n" if ($verbose >= 3);
@@ -415,17 +429,21 @@ sub deploy_keytabs(@){
         # Would have like to have made this a global bulk but each keytab could theoretically have a different dir
         my $keytab_backup_dir = "$keytab_dir/$keytab_backups";
         my $keytab_staging_dir = "$keytab_dir/$host";
+        my $principal_type = "service";
+        $principal_type = "user" if($principal !~ /\//);
+        $keytab_staging_dir = "$keytab_dir/users" if($principal !~ /\//);
         if($host eq $my_fqdn){
-            unless ( -d $keytab_backup_dir ){
-                make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
+            if( -f "$keytab_dir/$keytab"){
+                unless ( -d $keytab_backup_dir ){
+                    make_path($keytab_backup_dir, "mode" => "0700") or die "ERROR: failed to create backup directory '$keytab_backup_dir': $!\n";
+                }
+                vlog3 "backing up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir/'";
+                copy("$keytab_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir': $!";
             }
-            vlog3 "backing up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir/'";
-            copy("$keytab_dir/$keytab", "$keytab_backup_dir/") or die "ERROR: failed to back up existing keytab '$keytab_dir/$keytab' => '$keytab_backup_dir': $!";
-            if($host eq $my_fqdn){
-                vlog2 "copying locally '$keytab_staging_dir/$keytab' => '$keytab_dir/'";
-                copy("$keytab_staging_dir/$keytab", "$keytab_dir/") or die "ERROR: failed to copy '$keytab_staging_dir/$keytab' => $keytab_dir/: $!\n";
-                $local_copy = 1;
-            }
+            ( -f "$keytab_staging_dir/$keytab" ) or die "keytab '$keytab' not found in '$keytab_staging_dir', did you skip exporting user or service keytabs?\n";
+            vlog2 "copying locally '$keytab_staging_dir/$keytab' => '$keytab_dir/'";
+            copy("$keytab_staging_dir/$keytab", "$keytab_dir/") or die "ERROR: failed to copy '$keytab_staging_dir/$keytab' => $keytab_dir/: $!\n";
+            $local_copy = 1;
         } else {
             push(@{$hosts{$host}{$keytab_dir}}, $keytab);
         }
@@ -439,9 +457,14 @@ sub deploy_keytabs(@){
             my $keytab_list;
             # iterating to check for each keytab's existence to catch when keytabs have not been previously exported
             #my $keytab_list = "'$keytab_dir/$host/" . join("' '$keytab_staging_dir/", @{$hosts{$host}{$keytab_dir}}) . "'";
-            foreach my $keytab(@{$hosts{$host}{$keytab_dir}}){
-                ( -f "$keytab_dir/$host/$keytab" ) or die "keytab '$keytab_staging_dir/$keytab' not found, did you skip exporting keytabs?\n";
-                $keytab_list .= "'$keytab_dir/$host/$keytab' ";
+            foreach my $keytab (@{$hosts{$host}{$keytab_dir}}){
+                if( -f "$keytab_dir/$host/$keytab" ){
+                    $keytab_list .= "'$keytab_dir/$host/$keytab' ";
+                } elsif( -f "$keytab_dir/users/$keytab" ){
+                    $keytab_list .= "'$keytab_dir/users/$keytab' ";
+                } else {
+                    die "keytab '$keytab' not found in '$keytab_dir/$host' or '$keytab_dir/users', did you skip exporting user or service keytabs?\n";
+                }
             }
             my $keytab_backup_dir = "$keytab_dir/$keytab_backups";
             vlog2 "backing up any existing keytab in keytab dir '$keytab_dir' => '$keytab_backup_dir/' on host $host";
@@ -470,14 +493,25 @@ sub deploy_keytabs(@){
     vlog;
 }
 
+sub ask_export_keytab_users(){
+    unless(defined($export_user_keytabs)){
+        print "\nDo you want to export user keytabs as well (say NO when adding hosts to an existing cluster or deploying 2nd cluster in same IPA realm) (y/N) ";
+        my $response = <STDIN>;
+        chomp $response;
+        vlog;
+        parse_response(\$export_user_keytabs, $response);
+    }
+}
+
 sub main(){
     my @principals = parse_csv();
     get_ipa_info();
     create_principals @principals;
 
     my $response;
-    if($export_keytabs){
-        if($export_keytabs =~ /^y(?:es)?$/){
+    if(defined($export_service_keytabs)){
+        if($export_service_keytabs){
+            ask_export_keytab_users();
             export_keytabs(@principals);
         } else {
             print "not exporting keytabs\n\n";
@@ -487,26 +521,27 @@ sub main(){
 
 WARNING: re-exporting keytabs will invalidate all currently existing keytabs for these principals.
 
-Are you sure that you want to export keytabs?(y/N) ";
+Are you sure that you want to export service keytabs? (y/N) ";
         $response = <STDIN>;
         chomp $response;
         vlog;
-
-        if($response =~ /^y(?:es)?$/){
+        parse_response(\$export_service_keytabs, $response);
+        if($export_service_keytabs){
+            ask_export_keytab_users();
             export_keytabs(@principals);
         } else {
             print "not exporting keytabs\n\n";
         }
     }
 
-    if($deploy_keytabs){
-        if($deploy_keytabs =~ /^y(?:es)?$/){
+    if(defined($deploy_keytabs)){
+        if($deploy_keytabs){
             deploy_keytabs(@principals);
         } else {
             print "not deploying keytabs\n\n";
         }
     } else {
-        print "\nWould you like to deploy keytabs to hosts?(y/N) ";
+        print "\nWould you like to deploy keytabs to hosts? (y/N) ";
         $response = <STDIN>;
         chomp $response;
         vlog;
