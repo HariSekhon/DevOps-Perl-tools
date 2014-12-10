@@ -47,7 +47,7 @@ Requirements:
 
 6. Ambari creates local system accounts on all servers. If nsswitch lists files first or there is an SSSD user/group ID resolution problem when doing the chown of the headless keytabs then the local account UIDs will be set instead. To avoid this try to pre-stage the local system accounts for ambari-qa/hdfs/hbase with the same UIDs across servers and set the FreeIPA UIDs for those user accounts to be the same.
 
-Tested on HDP 2.1 and Ambari 1.5 with FreeIPA 3.0.0";
+Tested on HDP 2.1 with Ambari 1.5/1.6.1 with FreeIPA 3.0.0";
 
 # Heavily leverages my personal library for lots of error checking
 
