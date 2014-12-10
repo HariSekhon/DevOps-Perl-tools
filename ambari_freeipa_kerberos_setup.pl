@@ -29,10 +29,10 @@ Requirements:
         - kinit admin
 
 2. Exporting keytabs:
-    - re-exporting keytabs invalidates all currently existing keytabs for those given principals - will prompt for confirmation before proceeding to export keytabs (if this is your first cluster initial setup use --export-service-keytabs=yes --export-user-keytabs=yes to skip prompts)
+    - re-exporting keytabs invalidates all currently existing keytabs for those given principals - will prompt for confirmation before proceeding to export service and user keytabs (if this is your first cluster initial setup use --export-service-keytabs=yes --export-user-keytabs=yes to skip prompts)
     - if exporting keytabs and not using --server FQDN matching LDAP SSL certificate, export will fail unless supplying LDAP bind credentials (eg. -d uid=admin,cn=users,cn=accounts,dc=domain,dc=com -w mypassword)
-    - adding hosts to an existing cluster or building subsequent clusters in same IPA realm should specify \"--export-user-keytabs=no\" and run from the original host to pick up the previously exported user keytabs for distribution. Re-exporting user principal keytabs will invalidate the smoketest users that Ambari uses as part of service startup on the existing services
-    - if adding services and the CSV only contains the new service principals then you should export for service and user keytabs for that service
+    - adding hosts to an existing cluster or building subsequent clusters in same IPA realm you should specify \"--export-user-keytabs=no\" and run from the original host to pick up the previously exported user keytabs for distribution. Re-exporting user principal keytabs will invalidate the smoketest users that Ambari uses as part of service startup on the existing services
+    - if adding services and the CSV only contains the new service principals then you should export the service and user keytabs for that service
 
 3. Deploying keytabs to hosts requires:
     - openssh-clients and rsync to be installed on all hosts
@@ -154,7 +154,11 @@ sub parse_response($$;$){
     my $name    = shift() || "";
     $name = ( $name ? "--$name option" : "response" );
     $val  =~ /^\s*(?:y(?:es)?|n(?:o)?)?\s*$/i or die "$name invalid, must be 'yes' or 'no'\n";
-    $$var_ref = 0 unless $val =~ /^\s*y(?:es)?\s*$/i;
+    if($val =~ /^\s*y(?:es)?\s*$/i){
+        $$var_ref = 1;
+    } else {
+        $$var_ref = 0;
+    }
 }
 
 if(defined($export_service_keytabs)){
@@ -357,10 +361,15 @@ sub export_keytabs(@){
         my $keytab_staging_dir = "$keytab_dir/$host";
         if(not $principal =~ /\//){
             unless($export_user_keytabs){
-                vlog "not exporting user keytab for principal '$principal'";
+                vlog3 "not exporting user keytab for principal '$principal'";
                 next;
             }
             $keytab_staging_dir = "$keytab_dir/users";
+        } else {
+            unless($export_service_keytabs){
+                vlog3 "not exporting service keytab for principal '$principal'";
+                next;
+            }
         }
         if( -d "$keytab_staging_dir" ){
             #vlog2 "found keytab directory '$keytab_staging_dir'";
@@ -448,7 +457,7 @@ sub deploy_keytabs(@){
             push(@{$hosts{$host}{$keytab_dir}}, $keytab);
         }
     }
-    vlog "Copied keytabs locally for $my_fqdn" if $local_copy;
+    vlog "* Copied keytabs locally for $my_fqdn" if $local_copy;
     foreach my $host (sort keys %hosts){
         vlog "* Copying keytabs to host $host";
         foreach my $keytab_dir (sort keys %{$hosts{$host}}){
@@ -493,13 +502,15 @@ sub deploy_keytabs(@){
     vlog;
 }
 
-sub ask_export_keytab_users(){
-    unless(defined($export_user_keytabs)){
-        print "\nDo you want to export user keytabs as well (say NO when adding hosts to an existing cluster or deploying 2nd cluster in same IPA realm) (y/N) ";
+sub ask($$){
+    my $var_ref  = shift;
+    my $question = shift;
+    unless(defined($$var_ref)){
+        print "\n$question? (y/N) ";
         my $response = <STDIN>;
         chomp $response;
         vlog;
-        parse_response(\$export_user_keytabs, $response);
+        parse_response($var_ref, $response);
     }
 }
 
@@ -508,51 +519,29 @@ sub main(){
     get_ipa_info();
     create_principals @principals;
 
-    my $response;
-    if(defined($export_service_keytabs)){
-        if($export_service_keytabs){
-            ask_export_keytab_users();
-            export_keytabs(@principals);
-        } else {
-            print "not exporting keytabs\n\n";
-        }
+    ask(\$export_service_keytabs, "About to export keytabs:
+
+WARNING: re-exporting keytabs will invalidate all currently existing keytabs for these principals and you MUST re-deploy the newly exported keytabs.
+
+Do you want to export service keytabs");
+    ask(\$export_user_keytabs, "User keytabs are shared across clusters in an IPA realm. Only export them for the first initial cluster setup or when adding a service (in which case the source CSV must contain only the new service principals). Say NO when adding hosts to an existing cluster or deploying 2nd cluster in same IPA realm.
+
+Do you want to export user keytabs");
+
+    if($export_service_keytabs or $export_user_keytabs){
+        export_keytabs(@principals);
     } else {
-        print "\nAbout to export keytabs:
-
-WARNING: re-exporting keytabs will invalidate all currently existing keytabs for these principals.
-
-Are you sure that you want to export service keytabs? (y/N) ";
-        $response = <STDIN>;
-        chomp $response;
-        vlog;
-        parse_response(\$export_service_keytabs, $response);
-        if($export_service_keytabs){
-            ask_export_keytab_users();
-            export_keytabs(@principals);
-        } else {
-            print "not exporting keytabs\n\n";
-        }
+        print "\nnot exporting keytabs\n";
     }
 
-    if(defined($deploy_keytabs)){
-        if($deploy_keytabs){
-            deploy_keytabs(@principals);
-        } else {
-            print "not deploying keytabs\n\n";
-        }
-    } else {
-        print "\nWould you like to deploy keytabs to hosts? (y/N) ";
-        $response = <STDIN>;
-        chomp $response;
-        vlog;
+    ask(\$deploy_keytabs, "Would you like to deploy keytabs to hosts");
 
-        if($response =~ /^y(?:es)?$/){
-            deploy_keytabs(@principals);
-        } else {
-            print "not deploying keytabs\n\n";
-        }
+    if($deploy_keytabs){
+        deploy_keytabs(@principals);
+    } else {
+        print "\nnot deploying keytabs\n";
     }
-    print "Complete\n";
+    print "\nComplete\n";
 }
 
 main();
