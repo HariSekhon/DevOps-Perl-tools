@@ -67,7 +67,11 @@ install:
 
 .PHONY: update
 update:
-	git pull
-	git submodule update
+	make update2
 	make
 	make test
+
+.PHONY: update2
+update2:
+	git pull
+	git submodule update
