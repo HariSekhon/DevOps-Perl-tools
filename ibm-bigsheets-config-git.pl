@@ -24,7 +24,7 @@ Requirements:
 
 Tested on BigInsights 2.1.2.0";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -65,7 +65,7 @@ set_timeout_max(36000);
 set_timeout_default(600);
 
 get_options();
-tls_options();
+validate_tls();
 $verbose++ unless $quiet;
 
 ($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
