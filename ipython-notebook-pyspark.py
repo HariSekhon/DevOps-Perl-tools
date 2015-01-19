@@ -22,7 +22,7 @@
 # export PATH="$PATH:/opt/spark/bin"
 
 __author__  = "Hari Sekhon"
-__version__ = "0.2"
+__version__ = "0.2.1"
 
 import getpass
 import glob
@@ -156,8 +156,9 @@ try:
     #if not os.path.exists(setup_py):
     shutil.copy(pyspark_startup_src, setup_py)
     os.chmod(setup_py, 0600)
- 
-    if not os.path.exists(ipython_notebook_config) or passwd_txt not in open(ipython_notebook_config).read():
+    
+    ipython_notebook_config_contents = open(ipython_notebook_config).read()
+    if not os.path.exists(ipython_notebook_config) or passwd_txt not in ipython_notebook_config_contents or "c.NotebookApp.ip = '%s'" % ip not in ipython_notebook_config_contents:
         print "writing new ipython notebook config"
         config = open(ipython_notebook_config, "w")
         config.write(template.render(passwd_txt = passwd_txt, ip = ip, name = os.path.basename(sys.argv[0]), date = time.ctime(), template_path = template_file ) )
