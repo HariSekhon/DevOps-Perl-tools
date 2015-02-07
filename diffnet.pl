@@ -21,7 +21,7 @@ $DESCRIPTION = "Filter program to print net line additions/removals from diff / 
 
 # TODO: use counters so that I don't discount 2 removals for 1 addition etc
 
-$VERSION = "0.5";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -49,6 +49,7 @@ my $ignore_whitespace;
     "i|ignore-case"       => [ \$ignore_case,       "Ignore case in comparisons" ],
     "w|ignore-whitespace" => [ \$ignore_whitespace, "Ignore whitespace in comparisons" ],
 );
+splice @usage_order, 6, 0, qw/additions-only removals-only blocks ignore-case ignore-whitespace/;
 
 get_options();
 
