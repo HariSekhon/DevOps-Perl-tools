@@ -22,7 +22,7 @@
 # export PATH="$PATH:/opt/spark/bin"
 
 __author__  = "Hari Sekhon"
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 import getpass
 import glob
@@ -33,6 +33,36 @@ import sys
 import time
 from IPython.lib import passwd
 from jinja2 import Template
+
+if len(sys.argv) > 1 or not "linux" in sys.platform:
+    print """usage: %s
+
+Starts a unique password protected instance of IPython Notebook integrated with PySpark for the user running this program.
+
+This is a workaround to IPython Notebook not have multi-user support as of 2014.
+
+Supports shell environment variables:
+
+Required:
+
+    - $SPARK_HOME
+
+Optional:
+
+    - $HADOOP_CONF_DIR / $YARN_CONF_DIR (defaults to /etc/hadoop/conf)
+    - $SPARK_YARN_USR_ENV
+    - $PYSPARK_SUBMIT_ARGS (defaults to 5 executores, 5 cores, 10GB)
+
+Prompts for a password if none has been set before, then creates a new IPython Notebook configuration for PySpark and boots.
+
+Uses Jinja2 template files co-located in the same directory as this program:
+
+.ipython-notebook-pyspark.00-pyspark-setup.py
+.ipython-notebook-pyspark.ipython_notebook_config.py.j2 
+
+Only supports Linux at this time
+""" % os.path.basename(sys.argv[0])
+    sys.exit(3)
 
 dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
@@ -157,7 +187,10 @@ try:
     shutil.copy(pyspark_startup_src, setup_py)
     os.chmod(setup_py, 0600)
     
-    ipython_notebook_config_contents = open(ipython_notebook_config).read()
+    try:
+        ipython_notebook_config_contents = open(ipython_notebook_config).read()
+    except:
+        ipython_notebook_config_contents = ""
     if not os.path.exists(ipython_notebook_config) or passwd_txt not in ipython_notebook_config_contents or "c.NotebookApp.ip = '%s'" % ip not in ipython_notebook_config_contents:
         print "writing new ipython notebook config"
         config = open(ipython_notebook_config, "w")
