@@ -7,6 +7,12 @@
 #  License: see accompanying LICENSE file
 #
 
+ifdef TRAVIS
+	SUDO =
+else
+	SUDO = sudo
+endif
+
 .PHONY: make
 make:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
@@ -21,7 +27,7 @@ make:
 	git update-index --assume-unchanged scrub_custom.conf
 
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
-	yes | sudo cpan \
+	yes | $(SUDO) cpan \
 		JSON \
 		LWP::Simple \
 		LWP::UserAgent \
