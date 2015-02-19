@@ -35,7 +35,8 @@ make:
 		Text::Unidecode \
 		Time::HiRes \
 		XML::LibXML \
-		XML::Validate
+		XML::Validate \
+		|| :
 #		IO::Socket::SSL \
 #		Net::LDAP  \
 #		Net::LDAP::Filter \
