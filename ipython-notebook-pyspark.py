@@ -43,7 +43,7 @@ Optional:
 
     - $HADOOP_CONF_DIR / $YARN_CONF_DIR (defaults to /etc/hadoop/conf)
     - $SPARK_YARN_USR_ENV
-    - $PYSPARK_SUBMIT_ARGS (defaults to 5 executores, 5 cores, 10GB)
+    - $PYSPARK_SUBMIT_ARGS (defaults to 5 executors, 5 cores, 10GB)
 
 Prompts for a password if none has been set before, then creates a new IPython Notebook configuration for PySpark and boots.
 
