@@ -8,18 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Quick Wrapper for IPython Notebook per user
-#
-# Tested on Spark 1.0.x on Hortonworks 2.1 (Yarn + Standalone) and IBM BigInsights 2.1.2 (Standalone)
-#
-# IPython and PySpark should be in your $PATH
-#
-# Intentionally omitting option parsing and error handling. This suits my needs today
-
-# Make sure to set these, I set sane defaults below
-#
-# export YARN_CONF_DIR=/etc/hadoop/conf
-# export PATH="$PATH:/opt/spark/bin"
+# Quick Wrapper for per user IPython Notebook instances that are individually password protected
 
 __author__  = "Hari Sekhon"
 __version__ = "0.2.2"
@@ -37,6 +26,8 @@ from jinja2 import Template
 if len(sys.argv) > 1 or not "linux" in sys.platform:
     print """usage: %s
 
+version %s
+
 Starts a unique password protected instance of IPython Notebook integrated with PySpark for the user running this program.
 
 This is a workaround to IPython Notebook not have multi-user support as of 2014.
@@ -45,7 +36,8 @@ Supports shell environment variables:
 
 Required:
 
-    - $SPARK_HOME
+    - ipython must be in $PATH
+    - $SPARK_HOME (this is how IPython finds pyspark)
 
 Optional:
 
@@ -61,7 +53,9 @@ Uses Jinja2 template files co-located in the same directory as this program:
 .ipython-notebook-pyspark.ipython_notebook_config.py.j2 
 
 Only supports Linux at this time
-""" % os.path.basename(sys.argv[0])
+
+Tested on Spark 1.0.x on Hortonworks 2.1 (Yarn + Standalone) and IBM BigInsights 2.1.2 (Standalone)
+""" % ( os.path.basename(sys.argv[0]), __version__)
     sys.exit(3)
 
 dir = os.path.abspath(os.path.dirname(sys.argv[0]))
