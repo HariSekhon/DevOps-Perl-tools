@@ -24,7 +24,9 @@ from IPython.lib import passwd
 from jinja2 import Template
 
 if len(sys.argv) > 1 or not "linux" in sys.platform:
-    print """usage: %s
+    print """Hari Sekhon
+
+usage: %s
 
 version %s
 
