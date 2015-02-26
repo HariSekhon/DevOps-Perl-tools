@@ -34,7 +34,8 @@ def usage(*msg):
 
     if msg:
         printerr("".join(msg))
-    die("""Hari Sekhon - https://github.com/harisekhon/toolbox
+    die("""
+Hari Sekhon - https://github.com/harisekhon/toolbox
 
 
 %s version %s
