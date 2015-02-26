@@ -26,7 +26,7 @@ usage_msg = """
 Hari Sekhon - https://github.com/harisekhon/toolbox
 
 ================================================================================
-%s version %s
+%s - version %s
 ================================================================================
 
 Times reads of nearest block replica(s) for every HDFS block for given files / all files under given directories to find out which datanode is the slowest from this client.
