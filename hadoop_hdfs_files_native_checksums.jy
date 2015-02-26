@@ -9,20 +9,6 @@
 #
 #  vim:filetype=python
 
-""" Jython program to fetch the HDFS native checksums of a file.
-
-Quick way of checking for duplicate files but not checking content itself, over 100x less data to transfer as a result.
-
-Caveat: files with differing block sizes will not match
-
-Will be implemented in hadoop-9209 jira for versions 3.0.0, 0.23.7, 2.1.0-beta using a new command line param
-
-hadoop fs -checksum
-
-"""
-
-# BASIC USAGE:  jython -J-cp `hadoop classpath` hadoop_hdfs_files_native_checksums.jy <list of HDFS files and/or directories>
-
 __author__  = "Hari Sekhon"
 __version__ = 0.3
 
@@ -48,13 +34,24 @@ def usage(*msg):
 
     if msg:
         printerr("".join(msg))
-    die("""
-Fetches HDFS native checksums for given files / all files under given directories. This is at least ~100x more efficient in terms of data transfer than 'hadoop fs -cat | md5sum'
+    die("""Hari Sekhon - https://github.com/harisekhon/toolbox
 
-usage: %s <list of HDFS files and/or directories>
+
+%s version %s
+
+
+Jython program to fetch the HDFS native checksums for given files / all files under given directories.
+
+Quick way of checking for duplicate files but not checking content itself. This is at least ~100x more efficient in terms of data transfer than 'hadoop fs -cat | md5sum'.
+Caveat: files with differing block sizes will not match
+
+Will be implemented in hadoop-9209 jira for versions 3.0.0, 0.23.7, 2.1.0-beta using a new command line param: hadoop fs -checksum
+
+
+USAGE:  jython -J-cp `hadoop classpath` %s <list of HDFS files and/or directories>
 
 -n --no-header      Don't output headers
-""" % os.path.basename(__file__), ERRORS["UNKNOWN"] )
+""" % (os.path.basename(__file__), __version__, os.path.basename(__file__)), ERRORS["UNKNOWN"] )
 
 
 def main():
