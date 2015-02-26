@@ -37,9 +37,9 @@ def usage(*msg):
     die("""
 Hari Sekhon - https://github.com/harisekhon/toolbox
 
-
-%s version %s
-
+================================================================================
+%s - version %s
+================================================================================
 
 Jython program to fetch the HDFS native checksums for given files / all files under given directories.
 
