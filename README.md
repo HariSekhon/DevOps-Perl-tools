@@ -38,6 +38,9 @@ sudo cpan LWP::Simple LWP::UserAgent Text::Unidecode Time::HiRes XML::Validate
 
 You're now ready to use these programs.
 
+###### Usage ######
+
+All programs come with a ```--help``` switch which includes a program description and the list of command line options.
 
 ### Jython for Hadoop Utils ###
 
