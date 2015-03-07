@@ -250,6 +250,7 @@ if($upload_config or $download_config){
     }
     $collection   = validate_solr_collection($collection) if $collection;
     $core         = validate_solr_core($core) if $core;
+    $shard        = validate_solr_shard($shard) if $shard;
 }
 
 vlog2;
