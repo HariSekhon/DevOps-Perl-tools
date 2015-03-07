@@ -13,9 +13,8 @@ our $DESCRIPTION = "Solr command line utility to make it easier and shorter to m
 
 Make sure to set your Solr details in either your shell environment or in adjacent solr-env.sh or solr/solr-env.sh to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source solr/solr-env.sh' to add those settings into the shell environment if needed)
 
-For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity (or alternatively specify ZKCLI_PATH in solr-env.sh
-
 Tested on Solr / SolrCloud 4.x";
+our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
 $VERSION = "0.1";
 
@@ -108,6 +107,9 @@ if($progname =~ /collection|shard/){
         $split_shards = 1;
     }
 } elsif ($progname =~ /config/) {
+    $DESCRIPTION =~ s/Tested/$DESCRIPTION_CONFIG
+
+Tested/;
     if ($progname =~ /download_.*config/) {
         $download_config = 1;
     } elsif ($progname =~ /upload_.*config/) {
@@ -127,6 +129,9 @@ if($progname =~ /collection|shard/){
     $DESCRIPTION =~ s/Make sure/Best not to be called directly but instead via shorter symlinks found under the solr\/ directory that are easy to tab complete
 
 Make sure/;
+    $DESCRIPTION =~ s/Tested/$DESCRIPTION_CONFIG
+
+Tested/;
 
     %options = (
         %options,
