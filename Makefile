@@ -31,6 +31,9 @@ make:
 		JSON \
 		LWP::Simple \
 		LWP::UserAgent \
+		Net::LDAP \
+		Net::LDAPI \
+		Net::LDAPS \
 		Term::ReadKey \
 		Text::Unidecode \
 		Time::HiRes \
@@ -38,10 +41,7 @@ make:
 		XML::Validate \
 		|| :
 #		IO::Socket::SSL \
-#		Net::LDAP  \
 #		Net::LDAP::Filter \
-#		Net::LDAPI \
-#		Net::LDAPS \
 
 .PHONY: apt-packages
 apt-packages:
@@ -49,19 +49,19 @@ apt-packages:
 	# needed to fetch the library submodule at end of build
 	apt-get install -y git || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	#apt-get install -y libssl-dev || :
+	apt-get install -y libssl-dev || :
 	# needed to build XML::LibXML
 	apt-get install -y libxml2-dev || :
 
 .PHONY: yum-packages
 yum-packages:
-	yum install -y gcc || :
+	rpm -q gcc || yum install -y gcc || :
 	# needed to fetch the library submodule and CPAN modules
-	yum install -y perl-CPAN git || :
+	rpm -q perl-CPAN git || yum install -y perl-CPAN git || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	#yum install -y openssl-devel || :
+	rpm -q openssl-devel || yum install -y openssl-devel || :
 	# needed to build XML::LibXML
-	yum install -y libxml2-devel || :
+	rpm -q libxml2-devel || yum install -y libxml2-devel || :
 
 .PHONY: test
 test:
