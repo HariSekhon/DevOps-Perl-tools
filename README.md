@@ -38,10 +38,6 @@ sudo cpan LWP::Simple LWP::UserAgent Text::Unidecode Time::HiRes XML::Validate
 
 You're now ready to use these programs.
 
-###### Usage ######
-
-All programs come with a ```--help``` switch which includes a program description and the list of command line options.
-
 ### Jython for Hadoop Utils ###
 
 A couple of the Hadoop utilities listed below require Jython (as well as Hadoop to be installed and correctly configured or course)
@@ -61,3 +57,7 @@ Then add the Jython untarred directory to the $PATH or specify the /path/to/jyth
 ```
 
 The ```-J-cp `hadoop classpath` ``` bit does the right thing in finding the Hadoop java classes required to use the Hadoop APIs.
+
+## Usage ##
+
+All programs come with a ```--help``` switch which includes a program description and the list of command line options.
