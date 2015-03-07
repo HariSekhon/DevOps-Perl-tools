@@ -110,7 +110,7 @@ sub show_jinfo_classpath($){
         /^java.class.path\s*=\s*/ or next;
         s/^java.class.path\s*=\s*//;
         my $count = 0;
-        foreach(split(":", $_)){
+        foreach(split(/:/, $_)){
             next if /^\s*$/;
             print "classpath:  $_\n";
             $count++;
