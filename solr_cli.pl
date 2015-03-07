@@ -11,7 +11,7 @@
 
 our $DESCRIPTION = "Solr command line utility to make it easier and shorter to manage Solr often - I got bored of using long curl commands all the time!
 
-Make sure to set your Solr details in either your shell environment or in adjacent solr-env.sh or solr/solr-env.sh to avoid typing common parameters all the time. Shell environment taking priority over solr-env.sh (you should 'source solr/solr-env.sh' to add those settings into the shell environment if needed)
+Make sure to set your Solr details in either your shell environment or in adjacent solr-env.sh or solr/solr-env.sh to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source solr/solr-env.sh' to add those settings into the shell environment if needed)
 
 For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity (or alternatively specify ZKCLI_PATH in solr-env.sh
 
