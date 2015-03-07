@@ -16,7 +16,7 @@ Make sure to set your Solr details in either your shell environment or in adjace
 Tested on Solr / SolrCloud 4.x";
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -47,8 +47,9 @@ my $truncate_collection = 0;
 my $delete_collection   = 0;
 my $reload_collection   = 0;
 my $reload_core         = 0;
-my $split_shard;
-my $split_shards        = 0;
+my $create_shard        = 0;
+my $delete_shard        = 0;
+my $split_shard         = 0;
 my $split_all_shards    = 0;
 my $upload_config       = 0;
 my $collection_opts;
@@ -60,13 +61,16 @@ my $zookeeper_ensemble;
 );
 
 my %options_collection_opts = (
-        "T|create-collection-opts=s" => [ \$collection_opts, "Options for creating a solr collection in the form 'key=value&key2=value2' (\$SOLR_COLLECTION_OPTS)" ],
+    "T|create-collection-opts=s" => [ \$collection_opts, "Options for creating a solr collection in the form 'key=value&key2=value2' (\$SOLR_COLLECTION_OPTS)" ],
 );
 my %options_solrcloud_config = (
-        "N|config-name=s"    => [ \$config_name,          "SolrCloud config name, required for --upload-config/--download-config - will also use this for the local directory name (\$SOLRCLOUD_CONFIG)" ],
-        "Z|zk|zkhost=s"      => [ \$zookeeper_ensemble,   "ZooKeeper ensemble for uploading / downloading SolrCloud configs (\$SOLR_ZOOKEEPER)" ],
+    "N|config-name=s"    => [ \$config_name,          "SolrCloud config name, required for --upload-config/--download-config - will also use this for the local directory name (\$SOLRCLOUD_CONFIG)" ],
+    "Z|zk|zkhost=s"      => [ \$zookeeper_ensemble,   "ZooKeeper ensemble for uploading / downloading SolrCloud configs (\$SOLR_ZOOKEEPER)" ],
 );
 
+my %options_solrcloud_shards = (
+    %solroptions_shard,
+);
 
 #sub remove_collection_opts(){
 #    foreach(keys %solroptions_collection){
@@ -101,10 +105,20 @@ if($progname =~ /collection|shard/){
         $delete_collection = 1;
     } elsif ($progname =~ /reload_collection/) {
         $reload_collection = 1;
-    } elsif ($progname =~ /split_shard/) {
-        $split_shard = 1;
-    } elsif ($progname =~ /split_shards/) {
-        $split_shards = 1;
+    } elsif ($progname =~ /(?:create|delete|split)_shard/) {
+        if ($progname =~ /create_shard/) {
+            $create_shard = 1;
+        } elsif ($progname =~ /delete_shard/) {
+            $delete_shard = 1;
+        } elsif ($progname =~ /split_shard/) {
+            $split_shard = 1;
+        }
+        %options = (
+            %options,
+            %options_solrcloud_shards,
+        );
+    } elsif ($progname =~ /split_all_shards/) {
+        $split_all_shards = 1;
     }
 } elsif ($progname =~ /config/) {
     $DESCRIPTION =~ s/Tested/$DESCRIPTION_CONFIG
@@ -138,17 +152,21 @@ Tested/;
         %solroptions_collection,
         %solroptions_core,
         %solroptions_context,
+        %ssloptions,
         "create-collection"         => [ \$create_collection,           "Create collection" ],
         "commit-collection"         => [ \$commit_collection,           "Commit collection" ],
         "truncate-collection"       => [ \$truncate_collection,         "Truncate collection" ],
         "delete-collection"         => [ \$delete_collection,           "Delete collection" ],
         "reload-collection"         => [ \$reload_collection,           "Reload collection" ],
         "reload-core"               => [ \$reload_core,                 "Reload core" ],
-        #"split-shard=s"             => [ \$split_shard,                 "Split named shard that follows this arg, requires --collection" ],
-        #"split-all-shards"          => [ \$split_all_shards,            "Split all shards for given collection" ],
+        "create-shard"              => [ \$create_shard,                "Create named shard, requires --collection" ],
+        "delete-shard"              => [ \$delete_shard,                "Delete named shard, requires --collection" ],
+        "split-shard"               => [ \$split_shard,                 "Split named shard, requires --collection" ],
+        "split-all-shards"          => [ \$split_all_shards,            "Split all shards for given collection" ],
         "download-config"           => [ \$download_config,             "Download config from ZooKeeper" ],
         "upload-config"             => [ \$upload_config,               "Upload config to ZooKeeper" ],
         %options_collection_opts,
+        %options_solrcloud_shards,
         %options_solrcloud_config,
     );
 }
@@ -157,15 +175,30 @@ if($options{"C|core=s"}){
     $options{"O|core=s"} = $options{"C|core=s"};
     delete $options{"C|core=s"};
 }
-splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection truncate-collection delete-collection reload-collection reload-core split-shard split-all-shards download-config upload-config config-name zookeeper zk zkhost list-collections list-cores http-context/;
+splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection truncate-collection delete-collection reload-collection reload-core shard split-shard split-all-shards download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-cores http-context/;
 
 get_options();
 
-if($create_collection + $commit_collection + $download_config + $truncate_collection + $delete_collection + $reload_collection + $reload_core + defined($split_shard) + $split_shards + $upload_config > 1){
-    usage "cannot specify more than one action at a time";
-}
-unless($create_collection + $commit_collection + $download_config + $truncate_collection + $delete_collection + $reload_collection + $reload_core + defined($split_shard) + $split_shards + $upload_config == 1){
-    usage "no action specified";
+$list_collections + $list_shards + $list_cores > 1 and usage "can only list one thing at a time";
+unless($list_collections or $list_shards or $list_cores){
+    my $action_count = $create_collection
+     + $commit_collection
+     + $download_config
+     + $truncate_collection
+     + $delete_collection
+     + $reload_collection
+     + $reload_core
+     + $create_shard
+     + $delete_shard
+     + $split_shard
+     + $split_all_shards
+     + $upload_config;
+    if($action_count > 1){
+        usage "cannot specify more than one action at a time";
+    }
+    unless($action_count== 1){
+        usage "no action specified";
+    }
 }
 
 my $srcdir = abs_path(dirname(__FILE__));
@@ -225,6 +258,7 @@ set_timeout();
 unless($upload_config or $download_config){
     list_solr_collections();
     list_solr_cores();
+    list_solr_shards($collection);
 }
 
 sub curl_solr2($){
@@ -236,6 +270,10 @@ sub curl_solr2($){
 
 sub collection_defined(){
     defined($collection) or usage "collection not defined";
+}
+
+sub shard_defined(){
+    defined($shard) or usage "shard not defined";
 }
 
 sub solrcloud_defined(){
@@ -266,8 +304,8 @@ sub commit_collection(){
     curl_solr2 "$http_context/$collection/update/json?commit=true";
 }
 
-sub reload_collection(){
-    collection_defined();
+sub reload_collection($){
+    my $collection = shift;
     print "reloading collection '$collection' at '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=RELOAD&name=$collection";
 }
@@ -286,6 +324,36 @@ sub truncate_collection(){
     print Dumper($json);
 }
 
+sub create_shard(){
+    collection_defined();
+    shard_defined();
+    print "creating shard '$shard' in collection '$collection' at '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=CREATESHARD&collection=$collection&shard=$shard";
+}
+
+sub delete_shard(){
+    collection_defined();
+    shard_defined();
+    print "deleting shard '$shard' in collection '$collection' at '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=DELETESHARD&collection=$collection&shard=$shard";
+}
+
+sub split_shard($){
+    my $shard = shift;
+    collection_defined();
+    print "splitting shard '$shard' for collection '$collection' at '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=SPLITSHARD&collection=$collection&shard=$shard";
+}
+
+sub split_all_shards(){
+    collection_defined();
+    print "splitting all shards in collection '$collection' at '$host:$port'\n";
+    my @shards = get_solr_shards($collection);
+    foreach my $shard (@shards){
+        split_shard($shard);
+    }
+}
+
 sub download_config(){
     solrcloud_defined();
     print "downloading SolrCloud ZooKeeper config '$config_name' from ZooKeeper$plural '$zookeeper_ensemble'\n";
@@ -294,12 +362,14 @@ sub download_config(){
 }
 
 sub upload_config(){
-    collection_defined();
     solrcloud_defined();
     print "uploading SolrCloud ZooKeeper config '$config_name' to ZooKeeper$plural '$zookeeper_ensemble'\n";
     my @output = cmd("$zkcli -zkhost '$zookeeper_ensemble' -cmd upconfig -confdir '$config_name' -confname '$config_name'", 1);
     print join("\n", @output) . "\n";
-    reload_collection;
+    my @collections = get_solr_collections();
+    if(grep { $_ eq $config_name } @collections){
+        reload_collection($config_name);
+    }
 }
 
 create_collection()     if $create_collection;
@@ -307,8 +377,10 @@ commit_collection()     if $commit_collection;
 download_config()       if $download_config;
 truncate_collection()   if $truncate_collection;
 delete_collection()     if $delete_collection;
-reload_collection()     if $reload_collection;
+reload_collection($collection) if $reload_collection;
 reload_core()           if $reload_core;
-split_shard()           if $split_shard;
+create_shard()          if $create_shard;
+delete_shard()          if $delete_shard;
+split_shard($shard)     if $split_shard;
 split_all_shards()      if $split_all_shards;
 upload_config()         if $upload_config;
