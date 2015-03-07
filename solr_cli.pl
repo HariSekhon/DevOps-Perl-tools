@@ -14,9 +14,10 @@ our $DESCRIPTION = "Solr command line utility to make it easier and shorter to m
 Make sure to set your Solr details in either your shell environment or in adjacent solr-env.sh or solr/solr-env.sh to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source solr/solr-env.sh' to add those settings into the shell environment if needed)
 
 Tested on Solr / SolrCloud 4.x";
+
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -51,6 +52,9 @@ my $create_shard        = 0;
 my $delete_shard        = 0;
 my $split_shard         = 0;
 my $split_all_shards    = 0;
+my $add_replica         = 0;
+my $delete_replica      = 0;
+my $replica_opts;
 my $upload_config       = 0;
 my $collection_opts;
 my $config_name;
@@ -64,12 +68,12 @@ my %options_collection_opts = (
     "T|create-collection-opts=s" => [ \$collection_opts, "Options for creating a solr collection in the form 'key=value&key2=value2' (\$SOLR_COLLECTION_OPTS)" ],
 );
 my %options_solrcloud_config = (
-    "N|config-name=s"    => [ \$config_name,          "SolrCloud config name, required for --upload-config/--download-config - will also use this for the local directory name (\$SOLRCLOUD_CONFIG)" ],
+    "n|config-name=s"    => [ \$config_name,          "SolrCloud config name, required for --upload-config/--download-config - will also use this for the local directory name (\$SOLRCLOUD_CONFIG)" ],
     "Z|zk|zkhost=s"      => [ \$zookeeper_ensemble,   "ZooKeeper ensemble for uploading / downloading SolrCloud configs (\$SOLR_ZOOKEEPER)" ],
 );
 
-my %options_solrcloud_shards = (
-    %solroptions_shard,
+my %options_solrcloud_replica_opts = (
+    "replica-opts=s" => [ \$replica_opts, "Replica creation options in the form 'key=value&key2=value2'" ],
 );
 
 #sub remove_collection_opts(){
@@ -85,7 +89,7 @@ my %options_solrcloud_shards = (
 #    }
 #}
 
-if($progname =~ /collection|shard/){
+if($progname =~ /collection|shard|replica/){
     %options = (
         %options,
         %solroptions_collection,
@@ -95,10 +99,7 @@ if($progname =~ /collection|shard/){
         $commit_collection = 1;
     } elsif ($progname =~ /create_collection/) {
         $create_collection = 1;
-        %options = (
-            %options,
-            %options_collection_opts,
-        );
+        %options = ( %options, %options_collection_opts);
     } elsif ($progname =~ /empty_collection|truncate_collection/) {
         $truncate_collection = 1;
     } elsif ($progname =~ /delete_collection/) {
@@ -113,12 +114,17 @@ if($progname =~ /collection|shard/){
         } elsif ($progname =~ /split_shard/) {
             $split_shard = 1;
         }
-        %options = (
-            %options,
-            %options_solrcloud_shards,
-        );
+        %options = ( %options, %solroptions_shard);
     } elsif ($progname =~ /split_all_shards/) {
         $split_all_shards = 1;
+    } elsif($progname =~ /replica/){
+        %options = ( %options, %solroptions_shard, %solroptions_replica);
+        if ($progname =~ /add_replica/) {
+            $add_replica = 1;
+            %options = ( %options, %solroptions_node, %options_solrcloud_replica_opts);
+        } elsif ($progname =~ /delete_replica/) {
+            $delete_replica = 1;
+        }
     }
 } elsif ($progname =~ /config/) {
     $DESCRIPTION =~ s/Tested/$DESCRIPTION_CONFIG
@@ -129,18 +135,12 @@ Tested/;
     } elsif ($progname =~ /upload_.*config/) {
         $upload_config = 1;
     }
-    %options = (
-        %options,
-        %options_solrcloud_config,
-    );
+    %options = ( %options, %options_solrcloud_config);
 } elsif ($progname =~ /reload_core/) {
-    %options = (
-        %options,
-        %solroptions_core,
-    );
+    %options = ( %options, %solroptions_core);
     $reload_core = 1;
 } else {
-    $DESCRIPTION =~ s/Make sure/Best not to be called directly but instead via shorter symlinks found under the solr\/ directory that are easy to tab complete
+    $DESCRIPTION =~ s/Make sure/Best not to be called directly but instead via shorter symlinks found under the solr\/ directory that are easy to tab complete and only expose a subset of the relevant options, otherwise as you can see below there are a lot of options
 
 Make sure/;
     $DESCRIPTION =~ s/Tested/$DESCRIPTION_CONFIG
@@ -151,6 +151,9 @@ Tested/;
         %options,
         %solroptions_collection,
         %solroptions_core,
+        %solroptions_shard,
+        %solroptions_replica,
+        %solroptions_node,
         %solroptions_context,
         %ssloptions,
         "create-collection"         => [ \$create_collection,           "Create collection" ],
@@ -163,10 +166,12 @@ Tested/;
         "delete-shard"              => [ \$delete_shard,                "Delete named shard, requires --collection" ],
         "split-shard"               => [ \$split_shard,                 "Split named shard, requires --collection" ],
         "split-all-shards"          => [ \$split_all_shards,            "Split all shards for given collection" ],
-        "download-config"           => [ \$download_config,             "Download config from ZooKeeper" ],
-        "upload-config"             => [ \$upload_config,               "Upload config to ZooKeeper" ],
+        "add-replica"               => [ \$add_replica,                 "Add replica, requires --collection and --shard" ],
+        "delete-replica"            => [ \$delete_replica,              "Delete replica, requires --collection and --shard" ],
+        "DC|download-config"        => [ \$download_config,             "Download config from ZooKeeper" ],
+        "UD|upload-config"          => [ \$upload_config,               "Upload config to ZooKeeper" ],
         %options_collection_opts,
-        %options_solrcloud_shards,
+        %options_solrcloud_replica_opts,
         %options_solrcloud_config,
     );
 }
@@ -175,12 +180,13 @@ if($options{"C|core=s"}){
     $options{"O|core=s"} = $options{"C|core=s"};
     delete $options{"C|core=s"};
 }
-splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection truncate-collection delete-collection reload-collection reload-core shard split-shard split-all-shards download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-cores http-context/;
+splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection truncate-collection delete-collection reload-collection reload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-replicas list-cores list-nodes http-context/;
 
 get_options();
 
-$list_collections + $list_shards + $list_cores > 1 and usage "can only list one thing at a time";
-unless($list_collections or $list_shards or $list_cores){
+my $list_count = $list_collections + $list_shards + $list_replicas + $list_cores + $list_nodes;
+$list_count > 1 and usage "can only list one thing at a time";
+unless($list_count){
     my $action_count = $create_collection
      + $commit_collection
      + $download_config
@@ -192,6 +198,8 @@ unless($list_collections or $list_shards or $list_cores){
      + $delete_shard
      + $split_shard
      + $split_all_shards
+     + $add_replica
+     + $delete_replica
      + $upload_config;
     if($action_count > 1){
         usage "cannot specify more than one action at a time";
@@ -223,6 +231,7 @@ if(-f $env_file ){
 env_creds("Solr");
 env_vars("SOLR_COLLECTION",          \$collection);
 env_vars("SOLR_COLLECTION_OPTS",     \$collection_opts);
+env_vars("SOLR_REPLICA_OPTS",        \$replica_opts);
 env_vars("SOLR_CORE",                \$core);
 env_vars("SOLR_HTTP_CONTEXT",        \$http_context);
 env_vars("SOLR_ZOOKEEPER",           \$zookeeper_ensemble);
@@ -260,6 +269,8 @@ unless($upload_config or $download_config){
     list_solr_collections();
     list_solr_cores();
     list_solr_shards($collection);
+    list_solr_replicas($collection);
+    list_solr_nodes();
 }
 
 sub curl_solr2($){
@@ -355,6 +366,21 @@ sub split_all_shards(){
     }
 }
 
+sub add_replica(){
+    defined($solr_node) or usage "node not defined";
+    shard_defined();
+    # not bothering to do much node checking since the permitting format isn't clear, Solr server can handle and throw the exception
+    print "adding replica to node '$solr_node' for collection '$collection' shard '$shard' via '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=ADDREPLICA&collection=$collection&shard=$shard&node=$solr_node" . ( $replica_opts ? "&$replica_opts" : "" );
+}
+
+sub delete_replica(){
+    defined($replica) or usage "replica not defined";
+    shard_defined();
+    print "deleting replica '$replica' from collection '$collection' shard '$shard' via '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=DELETEREPLICA&collection=$collection&shard=$shard&replica=$replica";
+}
+
 sub download_config(){
     solrcloud_defined();
     print "downloading SolrCloud ZooKeeper config '$config_name' from ZooKeeper$plural '$zookeeper_ensemble'\n";
@@ -384,4 +410,6 @@ create_shard()          if $create_shard;
 delete_shard()          if $delete_shard;
 split_shard($shard)     if $split_shard;
 split_all_shards()      if $split_all_shards;
+add_replica()           if $add_replica;
+delete_replica()        if $delete_replica;
 upload_config()         if $upload_config;
