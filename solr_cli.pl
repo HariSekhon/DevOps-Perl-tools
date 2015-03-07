@@ -9,7 +9,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-our $DESCRIPTION = "Solr command line utility to make it easier and shorter to manage Solr often - I got bored of using long curl commands all the time!
+our $DESCRIPTION = "Solr command line utility to make it easier and shorter to manage Solr via the Collections API - I got bored of using long curl commands all the time!
 
 Make sure to set your Solr details in either your shell environment or in adjacent solr-env.sh or solr/solr-env.sh to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source solr/solr-env.sh' to add those settings into the shell environment if needed)
 
