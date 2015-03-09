@@ -23,7 +23,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.3.3";
+our $VERSION = "0.3.4";
 
 my $path;
 BEGIN {
@@ -219,22 +219,6 @@ unless($list_count){
     }
 }
 
-if(-f $env_file ){
-    my $fh = open_file $env_file;
-    while(<$fh>){
-        s/#.*//;
-        /^\s*$/ and next;
-        s/\s*export\s+//;
-        if(/(\w+)\s*=\s*"?(.*?)"?\s*$/){
-            vlog2 "loading env file =>  $1 = $2";
-            $ENV{$1} = $2;
-        }
-    }
-    vlog2;
-} else {
-    warn "solr-env.sh file not found in $srcdir or $srcdir/solr, not loading convenience environment variables\n";
-}
-
 env_creds("Solr");
 env_vars("SOLR_COLLECTION",          \$collection);
 env_vars("SOLR_COLLECTION_OPTS",     \$collection_opts);
@@ -243,6 +227,28 @@ env_vars("SOLR_CORE",                \$core);
 env_vars("SOLR_HTTP_CONTEXT",        \$http_context);
 env_vars("SOLR_ZOOKEEPER",           \$zookeeper_ensemble);
 env_vars("SOLRCLOUD_CONFIG",         \$config_name);
+
+if(-f $env_file ){
+    my $fh = open_file $env_file;
+    my ($key, $value);
+    while(<$fh>){
+        s/#.*//;
+        /^\s*$/ and next;
+        s/\s*export\s+//;
+        if(/(\w+)\s*=\s*"?(.*?)"?\s*$/){
+            $key   = $1;
+            $value = $2;
+            grep { $_ eq $key } qw/SOLR_HOST SOLR_PORT SOLR_USER SOLR_PASSWORD SOLR_COLLECTION SOLR_COLLECTION_OPTS SOLR_REPLICA_OPTS SOLR_CORE SOLR_HTTP_CONTEXT SOLR_ZOOKEEPER SOLRCLOUD_CONFIG/ or next;
+            unless(defined($ENV{$key})){
+                vlog2 "loading env file =>  $key = $value";
+                $ENV{$key} = $value;
+            }
+        }
+    }
+    vlog2;
+} else {
+    warn "'$env_file' not found, not loading convenience environment variables\n";
+}
 
 my $zkcli="zkcli.sh";
 
