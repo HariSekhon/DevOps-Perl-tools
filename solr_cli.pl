@@ -17,7 +17,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -291,7 +291,8 @@ sub shard_defined(){
 sub solrcloud_defined(){
     defined($config_name)   or usage "solrcloud config name not defined";
     defined($zookeeper_ensemble) or usage "zookeeper ensemble not defined";
-    plural scalar split(/\s*,\s*/, $zookeeper_ensemble);
+    my @zoos = split(/\s*,\s*/, $zookeeper_ensemble);
+    plural scalar @zoos;
 }
 
 sub core_defined(){
