@@ -15,7 +15,7 @@ use Cwd 'abs_path';
 # abs_path also resolve the symlink for __FILE__
 my $srcdir = abs_path(dirname(abs_path(__FILE__)));
 my $env_file = "$srcdir/solr/solr-env.sh";
-our $DESCRIPTION = "Solr command line utility to make it easier and shorter to manage Solr via the Collections API - I got bored of using long curl commands all the time!
+our $DESCRIPTION = "Solr command line utility to make it easier and shorter to manage Solr / SolrCloud via the Collections & Core APIs - I got bored of using long curl commands all the time and this is better than having a bunch of shell scripts.
 
 Make sure to set your Solr details in either your shell environment or in '$env_file' to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source $env_file' to add those settings into the shell environment if needed)
 
