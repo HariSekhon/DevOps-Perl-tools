@@ -23,7 +23,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.3.2";
+our $VERSION = "0.3.3";
 
 my $path;
 BEGIN {
@@ -98,35 +98,39 @@ if($progname =~ /collection|shard|replica/){
         %solroptions_collection,
         %solroptions_context,
     );
-    if($progname =~ /commit_collection/){
-        $commit_collection = 1;
-    } elsif ($progname =~ /create_collection/) {
+    $commit_collection   = 1  if $progname =~ /commit_collection/;
+    $delete_collection   = 1  if $progname =~ /delete_collection/;
+    $list_collections    = 1  if $progname =~ /list_collections/;
+    $reload_collection   = 1  if $progname =~ /reload_collection/;
+    $truncate_collection = 1  if $progname =~ /empty_collection|truncate_collection/;
+    $split_all_shards    = 1  if $progname =~ /split_all_shards/;
+    if ($progname =~ /create_collection/) {
         $create_collection = 1;
         %options = ( %options, %options_collection_opts);
-    } elsif ($progname =~ /empty_collection|truncate_collection/) {
-        $truncate_collection = 1;
-    } elsif ($progname =~ /delete_collection/) {
-        $delete_collection = 1;
-    } elsif ($progname =~ /reload_collection/) {
-        $reload_collection = 1;
-    } elsif ($progname =~ /(?:create|delete|split)_shard/) {
-        if ($progname =~ /create_shard/) {
-            $create_shard = 1;
-        } elsif ($progname =~ /delete_shard/) {
-            $delete_shard = 1;
-        } elsif ($progname =~ /split_shard/) {
-            $split_shard = 1;
-        }
+    } elsif ($progname =~ /shard/) {
+        $create_shard = 1  if $progname =~ /create_shard/;
+        $delete_shard = 1  if $progname =~ /delete_shard/;
+        $list_shards  = 1  if $progname =~ /list_shards/;
+        $split_shard  = 1  if $progname =~ /split_shard/;
         %options = ( %options, %solroptions_shard);
-    } elsif ($progname =~ /split_all_shards/) {
-        $split_all_shards = 1;
     } elsif($progname =~ /replica/){
         %options = ( %options, %solroptions_shard, %solroptions_replica);
+        $list_replicas  = 1 if $progname =~ /list_replicas/;
+        $delete_replica = 1 if $progname =~ /delete_replica/;
         if ($progname =~ /add_replica/) {
             $add_replica = 1;
             %options = ( %options, %solroptions_node, %options_solrcloud_replica_opts);
-        } elsif ($progname =~ /delete_replica/) {
-            $delete_replica = 1;
+        }
+    }
+    # remove other list options to avoid user induced list command clashes and also options at same level which wouldn't make any sense
+    if($progname =~ /list/){
+        my $type;
+        if($progname =~ /list_(\w+)s/){
+            $type = $1;
+        }
+        foreach (keys %options){
+            /list/ && delete $options{$_};
+            /$type\=/o && delete $options{$_};
         }
     }
 } elsif ($progname =~ /config/) {
@@ -139,9 +143,12 @@ Tested/;
         $upload_config = 1;
     }
     %options = ( %options, %options_solrcloud_config);
-} elsif ($progname =~ /reload_core/) {
+} elsif ($progname =~ /core/) {
     %options = ( %options, %solroptions_core);
-    $reload_core = 1;
+    $list_cores = 1  if $progname =~ /list_cores/;
+    $reload_core = 1 if $progname =~ /reload_core/;
+} elsif ($progname =~ /list_nodes/){
+    $list_nodes++ if $progname =~ /list_nodes/;
 } else {
     $DESCRIPTION =~ s/Make sure/Best not to be called directly but instead via shorter symlinks found under the '$srcdir\/solr\/' directory that are easy to tab complete and only expose a subset of the relevant options, otherwise as you can see below there are a lot of options
 
@@ -269,7 +276,7 @@ unless($upload_config or $download_config){
     list_solr_collections();
     list_solr_cores();
     list_solr_shards($collection);
-    list_solr_replicas($collection);
+    list_solr_replicas($collection, $shard);
     list_solr_nodes();
 }
 
