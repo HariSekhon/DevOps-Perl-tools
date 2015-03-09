@@ -9,18 +9,22 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
+use strict;
+use warnings;
+use Cwd 'abs_path';
+# abs_path also resolve the symlink for __FILE__
+my $srcdir = abs_path(dirname(abs_path(__FILE__)));
+my $env_file = "$srcdir/solr/solr-env.sh";
 our $DESCRIPTION = "Solr command line utility to make it easier and shorter to manage Solr via the Collections API - I got bored of using long curl commands all the time!
 
-Make sure to set your Solr details in either your shell environment or in adjacent solr-env.sh or solr/solr-env.sh to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source solr/solr-env.sh' to add those settings into the shell environment if needed)
+Make sure to set your Solr details in either your shell environment or in '$env_file' to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source $env_file' to add those settings into the shell environment if needed)
 
 Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-$VERSION = "0.3.1";
+our $VERSION = "0.3.2";
 
-use strict;
-use warnings;
 my $path;
 BEGIN {
     use File::Basename;
@@ -30,7 +34,6 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Solr;
 use HariSekhon::ZooKeeper 'validate_zookeeper_ensemble';
-use Cwd 'abs_path';
 use Data::Dumper;
 $Data::Dumper::Terse = 1;
 
@@ -140,7 +143,7 @@ Tested/;
     %options = ( %options, %solroptions_core);
     $reload_core = 1;
 } else {
-    $DESCRIPTION =~ s/Make sure/Best not to be called directly but instead via shorter symlinks found under the solr\/ directory that are easy to tab complete and only expose a subset of the relevant options, otherwise as you can see below there are a lot of options
+    $DESCRIPTION =~ s/Make sure/Best not to be called directly but instead via shorter symlinks found under the '$srcdir\/solr\/' directory that are easy to tab complete and only expose a subset of the relevant options, otherwise as you can see below there are a lot of options
 
 Make sure/;
     $DESCRIPTION =~ s/Tested/$DESCRIPTION_CONFIG
@@ -209,9 +212,6 @@ unless($list_count){
     }
 }
 
-my $srcdir = abs_path(dirname(__FILE__));
-my $env_file = "$srcdir/solr-env.sh";
-( -f $env_file ) or $env_file = "$srcdir/solr/solr-env.sh";
 if(-f $env_file ){
     my $fh = open_file $env_file;
     while(<$fh>){
