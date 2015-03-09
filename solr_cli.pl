@@ -219,15 +219,6 @@ unless($list_count){
     }
 }
 
-env_creds("Solr");
-env_vars("SOLR_COLLECTION",          \$collection);
-env_vars("SOLR_COLLECTION_OPTS",     \$collection_opts);
-env_vars("SOLR_REPLICA_OPTS",        \$replica_opts);
-env_vars("SOLR_CORE",                \$core);
-env_vars("SOLR_HTTP_CONTEXT",        \$http_context);
-env_vars("SOLR_ZOOKEEPER",           \$zookeeper_ensemble);
-env_vars("SOLRCLOUD_CONFIG",         \$config_name);
-
 if(-f $env_file ){
     my $fh = open_file $env_file;
     my ($key, $value);
@@ -250,6 +241,15 @@ if(-f $env_file ){
     warn "'$env_file' not found, not loading convenience environment variables\n";
 }
 
+env_creds("Solr");
+env_vars("SOLR_COLLECTION",          \$collection);
+env_vars("SOLR_COLLECTION_OPTS",     \$collection_opts);
+env_vars("SOLR_REPLICA_OPTS",        \$replica_opts);
+env_vars("SOLR_CORE",                \$core);
+env_vars("SOLR_HTTP_CONTEXT",        \$http_context);
+env_vars("SOLR_ZOOKEEPER",           \$zookeeper_ensemble);
+env_vars("SOLRCLOUD_CONFIG",         \$config_name);
+
 my $zkcli="zkcli.sh";
 
 if($upload_config or $download_config){
@@ -258,6 +258,7 @@ if($upload_config or $download_config){
         $zkcli =~ /\bzkcli.sh$/ or usage "invalid zkcli.sh path, does not end in zkcli.sh";
         $zkcli = validate_file($zkcli, 0, "zkcli");
     }
+    print "config name = $config_name\n";
     $config_name = validate_dirname($config_name, "config");
     $zookeeper_ensemble = validate_zookeeper_ensemble($zookeeper_ensemble);
 } else {
