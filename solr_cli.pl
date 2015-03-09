@@ -231,7 +231,7 @@ if(-f $env_file ){
             $value = $2;
             grep { $_ eq $key } qw/SOLR_HOST SOLR_PORT SOLR_USER SOLR_PASSWORD SOLR_COLLECTION SOLR_COLLECTION_OPTS SOLR_REPLICA_OPTS SOLR_CORE SOLR_HTTP_CONTEXT SOLR_ZOOKEEPER SOLRCLOUD_CONFIG/ or next;
             unless(defined($ENV{$key})){
-                vlog2 "loading env file =>  $key = $value";
+                vlog2 "loading from env file =>  $key = $value";
                 $ENV{$key} = $value;
             }
         }
