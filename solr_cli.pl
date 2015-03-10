@@ -258,7 +258,6 @@ if($upload_config or $download_config){
         $zkcli =~ /\bzkcli.sh$/ or usage "invalid zkcli.sh path, does not end in zkcli.sh";
         $zkcli = validate_file($zkcli, 0, "zkcli");
     }
-    print "config name = $config_name\n";
     $config_name = validate_dirname($config_name, "config");
     $zookeeper_ensemble = validate_zookeeper_ensemble($zookeeper_ensemble);
 } else {
