@@ -23,7 +23,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.3.4";
+our $VERSION = "0.3.5";
 
 my $path;
 BEGIN {
@@ -349,6 +349,7 @@ sub truncate_collection(){
     $ua->default_header("Content-type", "application/json");
     $json = curl_solr "$http_context/$collection/update/json", "POST", '{"delete": { "query":"*:*", "commitWithin":500 } }';
     print Dumper($json);
+    commit_collection();
 }
 
 sub create_shard(){
