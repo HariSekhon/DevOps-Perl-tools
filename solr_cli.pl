@@ -23,7 +23,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.3.5";
+our $VERSION = "0.3.6";
 
 my $path;
 BEGIN {
@@ -46,6 +46,7 @@ set_timeout_default(60);
 
 my $create_collection   = 0;
 my $commit_collection   = 0;
+my $soft_commit;
 my $download_config     = 0;
 my $truncate_collection = 0;
 my $delete_collection   = 0;
@@ -79,6 +80,10 @@ my %options_solrcloud_replica_opts = (
     "replica-opts=s" => [ \$replica_opts, "Replica creation options in the form 'key=value&key2=value2'" ],
 );
 
+my %options_softcommit = (
+    "soft-commit"    => [ \$soft_commit,  "Do a soft commit instead of a hard commit on given collection" ],
+);
+
 #sub remove_collection_opts(){
 #    foreach(keys %solroptions_collection){
 #        delete $options{$_};
@@ -98,7 +103,11 @@ if($progname =~ /collection|shard|replica/){
         %solroptions_collection,
         %solroptions_context,
     );
-    $commit_collection   = 1  if $progname =~ /commit_collection/;
+    if($progname =~ /\bcommit_collection/){
+        $commit_collection   = 1;
+        %options = ( %options, %options_softcommit );
+    }
+    $soft_commit         = 1  if $progname =~ /softcommit/;
     $delete_collection   = 1  if $progname =~ /delete_collection/;
     $list_collections    = 1  if $progname =~ /list_collections/;
     $reload_collection   = 1  if $progname =~ /reload_collection/;
@@ -168,6 +177,7 @@ Tested/;
         %ssloptions,
         "create-collection"         => [ \$create_collection,           "Create collection" ],
         "commit-collection"         => [ \$commit_collection,           "Commit collection" ],
+        %options_softcommit,
         "truncate-collection"       => [ \$truncate_collection,         "Truncate collection" ],
         "delete-collection"         => [ \$delete_collection,           "Delete collection" ],
         "reload-collection"         => [ \$reload_collection,           "Reload collection" ],
@@ -190,9 +200,11 @@ if($options{"C|core=s"}){
     $options{"O|core=s"} = $options{"C|core=s"};
     delete $options{"C|core=s"};
 }
-splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection truncate-collection delete-collection reload-collection reload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-replicas list-cores list-nodes http-context/;
+splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection soft-commit truncate-collection delete-collection reload-collection reload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-replicas list-cores list-nodes http-context/;
 
 get_options();
+
+$commit_collection = 1 if $soft_commit;
 
 my $list_count = $list_collections + $list_shards + $list_replicas + $list_cores + $list_nodes;
 $list_count > 1 and usage "can only list one thing at a time";
@@ -324,10 +336,12 @@ sub delete_collection(){
     curl_solr2 "$solr_admin/collections?action=DELETE&name=$collection";
 }
 
-sub commit_collection(){
+sub commit_collection(;$){
+    my $soft = shift;
     collection_defined();
-    print "committing collection '$collection' at '$host:$port'\n";
-    curl_solr2 "$http_context/$collection/update/json?commit=true";
+    print(( $soft ? "soft " : "" ) . "committing collection '$collection' at '$host:$port'\n");
+    my $commit = ( $soft ? "softCommit" : "commit" );
+    curl_solr2 "$http_context/$collection/update/json?$commit=true";
 }
 
 sub reload_collection($){
@@ -348,7 +362,7 @@ sub truncate_collection(){
     $ua->default_header("Content-type", "application/json");
     $json = curl_solr "$http_context/$collection/update/json", "POST", '{"delete": { "query":"*:*", "commitWithin":500 } }';
     print Dumper($json);
-    commit_collection();
+    commit_collection($soft_commit);
 }
 
 sub create_shard(){
@@ -415,7 +429,7 @@ sub upload_config(){
 }
 
 create_collection()     if $create_collection;
-commit_collection()     if $commit_collection;
+commit_collection($soft_commit) if $commit_collection;
 download_config()       if $download_config;
 truncate_collection()   if $truncate_collection;
 delete_collection()     if $delete_collection;
