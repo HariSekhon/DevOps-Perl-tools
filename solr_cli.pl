@@ -23,7 +23,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.3.6";
+our $VERSION = "0.3.7";
 
 my $path;
 BEGIN {
@@ -103,17 +103,18 @@ if($progname =~ /collection|shard|replica/){
         %solroptions_collection,
         %solroptions_context,
     );
-    if($progname =~ /\bcommit_collection/){
-        $commit_collection   = 1;
-        %options = ( %options, %options_softcommit );
-    }
     $soft_commit         = 1  if $progname =~ /softcommit/;
     $delete_collection   = 1  if $progname =~ /delete_collection/;
     $list_collections    = 1  if $progname =~ /list_collections/;
     $reload_collection   = 1  if $progname =~ /reload_collection/;
-    $truncate_collection = 1  if $progname =~ /empty_collection|truncate_collection/;
     $split_all_shards    = 1  if $progname =~ /split_all_shards/;
-    if ($progname =~ /create_collection/) {
+    if($progname =~ /\bcommit_collection/){
+        $commit_collection   = 1;
+        %options = ( %options, %options_softcommit );
+    } elsif($progname =~ /empty_collection|truncate_collection/){
+        $truncate_collection = 1;
+        %options = ( %options, %options_softcommit );
+    } elsif ($progname =~ /create_collection/) {
         $create_collection = 1;
         %options = ( %options, %options_collection_opts);
     } elsif ($progname =~ /shard/) {
