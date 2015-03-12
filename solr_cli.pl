@@ -113,7 +113,7 @@ if($progname =~ /collection|shard|replica/){
         %options = ( %options, %options_softcommit );
     } elsif($progname =~ /empty_collection|truncate_collection/){
         $truncate_collection = 1;
-        %options = ( %options, %options_softcommit );
+        #%options = ( %options, %options_softcommit );
     } elsif ($progname =~ /create_collection/) {
         $create_collection = 1;
         %options = ( %options, %options_collection_opts);
@@ -363,7 +363,7 @@ sub truncate_collection(){
     $ua->default_header("Content-type", "application/json");
     $json = curl_solr "$http_context/$collection/update/json", "POST", '{"delete": { "query":"*:*", "commitWithin":500 } }';
     print Dumper($json);
-    commit_collection($soft_commit);
+    commit_collection();
 }
 
 sub create_shard(){
