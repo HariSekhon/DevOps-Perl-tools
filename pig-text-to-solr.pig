@@ -12,7 +12,7 @@
 -- https://docs.lucidworks.com/display/lweug/Using+Pig+with+LucidWorks+Search
 
 REGISTER 'hadoop-lws-job.jar';
-register 'pig-udfs.jy' using jython as hari;
+REGISTER 'pig-udfs.jy' USING jython AS hari;
 
 --%default path '/data';
 --%default collection 'collection1';
@@ -36,23 +36,23 @@ set lww.commit.on.close true;
 set mapred.map.tasks.speculation.execution false;
 set mapred.reduce.tasks.speculation.execution false;
 
-lines  = load '$path' using PigStorage('\n', '-tagPath') as (path:chararray, line:chararray);
+lines  = LOAD '$path' USING PigStorage('\n', '-tagPath') AS (path:chararray, line:chararray);
 -- this causes out of heap errors in Solr because some files may be too large to handle this way - it doesn't scale 
---lines2 = foreach (group lines by path) generate $0 as path, BagToString($1, ' ') as line:chararray;
---lines_final = foreach lines2 generate UniqueId() as id, 'path_s', path, 'line_s', line;
+--lines2 = FOREACH (GROUP lines BY path) GENERATE $0 AS path, BagToString($0, ' ') AS line:chararray;
+--lines_final = FOREACH lines2 GENERATE UniqueId() AS id, 'path_s', path, 'line_s', line;
 
-lines2 = filter lines by line is not null;
+lines2 = FILTER lines BY line IS NOT NULL;
 
 -- no point storing redundant prefixes like hdfs://nameservice1 of file: the same bytes over and over
---lines3 = foreach lines2 generate REPLACE(path, '^file:', '') as path, line;
-lines3 = foreach lines2 generate REPLACE(path, '^hdfs://\\w+(?::\\d+)?', '') as path, line;
+--lines3 = FOREACH lines2 GENERATE REPLACE(path, '^file:', '') AS path, line;
+lines3 = FOREACH lines2 GENERATE REPLACE(path, '^hdfs://\\w+(?::\\d+)?', '') AS path, line;
 -- order by path asc -- to force a sort + shuffle -- to find out if the avg requests per sec are being held back by the mapper phase decompressing bz2 files or something else by forcing a reduce phase
 
 -- going back to using suffixed Solr fields in case someone hasn't configured their schema properly they should be able to fall back on dynamicFields
 
 -- since the lines in the file may not be unique was considering using a uuid
 -- can use UniqueId() from Pig 0.14
-lines_final = foreach lines3 generate CONCAT(path, '|', hari.md5_uuid(line)) as id, 'path_s', path, 'line_s', line;
+lines_final = FOREACH lines3 GENERATE CONCAT(path, '|', hari.md5_uuid(line)) AS id, 'path_s', path, 'line_s', line;
 
 
-store lines_final into 'IGNORED' using com.lucidworks.hadoop.pig.SolrStoreFunc();
+STORE lines_final INTO 'IGNORED' USING com.lucidworks.hadoop.pig.SolrStoreFunc();
