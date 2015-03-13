@@ -11,7 +11,12 @@
 
 -- https://docs.lucidworks.com/display/lweug/Using+Pig+with+LucidWorks+Search
 
+-- must download LucidWorks connector for Hortonworks / Hadoop from  here:
+--
+-- https://lucidworks.com/product/integrations/hortonworks/
+-- https://lucidworks.com/product/integrations/hadoop/
 REGISTER 'hadoop-lws-job.jar';
+
 REGISTER 'pig-udfs.jy' USING jython AS hari;
 
 --%default path '/data';
