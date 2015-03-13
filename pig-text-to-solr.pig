@@ -11,10 +11,10 @@
 
 -- https://docs.lucidworks.com/display/lweug/Using+Pig+with+LucidWorks+Search
 
--- must download LucidWorks connector for Hortonworks / Hadoop from  here:
+-- must download LucidWorks connector for Hadoop from here (the Hortonworks link is much bigger as it contains a full HDP Search including Solr, Banana and Tika pipeline as well as this connector):
 --
--- https://lucidworks.com/product/integrations/hortonworks/
 -- https://lucidworks.com/product/integrations/hadoop/
+-- 
 REGISTER 'hadoop-lws-job.jar';
 
 REGISTER 'pig-udfs.jy' USING jython AS hari;
@@ -57,6 +57,7 @@ lines3 = FOREACH lines2 GENERATE REPLACE(path, '^hdfs://\\w+(?::\\d+)?', '') AS 
 
 -- since the lines in the file may not be unique was considering using a uuid
 -- can use UniqueId() from Pig 0.14
+-- hari.md5_uuid(line) - gives a uuid based on millisecond timestamp, host and pid with an md5 of the line at the end, this allows to find duplicate lines via a '<path>*<md5>' type search if wanted
 lines_final = FOREACH lines3 GENERATE CONCAT(path, '|', hari.md5_uuid(line)) AS id, 'path_s', path, 'line_s', line;
 
 
