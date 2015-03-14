@@ -46,12 +46,13 @@ lines  = LOAD '$path' USING PigStorage('\n', '-tagPath') AS (path:chararray, lin
 --lines2 = FOREACH (GROUP lines BY path) GENERATE $0 AS path, BagToString($0, ' ') AS line:chararray;
 --lines_final = FOREACH lines2 GENERATE UniqueId() AS id, 'path_s', path, 'line_s', line;
 
-lines2 = FILTER lines BY line IS NOT NULL;
-
--- no point storing redundant prefixes like hdfs://nameservice1 of file: the same bytes over and over
---lines3 = FOREACH lines2 GENERATE REPLACE(path, '^file:', '') AS path, line;
-lines3 = FOREACH lines2 GENERATE REPLACE(path, '^hdfs://\\w+(?::\\d+)?', '') AS path, line;
+-- strip redundant prefixes like hdfs://nameservice1 or file: to avoid storing the same bytes over and over without value
+--lines2 = FOREACH lines2 GENERATE REPLACE(path, '^file:', '') AS path, line;
+lines2 = FOREACH lines GENERATE REPLACE(path, '^hdfs://\\w+(?::\\d+)?', '') AS path, line;
 -- order by path asc -- to force a sort + shuffle -- to find out if the avg requests per sec are being held back by the mapper phase decompressing bz2 files or something else by forcing a reduce phase
+
+-- preserve whitespace but check and remove lines that are only whitespace
+lines3 = FILTER lines2 BY line IS NOT NULL AND TRIM(line) != '';
 
 -- going back to using suffixed Solr fields in case someone hasn't configured their schema properly they should be able to fall back on dynamicFields
 
@@ -59,6 +60,5 @@ lines3 = FOREACH lines2 GENERATE REPLACE(path, '^hdfs://\\w+(?::\\d+)?', '') AS 
 -- can use UniqueId() from Pig 0.14
 -- hari.md5_uuid(line) - gives a uuid based on millisecond timestamp, host and pid with an md5 of the line at the end, this allows to find duplicate lines via a '<path>*<md5>' type search if wanted
 lines_final = FOREACH lines3 GENERATE CONCAT(path, '|', hari.md5_uuid(line)) AS id, 'path_s', path, 'line_s', line;
-
 
 STORE lines_final INTO 'IGNORED' USING com.lucidworks.hadoop.pig.SolrStoreFunc();
