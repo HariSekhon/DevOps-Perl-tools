@@ -5,20 +5,29 @@
 --  vim:ts=4:sts=4:sw=4:et
 --
 
--- Pig script to index text files or logs for fast source file lookups in SolrCloud
+-- Pig script to index [bz2 compressed] text files or logs for fast source file lookups in SolrCloud
+--
+-- This was a simple use case where I didn't need to parse the logs as it's more oriented around finding source data files based on full-text search.
 
 -- Tested on Pig 0.14 on Tez via Hortonworks HDP 2.2
 
 -- https://docs.lucidworks.com/display/lweug/Using+Pig+with+LucidWorks+Search
 
+-- USAGE:
+--
 -- must download LucidWorks connector for Hadoop from here (the Hortonworks link is much bigger as it contains a full HDP Search including Solr, Banana and Tika pipeline as well as this connector):
 --
 -- https://lucidworks.com/product/integrations/hadoop/
 -- 
+-- hadoop fs -put hadoop-lws-job.jar
+--
+-- pig -p path=/data/logs -p collection=LOGS -p zkhost=<zookeeper_list>/solr pig-text-to-solr.pig
+
 REGISTER 'hadoop-lws-job.jar';
 
 REGISTER 'pig-udfs.jy' USING jython AS hari;
 
+-- can set defaults for collection, zkhost etc to not have to enter them on command line every time
 --%default path '/data';
 --%default collection 'collection1';
 --%default zkhost 'localhost:2181';
