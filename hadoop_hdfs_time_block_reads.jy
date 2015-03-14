@@ -7,7 +7,7 @@
 #
 #  License: see accompanying LICENSE file
 #
-#  vim:filetype=python
+#  vim:ts=4:sts=4:sw=4:et:filetype=python
 
 """ Jython program to find a slow Hadoop HDFS node by querying all the nodes for a given HDFS files / all files under given directories and printing the per block read times as well as a summary report of the slowest datanodes in descending order along with rack locations, blocks and timings """
 
