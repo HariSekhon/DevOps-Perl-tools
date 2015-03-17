@@ -23,7 +23,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.3.7";
+our $VERSION = "0.3.8";
 
 my $path;
 BEGIN {
@@ -52,6 +52,7 @@ my $truncate_collection = 0;
 my $delete_collection   = 0;
 my $reload_collection   = 0;
 my $reload_core         = 0;
+my $unload_core         = 0;
 my $create_shard        = 0;
 my $delete_shard        = 0;
 my $split_shard         = 0;
@@ -158,6 +159,7 @@ Tested/;
     %options = ( %options, %solroptions_core);
     $list_cores = 1  if $progname =~ /list_cores/;
     $reload_core = 1 if $progname =~ /reload_core/;
+    $unload_core = 1 if $progname =~ /unload_core/;
 } elsif ($progname =~ /list_nodes/){
     $list_nodes++ if $progname =~ /list_nodes/;
 } else {
@@ -184,6 +186,7 @@ Tested/;
         "delete-collection"         => [ \$delete_collection,           "Delete collection" ],
         "reload-collection"         => [ \$reload_collection,           "Reload collection" ],
         "reload-core"               => [ \$reload_core,                 "Reload core" ],
+        "unload-core"               => [ \$unload_core,                 "Unload core" ],
         "create-shard"              => [ \$create_shard,                "Create named shard, requires --collection" ],
         "delete-shard"              => [ \$delete_shard,                "Delete named shard, requires --collection" ],
         "split-shard"               => [ \$split_shard,                 "Split named shard, requires --collection" ],
@@ -202,7 +205,7 @@ if($options{"C|core=s"}){
     $options{"O|core=s"} = $options{"C|core=s"};
     delete $options{"C|core=s"};
 }
-splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection soft-commit truncate-collection delete-collection reload-collection reload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-replicas list-cores list-nodes http-context/;
+splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection soft-commit truncate-collection delete-collection reload-collection reload-core unload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-replicas list-cores list-nodes http-context/;
 
 get_options();
 
@@ -218,6 +221,7 @@ unless($list_count){
      + $delete_collection
      + $reload_collection
      + $reload_core
+     + $unload_core
      + $create_shard
      + $delete_shard
      + $split_shard
@@ -355,7 +359,13 @@ sub reload_collection($){
 sub reload_core(){
     core_defined();
     print "reloading core '$core' at '$host:$port'\n";
-    curl_solr2 "$solr_admin/cores?action=RELOAD&name=$core";
+    curl_solr2 "$solr_admin/cores?action=RELOAD&core=$core";
+}
+
+sub unload_core(){
+    core_defined();
+    print "unloading core '$core' at '$host:$port'\n";
+    curl_solr2 "$solr_admin/cores?action=UNLOAD&core=$core";
 }
 
 sub truncate_collection(){
@@ -438,6 +448,7 @@ truncate_collection()   if $truncate_collection;
 delete_collection()     if $delete_collection;
 reload_collection($collection) if $reload_collection;
 reload_core()           if $reload_core;
+unload_core()           if $unload_core;
 create_shard()          if $create_shard;
 delete_shard()          if $delete_shard;
 split_shard($shard)     if $split_shard;
