@@ -19,11 +19,13 @@ our $DESCRIPTION = "Solr command line utility to make it easier and shorter to m
 
 Make sure to set your Solr details in either your shell environment or in '$env_file' to avoid typing common parameters all the time. Shell environment takes priority over solr-env.sh (you should 'source $env_file' to add those settings into the shell environment if needed)
 
+Dynamically finds core names if the --core value is not a present core but is found to be a prefix in the form \${core}_shardX_replicaN. This means you can use this same command exactly against all the Solr servers in say a bash for loop without changing the command or needing to know the dynamically generated core names ahead of time.
+
 Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.3.8";
+our $VERSION = "0.4";
 
 my $path;
 BEGIN {
@@ -358,12 +360,14 @@ sub reload_collection($){
 
 sub reload_core(){
     core_defined();
+    $core = find_solr_core($core) || die "failed to find solr core name\n";
     print "reloading core '$core' at '$host:$port'\n";
     curl_solr2 "$solr_admin/cores?action=RELOAD&core=$core";
 }
 
 sub unload_core(){
     core_defined();
+    $core = find_solr_core($core) || die "failed to find solr core name\n";
     print "unloading core '$core' at '$host:$port'\n";
     curl_solr2 "$solr_admin/cores?action=UNLOAD&core=$core";
 }
