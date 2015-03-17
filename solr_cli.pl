@@ -41,8 +41,8 @@ $Data::Dumper::Terse = 1;
 $path =~ /(.*)/;
 $ENV{'PATH'} = $1;
 
-set_timeout_max(600);
-set_timeout_default(60);
+set_timeout_max(1200);
+set_timeout_default(300);
 
 my $create_collection   = 0;
 my $commit_collection   = 0;
