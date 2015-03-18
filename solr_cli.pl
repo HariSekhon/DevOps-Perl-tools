@@ -25,7 +25,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.5.1";
+our $VERSION = "0.5.2";
 
 my $path;
 BEGIN {
@@ -46,6 +46,8 @@ $ENV{'PATH'} = $1;
 set_timeout_max(1200);
 set_timeout_default(300);
 
+my $createalias         = 0;
+my $deletealias         = 0;
 my $create_collection   = 0;
 my $commit_collection   = 0;
 my $clusterprop         = 0;
@@ -155,6 +157,10 @@ if($progname =~ /collection|shard|replica/){
             /$type\=/o && delete $options{$_};
         }
     }
+} elsif ($progname =~ /alias/) {
+    $createalias = 1 if $progname =~ /create/;
+    $deletealias = 1 if $progname =~ /delete/;
+    %options = ( %options, %solroptions_collection_aliases, %solroptions_collections);
 } elsif ($progname =~ /clusterprop/) {
     $clusterprop = 1;
     %options = ( %options, %options_key_value);
@@ -187,6 +193,8 @@ Tested/;
     %options = (
         %options,
         %solroptions_collection,
+        %solroptions_collections,
+        %solroptions_collection_aliases,
         %solroptions_core,
         %solroptions_shard,
         %solroptions_replica,
@@ -211,6 +219,8 @@ Tested/;
         "download-config"           => [ \$download_config,             "Download config from ZooKeeper" ],
         "upload-config"             => [ \$upload_config,               "Upload config to ZooKeeper" ],
         "clusterprop"               => [ \$clusterprop,                 "Set cluster wide property using --key and --value switches" ],
+        "create-alias"              => [ \$createalias,                 "Create collection alias" ],
+        "delete-alias"              => [ \$deletealias,                 "Delete collection alias" ],
         %options_collection_opts,
         %options_key_value,
         %options_solrcloud_replica_opts,
@@ -222,21 +232,24 @@ if($options{"C|core=s"}){
     $options{"O|core=s"} = $options{"C|core=s"};
     delete $options{"C|core=s"};
 }
-splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection soft-commit truncate-collection delete-collection reload-collection reload-core request-core-recovery unload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost cluster-property key value list-collections list-shards list-replicas list-cores list-nodes http-context/;
+splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection soft-commit truncate-collection delete-collection reload-collection collection-alias create-alias delete-alias collections reload-core request-core-recovery unload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost cluster-property key value list-collections list-collection-aliases list-shards list-replicas list-cores list-nodes http-context/;
 
 get_options();
 
 $commit_collection = 1 if $soft_commit;
 
-my $list_count = $list_collections + $list_shards + $list_replicas + $list_cores + $list_nodes;
+my $list_count = $list_collections + $list_collection_aliases + $list_shards + $list_replicas + $list_cores + $list_nodes;
 $list_count > 1 and usage "can only list one thing at a time";
 unless($list_count){
-    my $action_count = $create_collection
+    my $action_count = 
+       $create_collection
      + $commit_collection
      + $download_config
      + $truncate_collection
      + $delete_collection
      + $reload_collection
+     + $createalias
+     + $deletealias
      + $clusterprop
      + $reload_core
      + $request_core_recovery
@@ -280,6 +293,8 @@ if(-f $env_file ){
 
 env_creds("Solr");
 env_vars("SOLR_COLLECTION",          \$collection);
+env_vars("SOLR_COLLECTION_ALIAS",    \$collection_alias);
+env_vars("SOLR_COLLECTIONS",         \$collections);
 env_vars("SOLR_COLLECTION_OPTS",     \$collection_opts);
 env_vars("SOLR_REPLICA_OPTS",        \$replica_opts);
 env_vars("SOLR_CORE",                \$core);
@@ -307,9 +322,11 @@ if($upload_config or $download_config){
         $collection_opts = $1;
         vlog_options "collection opts", $collection_opts;
     }
-    $collection   = validate_solr_collection($collection) if $collection;
-    $core         = validate_solr_core($core) if $core;
-    $shard        = validate_solr_shard($shard) if $shard;
+    $collection       = validate_solr_collection($collection) if $collection;
+    $collection_alias = validate_solr_collection_alias($collection_alias) if $collection_alias;
+    $collections      = validate_solr_collections($collections) if $collections;
+    $core             = validate_solr_core($core) if $core;
+    $shard            = validate_solr_shard($shard) if $shard;
 }
 if($clusterprop){
     $key = validate_alnum($key,   "key");
@@ -326,6 +343,7 @@ set_timeout();
 
 unless($upload_config or $download_config){
     list_solr_collections();
+    list_solr_collection_aliases();
     list_solr_cores();
     list_solr_shards($collection);
     list_solr_replicas($collection, $shard);
@@ -356,6 +374,23 @@ sub solrcloud_defined(){
 
 sub core_defined(){
     defined($core) or usage "core not defined";
+}
+
+sub alias_defined(){
+    defined($collection_alias) or usage "collection alias not defined";
+}
+
+sub create_alias(){
+    alias_defined();
+    defined($collections) or usage "collections not defined";
+    print "creating collection alias '$collection_alias' via '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=CREATEALIAS&name=$collection_alias&collections=$collections";
+}
+
+sub delete_alias(){
+    alias_defined();
+    print "deleting collection alias '$collection_alias' via '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=DELETEALIAS&name=$collection_alias";
 }
 
 sub create_collection(){
@@ -494,6 +529,8 @@ download_config()       if $download_config;
 truncate_collection()   if $truncate_collection;
 delete_collection()     if $delete_collection;
 reload_collection($collection) if $reload_collection;
+create_alias()          if $createalias;
+delete_alias()          if $deletealias;
 reload_core()           if $reload_core;
 request_core_recovery() if $request_core_recovery;
 unload_core()           if $unload_core;
