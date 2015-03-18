@@ -360,20 +360,20 @@ sub core_defined(){
 
 sub create_collection(){
     collection_defined();
-    print "creating collection '$collection' at '$host:$port'\n";
+    print "creating collection '$collection' via '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=CREATE&name=$collection" . ( $collection_opts ? "&$collection_opts" : "" );
 }
 
 sub delete_collection(){
     collection_defined();
-    print "deleting collection '$collection' at '$host:$port'\n";
+    print "deleting collection '$collection' via '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=DELETE&name=$collection";
 }
 
 sub commit_collection(;$){
     my $soft = shift;
     collection_defined();
-    print(( $soft ? "soft " : "" ) . "committing collection '$collection' at '$host:$port'\n");
+    print(( $soft ? "soft " : "" ) . "committing collection '$collection' via '$host:$port'\n");
     my $commit = ( $soft ? "softCommit" : "commit" );
     curl_solr2 "$http_context/$collection/update/json?$commit=true";
                                        # /update?stream.body=%3Commit/%3E
@@ -381,14 +381,14 @@ sub commit_collection(;$){
 
 sub reload_collection($){
     my $collection = shift;
-    print "reloading collection '$collection' at '$host:$port'\n";
+    print "reloading collection '$collection' via '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=RELOAD&name=$collection";
 }
 
 sub clusterprop($$){
     my $key   = shift;
     my $value = shift;
-    print "setting Solr cluster property '$key'='$value' at '$host:$port'\n";
+    print "setting Solr cluster property '$key'='$value' via '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=CLUSTERPROP&name=$key&val=$value";
 }
 
@@ -415,7 +415,7 @@ sub unload_core(){
 
 sub truncate_collection(){
     collection_defined();
-    print "truncating collection '$collection' at '$host:$port'\n";
+    print "truncating collection '$collection' via '$host:$port'\n";
     $ua->default_header("Content-type", "application/json");
     $json = curl_solr "$http_context/$collection/update/json", "POST", '{"delete": { "query":"*:*", "commitWithin":500 } }';
                                               # /update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E
@@ -427,27 +427,27 @@ sub truncate_collection(){
 sub create_shard(){
     collection_defined();
     shard_defined();
-    print "creating shard '$shard' in collection '$collection' at '$host:$port'\n";
+    print "creating shard '$shard' in collection '$collection' via '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=CREATESHARD&collection=$collection&shard=$shard";
 }
 
 sub delete_shard(){
     collection_defined();
     shard_defined();
-    print "deleting shard '$shard' in collection '$collection' at '$host:$port'\n";
+    print "deleting shard '$shard' in collection '$collection' via '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=DELETESHARD&collection=$collection&shard=$shard";
 }
 
 sub split_shard($){
     my $shard = shift;
     collection_defined();
-    print "splitting shard '$shard' for collection '$collection' at '$host:$port'\n";
+    print "splitting shard '$shard' for collection '$collection' via '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=SPLITSHARD&collection=$collection&shard=$shard";
 }
 
 sub split_all_shards(){
     collection_defined();
-    print "splitting all shards in collection '$collection' at '$host:$port'\n";
+    print "splitting all shards in collection '$collection' via '$host:$port'\n";
     my @shards = get_solr_shards($collection);
     foreach my $shard (@shards){
         split_shard($shard);
