@@ -25,3 +25,6 @@ export SOLR_ZOOKEEPER="localhost:2181"
 #export ZKCLI_PATH="/usr/local/solr/example/scripts/cloud-scripts/zkcli.sh"
 
 export SOLRCLOUD_CONFIG="myconf"
+
+#export COLLECTION_ALIAS="ALL"
+#export COLLECTIONS="collection1 collection2"
