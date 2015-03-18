@@ -25,7 +25,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.5";
+our $VERSION = "0.5.1";
 
 my $path;
 BEGIN {
@@ -48,6 +48,7 @@ set_timeout_default(300);
 
 my $create_collection   = 0;
 my $commit_collection   = 0;
+my $clusterprop         = 0;
 my $soft_commit;
 my $download_config     = 0;
 my $truncate_collection = 0;
@@ -67,6 +68,8 @@ my $upload_config       = 0;
 my $collection_opts;
 my $config_name;
 my $zookeeper_ensemble;
+my $key;
+my $value;
 
 %options = (
     %hostoptions,
@@ -74,6 +77,10 @@ my $zookeeper_ensemble;
 
 my %options_collection_opts = (
     "T|create-collection-opts=s" => [ \$collection_opts, "Options for creating a solr collection in the form 'key=value&key2=value2' (\$SOLR_COLLECTION_OPTS)" ],
+);
+my %options_key_value = (
+    "K|key=s"   => [ \$key,     "Property key" ],
+    "L|value=s" => [ \$value,   "Property value (deletes the given key if this value is not set)" ],
 );
 my %options_solrcloud_config = (
     "n|config-name=s"    => [ \$config_name,          "SolrCloud config name, required for --upload-config/--download-config - will also use this for the local directory name (\$SOLRCLOUD_CONFIG)" ],
@@ -148,6 +155,9 @@ if($progname =~ /collection|shard|replica/){
             /$type\=/o && delete $options{$_};
         }
     }
+} elsif ($progname =~ /clusterprop/) {
+    $clusterprop = 1;
+    %options = ( %options, %options_key_value);
 } elsif ($progname =~ /config/) {
     $DESCRIPTION =~ s/Tested/$DESCRIPTION_CONFIG
 
@@ -200,7 +210,9 @@ Tested/;
         "delete-replica"            => [ \$delete_replica,              "Delete replica, requires --collection and --shard" ],
         "download-config"           => [ \$download_config,             "Download config from ZooKeeper" ],
         "upload-config"             => [ \$upload_config,               "Upload config to ZooKeeper" ],
+        "clusterprop"               => [ \$clusterprop,                 "Set cluster wide property using --key and --value switches" ],
         %options_collection_opts,
+        %options_key_value,
         %options_solrcloud_replica_opts,
         %options_solrcloud_config,
     );
@@ -210,7 +222,7 @@ if($options{"C|core=s"}){
     $options{"O|core=s"} = $options{"C|core=s"};
     delete $options{"C|core=s"};
 }
-splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection soft-commit truncate-collection delete-collection reload-collection reload-core request-core-recovery unload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost list-collections list-shards list-replicas list-cores list-nodes http-context/;
+splice @usage_order, 6, 0, qw/collection core create-collection create-collection-opts commit-collection soft-commit truncate-collection delete-collection reload-collection reload-core request-core-recovery unload-core shard create-shard delete-shard split-shard split-all-shards add-replica delete-replica node replica replica-opts download-config upload-config config-name zookeeper zk zkhost cluster-property key value list-collections list-shards list-replicas list-cores list-nodes http-context/;
 
 get_options();
 
@@ -225,6 +237,7 @@ unless($list_count){
      + $truncate_collection
      + $delete_collection
      + $reload_collection
+     + $clusterprop
      + $reload_core
      + $request_core_recovery
      + $unload_core
@@ -298,6 +311,15 @@ if($upload_config or $download_config){
     $core         = validate_solr_core($core) if $core;
     $shard        = validate_solr_shard($shard) if $shard;
 }
+if($clusterprop){
+    $key = validate_alnum($key,   "key");
+    if(defined($value) and $value ne ""){
+        $value = validate_alnum($value, "value");
+    } else {
+        $value = "";
+        vlog_options "value", "<unset>";
+    }
+}
 
 vlog2;
 set_timeout();
@@ -354,12 +376,20 @@ sub commit_collection(;$){
     print(( $soft ? "soft " : "" ) . "committing collection '$collection' at '$host:$port'\n");
     my $commit = ( $soft ? "softCommit" : "commit" );
     curl_solr2 "$http_context/$collection/update/json?$commit=true";
+                                       # /update?stream.body=%3Commit/%3E
 }
 
 sub reload_collection($){
     my $collection = shift;
     print "reloading collection '$collection' at '$host:$port'\n";
     curl_solr2 "$solr_admin/collections?action=RELOAD&name=$collection";
+}
+
+sub clusterprop($$){
+    my $key   = shift;
+    my $value = shift;
+    print "setting Solr cluster property '$key'='$value' at '$host:$port'\n";
+    curl_solr2 "$solr_admin/collections?action=CLUSTERPROP&name=$key&val=$value";
 }
 
 sub reload_core(){
@@ -388,6 +418,7 @@ sub truncate_collection(){
     print "truncating collection '$collection' at '$host:$port'\n";
     $ua->default_header("Content-type", "application/json");
     $json = curl_solr "$http_context/$collection/update/json", "POST", '{"delete": { "query":"*:*", "commitWithin":500 } }';
+                                              # /update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E
     print Dumper($json);
     # no soft commit, it doesn't clear docs from the index they still appear in query
     commit_collection();
@@ -457,6 +488,7 @@ sub upload_config(){
 }
 
 create_collection()     if $create_collection;
+clusterprop($key, $value) if $clusterprop;
 commit_collection($soft_commit) if $commit_collection;
 download_config()       if $download_config;
 truncate_collection()   if $truncate_collection;
