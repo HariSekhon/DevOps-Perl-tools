@@ -33,12 +33,12 @@ REGISTER 'pig-udfs.jy' USING jython AS hari;
 --%default zkhost 'localhost:2181';
 
 -- use zkhost for SolrCloud, it's more efficient to skip first hop using client side logic and also it's more highly available
---set solr.zkhost $zkhost;
+set solr.zkhost $zkhost;
 
 -- use solrUrl only for standard old standalone Solr
 --set solr.solrUrl $solrUrl;
 
---set solr.collection $collection;
+set solr.collection $collection;
 --%declare solr.collection $collection;
 
 -- for file-by-file as one doc each but doesn't scale
