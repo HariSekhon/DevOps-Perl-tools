@@ -23,16 +23,21 @@
 --
 -- pig -p path=/data/logs -p index=logs -p type=myType pig-text-to-elasticsearch.pig
 
-%default es_nodes 'localhost:9200';
-%default es_port  '9200'; -- only used for es.nodes not containing ports
+REGISTER 'elasticsearch-hadoop.jar';
+
 --%default path   '/data';
 --%default index  'myIndex';
 --%default type   'myType';
 
-REGISTER 'elasticsearch-hadoop.jar';
+-- Elasticsearch configuration
+--
 -- http://www.elastic.co/guide/en/elasticsearch/hadoop/current/configuration.html
+--
+%default es_nodes 'localhost:9200';
+%default es_port  '9200'; -- only used for es.nodes not containing ports
+
 DEFINE EsStorage org.elasticsearch.hadoop.pig.EsStorage('es.http.timeout = 5m',
-                                                        'es.index.auto.create = true',
+                                                        'es.index.auto.create = true', -- should pre-create index with tuned settings, but this is convenient for testing
                                                         'es.nodes = $es_nodes',
                                                         'es.port  = $es_port');
 set default_parallel 5;
