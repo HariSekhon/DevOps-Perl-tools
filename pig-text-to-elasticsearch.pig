@@ -32,7 +32,7 @@
 REGISTER 'elasticsearch-hadoop.jar';
 -- http://www.elastic.co/guide/en/elasticsearch/hadoop/current/configuration.html
 DEFINE EsStorage org.elasticsearch.hadoop.pig.EsStorage('es.http.timeout = 5m',
-                                                        'es.index.auto.create = false', -- don't be sloppy create index with the correct settings tuned first
+                                                        'es.index.auto.create = true',
                                                         'es.nodes = $es_nodes',
                                                         'es.port  = $es_port');
 set default_parallel 5;
