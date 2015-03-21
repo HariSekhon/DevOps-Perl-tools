@@ -63,9 +63,11 @@ lines2 = FILTER lines BY line IS NOT NULL AND TRIM(line) != '';
 lines3 = FOREACH lines2 GENERATE REPLACE(path, '^hdfs://\\w+(?::\\d+)?', '') AS path, line;
 -- order by path asc -- to force a sort + shuffle -- to find out if the avg requests per sec are being held back by the mapper phase decompressing bz2 files or something else by forcing a reduce phase
 
--- since the lines in the file may not be unique was considering using a uuid -- can use UniqueId() from Pig 0.14
--- hari.md5_uuid(line) from Jython UDFs gives a uuid based of concatenated millisecond timestamp, host, pid and md5 of line - this allows to find duplicate lines via a 'id:$path*$md5' type search if wanted
--- going back to using suffixed Solr fields in case someone hasn't configured their schema properly they should be able to fall back on dynamicFields
+-- since the lines in the file may not be unique was considering using a uuid
+   -- can use UniqueId() from Pig 0.14
+   -- hari.md5_uuid(line) from Jython UDFs gives a uuid based of concatenated millisecond timestamp, host, pid and md5 of line
+   -- this allows to find duplicate lines via a 'id:$path*$md5' type search if wanted
+-- using type suffixed Solr fields in case someone hasn't configured their schema properly they should be able to fall back on dynamicFields
 lines_final = FOREACH lines3 GENERATE CONCAT(path, '|', hari.md5_uuid(line)) AS id, 'path_s', path, 'line_s', line;
 
 STORE lines_final INTO 'IGNORED' USING com.lucidworks.hadoop.pig.SolrStoreFunc();
