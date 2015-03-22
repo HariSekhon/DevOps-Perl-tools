@@ -5,6 +5,14 @@ A few of the Hadoop, Web and other nifty tools I've written over the years that 
 
 For many more tools, see the Advanced Nagios Plugins Collection which contains many Hadoop, NoSQL, Web and infrastructure monitoring cli programs that integrate with Nagios - https://github.com/harisekhon/nagios-plugins.
 
+
+Hari Sekhon
+
+Big Data Contractor, United Kingdom
+
+http://www.linkedin.com/in/harisekhon
+
+
 ### Setup ###
 
 The 'make' command will initialize my library submodule and  use 'sudo' to install the required CPAN modules:
