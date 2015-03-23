@@ -47,8 +47,8 @@ set solr.collection $collection;
 set lww.buffer.docs.size 1000;
 set lww.commit.on.close true;
 
-set mapred.map.tasks.speculation.execution false;
-set mapred.reduce.tasks.speculation.execution false;
+set mapreduce.map.speculative false;
+set mapreduce.reduce.speculative false;
 
 lines  = LOAD '$path' USING PigStorage('\n', '-tagPath') AS (path:chararray, line:chararray);
 -- this causes out of heap errors in Solr because some files may be too large to handle this way - it doesn't scale 
