@@ -43,7 +43,7 @@ my $custom   = 0;
     "f|files=s"     => [ \$file,        "File(s) to scrub, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
     "a|all"         => [ \$all,         "Apply all scrubbings (Recommended)" ],
     "i|ip"          => [ \$ip,          "Apply IPv4 IP address and Mac address format scrubbing" ],
-    #"H|host"        => [ \$host,        "Apply domain and fqdn format scrubbing (custom TLDs will not be caught by this)" ],
+    "H|host"        => [ \$host,        "Apply host, domain and fqdn format scrubbing" ],
     "n|network"     => [ \$network,     "Apply all network scrubbing, whether Cisco, ScreenOS, JunOS ..." ],
     "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format scrubbing" ],
     "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format scrubbing" ],
