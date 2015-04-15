@@ -19,7 +19,7 @@ Create a list of phrases to scrub from config by placing them in scrub_custom.tx
 
 Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin";
 
-$VERSION = "0.3.2";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -33,24 +33,28 @@ my $file;
 
 my $all      = 0;
 my $ip       = 0;
+my $ip_prefix = 0;
 my $host     = 0;
 my $network  = 0;
 my $cisco    = 0;
 my $screenos = 0;
 my $custom   = 0;
+my $cr       = 0;
 
 %options = (
     "f|files=s"     => [ \$file,        "File(s) to scrub, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
     "a|all"         => [ \$all,         "Apply all scrubbings (Recommended)" ],
     "i|ip"          => [ \$ip,          "Apply IPv4 IP address and Mac address format scrubbing" ],
-    "H|host"        => [ \$host,        "Apply host, domain and fqdn format scrubbing" ],
+    "ip-prefix"     => [ \$ip_prefix,   "Apply IPv4 IP address prefix scrubbing but leave last octet (for cluster debugging), still applies full Mac address format scrubbing" ],
+    "H|host"        => [ \$host,        "Apply host, domain and fqdn format scrubbing. This will unfortunately scrub Java stack traces of class names also, in which case you should not use --host or --all, instead use --custom and put your domain regex in scrub_custom.conf" ],
     "n|network"     => [ \$network,     "Apply all network scrubbing, whether Cisco, ScreenOS, JunOS ..." ],
     "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format scrubbing" ],
     "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format scrubbing" ],
     "m|custom"      => [ \$custom,      "Apply custom phrase scrubbing (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in scrub_custom.txt). Matching is case insensitive" ],
+    "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
 );
 
-@usage_order = qw/files all ip host network cisco screenos custom/;
+@usage_order = qw/files all ip ip-prefix host network cisco screenos custom cr/;
 get_options();
 if($all){
     $ip       = 1;
@@ -58,7 +62,7 @@ if($all){
     $network  = 1;
     $custom   = 1;
 }
-unless($ip + $host + $network + $cisco + $screenos + $custom > 0){
+unless($ip + $ip_prefix + $host + $network + $cisco + $screenos + $custom > 0){
     usage "must specify a scrubbing to apply";
 }
 
@@ -86,8 +90,10 @@ sub scrub($){
     my $string = shift;
     $string =~ /(\r?\n)$/;
     my $line_ending = $1;
+    $line_ending = "\n" if $cr;
     chomp $string;
-    $string = scrub_ip      ($string)  if $ip;
+    $string = scrub_ip_prefix ($string) if $ip_prefix;
+    $string = scrub_ip      ($string)  if $ip and not $ip_prefix;
     $string = scrub_host    ($string)  if $host;
     $string = scrub_custom  ($string)  if $custom;
     $string = scrub_network ($string)  if $network;
@@ -107,7 +113,7 @@ sub scrub_custom($){
     $phrase_regex =~ s/\|$//;
     #print "phrase_phrase: <$phrase_regex>\n";
     if($phrase_regex){
-        $string =~ s/\b$phrase_regex\b/<custom_scrubbed>/gio;
+        $string =~ s/(?:\b|_)$phrase_regex(?:\b|_)/<custom_scrubbed>/gio;
     }
     return $string;
 }
@@ -124,11 +130,22 @@ sub scrub_ip($){
     return $string;
 }
 
+sub scrub_ip_prefix($){
+    my $string = shift;
+    $string =~ s/$ip_prefix_regex/<ip_prefix>/go;
+    $string =~ s/$subnet_mask_regex/<subnet>/go;
+    $string =~ s/$mac_regex/<mac>/g;
+    # network device format Mac address
+    $string =~ s/\b(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}\b/<mac>/g;
+    return $string;
+}
+
 sub scrub_host($){
     my $string = shift;
     $string =~ s/$fqdn_regex/<fqdn>/go;
     $string =~ s/$hostname_regex:(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
     # This currently matches too much stuff
+    # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
     $string =~ s/$domain_regex2/<domain>/go;
     return $string;
 }
