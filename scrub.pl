@@ -142,6 +142,8 @@ sub scrub_ip_prefix($){
 
 sub scrub_host($){
     my $string = shift;
+    # this will still scrub class names in random debug messages that I can't predict, and there is always risk of not scrubbing sensitive hosts
+    #return $string if $string =~ /(?:^\s+at\s+|Caused by:\s+)(?:$fqdn_regex|$domain_regex2)/;
     $string =~ s/$fqdn_regex/<fqdn>/go;
     $string =~ s/$hostname_regex:(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
     # This currently matches too much stuff
