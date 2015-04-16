@@ -11,7 +11,7 @@
 
 # TODO: split out Cisco + ScreenOS matches to files for easy maintenance/extension;
 
-$DESCRIPTION = "Scrub username/passwords, IP addresses, hostnames, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email or pastebin like websites.
+$DESCRIPTION = "Scrub username/passwords, IP addresses, hostnames, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
 
 Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output (to redirect to a new file or copy buffer).
 
