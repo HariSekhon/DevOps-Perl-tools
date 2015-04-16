@@ -19,7 +19,7 @@ Create a list of phrases to scrub from config by placing them in scrub_custom.tx
 
 Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -91,7 +91,9 @@ sub scrub($){
     $string =~ /(\r?\n)$/;
     my $line_ending = $1;
     $line_ending = "\n" if $cr;
-    chomp $string;
+    # this doesn't chomp \r, only \n
+    #chomp $string;
+    $string =~ s/(?:\r?\n)$//;
     $string = scrub_ip_prefix ($string) if $ip_prefix;
     $string = scrub_ip      ($string)  if $ip and not $ip_prefix;
     $string = scrub_host    ($string)  if $host;
