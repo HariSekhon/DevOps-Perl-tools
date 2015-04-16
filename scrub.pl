@@ -13,11 +13,9 @@
 
 $DESCRIPTION = "Scrub username/passwords, IP addresses, hostnames, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email or pastebin like websites.
 
-Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output.
+Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output (to redirect to a new file or copy buffer).
 
-Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored
-
-Early stage rewrite + unification of a few scripts I wrote for personal use years ago when I was more of a sysadmin/netadmin";
+Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
 $VERSION = "0.4.1";
 
@@ -44,7 +42,7 @@ my $cr       = 0;
 %options = (
     "f|files=s"     => [ \$file,        "File(s) to scrub, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
     "a|all"         => [ \$all,         "Apply all scrubbings (Recommended)" ],
-    "i|ip"          => [ \$ip,          "Apply IPv4 IP address and Mac address format scrubbing" ],
+    "i|ip"          => [ \$ip,          "Apply IPv4 IP address and Mac address format scrubbing. This and --ip-prefix below can end up matching version numbers, in which case you can switch to putting your network prefix regex in scrub_custom.conf and using just --custom instead" ],
     "ip-prefix"     => [ \$ip_prefix,   "Apply IPv4 IP address prefix scrubbing but leave last octet (for cluster debugging), still applies full Mac address format scrubbing" ],
     "H|host"        => [ \$host,        "Apply host, domain and fqdn format scrubbing. This will unfortunately scrub Java stack traces of class names also, in which case you should not use --host or --all, instead use --custom and put your domain regex in scrub_custom.conf" ],
     "n|network"     => [ \$network,     "Apply all network scrubbing, whether Cisco, ScreenOS, JunOS ..." ],
