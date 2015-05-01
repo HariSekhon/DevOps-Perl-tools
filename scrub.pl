@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.5.0";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -117,6 +117,10 @@ sub scrub_custom($){
     #print "phrase_phrase: <$phrase_regex>\n";
     if($phrase_regex){
         $string =~ s/(\b|_)(?:$phrase_regex)(\b|_)/$1<custom_scrubbed>$2/gio;
+        #foreach(@custom_phrases){
+        #    chomp;
+        #    $string =~ s/(\b|_)$_(\b|_)/$1<custom_scrubbed>$2/gio;
+        #}
     }
     return $string;
 }
@@ -149,9 +153,10 @@ sub scrub_host($){
     # this will still scrub class names in random debug messages that I can't predict, and there is always risk of not scrubbing sensitive hosts
     #### This is imperfect and a little risky stopping it interfering with Java stack traces this way because it effectively excludes the whole line which may potentially miss legitimiate host regex matches later in the line, will have to watch this
     if($skip_java_exceptions){
-        return $string if $string =~ /(?:^\s+at\s+|^Caused by:\s+)(?:$fqdn_regex|$domain_regex2)/;
+        return $string if $string =~ /(?:^\s+at|^Caused by:)\s+\w+(?:\.\w+)+/;
         return $string if $string =~ /\((?:$hostname_regex|$fqdn_regex|$domain_regex2):[\w-]+\(\d+\)\)/;
         return $string if $string =~ /^(?:$hostname_regex|$fqdn_regex|$domain_regex2)\.\w/;
+        return $string if $string =~ /\$\w+\((?:$hostname_regex|$fqdn_regex|$domain_regex2):\d+\)/
     }
     $string =~ s/$fqdn_regex/<fqdn>/go;
     ####
