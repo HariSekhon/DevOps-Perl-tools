@@ -9,15 +9,13 @@
 #  License: see accompanying LICENSE file
 #  
 
-# TODO: split out Cisco + ScreenOS matches to files for easy maintenance/extension;
-
 $DESCRIPTION = "Scrub username/passwords, IP addresses, hostnames, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
 
 Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output (to redirect to a new file or copy buffer).
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.5.1";
+$VERSION = "0.5.2";
 
 use strict;
 use warnings;
@@ -153,10 +151,11 @@ sub scrub_host($){
     # this will still scrub class names in random debug messages that I can't predict, and there is always risk of not scrubbing sensitive hosts
     #### This is imperfect and a little risky stopping it interfering with Java stack traces this way because it effectively excludes the whole line which may potentially miss legitimiate host regex matches later in the line, will have to watch this
     if($skip_java_exceptions){
-        return $string if $string =~ /(?:^\s+at|^Caused by:)\s+\w+(?:\.\w+)+/;
-        return $string if $string =~ /\((?:$hostname_regex|$fqdn_regex|$domain_regex2):[\w-]+\(\d+\)\)/;
-        return $string if $string =~ /^(?:$hostname_regex|$fqdn_regex|$domain_regex2)\.\w/;
-        return $string if $string =~ /\$\w+\((?:$hostname_regex|$fqdn_regex|$domain_regex2):\d+\)/
+        return $string if $string =~ /(?:^\s+at|^Caused by:)\s+\w+(?:\.\w+)+/                           and debug "skipping \\sat|^Caused by";
+        return $string if $string =~ /\((?:$hostname_regex|$fqdn_regex|$domain_regex2):[\w-]+\(\d+\)\)/ and debug "skipping (regex):\\w(\\d+)";
+        # overzealous, strips long hostnames that partial match and the beginning and \.\w+ the rest
+        #return $string if $string =~ /^(?:$fqdn_regex)\.\w/                                             and debug "skipping ^regex.\\w+";
+        return $string if $string =~ /\$\w+\((?:$hostname_regex|$fqdn_regex|$domain_regex2):\d+\)/      and debug "skipping \$\\w+(regex)";
     }
     $string =~ s/$fqdn_regex/<fqdn>/go;
     ####
