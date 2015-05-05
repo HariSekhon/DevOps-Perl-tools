@@ -8,9 +8,17 @@
 #
 
 ifdef TRAVIS
-	SUDO =
+    SUDO2 =
 else
-	SUDO = sudo
+    SUDO2 = sudo
+endif
+
+# EUID /  UID not exported in Make
+ifeq '$(USER)' 'root'
+    SUDO =
+    SUDO2 =
+else
+    SUDO = sudo
 endif
 
 .PHONY: make
@@ -28,7 +36,7 @@ make:
 	git update-index --assume-unchanged solr/solr-env.sh
 
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
-	yes | $(SUDO) cpan \
+	yes | $(SUDO2) cpan \
 		CAM::PDF \
 		JSON \
 		LWP::Simple \
@@ -47,23 +55,23 @@ make:
 
 .PHONY: apt-packages
 apt-packages:
-	apt-get install -y gcc || :
+	$(SUDO) apt-get install -y gcc || :
 	# needed to fetch the library submodule at end of build
-	apt-get install -y git || :
+	$(SUDO) apt-get install -y git || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	apt-get install -y libssl-dev || :
+	$(SUDO) apt-get install -y libssl-dev || :
 	# needed to build XML::LibXML
-	apt-get install -y libxml2-dev || :
+	$(SUDO) apt-get install -y libxml2-dev || :
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc || yum install -y gcc || :
+	rpm -q gcc || $(SUDO) yum install -y gcc || :
 	# needed to fetch the library submodule and CPAN modules
-	rpm -q perl-CPAN git || yum install -y perl-CPAN git || :
+	rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN git || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel || yum install -y openssl-devel || :
+	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel || :
 	# needed to build XML::LibXML
-	rpm -q libxml2-devel || yum install -y libxml2-devel || :
+	rpm -q libxml2-devel || $(SUDO) yum install -y libxml2-devel || :
 
 .PHONY: test
 test:
