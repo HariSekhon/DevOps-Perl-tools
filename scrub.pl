@@ -49,7 +49,7 @@ my $skip_java_exceptions = 0;
     "a|all"         => [ \$all,         "Apply all scrubbings (careful this includes --host which can be overzealous and match too many things, in which case try more targeted scrubbings below)" ],
     "i|ip"          => [ \$ip,          "Apply IPv4 IP address and Mac address format scrubbing. This and --ip-prefix below can end up matching version numbers, in which case you can switch to putting your network prefix regex in scrub_custom.conf and using just --custom instead" ],
     "ip-prefix"     => [ \$ip_prefix,   "Apply IPv4 IP address prefix scrubbing but leave last octet (for cluster debugging), still applies full Mac address format scrubbing" ],
-    "H|host"        => [ \$host,        "Apply host, domain and fqdn format scrubbing (same as -odF). This will unfortunately scrub Java stack traces of class names also, in which case you can either try --skip-java-exceptions or avoid not use --domain/--fqdn (or --host/--all which includes them), and instead use --custom and put your host/domain regex in scrub_custom.conf" ],
+    "H|host"        => [ \$host,        "Apply host, domain and fqdn format scrubbing (same as -odF). This may scrub some Java stack traces of class names also, in which case you can either try --skip-java-exceptions or avoid using --domain/--fqdn (or --host/--all which includes them), and instead use --custom and put your host/domain regex in scrub_custom.conf" ],
     "o|hostname"    => [ \$hostname,    "Apply hostname format scrubbing (only works on \"<host>:<port>\" otherwise this would match everything (consider using --custom and putting your hostname convention regex in scrub_custom.conf to catch other shortname references)" ],
     "d|domain"      => [ \$domain,      "Apply domain format scrubbing" ],
     "F|fqdn"        => [ \$fqdn,        "Apply fqdn format scrubbing" ],
@@ -59,7 +59,7 @@ my $skip_java_exceptions = 0;
     "j|junos"       => [ \$junos,       "Apply Juniper JunOS configuration format scrubbing (limited, please raise a ticket for extra matches to be added)" ],
     "m|custom"      => [ \$custom,      "Apply custom phrase scrubbing (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in scrub_custom.txt). Matching is case insensitive. Recommended to use to work around --host matching too many things" ],
     "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
-    "e|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from overly generic domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around TLD matching only IANA tlds this should be less needed now" ],
+    "e|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
 );
 
 @usage_order = qw/files all ip ip-prefix host hostname domain fqdn network cisco screenos junos custom cr skip-java-exceptions/;
