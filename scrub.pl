@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.6.1";
+$VERSION = "0.6.2";
 
 use strict;
 use warnings;
@@ -59,7 +59,7 @@ my $skip_java_exceptions = 0;
     "j|junos"       => [ \$junos,       "Apply Juniper JunOS configuration format scrubbing (limited, please raise a ticket for extra matches to be added)" ],
     "m|custom"      => [ \$custom,      "Apply custom phrase scrubbing (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in scrub_custom.txt). Matching is case insensitive. Recommended to use to work around --host matching too many things" ],
     "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
-    "e|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from overly generic domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances" ],
+    "e|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from overly generic domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around TLD matching only IANA tlds this should be less needed now" ],
 );
 
 @usage_order = qw/files all ip ip-prefix host hostname domain fqdn network cisco screenos junos custom cr skip-java-exceptions/;
@@ -204,7 +204,7 @@ sub skip_java_exceptions($$;$){
 sub scrub_hostname($){
     my $string = shift;
     return $string if skip_java_exceptions($string, $hostname_regex, "hostname");
-    $string =~ s/$hostname_regex:(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
+    $string =~ s/$hostname_regex(!<\.java):(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
     return $string;
 }
 
