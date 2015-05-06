@@ -58,7 +58,7 @@ hadoop_hdfs_files_stats.jy
 
 Jython is a simple download and unpack and can be fetched from http://www.jython.org/downloads.html
 
-Then add the Jython untarred directory to the $PATH or specify the /path/to/jython_dir/bin/jython explicitly:
+Then add the Jython untarred directory to the $PATH or specify the /path/to/jythondir/bin/jython explicitly:
 
 ```
 /path/to/jython-x.y.z/bin/jython -J-cp `hadoop classpath` hadoop_hdfs_time_block_reads.jy --help
