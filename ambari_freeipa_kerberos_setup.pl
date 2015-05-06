@@ -111,7 +111,7 @@ my $export_user_keytabs;
 
 %options = (
     "f|file=s"          => [ \$csv,            "CSV file exported from Ambari 'Enable Security' containing the list of Kerberos principals and hosts" ],
-    "s|server=s"        => [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed' or 'SASL Bind failed...'] (default: $my_fqdn, \$IPA_SERVER)" ],
+    "s|server=s"        => [ \$ipa_server,     "IPA server to export the keytabs from via LDAP. Requires FQDN in order to validate the LDAP SSL certificate [would otherwise result in the error 'Simple bind failed' or 'SASL Bind failed...'] (default: localhost's fqdn => $my_fqdn, \$IPA_SERVER)" ],
     #"p|password=s"     => [ \$password,        "'cn=Directory Manager' password (required to reset the expiry on new user accounts, \$IPA_LDAP_PASSWORD, \$LDAP_PASSWORD, \$PASSWORD)" ],
     "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN (optional, \$IPA_BIND_DN)" ],
     "w|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password (optional, \$IPA_BIND_PASSWORD)" ],
