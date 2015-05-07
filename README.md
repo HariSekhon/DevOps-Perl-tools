@@ -5,6 +5,7 @@ A few of the Hadoop, Web and other nifty tools I've written over the years that 
 
 For many more tools, see the Advanced Nagios Plugins Collection which contains many Hadoop, NoSQL, Web and infrastructure monitoring cli programs that integrate with Nagios - https://github.com/harisekhon/nagios-plugins.
 
+Github pull requests for patches and features are more than welcome.
 
 Hari Sekhon
 
