@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.6.2";
+$VERSION = "0.6.3";
 
 use strict;
 use warnings;
@@ -187,6 +187,10 @@ sub skip_java_exceptions($$;$){
         }
         if($string =~ /\($regex:[\w-]+\(\d+\)\)/){
             debug "skipping$name (regex):\\w(\\d+)";
+            return 1;
+        }
+        if($string =~ /(\b|_)$regex\.\w+Exception:/){
+            debug "skipping$name regex\\.\\w+Exception:";
             return 1;
         }
         if($string =~ /^(?:\w+\.)*\w+Exception:/){
