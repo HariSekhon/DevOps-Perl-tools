@@ -8,11 +8,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION="Capitalizes the first letter of each word in a sentence for use as a title.
+$DESCRIPTION="Capitalizes the first letter of each word (eg. to use a sentence as a title).
 
 Does not uppercase letters immediately after a dot except for dotted acronyms (2 or more letters preceeded by dots immediately following each other).
 
-Works as a standard unix filter program, taking files are arguments or assuming input from standard input and printing to standard output";
+Works as a standard unix filter program, taking files are arguments or assuming input from standard input and printing to standard output.";
 
 $VERSION = "0.1";
 
@@ -29,7 +29,7 @@ my $lowercase;
 
 %options = (
     "f|files=s"   => [ \$file,        "File(s) to titlecase, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
-    "l|lowercase" => [ \$lowercase,   "Lowercase the rest of the letters in the sentence" ],
+    "l|lowercase" => [ \$lowercase,   "Lowercase the rest of the letters" ],
 );
 @usage_order = qw/files lowercase/;
 
