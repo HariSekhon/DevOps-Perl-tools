@@ -14,7 +14,7 @@ Does not uppercase letters immediately after a dot except for dotted acronyms (2
 
 Works as a standard unix filter program, taking files are arguments or assuming input from standard input and printing to standard output.";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -41,7 +41,7 @@ sub titlecase ($) {
     my $string = shift;
     $string = lc $string if $lowercase;
     # exclude letters immediately preceeded by a dot such as file extensions
-    $string =~ s/\b(?<!\.)([\w])/\U$1/g;
+    $string =~ s/\b(?<![\.'])([\w])/\U$1/g;
     # uppercase acronyms to correct for the above exception for file extensions
     $string =~ s/(\s[A-Za-z](?:\.[A-Za-z])+)/\U$1/g;
     print $string;
