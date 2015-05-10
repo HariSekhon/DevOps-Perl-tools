@@ -41,7 +41,7 @@ sub titlecase ($) {
     my $string = shift;
     $string = lc $string if $lowercase;
     # exclude letters immediately preceeded by a dot such as file extensions
-    $string =~ s/\b(?<![\.'])([\w])/\U$1/g;
+    $string =~ s/\b(?<![\.'])([A-Za-z])/\U$1/g;
     # uppercase acronyms to correct for the above exception for file extensions
     $string =~ s/(\s[A-Za-z](?:\.[A-Za-z])+)/\U$1/g;
     print $string;
