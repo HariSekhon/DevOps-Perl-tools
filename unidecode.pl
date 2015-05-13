@@ -14,7 +14,7 @@ Works as a standard unix filter program, taking files are arguments or assuming 
 
 Known Issues: uses the Text::Unidecode CPAN module, which seems to convert unknown chars to \"a\"";
 
-$VERSION = "0.6.1";
+$VERSION = "0.6.2";
 
 use strict;
 use warnings;
@@ -45,7 +45,7 @@ sub decode ($) {
 
 if(@files){
     foreach my $file (@files){
-        open(my $fh, $file) or die "Failed to open file '$file': $!\n";
+        my $fh = open_file $file;
         while(<$fh>){ decode($_) }
     }
 } else {
