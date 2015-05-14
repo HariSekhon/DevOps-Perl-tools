@@ -1,9 +1,9 @@
 Hadoop, Web and other Unix Tools [![Build Status](https://travis-ci.org/harisekhon/toolbox.svg?branch=master)](https://travis-ci.org/harisekhon/toolbox)
 ================================
 
-A few of the Hadoop, Web and other nifty tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
+A few of the Hadoop, Web and other nifty "Unixy" tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
 
-For many more tools, see the Advanced Nagios Plugins Collection which contains many Hadoop, NoSQL, Web and infrastructure monitoring cli programs that integrate with Nagios - https://github.com/harisekhon/nagios-plugins.
+For many more tools, see the Advanced Nagios Plugins Collection which contains many Hadoop, NoSQL, Web and infrastructure monitoring CLI programs that integrate with Nagios - https://github.com/harisekhon/nagios-plugins.
 
 Github pull requests for patches and features are more than welcome.
 
@@ -42,7 +42,7 @@ Then proceed to install the CPAN modules below by hand.
 Install the following CPAN modules using the cpan command, use sudo if you're not root:
 
 ```
-sudo cpan LWP::Simple LWP::UserAgent Text::Unidecode Time::HiRes XML::Validate
+sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::HiRes XML::LibXML XML::Validate 
 ```
 
 You're now ready to use these programs.
