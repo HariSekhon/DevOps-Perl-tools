@@ -66,7 +66,7 @@ my %months = (
     "d|days=i"      =>  [ \$days,       "Number of days after which to delete files" ],
     "H|hours=i"     =>  [ \$hours,      "Number of hours after which to delete files" ],
     "m|mins=i"      =>  [ \$mins,       "Number of minutes after which to delete files" ],
-    "p|path=s"      =>  [ \$path,       "Path for which to remove old files (default: $DEFAULT_PATH)" ],
+    "p|path=s"      =>  [ \$path,       "Path for which to remove old files (default: $DEFAULT_PATH). Non-switch arguments are counted as paths also." ],
     "i|include=s"   =>  [ \$include,    "Include Regex of files, for optional filtering" ],
     "e|exclude=s"   =>  [ \$exclude,    "Exclude Regex of files, optional, takes priority over --include" ],
     "rm"            =>  [ \$rm,         "Actually launch the hadoop fs -rm commands on the files, by default this script only prints the hadoop fs -rm commands. WARNING: only use this switch after you have checked what the list of files to be removed is, otherwise you may lose data" ],
