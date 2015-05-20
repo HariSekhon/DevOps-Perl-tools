@@ -12,9 +12,9 @@ $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (defau
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch
 
-Tested on CDH 4.x and HDP 2.1";
+Tested on CDH 4.x, HDP 2.1, HDP 2.2";
 
-$VERSION = "0.8.2";
+$VERSION = "0.9.0";
 
 use strict;
 use warnings;
@@ -27,8 +27,8 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 
 $ENV{"PATH"} .= ":/opt/hadoop/bin:/usr/local/hadoop/bin";
 
-my $default_hadoop_bin = "hadoop";
-my $hadoop_bin = $default_hadoop_bin;
+my $default_hdfs_bin = "hdfs";
+my $hdfs = $default_hdfs_bin;
 
 my $DEFAULT_PATH = "/tmp";
 my $path; # don't set this, need to check if user did or used @ARGV
@@ -45,7 +45,7 @@ my $max_batch_size = 1500; # argument list too long error > 1500
 my $Xmx;
 
 set_timeout_max(86400);    # 1 day max -t timeout
-set_timeout_default(1800); # 30 mins. hadoop fs -lsr /tmp took 6 minutes to list 1720943 files/dirs on my test cluster!
+set_timeout_default(1800); # 30 mins. hdfs dfs -lsr /tmp took 6 minutes to list 1720943 files/dirs on my test cluster!
 
 my %months = (
     "Jan" => 1,
@@ -69,9 +69,9 @@ my %months = (
     "p|path=s"      =>  [ \$path,       "Path for which to remove old files (default: $DEFAULT_PATH). Non-switch arguments are counted as paths also." ],
     "i|include=s"   =>  [ \$include,    "Include Regex of files, for optional filtering" ],
     "e|exclude=s"   =>  [ \$exclude,    "Exclude Regex of files, optional, takes priority over --include" ],
-    "rm"            =>  [ \$rm,         "Actually launch the hadoop fs -rm commands on the files, by default this script only prints the hadoop fs -rm commands. WARNING: only use this switch after you have checked what the list of files to be removed is, otherwise you may lose data" ],
+    "rm"            =>  [ \$rm,         "Actually launch the hadoop dfs -rm commands on the files, by default this script only prints the hdfs dfs -rm commands. WARNING: only use this switch after you have checked what the list of files to be removed is, otherwise you may lose data" ],
     "skipTrash"     =>  [ \$skipTrash,  "Skips moving files to HDFS Trash, reclaims space immediately" ],
-    "hadoop-bin=s"  =>  [ \$hadoop_bin, "Path to 'hadoop' command if not in \$PATH" ],
+    "hadoop-bin=s"  =>  [ \$hdfs,       "Path to 'hdfs' command if not in \$PATH" ],
     "b|batch=s"     =>  [ \$batch,      "Batch the deletes in groups of N files for efficiency (max $max_batch_size). You will almost certainly need to use this in Production" ],
     "Xmx=s"         =>  [ \$Xmx,        "Max Heap to assign to the 'hadoop' or 'hdfs' command in MB, must be an integer, units cannot be specified" ],
 );
@@ -80,7 +80,7 @@ get_options();
 
 my $print_only = 1;
 if ($rm and not $debug){
-    $print_only = 0; # actually run the hadoop fs -rm command instead of just echo'ing it out
+    $print_only = 0; # actually run the hdfs dfs -rm command instead of just echo'ing it out
 }
 $skipTrash = "-skipTrash" if $skipTrash;
 usage unless ($days or $hours or $mins);
@@ -113,20 +113,20 @@ if($Xmx){
     $Xmx = $1;
     vlog_options "Xmx (Max Heap MB)", $Xmx; 
 }
-$hadoop_bin  = which($hadoop_bin, 1);
-$hadoop_bin  =~ /\b\/?hadoop$/ or die "invalid hadoop program '$hadoop_bin' given, should be called hadoop!\n";
+$hdfs  = which($hdfs, 1);
+$hdfs  =~ /\b\/?hdfs$/ or die "invalid hadoop hdfs program '$hdfs' given, should be called 'hdfs'!\n";
 $batch       = validate_int($batch, "batch size", 0, $max_batch_size);
 vlog_options "rm",          $rm        ? "true" : "false";
 vlog_options "skipTrash",   $skipTrash ? "true" : "false";
-vlog_options "hadoop path", $hadoop_bin;
+vlog_options "hadoop 'hdfs' path", $hdfs;
 vlog2;
 
-# might leave a hadoop fs -rm running when we exit but I don't want to submit a kill sub to timeout in case it interferes with any other hadoop fs -rm command any user might be executing on the same system.
+# might leave a hdfs dfs -rm running when we exit but I don't want to submit a kill sub to timeout in case it interferes with any other hdfs dfs -rm command any user might be executing on the same system.
 set_timeout();
 
 go_flock_yourself();
 
-my $cmd   = "hadoop fs -ls -R $path"; # is quoted above when processing $path or @paths;
+my $cmd   = "$hdfs dfs -ls -R $path"; # is quoted above when processing $path or @paths;
 if($Xmx){
     $cmd = "HADOOP_HEAPSIZE='$Xmx' $cmd";
 }
@@ -139,8 +139,8 @@ my $excluded_count = 0;
 my $script_excluded_count = 0;
 vlog "processing file list";
 while (<$fh>){
-    vlog3 "output: $_";
     chomp;
+    vlog3 "output: $_";
     my $line = $_;
     $line =~ /^Found\s\d+\sitems/ and next;
     if($line =~ /^([d-])$rwxt_regex\+?\s+(?:\d+|-)\s+[\w-]+\s+[\w-]+\s+\d+\s+(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})\s+($filename_regex)$/){
@@ -166,7 +166,7 @@ while (<$fh>){
             # - oh and I should probably omit the CM canary files given I work for Cloudera now...
             # - Also, omitting the Hive warehouse directory since removing Hive managed tables seems scary
             # - share/lib/ is under /user/oozie, don't remove that either
-            # - not anchoring /tmp intentionally since hadoop fs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
+            # - not anchoring /tmp intentionally since hdfs dfs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
             # - added /apps/ to cover /apps/hive, /apps/hbase, /apps/hcatalog on HDP
             if ($filename =~ qr{ 
                                     /tmp/mapred/ |
@@ -198,7 +198,7 @@ while (<$fh>){
     }
     if(@files and $batch < 2){
         # Not setting HADOOP_HEAPSIZE here since it should be suffient for such a small number of files
-        $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files) . "'";
+        $cmd = "$hdfs dfs -rm $skipTrash '" . join("' '", @files) . "'";
         if($print_only){
             print "$cmd\n";
         } else {
@@ -208,7 +208,7 @@ while (<$fh>){
             } elsif($? == 33280){
                 die "Control-C\n";
             } else {
-                die "ERROR: $? returned from command \"hadoop fs -rm ...\": $!\n";
+                die "ERROR: $? returned from command \"$hdfs dfs -rm ...\": $!\n";
             }
         }
         @files = ();
@@ -219,7 +219,7 @@ if(@files and $batch > 1){
     vlog scalar @files . " files " . ($print_only ? "matching" : "to be deleted" );
     my $ARG_MAX = `getconf ARG_MAX`;
     isInt($ARG_MAX) or code_error "failed to get ARG_MAX from 'getconf ARG_MAX', got a non-integer '$ARG_MAX'";
-    # This doesn't work for some reason even when submitting 821459 against an ARG_MAX of 2621440 it results in ERROR: -1 returned from command "hadoop fs -rm ...": Argument list too long
+    # This doesn't work for some reason even when submitting 821459 against an ARG_MAX of 2621440 it results in ERROR: -1 returned from command "hdfs dfs -rm ...": Argument list too long
     # taken from xargs --show-limits, use the more restrictive of the two numbers
     if($ARG_MAX > 131072){
         $ARG_MAX = 131072;
@@ -231,7 +231,7 @@ if(@files and $batch > 1){
             $last_index = scalar(@files) - 1;
         }
         vlog "file batch " . ($i+1) . " - " . ($last_index+1) . ":";
-        $cmd = "hadoop fs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
+        $cmd = "$hdfs dfs -rm $skipTrash '" . join("' '", @files[ $i .. $last_index ]) . "'";
         if($Xmx){
             $cmd = "HADOOP_HEAPSIZE='$Xmx' $cmd";
         }
@@ -240,7 +240,7 @@ if(@files and $batch > 1){
         if((length($cmd) + 2000 + 2000) < $ARG_MAX){
             vlog2 "command length: " . length($cmd) . "  ARG_MAX: $ARG_MAX";
         } else {
-            die "Here is the would-be command:\n\n$cmd\n\nResulting hadoop fs -rm command length (" . length($cmd) . ") + env allowance (2000) + safety margin (2000) > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\n"
+            die "Here is the would-be command:\n\n$cmd\n\nResulting $hdfs dfs -rm command length (" . length($cmd) . ") + env allowance (2000) + safety margin (2000) > operating system's ARG_MAX ($ARG_MAX). Review and reduce batch size if necessary, this may be caused by very long filenames coupled with large batch size.\n\n"
         }
         if($print_only){
             print "$cmd\n";
@@ -251,7 +251,7 @@ if(@files and $batch > 1){
             } elsif($? == 33280){
                 die "Control-C\n";
             } else {
-                die "ERROR: $? returned from command \"hadoop fs -rm ...\": $!\n";
+                die "ERROR: $? returned from command \"$hdfs dfs -rm ...\": $!\n";
             }
         }
     }
