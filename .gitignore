@@ -2,3 +2,4 @@
 scrub_custom.conf
 solr-env.sh
 *.log
+*.swp
