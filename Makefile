@@ -44,6 +44,7 @@ make:
 		Net::LDAP \
 		Net::LDAPI \
 		Net::LDAPS \
+		Search::Elasticsearch \
 		Term::ReadKey \
 		Text::Unidecode \
 		Time::HiRes \
