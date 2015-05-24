@@ -36,6 +36,7 @@ make:
 	git update-index --assume-unchanged solr/solr-env.sh
 
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
+	# Module::CPANfile::Result is needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
 	yes | $(SUDO2) cpan \
 		CAM::PDF \
 		JSON \
@@ -44,6 +45,7 @@ make:
 		Net::LDAP \
 		Net::LDAPI \
 		Net::LDAPS \
+		Module::CPANfile::Result \
 		Search::Elasticsearch \
 		Term::ReadKey \
 		Text::Unidecode \
