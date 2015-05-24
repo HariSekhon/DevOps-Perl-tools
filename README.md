@@ -24,7 +24,7 @@ http://www.linkedin.com/in/harisekhon
 - ```watch_nginx_stats.pl``` - watches nginx stats via the HttpStubStatusModule module
 - ```ipython-notebook-pyspark.py``` - per-user authenticated IPython Notebook + PySpark integration to allow each user to auto-create their own password protected IPython Notebook running Spark
 - ```difnet.pl``` - print net line additions/removals from diff / patch files or stdin
-- ```java_show_classpath.pl``` - shows java classpaths of a running program in a sane way
+- ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
 - ```datameer-config-git.pl``` - revision controls Datameer configurations to Git (think Rancid for Datameer)
 - ```ibm-bigsheets-config-git.pl``` - revision controls IBM BigSheets configurations to Git (think Rancid for BigSheets)
 - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes
