@@ -23,7 +23,7 @@ http://www.linkedin.com/in/harisekhon
 - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (trick: use a /hostname type url to see which server you're hitting for each request's response)
 - ```watch_nginx_stats.pl``` - watches nginx stats via the HttpStubStatusModule module
 - ```ipython-notebook-pyspark.py``` - per-user authenticated IPython Notebook + PySpark integration to allow each user to auto-create their own password protected IPython Notebook running Spark
-- ```difnet.pl``` - print net line additions/removals from diff / patch files or stdin
+- ```diffnet.pl``` - print net line additions/removals from diff / patch files or stdin
 - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
 - ```datameer-config-git.pl``` - revision controls Datameer configurations from API to Git
 - ```ibm-bigsheets-config-git.pl``` - revision controls IBM BigSheets configurations from API to Git
