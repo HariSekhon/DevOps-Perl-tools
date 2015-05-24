@@ -18,16 +18,16 @@ http://www.linkedin.com/in/harisekhon
 - ```hadoop_hdfs_time_block_reads.jy``` - Hadoop HDFS per-block read timing debugger with datanode and rack locations for a given file or directory tree. Reports the slowest Hadoop datanodes in descending order at the end
 - ```pig-text-to-elasticsearch.pig``` / ```pig-text-to-solr.pig``` - index unstructured files in Hadoop to Elasticsearch or Solr/SolrCloud clusters
 - ```scrub.pl``` - anonymizes your logs / configs for pasting online for debug help. Replaces hostnames/domains/FQDNs, IP + MAC addresses, Cisco/Juniper passwords, shared keys and SNMP strings, as well as taking a  configuration file of custom phrases such your name, your company's name etc. Each replacement is replaced with a placeholder saying what was replaced, and there is even an --ip-prefix switch to leave the last IP octect to aid in cluster debugging so vendors/online helpers can still see differentiated nodes communicating with each other in logs
-- ```watch_url.pl``` - watches a given url, outputting status code and optionally output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (trick: use a /hostname type url to see what you're hitting in the --output)
-- ```solr_cli.pl``` - Solr command line tool with shortcuts under solr/ which make it much easier and quicker to use the Solr APIs instead of always using long tedious curl calls. Supports a lot of environments variables and tricks to allow for minimal typing when administering a Solr/SolrCloud cluster via the Collections and Cores APIs
+- ```solr_cli.pl``` - Solr command line tool with shortcuts under ```solr/``` which make it much easier and quicker to use the Solr APIs instead of always using long tedious curl commands. Supports a lot of environments variables and tricks to allow for minimal typing when administering a Solr/SolrCloud cluster via the Collections and Cores APIs
 - ```sql_uppercase_keywords.pl``` - cleans up your SQL / Pig / Neo4j keywords with the correct capitalization. SQL-like dialects supported include Hive, Impala, Cassandra, MySQL, PostgreSQL, Microsoft SQL Server and Oracle
+- ```watch_url.pl``` - watches a given url, outputting status code and optionally output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (trick: use a /hostname type url to see what you're hitting in the --output)
 - ```watch_nginx_stats.pl``` - watches nginx stats via the HttpStubStatusModule module
 - ```ipython-notebook-pyspark.py``` - per-user authenticated IPython Notebook + PySpark integration to allow each user to auto-create their own password protected IPython Notebook running Spark
 - ```difnet.pl``` - print net line additions/removals from diff / patch files or stdin
 - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
 - ```datameer-config-git.pl``` - revision controls Datameer configurations from API to Git
 - ```ibm-bigsheets-config-git.pl``` - revision controls IBM BigSheets configurations from API to Git
-- ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes
+- ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions also
 
 ### Setup ###
 
