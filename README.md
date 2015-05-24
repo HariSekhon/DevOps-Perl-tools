@@ -15,7 +15,7 @@ http://www.linkedin.com/in/harisekhon
 
 ### A Sample of cool Programs in this toolbox ###
 
-- ```hadoop_hdfs_time_block_reads.jy``` - debugs per-block read timings and locations for a file or directory tree and reports the slowest Hadoop datanodes in descending order
+- ```hadoop_hdfs_time_block_reads.jy``` - Hadoop HDFS per-block read timing debugger with datanode and rack locations for a given file or directory tree. Reports the slowest Hadoop datanodes in descending order at the end
 - ```pig-text-to-elasticsearch.pig``` / ```pig-text-to-solr.pig``` - index unstructured files to Elasticsearch or Solr/SolrCloud
 - ```scrub.pl``` - anonymizes your logs / configs for pasting online for debug help. Replaces hostnames/domains/FQDNs, IP addresses, Cisco/Juniper passwords, shared keys and SNMP strings, as well as takinga  configuration file of custom phrases such your name, your company's name etc.
 - ```watch_url.pl``` - watches a given url, outputting status code and optionally output, useful for debugging web farms behind load balances and seeing the distribution to different servers (trick: use a /hostname type url to see what you're hitting at the front end)
