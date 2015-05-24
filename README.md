@@ -25,7 +25,7 @@ http://www.linkedin.com/in/harisekhon
 - ```ipython-notebook-pyspark.py``` - per-user authenticated IPython Notebook + PySpark integration to allow each user to auto-create their own password protected IPython Notebook running Spark
 - ```difnet.pl``` - print net line additions/removals from diff / patch files or stdin
 - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
-- ```datameer-config-git.pl``` - revision controls Datameer configurations to Git (think Rancid)
+- ```datameer-config-git.pl``` - revision controls Datameer configurations to Git
 - ```ibm-bigsheets-config-git.pl``` - revision controls IBM BigSheets configurations to Git
 - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes
 
