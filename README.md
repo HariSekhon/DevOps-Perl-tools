@@ -100,6 +100,6 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-The Advanced Nagios Plugins Collection which contains hundreds of production grades command line programs for Nagios compatible monitoring systems covering these technologies and others, and can also be used in scripts.
+The Advanced Nagios Plugins Collection which contains hundreds of production grade command line programs for Nagios compatible monitoring systems covering these technologies and others, that can also be used in scripts or on the command line as utilities as I often do.
 
 https://github.com/harisekhon/nagios-plugins
