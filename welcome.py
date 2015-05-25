@@ -26,7 +26,7 @@ import sys
 import time
 
 if(sys.argv):
-    print "usage: welcome.py"
+    print >> sys.stderr, "usage: welcome.py"
     sys.exit(3)
 
 try:

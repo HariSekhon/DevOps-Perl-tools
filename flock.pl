@@ -40,9 +40,9 @@ sub vlog{
 }
 
 sub usage {
-    print "@_\n\n" if @_;
-    print "$main::DESCRIPTION\n\n" if $main::DESCRIPTION;
-    print "usage: $progname [ options ]
+    print STDERR "@_\n\n" if @_;
+    print STDERR "$main::DESCRIPTION\n\n" if $main::DESCRIPTION;
+    print STDERR "usage: $progname [ options ]
 
     -c --command        Command to run if lock succeeds
     -l --lockfile       Lockfile to use. This will be created if it doesn't exist, will not be overwritten or appended to and will not be removed for safety
