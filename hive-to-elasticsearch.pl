@@ -240,10 +240,13 @@ sub indexToES($;$){
     # Hive CLI is really buggy around comments, see http://stackoverflow.com/questions/15595295/comments-not-working-in-hive-cli
     # had to remove semicolons before comments and put the comments end of line / semicolon only after the last comment in each case to make each comment only end of line :-/
     # XXX: considered templating this but user editing of SQL template could mess job logic up badly, better to force user to change the code to understand such changes are of major impact
+# This would occur too late anyway
+#SET tez.job.name=$job_name;
     my $hql = "
 ADD JAR $elasticsearch_hadoop_hive_jar;
 ADD JAR $commons_httpclient_jar;
-SET hive.session.id='$job_name';
+SET hive.session.id=$job_name;
+SET mapred.job.name=Hive-$job_name;
 SET tez.queue.name=$queue;
 SET mapreduce.job.queuename=$queue;
 " . ( $no_task_retries ? "
@@ -257,7 +260,7 @@ SET mapreduce.map.speculative=FALSE;
 SET mapreduce.reduce.speculative=FALSE;
 SET mapred.map.tasks.speculative.execution=FALSE;
 SET mapred.reduce.tasks.speculative.execution=FALSE;
-SET -v;
+" . ( $verbose > 1 ? "SET -v;" : "") . "
 USE $db;
 DROP TABLE IF EXISTS ${table}_elasticsearch;
 CREATE EXTERNAL TABLE ${table}_elasticsearch (
@@ -313,7 +316,7 @@ FROM $table";
             $es->indices->put_alias('index' => $index, 'name' => $alias)
         }
         if($optimize){
-            vlogt "optimized index '$index'";
+            vlogt "optimizing index '$index'";
             #$response = curl_elasticsearch_raw "/$index/_optimize?max_num_segments=1", "POST";
             $es->indices->optimize('index' => $index);
         }
