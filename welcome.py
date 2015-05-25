@@ -25,6 +25,10 @@ import string
 import sys
 import time
 
+if(sys.argv):
+    print "usage: welcome.py"
+    sys.exit(3)
+
 try:
     try:
         user = os.environ['USER'].strip()
