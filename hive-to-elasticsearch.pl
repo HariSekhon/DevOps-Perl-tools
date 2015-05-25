@@ -168,7 +168,8 @@ my $es = Search::Elasticsearch->new(
 
 sub create_index($){
     my $index = shift;
-    vlogt "creating index '$index' with $shards shards, no replicas and no refresh in order to maximize bulk indexing performance";
+    plural $shards;
+    vlogt "creating index '$index' with $shards shard$plural, no replicas and no refresh in order to maximize bulk indexing performance";
 #    my $response = curl_elasticsearch_raw "/$index", "PUT", "
 #index:
 #    number_of_shards: $shards
@@ -230,6 +231,7 @@ sub indexToES($;$){
             push(@columns2, $1);
         }
     }
+    die "\nfound no columns for table $db.$table - does table exist?\n" unless @columns2;
     if(@columns){
         vlogt "validating requested columns against table definition";
         foreach my $column (@columns){
@@ -256,7 +258,7 @@ sub indexToES($;$){
 ADD JAR $elasticsearch_hadoop_hive_jar;
 ADD JAR $commons_httpclient_jar;
 SET hive.session.id=$job_name;
-SET mapred.job.name=Hive-$job_name;
+SET mapred.job.name=Hive=$job_name;
 SET tez.queue.name=$queue;
 SET mapreduce.job.queuename=$queue;
 " . ( $no_task_retries ? "
