@@ -25,7 +25,7 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
         continue
     fi
     echo ./$x --help
-    ./$x --help 2>/dev/null
+    ./$x --help # 2>/dev/null
     status=$?
     set -e
     [ $status = 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
