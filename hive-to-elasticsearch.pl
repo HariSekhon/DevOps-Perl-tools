@@ -57,7 +57,7 @@ my $hive  = 'hive';
 my $kinit = 'kinit';
 
 # search these locations for elasticsearch and http commons jars
-my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib };
+my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/hadoop/lib /usr/lib/hadoop*/lib };
 
 ########################
 
@@ -175,8 +175,9 @@ sub create_index($){
 #    }
 #    "
     my $result = $es->indices->create(
-        'index' => $index,
-        'body'  => "{
+        'index'  => $index,
+        'ignore' => 400,
+        'body'   => "{
             \"settings\": {
                 \"index\": {
                     \"number_of_shards\":   $shards,
@@ -226,7 +227,7 @@ sub indexToES($;$){
         }
     } else {
         vlogt "no columns specified, will index all columns to Elasticsearch";
-        vlogt "auto-determined columns to be: @columns2";
+        vlogt "auto-determined columns as follows: @columns2";
         @columns = @columns2;
     }
     my $columns = join(",\n    ", @columns);
@@ -245,11 +246,13 @@ ADD JAR $commons_httpclient_jar;
 SET hive.session.id='$job_name';
 SET tez.queue.name=$queue;
 SET mapreduce.job.queuename=$queue;
+" . ( $no_task_retries ? "
 SET mapreduce.map.maxattempts=1;
 SET mapreduce.reduce.maxattempts=1;
 SET mapred.map.max.attempts=1;
 SET mapred.reduce.max.attempts=1;
 SET tez.am.task.max.failed.attempts=0;
+" : "" ) . "
 SET mapreduce.map.speculative=FALSE;
 SET mapreduce.reduce.speculative=FALSE;
 SET mapred.map.tasks.speculative.execution=FALSE;
@@ -280,14 +283,15 @@ FROM $table";
             vlogt "deleting pre-existing index '$index' at user's request";
             #$response = curl_elasticsearch_raw "/$index", "DELETE";
             $es->indices->delete('index' => $index, 'ignore' => 404);
+            $result = create_index($index);
         }
-        $result = create_index($index);
     } else {
         $result = create_index($index);
     }
-    $result or vlogt "WARNING: failed to create index: $result";
+    $result or vlogt "WARNING: failed to create index" . ( defined($result) ? ": $result" : "");
     #my $cmd = "hive -S --hiveconf hive.session.id='$db.$table=>ES-$partition' -e '$hql'");
-    my $cmd = "hive -v --hiveconf hive.session.id='$job_name' -e \"$hql\"";
+    # TODO: debug + fix why hive.session.id isn't taking effect, I used to use this all the time in all my other scripts doing this same operation
+    my $cmd = "hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' -e \"$hql\"";
     vlogt "running Hive => Elasticsearch indexing process for table $db.$table " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
     my $start = time;
     # hive -v instead
