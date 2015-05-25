@@ -28,6 +28,6 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     ./$x --help 2>/dev/null
     status=$?
     set -e
-    [ $status == 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
+    [ $status = 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
 done
 echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
