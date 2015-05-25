@@ -31,8 +31,6 @@ Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5
 
 $VERSION = "0.6";
 
-# TODO: make sure all references are switched from personal nagios library to using the official elasticsearch client for node failover robustness
-
 use strict;
 use warnings;
 BEGIN {
