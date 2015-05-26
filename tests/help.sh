@@ -16,6 +16,15 @@
 set -eu
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# workaround for Travis CI's local Perlbrew library paths:
+if [ -e /home/travis/perl5/perlbrew/perls ]; then
+    #for x in /home/travis/perl5/perlbrew/perls/*/lib/site_perl/*; do
+    #    PERL5LIB="$PERL5LIB:$x"
+    #done
+    PERL5LIB="$PERL5LIB:/home/travis/perl5/perlbrew/perls/*/lib/site_perl"
+    export PERL5LIB
+fi
+
 cd "$srcdir/..";
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue
