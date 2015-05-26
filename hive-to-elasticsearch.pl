@@ -25,11 +25,11 @@ Libraries Required:
 
 ES Hadoop - https://www.elastic.co/downloads/hadoop
 
-You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the Apache 'commons-httpclient.jar' (which should be supplied inside your Hadoop distribution) in to the same directory as this program. For conveneience this program will attempt to automatically find the commons-httpclient.jar on Hortonworks HDP in the standard distribution paths and the elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar if you just unpack the zip from Elasticsearch directly in to the same directory as this program. If you put those two required jars directly adjacent to this program that will also work.
+You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the Apache 'commons-httpclient.jar' (which should be supplied inside your Hadoop distribution) in to the same directory as this program. For conveneience this program will attempt to automatically find the commons-httpclient.jar on Hortonworks HDP in the standard distribution paths and the elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar if you just unpack the zip from Elasticsearch directly in to the same directory as this program or even found in your home directory. If you put those two required jars directly adjacent to this program that will also work.
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0";
 
-$VERSION = "0.6";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
@@ -55,7 +55,8 @@ my $hive  = 'hive';
 my $kinit = 'kinit';
 
 # search these locations for elasticsearch and http commons jars
-my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/hadoop/lib /usr/lib/hadoop*/lib };
+my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/hadoop/lib /usr/lib/hadoop*/lib};
+push(@jar_search_paths, $ENV{'HOME'});
 
 ########################
 
@@ -113,8 +114,9 @@ if($columns){
     foreach(split(/\s*,\s*/, $columns)){
         $_ = validate_database_columnname($_);
         push(@columns, $_);
-        system("echo column = $_");
     }
+    @columns = uniq_array2 @columns;
+    vlog_options "deduped columns to index", "@columns";
 }
 $index  = validate_elasticsearch_index($index);
 $type or $type = $index;
@@ -134,6 +136,8 @@ if($partition_values){
         $_ = validate_chars($_, "partition value", "A-Za-z0-9_-");
         push(@partitions, "$partition_key=$_");
     }
+    @partitions = uniq_array2 @partitions;
+    vlog_options "deduped partitions to index", "@partitions";
 }
 ($skip_existing and $recreate_index) and usage "--skip-existing and --recreate-index are mutually exclusive!";
 
@@ -204,7 +208,8 @@ my $num_partitions = scalar @partitions;
 sub indexToES($;$){
     my $index     = shift;
     my $partition = shift;
-    $index .= $partition if $num_partitions > 1;
+    (my $partition_value = $partition ) =~ s/.*=//;
+    $index .= "_$partition_value" if $num_partitions > 1;
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
     vlogt "starting processing of table $db.$table " . ( $partition ? "partition $partition " : "" ). "to index '$index'";
     my $indices = $es->indices;
@@ -344,6 +349,7 @@ FROM $table";
 
 #vlog "checking for dependent libraries ES Hadoop and commons httpclient";
 foreach my $path (@jar_search_paths){
+    vlog3 "checking path $path for jars\n";
     foreach(glob("$path/*.jar"), glob("$path/elasticsearch-hadoop-*/dist/*.jar")){
         if( -f $_){
             if(basename($_) =~ /^elasticsearch-hadoop(?:-hive)?-\d+(?:\.\d+)*(?:\.Beta\d+)?\.jar$/i){
@@ -426,6 +432,10 @@ if(@partitions){
 } else {
     # If this is a partitioned table then index it by partition to allow for easier partial restarts - important when dealing with very high scale
     if(@partitions_found){
+        vlogt "partitioned table and no partitions specified, iterating on indexing all partitions";
+        my $answer = prompt "Are you sure you want to index all partitions to Elasticsearch for the Hive table '$db.$table'? (This may be a *lot* of data and take a very lond time) [y/N]";
+        vlog;
+        isYes($answer) or die "aborting...\n";
         foreach my $partition (@partitions_found){
             # untaint partition since we'll be putting it in to code
             if($partition =~ /^([A-Za-z0-9_-]+=[A-Za-z0-9_-])$/){
