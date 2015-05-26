@@ -37,7 +37,10 @@ make:
 
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
-	# must upgrade JSON::XS with JSON, including here even if not called directly to stop it blocking JSON
+
+	# workaround for broken pod coverage tests
+	#yes | $(SUDO) cpan --force XML::Validate || :
+
 	yes | $(SUDO2) cpan \
 		CAM::PDF \
 		JSON \
@@ -85,7 +88,7 @@ test:
 	# doesn't return a non-zero exit code to test
 	#for x in *.pl; do perl -T -c $x; done
 	# TODO: add my functional tests back in here	
-	tests/help.sh
+	#tests/help.sh
 
 .PHONY: install
 install:
