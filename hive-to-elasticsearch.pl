@@ -21,6 +21,8 @@ The programs 'hive' and 'kinit' are assummed to be in the base PATH $ENV{PATH}, 
 
 Creates hive table of same name as each indexed table with '_elasticsearch' suffixed to it. Deletes and re-creates that _elasticsearch table each time to ensure correct data is sent and aligned with Elasiticsearch.
 
+For partitioned Hive tables, the generated Elasticsearch indices are always suffixed with the partition value and then aliased back to either the specified alias name or the originally requested index name without the suffix if no alias is specified. It's very impractical to try to index a high scale Hive partitioned table in one go to a single index and lacks part-way resume behaviour which partitioned indices gives.
+
 Libraries Required:
 
 ES Hadoop - https://www.elastic.co/downloads/hadoop
@@ -63,6 +65,8 @@ push(@jar_search_paths, $ENV{'HOME'});
 # bulk indexing billions of documents can take hours
 set_timeout_max(86400 * 7);
 set_timeout_default(86400 * 3);
+
+autoflush();
 
 $verbose = 1;
 
@@ -203,13 +207,16 @@ sub create_index($){
     return $result;
 }
 
-my $num_partitions = scalar @partitions;
+my @partitions_found;
 
 sub indexToES($;$){
     my $index     = shift;
     my $partition = shift;
-    (my $partition_value = $partition ) =~ s/.*=//;
-    $index .= "_$partition_value" if $num_partitions > 1;
+    if($partition){
+        my $partition_value = $partition;
+        $partition_value =~ s/.*=//;
+        $index .= "_$partition_value" if scalar @partitions_found > 1;
+    }
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
     vlogt "starting processing of table $db.$table " . ( $partition ? "partition $partition " : "" ). "to index '$index'";
     my $indices = $es->indices;
@@ -389,7 +396,7 @@ if(which($kinit)){
     vlog2 join("\n", @output);
 }
 
-my ($partitions_found, @partitions_found);
+my $partitions_found;
 vlogt "getting Hive partitions for table $db.$table (this may take a minute)";
 # define @partitions_found separately for quick debugging commenting out getting partitions which slows me down
 $partitions_found = `$hive -S -e 'show partitions $db.$table' 2>/dev/null`;
