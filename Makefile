@@ -37,9 +37,11 @@ make:
 
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
+	# must upgrade JSON::XS with JSON, including here even if not called directly to stop it blocking JSON
 	yes | $(SUDO2) cpan \
 		CAM::PDF \
 		JSON \
+		JSON::XS \
 		LWP::Simple \
 		LWP::UserAgent \
 		Net::LDAP \
