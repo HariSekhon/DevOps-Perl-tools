@@ -29,7 +29,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0";
 
-$VERSION = "0.6.1";
+$VERSION = "0.6.2";
 
 use strict;
 use warnings;
@@ -242,7 +242,7 @@ sub indexToES($;$){
         }
     } else {
         vlogt "no columns specified, will index all columns to Elasticsearch";
-        vlogt "auto-determined columns as follows: @columns2";
+        vlogt "auto-determined columns as follows:\n" . join("\n", @columns2);
         @columns = @columns2;
     }
     my $columns = join(",\n    ", @columns);
@@ -275,7 +275,7 @@ SET mapreduce.map.speculative=FALSE;
 SET mapreduce.reduce.speculative=FALSE;
 SET mapred.map.tasks.speculative.execution=FALSE;
 SET mapred.reduce.tasks.speculative.execution=FALSE;
-" . ( $verbose > 1 ? "SET -v;" : "") . "
+" . ( $verbose > 2 ? "SET -v;" : "") . "
 USE $db;
 DROP TABLE IF EXISTS ${table}_elasticsearch;
 CREATE EXTERNAL TABLE ${table}_elasticsearch (
@@ -393,33 +393,6 @@ $partitions_found = `$hive -S -e 'show partitions $db.$table' 2>/dev/null`;
 @partitions_found = split(/\n/, $partitions_found);
 vlogt "$db.$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
 
-if($recreate_index){
-    vlogt "index re-creation requested before indexing (clean index re-build)";
-    if(@partitions_found and not @partitions){
-        # XXX: TODO: yes | ./script doesn't work - find out why
-        vlog;
-        my $answer = prompt "Are you sure you want to delete and re-create the entire Elasticsearch index for the Hive table '$db.$table'? [y/N]";
-        vlog;
-        isYes($answer) or die "aborting...\n";
-    }
-    #vlogt "checking if index '$index' already exists...";
-    #if(ESIndexExists($index)){
-        #vlogt "index '$index' already exists";
-        #if(@partitions){
-        #} else {
-                #my $answer = prompt "\nAre you sure you want to delete and re-create the Elasticsearch index from the Hive table '$db.$table'? [y/N]";
-                #if(isYes($answer)){
-                    #vlogt "deleting Elasticsearch index '$index' before starting indexing run";
-                    #$es->indices->delete('index' => $index, 'ignore' => 404);
-                #}
-        #    } else {
-        #        vlogt "index '$index' doesn't exist yet";
-        #    }
-        #}
-    #}
-    #vlog;
-}
-
 if(@partitions){
     foreach my $partition (@partitions){
         if(not grep { "$partition" eq $_ } @partitions_found){
@@ -433,12 +406,19 @@ if(@partitions){
     # If this is a partitioned table then index it by partition to allow for easier partial restarts - important when dealing with very high scale
     if(@partitions_found){
         vlogt "partitioned table and no partitions specified, iterating on indexing all partitions";
-        my $answer = prompt "Are you sure you want to index all partitions to Elasticsearch for the Hive table '$db.$table'? (This may be a *lot* of data and take a very lond time) [y/N]";
+        my $answer = prompt "Are you sure you want to index all partitions of Hive table '$db.$table' to Elasticsearch? (this could be a *lot* of data to index and may take a very long time) [y/N]";
         vlog;
         isYes($answer) or die "aborting...\n";
+        if($recreate_index){
+            vlogt "index re-creation requested before indexing (clean index re-build)";
+            # XXX: TODO: yes | ./script doesn't work - find out why
+            my $answer = prompt "Are you sure you want to delete and re-create all Elasticsearch indices for all partitions of Hive table '$db.$table'? (this will delete and re-index them one-by-one which could be a *lot* of data to re-index and may take a very long time) [y/N]";
+            vlog;
+            isYes($answer) or die "aborting...\n";
+        }
         foreach my $partition (@partitions_found){
             # untaint partition since we'll be putting it in to code
-            if($partition =~ /^([A-Za-z0-9_-]+=[A-Za-z0-9_-])$/){
+            if($partition =~ /^([A-Za-z0-9_-]+=[A-Za-z0-9_-]+)$/){
                 $partition = $1;
             } else {
                 quit "UNKNOWN", "invalid partition '$partition' detected in Hive table when attempting to iterate and index all partitions. Re-run with -vvv and paste in to a ticket at the following URL for a fix/update: https://github.com/harisekhon/toolbox/issues";
