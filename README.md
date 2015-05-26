@@ -28,7 +28,7 @@ http://www.linkedin.com/in/harisekhon
 - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
 - ```datameer-config-git.pl``` - revision controls Datameer configurations from API to Git
 - ```ibm-bigsheets-config-git.pl``` - revision controls IBM BigSheets configurations from API to Git
-- ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions also
+- ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions as well.
 
 ### Setup ###
 
