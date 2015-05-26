@@ -31,7 +31,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0";
 
-$VERSION = "0.6.2";
+$VERSION = "0.6.3";
 
 use strict;
 use warnings;
@@ -209,6 +209,43 @@ sub create_index($){
 
 my @partitions_found;
 
+my $create_columns = "";
+sub get_columns(){
+    vlogt "checking columns in table $db.$table (this may take a minute)";
+    # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
+    my $output = `hive -S -e 'describe $db.$table' 2>/dev/null`;
+    my @output = split(/\n/, $output);
+    my %columns;
+    my @columns_found;
+    foreach(@output){
+        # bit hackish but quick to do, take lines which look like "^column_name<space>column_type$" - doesn't support
+        # This and the uniq_array2 on @columns_found prevent the partition by field being interpreted as another column which breaks the generated HQL
+        last if /Partition Information/i;
+        if(/^\s*([^\s]+)\s+([A-Za-z]+)\s*$/){
+            $columns{$1} = $2;
+            push(@columns_found, $1);
+        }
+    }
+    die "\nfound no columns for table $db.$table - does table exist?\n" unless @columns_found;
+    @columns_found = uniq_array2 @columns_found;
+    if(@columns){
+        vlogt "validating requested columns against table definition";
+        foreach my $column (@columns){
+            grep { $column eq $_ } @columns_found or die "column '$column' was not found in the Hive table definition for '$db.$table'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns_found) . "\n";
+        }
+    } else {
+        vlogt "no columns specified, will index all columns to Elasticsearch";
+        vlogt "auto-determined columns as follows:\n" . join("\n", @columns_found);
+        @columns = @columns_found;
+        $columns = join(",\n    ", @columns);
+    }
+    foreach my $column (@columns){
+        $create_columns .= "    $column    $columns{$column},\n";
+    }
+    $create_columns =~ s/,\n$//;
+    return $create_columns;
+}
+
 sub indexToES($;$){
     my $index     = shift;
     my $partition = shift;
@@ -219,6 +256,7 @@ sub indexToES($;$){
     }
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
     vlogt "starting processing of table $db.$table " . ( $partition ? "partition $partition " : "" ). "to index '$index'";
+    get_columns() unless $create_columns;
     my $indices = $es->indices;
     #if($skip_existing and grep { $index eq $_ } get_ES_indices()){
     if($skip_existing){
@@ -228,39 +266,6 @@ sub indexToES($;$){
             return 1;
         }
     }
-    vlogt "checking columns in table $db.$table (this may take a minute)";
-    # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
-    my $output = `hive -S -e 'describe $db.$table' 2>/dev/null`;
-    my @output = split(/\n/, $output);
-    my %columns;
-    my @columns2;
-    foreach(@output){
-        # bit hackish but quick to do, take lines which look like "^column_name<space>column_type$" - doesn't support
-        # This and the uniq_array2 on @columns2 prevent the partition by field being interpreted as another column which breaks the generated HQL
-        last if /Partition Information/i;
-        if(/^\s*([^\s]+)\s+([A-Za-z]+)\s*$/){
-            $columns{$1} = $2;
-            push(@columns2, $1);
-        }
-    }
-    die "\nfound no columns for table $db.$table - does table exist?\n" unless @columns2;
-    @columns2 = uniq_array2 @columns2;
-    if(@columns){
-        vlogt "validating requested columns against table definition";
-        foreach my $column (@columns){
-            grep { $column eq $_ } @columns2 or die "column '$column' was not found in the Hive table definition for '$db.$table'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns2) . "\n";
-        }
-    } else {
-        vlogt "no columns specified, will index all columns to Elasticsearch";
-        vlogt "auto-determined columns as follows:\n" . join("\n", @columns2);
-        @columns = @columns2;
-    }
-    my $columns = join(",\n    ", @columns);
-    my $create_columns = "";
-    foreach my $column (@columns){
-        $create_columns .= "    $column    $columns{$column},\n";
-    }
-    $create_columns =~ s/,\n$//;
     my $job_name = "$db.$table=>ES" . ( $partition ? "-$partition" : "" );
     # Hive CLI is really buggy around comments, see http://stackoverflow.com/questions/15595295/comments-not-working-in-hive-cli
     # had to remove semicolons before comments and put the comments end of line / semicolon only after the last comment in each case to make each comment only end of line :-/
@@ -327,7 +332,7 @@ FROM $table";
     system($cmd);
     my $exit_code = $?;
     my $secs = time - $start;
-    my $msg = "for index '$index' with $shards shards in " . sec2human($secs);
+    my $msg = "with exit code '$exit_code' for index '$index' with $shards shards in " . sec2human($secs);
     if($secs > 60){
         $msg .= " ($secs)";
     }
