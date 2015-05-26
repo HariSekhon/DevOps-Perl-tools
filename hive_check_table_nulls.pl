@@ -41,7 +41,7 @@ my @columns;
 
 get_options();
 
-$table   = validate_database_tablename($table, "allow_qualified");
+$table   = validate_database_tablename($table, "Hive", "allow_qualified");
 $hive    = validate_program_path($hive, "hive");
 
 vlog2;
