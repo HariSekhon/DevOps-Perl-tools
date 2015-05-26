@@ -31,7 +31,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0";
 
-$VERSION = "0.6.3";
+$VERSION = "0.6.4";
 
 use strict;
 use warnings;
@@ -207,6 +207,15 @@ sub create_index($){
     return $result;
 }
 
+sub exit_if_controlc($){
+    my $exit_code = shift;
+    # user Control-C'd this program, don't iterate on further indices
+    if($exit_code == 33280){
+        print "Control-C detected, exiting without attempting further indices";
+        exit $ERRORS{"UNKNOWN"};
+    }
+}
+
 my @partitions_found;
 
 my $create_columns = "";
@@ -214,6 +223,7 @@ sub get_columns(){
     vlogt "checking columns in table $db.$table (this may take a minute)";
     # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
     my $output = `hive -S -e 'describe $db.$table' 2>/dev/null`;
+    exit_if_controlc($?);
     my @output = split(/\n/, $output);
     my %columns;
     my @columns_found;
@@ -235,7 +245,7 @@ sub get_columns(){
         }
     } else {
         vlogt "no columns specified, will index all columns to Elasticsearch";
-        vlogt "auto-determined columns as follows:\n" . join("\n", @columns_found);
+        vlog3t "auto-determined columns as follows:\n" . join("\n", @columns_found);
         @columns = @columns_found;
         $columns = join(",\n    ", @columns);
     }
@@ -358,6 +368,7 @@ FROM $table";
             vlogt "deleting index '$index' to clean up";
             #delete_elasticsearch_index($index);
             $es->indices->delete('index' => $index, 'ignore' => 404);
+            exit_if_controlc($exit_code);
         }
     }
 }
@@ -405,6 +416,7 @@ my $partitions_found;
 vlogt "getting Hive partitions for table $db.$table (this may take a minute)";
 # define @partitions_found separately for quick debugging commenting out getting partitions which slows me down
 $partitions_found = `$hive -S -e 'show partitions $db.$table' 2>/dev/null`;
+exit_if_controlc($?);
 @partitions_found = split(/\n/, $partitions_found);
 vlogt "$db.$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
 
