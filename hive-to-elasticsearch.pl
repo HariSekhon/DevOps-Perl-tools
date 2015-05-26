@@ -229,12 +229,15 @@ sub indexToES($;$){
     my @columns2;
     foreach(@output){
         # bit hackish but quick to do, take lines which look like "^column_name<space>column_type$" - doesn't support
+        # This and the uniq_array2 on @columns2 prevent the partition by field being interpreted as another column which breaks the generated HQL
+        last if /Partition Information/i;
         if(/^\s*([^\s]+)\s+([A-Za-z]+)\s*$/){
             $columns{$1} = $2;
             push(@columns2, $1);
         }
     }
     die "\nfound no columns for table $db.$table - does table exist?\n" unless @columns2;
+    @columns2 = uniq_array2 @columns2;
     if(@columns){
         vlogt "validating requested columns against table definition";
         foreach my $column (@columns){
@@ -411,7 +414,6 @@ if(@partitions){
         isYes($answer) or die "aborting...\n";
         if($recreate_index){
             vlogt "index re-creation requested before indexing (clean index re-build)";
-            # XXX: TODO: yes | ./script doesn't work - find out why
             my $answer = prompt "Are you sure you want to delete and re-create all Elasticsearch indices for all partitions of Hive table '$db.$table'? (this will delete and re-index them one-by-one which could be a *lot* of data to re-index and may take a very long time) [y/N]";
             vlog;
             isYes($answer) or die "aborting...\n";
