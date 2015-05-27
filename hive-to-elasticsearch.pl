@@ -31,7 +31,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.6.7";
+$VERSION = "0.6.8";
 
 use strict;
 use warnings;
@@ -87,6 +87,9 @@ my $partition_key;
 my $partition_values;
 my $skip_existing;
 my $queue = "default";
+
+# default if not specified, for those being lazy with development (ie me) and people who have colocated Elasticsearch+Hadoop clusters. Everyone else doing proper high scale remote Elasticsearch clusters will need to specify nodes
+$nodes = "localhost:9200";
 
 %options = (
     %nodeoptions,
