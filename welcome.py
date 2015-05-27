@@ -25,7 +25,7 @@ import string
 import sys
 import time
 
-if(sys.argv):
+if(len(sys.argv) > 1):
     print >> sys.stderr, "usage: welcome.py"
     sys.exit(3)
 
