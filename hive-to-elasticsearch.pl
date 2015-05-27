@@ -29,9 +29,9 @@ ES Hadoop - https://www.elastic.co/downloads/hadoop
 
 You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the Apache 'commons-httpclient.jar' (which should be supplied inside your Hadoop distribution) in to the same directory as this program. For conveneience this program will attempt to automatically find the commons-httpclient.jar on Hortonworks HDP in the standard distribution paths and the elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar if you just unpack the zip from Elasticsearch directly in to the same directory as this program or even found in your home directory. If you put those two required jars directly adjacent to this program that will also work.
 
-Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0";
+Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.6.5";
+$VERSION = "0.6.6";
 
 use strict;
 use warnings;
@@ -39,7 +39,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils qw/:DEFAULT :time/;
+use HariSekhonUtils qw/:DEFAULT :regex :time/;
 use HariSekhon::Elasticsearch;
 use Cwd 'abs_path';
 use Search::Elasticsearch;
@@ -234,7 +234,8 @@ sub get_columns(){
         # bit hackish but quick to do, take lines which look like "^column_name<space>column_type$" - doesn't support
         # This and the uniq_array2 on @columns_found prevent the partition by field being interpreted as another column which breaks the generated HQL
         last if /Partition Information/i;
-        if(/^\s*([^\s]+)\s+([A-Za-z]+)\s*$/){
+        #            NAME           TYPE (eg. string, double, boolean)
+        if(/^\s*($column_regex)\s+([A-Za-z]+)\s*$/){
             $columns{$1} = $2;
             push(@columns_found, $1);
         }
@@ -383,29 +384,32 @@ foreach my $path (@jar_search_paths){
         if( -f $_){
             if(basename($_) =~ /^elasticsearch-hadoop(?:-hive)?-\d+(?:\.\d+)*(?:\.Beta\d+)?\.jar$/i){
                 $elasticsearch_hadoop_hive_jar = abs_path($_);
-                vlog2t "found $elasticsearch_hadoop_hive_jar";
+                vlog2t "found jar $elasticsearch_hadoop_hive_jar";
                 $elasticsearch_hadoop_hive_jar = validate_file($elasticsearch_hadoop_hive_jar, 0, "elasticsearch hadoop hive jar", "no vlog");
-                last;
             }
         }
     }
+    # iterate on all the 
+    last if $elasticsearch_hadoop_hive_jar;
 }
 foreach my $path (@jar_search_paths){
     foreach(glob("$path/*.jar")){
         if( -f $_){
             if(basename($_) =~ /^commons-httpclient.*\.jar$/){
                 $commons_httpclient_jar = abs_path($_);
-                vlog2t "found $commons_httpclient_jar";
+                vlog2t "found jar $commons_httpclient_jar";
                 $commons_httpclient_jar = validate_file($commons_httpclient_jar, 0, "commons httpclient jar", "no vlog");
-                last;
             }
         }
     }
+    last if $commons_httpclient_jar;
 }
 #my $usual_places = " in the usual places, please place the jar in " . abs_path(dirname(__FILE__));
 my $usual_places = ", please place the jar in " . abs_path(dirname(__FILE__));
 $elasticsearch_hadoop_hive_jar or die "\ncannot find elasticsearch-hadoop-hive.jar or elasticsearch-hadoop.jar$usual_places\n";
 $commons_httpclient_jar        or die "\ncannot find commons-httpclient.jar$usual_places\n";
+vlog2t "using jar $elasticsearch_hadoop_hive_jar";
+vlog2t "using jar $commons_httpclient_jar";
 
 # Kerberos - this may fail, the Hadoop cluster may not be kerberized, but it's not enough reason to not try, the Hive job can fail later anyway and be reported then, this is more for scripting convenience when looping on this program to make sure the Kerberos ticket gets refreshed
 if(which($kinit)){
