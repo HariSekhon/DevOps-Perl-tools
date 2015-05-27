@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Scrub usernames/passwords, IP addresses, hostnames, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
+$DESCRIPTION = "Scrub usernames/passwords, IP addresses, hostnames, emails addresses, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
 
 Also has support for network device configurations including Cisco and Juniper, and should work on devices with similar configs as well.
 
@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.6.3";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -36,6 +36,7 @@ my $host      = 0;
 my $hostname  = 0;
 my $domain    = 0;
 my $fqdn      = 0;
+my $email     = 0;
 my $network   = 0;
 my $cisco     = 0;
 my $screenos  = 0;
@@ -53,20 +54,22 @@ my $skip_java_exceptions = 0;
     "o|hostname"    => [ \$hostname,    "Apply hostname format scrubbing (only works on \"<host>:<port>\" otherwise this would match everything (consider using --custom and putting your hostname convention regex in scrub_custom.conf to catch other shortname references)" ],
     "d|domain"      => [ \$domain,      "Apply domain format scrubbing" ],
     "F|fqdn"        => [ \$fqdn,        "Apply fqdn format scrubbing" ],
+    "e|email"       => [ \$email,       "Apply email format scrubbing" ],
     "n|network"     => [ \$network,     "Apply all network scrubbing, whether Cisco, ScreenOS, JunOS for secrets, auth, usernames, passwords, md5s, PSKs, AS, SNMP etc." ],
     "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format scrubbing" ],
     "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format scrubbing" ],
     "j|junos"       => [ \$junos,       "Apply Juniper JunOS configuration format scrubbing (limited, please raise a ticket for extra matches to be added)" ],
     "m|custom"      => [ \$custom,      "Apply custom phrase scrubbing (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in scrub_custom.txt). Matching is case insensitive. Recommended to use to work around --host matching too many things" ],
     "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
-    "e|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
+    "E|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
 );
 
-@usage_order = qw/files all ip ip-prefix host hostname domain fqdn network cisco screenos junos custom cr skip-java-exceptions/;
+@usage_order = qw/files all ip ip-prefix host hostname domain fqdn email network cisco screenos junos custom cr skip-java-exceptions/;
 get_options();
 if($all){
     $ip       = 1;
     $host     = 1;
+    $email    = 1;
     $network  = 1;
     $custom   = 1;
 }
@@ -79,6 +82,7 @@ unless(
     $hostname +
     $ip +
     $ip_prefix +
+    $email +
     $network +
     $screenos +
     $junos
@@ -117,6 +121,7 @@ sub scrub($){
     $string =~ s/(?:\r?\n)$//;
     $string = scrub_ip_prefix ($string) if $ip_prefix;
     $string = scrub_ip      ($string)  if $ip and not $ip_prefix;
+    $string = scrub_email   ($string)  if $email; # must be done before scrub_host in order to match
     $string = scrub_host    ($string)  if $host;
     $string = scrub_fqdn    ($string)  if $fqdn     and not $host;
     $string = scrub_domain  ($string)  if $domain   and not $host;
@@ -215,7 +220,9 @@ sub scrub_hostname($){
 sub scrub_domain($){
     my $string = shift;
     return $string if skip_java_exceptions($string, $domain_regex2, "domain");
+    # using stricter domain_regex2 which requires domain.tld format and not just tld
     $string =~ s/$domain_regex2/<domain>/go;
+    $string =~ s/\@$domain_regex/\@<domain>/go;
     return $string;
 }
 
@@ -224,6 +231,13 @@ sub scrub_fqdn($){
     return $string if skip_java_exceptions($string, $fqdn_regex, "fqdn");
     # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
     $string =~ s/$fqdn_regex/<fqdn>/go;
+    return $string;
+}
+
+sub scrub_email($){
+    my $string = shift;
+    # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
+    $string =~ s/$email_regex/<email>/go;
     return $string;
 }
 
