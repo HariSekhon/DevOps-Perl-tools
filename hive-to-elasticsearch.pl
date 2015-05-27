@@ -31,7 +31,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0";
 
-$VERSION = "0.6.4";
+$VERSION = "0.6.5";
 
 use strict;
 use warnings;
@@ -52,8 +52,11 @@ use Search::Elasticsearch;
 my $elasticsearch_hadoop_hive_jar = "";
 my $commons_httpclient_jar        = "";
 
-# Hardcode the paths to your hive and kinit commands if they're not in the basic $PATH (which gets scrubbed from the environment for security taint mode) to just the system paths
-my $hive  = 'hive';
+# Hardcode the paths to your hive and kinit commands if they're not in the basic $PATH (which gets scrubbed from the environment for security taint mode to just the system paths /bin:/usr/bin/:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+# In case you're on Hortonworks and using Tez, I find that MapReduce is more robust, similar in terms of performance at high scale and gives better reporting in the Yarn Resource Manager as to whether a job succeeded or failed
+my $hive  = 'hive --hiveconf hive.execution.engine=mr';
+# if you must use Tez you can also put use -S switch for silent mode if you are tee-ing this to a log file and don't want all that interactive terminal progress bars cluttering up and enlarging your logs since they don't come out properly when written to a log file anyway
+# $hive .= ' -S';
 my $kinit = 'kinit';
 
 # search these locations for elasticsearch and http commons jars
@@ -222,7 +225,7 @@ my $create_columns = "";
 sub get_columns(){
     vlogt "checking columns in table $db.$table (this may take a minute)";
     # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
-    my $output = `hive -S -e 'describe $db.$table' 2>/dev/null`;
+    my $output = `$hive -S -e 'describe $db.$table' 2>/dev/null`;
     exit_if_controlc($?);
     my @output = split(/\n/, $output);
     my %columns;
@@ -332,9 +335,9 @@ FROM $table";
         $result = create_index($index);
     }
     $result or vlogt "WARNING: failed to create index" . ( defined($result) ? ": $result" : "");
-    #my $cmd = "hive -S --hiveconf hive.session.id='$db.$table=>ES-$partition' -e '$hql'");
+    #my $cmd = "$hive -S --hiveconf hive.session.id='$db.$table=>ES-$partition' -e '$hql'");
     # TODO: debug + fix why hive.session.id isn't taking effect, I used to use this all the time in all my other scripts doing this same operation
-    my $cmd = "hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' -e \"$hql\"";
+    my $cmd = "$hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' -e \"$hql\"";
     vlogt "running Hive => Elasticsearch indexing process for table $db.$table " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
     my $start = time;
     # hive -v instead
