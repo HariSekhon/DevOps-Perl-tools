@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -37,6 +37,7 @@ my $hostname  = 0;
 my $domain    = 0;
 my $fqdn      = 0;
 my $email     = 0;
+my $kerberos  = 0;
 my $network   = 0;
 my $cisco     = 0;
 my $screenos  = 0;
@@ -54,6 +55,7 @@ my $skip_java_exceptions = 0;
     "o|hostname"    => [ \$hostname,    "Apply hostname format scrubbing (only works on \"<host>:<port>\" otherwise this would match everything (consider using --custom and putting your hostname convention regex in scrub_custom.conf to catch other shortname references)" ],
     "d|domain"      => [ \$domain,      "Apply domain format scrubbing" ],
     "F|fqdn"        => [ \$fqdn,        "Apply fqdn format scrubbing" ],
+    "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate scrub_custom.conf). These kerberos principals are scrubbed to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be scrubbed in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
     "e|email"       => [ \$email,       "Apply email format scrubbing" ],
     "n|network"     => [ \$network,     "Apply all network scrubbing, whether Cisco, ScreenOS, JunOS for secrets, auth, usernames, passwords, md5s, PSKs, AS, SNMP etc." ],
     "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format scrubbing" ],
@@ -64,12 +66,13 @@ my $skip_java_exceptions = 0;
     "E|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
 );
 
-@usage_order = qw/files all ip ip-prefix host hostname domain fqdn email network cisco screenos junos custom cr skip-java-exceptions/;
+@usage_order = qw/files all ip ip-prefix host hostname domain fqdn kerberos email network cisco screenos junos custom cr skip-java-exceptions/;
 get_options();
 if($all){
     $ip       = 1;
     $host     = 1;
     $email    = 1;
+    $kerberos = 1;
     $network  = 1;
     $custom   = 1;
 }
@@ -83,6 +86,7 @@ unless(
     $ip +
     $ip_prefix +
     $email +
+    $kerberos +
     $network +
     $screenos +
     $junos
@@ -115,22 +119,24 @@ sub scrub($){
     my $string = shift;
     $string =~ /(\r?\n)$/;
     my $line_ending = $1;
+    $line_ending = "" unless ($line_ending);
     $line_ending = "\n" if $cr;
     # this doesn't chomp \r, only \n
     #chomp $string;
     $string =~ s/(?:\r?\n)$//;
     $string = scrub_ip_prefix ($string) if $ip_prefix;
     $string = scrub_ip      ($string)  if $ip and not $ip_prefix;
-    $string = scrub_email   ($string)  if $email; # must be done before scrub_host in order to match
+    $string = scrub_kerberos($string)  if $kerberos; # must be done before scrub_email and scrub_host in order to match, otherwise scrub_email will leave user@<email_regex>
+    $string = scrub_email   ($string)  if $email;    # must be done before scrub_host in order to match
     $string = scrub_host    ($string)  if $host;
     $string = scrub_fqdn    ($string)  if $fqdn     and not $host;
     $string = scrub_domain  ($string)  if $domain   and not $host;
     $string = scrub_hostname($string)  if $hostname and not $host;
-    $string = scrub_custom  ($string)  if $custom;
     $string = scrub_network ($string)  if $network;
     $string = scrub_cisco   ($string)  if $cisco;
     $string = scrub_screenos($string)  if $screenos;
-    $string = scrub_junos($string)     if $junos;
+    $string = scrub_junos   ($string)  if $junos;
+    $string = scrub_custom  ($string)  if $custom;
     return "$string$line_ending";
 }
 
@@ -236,8 +242,19 @@ sub scrub_fqdn($){
 
 sub scrub_email($){
     my $string = shift;
-    # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
     $string =~ s/$email_regex/<email>/go;
+    return $string;
+}
+
+sub scrub_kerberos($){
+    my $string = shift;
+    if($string =~ /\/_HOST\@/){
+        # only take the realm off not the 
+        $string =~ s/$user_regex\/_HOST\@$domain_regex/<kerberos_primary>\/_HOST\@<kerberos_realm>/go;
+    } else {
+        # krb5_principal_regex is too permission here since it's designed to permit user input, not to differentiate between arbitrary tokens and definitely kerberos principals
+        $string =~ s/\b$user_regex(?:\/$hostname_regex)?\@$domain_regex\b/<kerberos_principal>/go;
+    }
     return $string;
 }
 
