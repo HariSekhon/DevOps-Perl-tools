@@ -31,7 +31,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.6.6";
+$VERSION = "0.6.7";
 
 use strict;
 use warnings;
@@ -61,7 +61,7 @@ my $kinit = 'kinit';
 
 # search these locations for elasticsearch and http commons jars
 my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/hadoop/lib /usr/lib/hadoop*/lib};
-push(@jar_search_paths, $ENV{'HOME'});
+splice @jar_search_paths, 1, 0, $ENV{'HOME'};
 
 ########################
 
@@ -379,7 +379,10 @@ FROM $table";
 
 #vlog "checking for dependent libraries ES Hadoop and commons httpclient";
 foreach my $path (@jar_search_paths){
-    vlog3 "checking path $path for jars\n";
+    vlog3t "going to check path $path for jars";
+}
+foreach my $path (@jar_search_paths){
+    vlog3t "checking path $path for elastticsearch hadoop/hive jar";
     foreach(glob("$path/*.jar"), glob("$path/elasticsearch-hadoop-*/dist/*.jar")){
         if( -f $_){
             if(basename($_) =~ /^elasticsearch-hadoop(?:-hive)?-\d+(?:\.\d+)*(?:\.Beta\d+)?\.jar$/i){
@@ -393,6 +396,7 @@ foreach my $path (@jar_search_paths){
     last if $elasticsearch_hadoop_hive_jar;
 }
 foreach my $path (@jar_search_paths){
+    vlog3t "checking path $path for commons httpclient jar";
     foreach(glob("$path/*.jar")){
         if( -f $_){
             if(basename($_) =~ /^commons-httpclient.*\.jar$/){
