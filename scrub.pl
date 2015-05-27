@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -95,19 +95,19 @@ my @files = parse_file_option($file, "args are files");
 
 my @custom_phrases;
 if($custom){
-    my $scrub_custom_txt = dirname(__FILE__) . "/scrub_custom.conf";
+    my $scrub_custom_conf = dirname(__FILE__) . "/scrub_custom.conf";
     my $fh;
-    if(open $fh, $scrub_custom_txt){
+    if(open $fh, $scrub_custom_conf){
         while(<$fh>){
             chomp;
             s/#.*//;
             next if /^\s*$/;
             push(@custom_phrases, $_);
         }
-        #@custom_phrases or die "Failed to read any custom phrases from '$scrub_custom_txt'\n";
+        #@custom_phrases or die "Failed to read any custom phrases from '$scrub_custom_conf'\n";
         close $fh;
     } else {
-        warn "warning: failed to open file $scrub_custom_txt, continuing without...\n";
+        warn "warning: failed to open file $scrub_custom_conf, continuing without...\n";
     }
 }
 
