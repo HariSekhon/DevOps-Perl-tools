@@ -23,7 +23,7 @@ Creates hive table of same name as each indexed table with '_elasticsearch' suff
 
 For partitioned Hive tables, the generated Elasticsearch indices are always suffixed with the partition value and then aliased back to either the specified alias name or the originally requested index name without the suffix if no alias is specified. It's very impractical to try to index a high scale Hive partitioned table in one go to a single index and lacks part-way resume behaviour which partitioned indices gives.
 
-For inline data transformations set up a Hive view on the desired table and specify --view from which to pull the data (--table is still required to detect partitions and --columns). You typically want to do this to generate the id field or correctly format the date field for Elasticsearch. The limitations here are that the view must be in the same database as the table and that all specified columns must be in the table definition and also available with the same names in the view, or if no columns are specified it will use all columns from the table which must then be available in the view, otherwise the job will fail when it comes to indexing. This was the lesser of two evils as sourcing arbitrary SQL from user allows for waaaay more problems that are also difficult to debug.
+For inline data transformations set up a Hive view on the desired table and specify --view from which to pull the data (--table is still required to detect partitions and --columns). You typically want to do this to generate the id field or correctly format the date field for Elasticsearch. The limitations here are that the view must be in the same database as the table and that if not specifying columns then all columns from the table will be index and so all columns must be available with the same names in the view, otherwise the job will fail late when it comes to indexing and can't find matching columns. I enforce column matching earlier only when a view is not used since the view may generate additional columns which aren't available to validate against in the table definition. This was the lesser of two evils as sourcing arbitrary SQL from user allows for waaaay more problems that are also difficult to debug.
 
 Libraries Required:
 
@@ -33,7 +33,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -90,6 +90,7 @@ my $db = "default";
 my $table;
 my $view;
 my $columns;
+my $column_file;
 my $alias;
 my $delete_on_failure;
 my $no_task_retries;
@@ -112,6 +113,7 @@ $nodes = "localhost:9200";
     "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect Hive partitions)" ],
     "view=s"                =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch" ],
     "C|columns=s"           =>  [ \$columns,            "Hive table columns in the given table to index to Elasticsearch, comma separated (defaults to indexing all columns)" ],
+    "column-file=s"         =>  [ \$column_file,       "File containing Hive column names to index, one per line (use when you have a lot of columns and don't want massive command lines)" ],
     "p|partition-key=s"     =>  [ \$partition_key,      "Hive table partition. Optional but recommended for high scale and to split Elasticsearch indexing jobs in to more easily repeatable units in case of failures" ],
     "u|partition-values=s"  => [ \$partition_values,    "Hive table partition value(s), can be comma separated to index multiple partitions. If multiple partitions are specified separated by commas then the index name will be suffixed with the partition value. Optional, but requires --parition-key if specified" ],
     %elasticsearch_index,
@@ -127,7 +129,7 @@ $nodes = "localhost:9200";
     "stop-on-failure"       => [ \$stop_on_failure,     "Stop processing successive Hive partitions if a partition fails to index to Elasticsearch (default is to wait 10 mins after index failure before attempting the next one to iterate over the rest of the partitions in case the error is transitory, such as a temporary networking outage, in which case you may be able to get some or all of the rest of the partitions indexed when the network/cluster(s) recover and just go back and fill in the missing days, maximizing bulk indexing time for overnight jobs)" ],
 );
 #@usage_order .= # TODO ;
-@usage_order = qw/node nodes port db database table view columns partition-key partition-values index type shards alias optimize queue recreate-index delete-on-failure skip-existing no-task-retries stop-on-failure/;
+@usage_order = qw/node nodes port db database table view columns column-file partition-key partition-values index type shards alias optimize queue recreate-index delete-on-failure skip-existing no-task-retries stop-on-failure/;
 
 get_options();
 
@@ -138,6 +140,18 @@ $db       = validate_database($db, "Hive");
 $table    = validate_database_tablename($table, "Hive");
 $view     = validate_database_viewname($view, "Hive") if defined($view);
 my @columns;
+($columns and $column_file) and usage "--columns and --column-file are mutually exclusive!";
+if($column_file){
+    my $fh = open_file($column_file);
+    my @column_from_file;
+    while(<$fh>){
+        chomp;
+        s/#.*//;
+        next if /^\s*$/;
+        push(@column_from_file, $_);
+        $columns = join(",", @column_from_file);
+    }
+}
 if($columns){
     foreach(split(/\s*,\s*/, $columns)){
         $_ = validate_database_columnname($_);
@@ -244,7 +258,10 @@ my @columns_found;
 my $create_columns = "";
 
 sub get_columns(){
-    vlogt "checking columns in table $db.$table (this may take a minute)";
+    my $table = $table;
+    my $table_or_view = ( $view ? "view" : "table" );
+    $table = $view if $view;
+    vlogt "checking columns in $table_or_view $db.$table (this may take a minute)";
     # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
     my $output = `$hive -S -e 'describe $db.$table' 2>/dev/null`;
     exit_if_controlc($?);
@@ -253,19 +270,22 @@ sub get_columns(){
     foreach(@output){
         # bit hackish but quick to do, take lines which look like "^column_name<space>column_type$" - doesn't support
         # This and the uniq_array2 on @columns_found prevent the partition by field being interpreted as another column which breaks the generated HQL
-        last if /Partition Information/i;
+                # Tables                    # Views
+        last if /Partition Information/i or /# Detailed Table Information/;
         #            NAME           TYPE (eg. string, double, boolean)
         if(/^\s*($column_regex)\s+([A-Za-z]+)\s*$/){
             $columns{$1} = $2;
             push(@columns_found, $1);
         }
     }
-    die "\nfound no columns for table $db.$table - does table exist?\n" unless @columns_found;
+    die "\nfound no columns for $db.$table - does $table_or_view exist?\n" unless @columns_found;
     @columns_found = uniq_array2 @columns_found;
     if(@columns){
-        vlogt "validating requested columns against table definition";
-        foreach my $column (@columns){
-            grep { $column eq $_ } @columns_found or die "column '$column' was not found in the Hive table definition for '$db.$table'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns_found) . "\n";
+        if(not $view){
+            vlogt "validating requested columns against $table_or_view definition";
+            foreach my $column (@columns){
+                grep { $column eq $_ } @columns_found or die "column '$column' was not found in the Hive $table_or_view definition for '$db.$table'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns_found) . "\n";
+            }
         }
     } else {
         vlogt "no columns specified, will index all columns to Elasticsearch";
@@ -274,6 +294,7 @@ sub get_columns(){
     }
     $columns = join(",\n    ", @columns);
     foreach my $column (@columns){
+        die "Error: no field type found for column '$column'\n" unless $columns{$column};
         $create_columns .= sprintf("%4s%-20s%2s%s,\n", "", $column, "", $columns{$column});
     }
     $create_columns =~ s/,\n$//;
