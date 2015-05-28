@@ -23,7 +23,7 @@ Creates hive table of same name as each indexed table with '_elasticsearch' suff
 
 For partitioned Hive tables, the generated Elasticsearch indices are always suffixed with the partition value and then aliased back to either the specified alias name or the originally requested index name without the suffix if no alias is specified. It's very impractical to try to index a high scale Hive partitioned table in one go to a single index and lacks part-way resume behaviour which partitioned indices gives.
 
-For inline data transformations set up a Hive view on the desired table and specify --view from which to pull the data (--table is still required to detect partitions and --columns). You typically want to do this to generate the id field or correctly format the date field for Elasticsearch. The limitations here are that the view must be in the same database as the table and that if not specifying columns then all columns from the table will be index and so all columns must be available with the same names in the view, otherwise the job will fail late when it comes to indexing and can't find matching columns. I enforce column matching earlier only when a view is not used since the view may generate additional columns which aren't available to validate against in the table definition. This was the lesser of two evils as sourcing arbitrary SQL from user allows for waaaay more problems that are also difficult to debug.
+For inline data transformations set up a Hive view and specify --view. If the view is based on a partitioned table(s) then you must specify --table to get the partitions to iterate over if not specifying --partition-key and --partition-value. You typically want to use a view to generate the id field or correctly format the date field for Elasticsearch. The limitations here are that the view must be in the same database if specifying --table to iterate on all the table partitions.
 
 Libraries Required:
 
@@ -137,8 +137,9 @@ my @nodes = validate_nodeport_list($nodes);
 $host     = $nodes[0];
 $port     = validate_port($port);
 $db       = validate_database($db, "Hive");
-$table    = validate_database_tablename($table, "Hive");
+$table    = validate_database_tablename($table, "Hive") if defined($table);
 $view     = validate_database_viewname($view, "Hive") if defined($view);
+$table or $view or usage "must specify a table or a view";
 my @columns;
 ($columns and $column_file) and usage "--columns and --column-file are mutually exclusive!";
 if($column_file){
@@ -253,13 +254,15 @@ sub exit_if_controlc($){
     }
 }
 
+my $partitions_found;
 my @partitions_found;
 my @columns_found;
 my $create_columns = "";
 
+my $table_or_view = ( $view ? "view" : "table" );
+
 sub get_columns(){
     my $table = $table;
-    my $table_or_view = ( $view ? "view" : "table" );
     $table = $view if $view;
     vlogt "checking columns in $table_or_view $db.$table (this may take a minute)";
     # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
@@ -306,8 +309,9 @@ sub indexToES($;$){
     my $partition = shift;
     my $partition_key   = $partition;
     my $partition_value = $partition;
+    my $table = $view if $view;
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
-    vlogt "starting processing of table $db.$table " . ( $partition ? "partition $partition " : "" ) . ( $view ? "(via view $db.$view) " : "" ) . "to index '$index'";
+    vlogt "starting processing of $table_or_view $db.$table " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
     get_columns() unless (@columns_found and $create_columns);
     if($partition){
         $partition_key   =~ s/=.*$//;
@@ -373,7 +377,7 @@ TBLPROPERTIES(
              );
 INSERT OVERWRITE TABLE ${table}_elasticsearch SELECT
     $columns
-FROM " . ( $view ? $view : $table );
+FROM $table";
     $hql .= " WHERE $partition" if $partition;
     $hql .= ";";
     my $response;
@@ -484,17 +488,18 @@ if(which($kinit)){
     vlog2 join("\n", @output);
 }
 
-my $partitions_found;
-vlogt "getting Hive partitions for table $db.$table (this may take a minute)";
-# define @partitions_found separately for quick debugging commenting out getting partitions which slows me down
-$partitions_found = `$hive -S -e 'show partitions $db.$table' 2>/dev/null`;
-unless($? == 0){
-    vlogt "Failed to determine partitions for table '$table', did you specify a non-existent table or perhaps a view for --table?\n";
-    exit $ERRORS{"UNKNOWN"};
+if($table){
+    vlogt "getting Hive partitions for table $db.$table (this may take a minute)";
+    # define @partitions_found separately for quick debugging commenting out getting partitions which slows me down
+    $partitions_found = `$hive -S -e 'show partitions $db.$table' 2>/dev/null`;
+    unless($? == 0){
+        vlogt "Failed to determine partitions for table '$table', did you specify a non-existent table or perhaps a view for --table?\n";
+        exit $ERRORS{"UNKNOWN"};
+    }
+    exit_if_controlc($?);
+    @partitions_found = split(/\n/, $partitions_found);
+    vlogt "$db.$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
 }
-exit_if_controlc($?);
-@partitions_found = split(/\n/, $partitions_found);
-vlogt "$db.$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
 
 if(@partitions){
     foreach my $partition (@partitions){
