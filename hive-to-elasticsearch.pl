@@ -196,8 +196,11 @@ set_timeout();
 
 $status = "OK";
 
+my $table_or_view = ( $view ? "view" : "table" );
+
 vlog "# " . "=" x 76 . " #";
-vlog "#  Hive database '$db' table '$table' => Elasticsearch";
+# need to leave $table intact here still since if it exists later we will do partition checks
+vlog "#  Hive database '$db' $table_or_view '" . ( $view ? $view : $table ) . "' => Elasticsearch";
 #plural @nodes;
 #vlog2 "(node$plural: '$es_nodes')";
 vlog "# " . "=" x 76 . " #\n";
@@ -258,8 +261,6 @@ my $partitions_found;
 my @partitions_found;
 my @columns_found;
 my $create_columns = "";
-
-my $table_or_view = ( $view ? "view" : "table" );
 
 sub get_columns(){
     my $table = $table;
