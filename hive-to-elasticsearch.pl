@@ -23,6 +23,8 @@ Creates hive table of same name as each indexed table with '_elasticsearch' suff
 
 For partitioned Hive tables, the generated Elasticsearch indices are always suffixed with the partition value and then aliased back to either the specified alias name or the originally requested index name without the suffix if no alias is specified. It's very impractical to try to index a high scale Hive partitioned table in one go to a single index and lacks part-way resume behaviour which partitioned indices gives.
 
+For inline data transformations set up a Hive view on the desired table and specify --view from which to pull the data (--table is still required to detect partitions and --columns). You typically want to do this to generate the id field or correctly format the date field for Elasticsearch. The limitations here are that the view must be in the same database as the table and that all specified columns must be in the table definition and also available with the same names in the view, or if no columns are specified it will use all columns from the table which must then be available in the view, otherwise the job will fail when it comes to indexing. This was the lesser of two evils as sourcing arbitrary SQL from user allows for waaaay more problems that are also difficult to debug.
+
 Libraries Required:
 
 ES Hadoop - https://www.elastic.co/downloads/hadoop
@@ -31,7 +33,11 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.6.9";
+$VERSION = "0.7.0";
+
+# XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
+# 
+# This would be needed for any port to Beeline otherwise the jars are assumed to be on the HiveServer2, and then that would only work from Hive 1.2, not porting this any time soon :-/
 
 use strict;
 use warnings;
@@ -54,6 +60,7 @@ my $commons_httpclient_jar        = "";
 
 # Hardcode the paths to your hive and kinit commands if they're not in the basic $PATH (which gets scrubbed from the environment for security taint mode to just the system paths /bin:/usr/bin/:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin)
 # In case you're on Hortonworks and using Tez, I find that MapReduce is more robust, similar in terms of performance at high scale and gives better reporting in the Yarn Resource Manager as to whether a job succeeded or failed
+#my $hive  = 'hive';
 my $hive  = 'hive --hiveconf hive.execution.engine=mr';
 # if you must use Tez you can also put use -S switch for silent mode if you are tee-ing this to a log file and don't want all that interactive terminal progress bars cluttering up and enlarging your logs since they don't come out properly when written to a log file anyway
 # $hive .= ' -S';
@@ -62,6 +69,8 @@ my $kinit = 'kinit';
 # search these locations for elasticsearch and http commons jars
 my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/hadoop/lib /usr/lib/hadoop*/lib};
 splice @jar_search_paths, 1, 0, $ENV{'HOME'};
+
+my $es_ignore_errors = [ 400, 404, 500 ];
 
 ########################
 
@@ -73,8 +82,13 @@ autoflush();
 
 $verbose = 1;
 
+# these are evaluated in regex brackets [ ]
+my $valid_partition_key_chars   = "A-Za-z0-9_-";
+my $valid_partition_value_chars = "A-Za-z0-9_-";
+
 my $db = "default";
 my $table;
+my $view;
 my $columns;
 my $alias;
 my $delete_on_failure;
@@ -95,7 +109,8 @@ $nodes = "localhost:9200";
 %options = (
     %nodeoptions,
     "d|db|database=s"       =>  [ \$db,                 "Hive database (defaults to the 'default' database" ],
-    "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch" ],
+    "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect Hive partitions)" ],
+    "view=s"                =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch" ],
     "C|columns=s"           =>  [ \$columns,            "Hive table columns in the given table to index to Elasticsearch, comma separated (defaults to indexing all columns)" ],
     "p|partition-key=s"     =>  [ \$partition_key,      "Hive table partition. Optional but recommended for high scale and to split Elasticsearch indexing jobs in to more easily repeatable units in case of failures" ],
     "u|partition-values=s"  => [ \$partition_values,    "Hive table partition value(s), can be comma separated to index multiple partitions. If multiple partitions are specified separated by commas then the index name will be suffixed with the partition value. Optional, but requires --parition-key if specified" ],
@@ -109,10 +124,10 @@ $nodes = "localhost:9200";
     "delete-on-failure"     => [ \$delete_on_failure,   "Delete Elasticsearch index if the indexing job fails, useful when combined with --skip-existing to be able to re-run safely over and over to fill in new or missing partitions that haven't been indexed yet" ],
     "skip-existing"         => [ \$skip_existing,       "Skip job if the Elasticsearch index already exists (useful with --delete-on-failure to give safe retry semantics for indexing only missing Hive partitions that did not successfully complete on previous runs)" ],
     "no-task-retries"       => [ \$no_task_retries,     "Fails job if any task fails to prevent duplicates being introduced if using autogenerated IDs as it be may be better to combine with --recreate-index or --delete-on-failure to recreate index without duplicates in that case" ],
-    "stop-on-failure"       => [ \$stop_on_failure,     "Stop processing successive Hive partitions if a partition fails to index to Elasticsearch (default is to wait 10 mins after index failure before attempting the next one to iterate over the rest of the partitions in case the error is transitory, such as a temporary networking outage, in which case you may be able to get some or all of the rest of the partitions indexed when it the network/cluster(s) recover and just go back and fill in the missing days, maximizing bulk indexing time for overnight jobs)" ],
+    "stop-on-failure"       => [ \$stop_on_failure,     "Stop processing successive Hive partitions if a partition fails to index to Elasticsearch (default is to wait 10 mins after index failure before attempting the next one to iterate over the rest of the partitions in case the error is transitory, such as a temporary networking outage, in which case you may be able to get some or all of the rest of the partitions indexed when the network/cluster(s) recover and just go back and fill in the missing days, maximizing bulk indexing time for overnight jobs)" ],
 );
 #@usage_order .= # TODO ;
-@usage_order = qw/node nodes port db database table columns partition-key partition-values index type shards alias optimize queue recreate-index delete-on-failure skip-existing no-task-retries stop-on-failure/;
+@usage_order = qw/node nodes port db database table view columns partition-key partition-values index type shards alias optimize queue recreate-index delete-on-failure skip-existing no-task-retries stop-on-failure/;
 
 get_options();
 
@@ -121,6 +136,7 @@ $host     = $nodes[0];
 $port     = validate_port($port);
 $db       = validate_database($db, "Hive");
 $table    = validate_database_tablename($table, "Hive");
+$view     = validate_database_viewname($view, "Hive") if defined($view);
 my @columns;
 if($columns){
     foreach(split(/\s*,\s*/, $columns)){
@@ -140,12 +156,11 @@ if((defined($partition_key) and not defined($partition_values)) or (defined($par
     usage "if using partitions must specify both --partition-key and --partition-value";
 }
 #$partition_key = validate_alnum($partition_key, "partition key") if $partition_key;
-$partition_key = validate_chars($partition_key, "partition key", "A-Za-z0-9_-") if $partition_key;
+$partition_key = validate_chars($partition_key, "partition key", $valid_partition_key_chars) if $partition_key;
 my @partitions;
-#$partition_value = validate_chars($partition_value, "partition value", "A-Za-z0-9_-");
 if($partition_values){
     foreach(split(/\s*,\s*/, $partition_values)){
-        $_ = validate_chars($_, "partition value", "A-Za-z0-9_-");
+        $_ = validate_chars($_, "partition value", $valid_partition_value_chars);
         push(@partitions, "$partition_key=$_");
     }
     @partitions = uniq_array2 @partitions;
@@ -201,7 +216,7 @@ sub create_index($){
 #    "
     my $result = $es->indices->create(
         'index'  => $index,
-        'ignore' => 400,
+        'ignore' => $es_ignore_errors, # worst case we'll create a default index instead, better than nothing for overnight jobs, can always re-index later
         'body'   => "{
             \"settings\": {
                 \"index\": {
@@ -225,8 +240,9 @@ sub exit_if_controlc($){
 }
 
 my @partitions_found;
-
+my @columns_found;
 my $create_columns = "";
+
 sub get_columns(){
     vlogt "checking columns in table $db.$table (this may take a minute)";
     # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
@@ -234,7 +250,6 @@ sub get_columns(){
     exit_if_controlc($?);
     my @output = split(/\n/, $output);
     my %columns;
-    my @columns_found;
     foreach(@output){
         # bit hackish but quick to do, take lines which look like "^column_name<space>column_type$" - doesn't support
         # This and the uniq_array2 on @columns_found prevent the partition by field being interpreted as another column which breaks the generated HQL
@@ -256,10 +271,10 @@ sub get_columns(){
         vlogt "no columns specified, will index all columns to Elasticsearch";
         vlog3t "auto-determined columns as follows:\n" . join("\n", @columns_found);
         @columns = @columns_found;
-        $columns = join(",\n    ", @columns);
     }
+    $columns = join(",\n    ", @columns);
     foreach my $column (@columns){
-        $create_columns .= "    $column    $columns{$column},\n";
+        $create_columns .= sprintf("%4s%-20s%2s%s,\n", "", $column, "", $columns{$column});
     }
     $create_columns =~ s/,\n$//;
     return $create_columns;
@@ -268,18 +283,30 @@ sub get_columns(){
 sub indexToES($;$){
     my $index     = shift;
     my $partition = shift;
-    if($partition){
-        my $partition_value = $partition;
-        $partition_value =~ s/.*=//;
-        $index .= "_$partition_value" if scalar @partitions_found > 1;
-    }
+    my $partition_key   = $partition;
+    my $partition_value = $partition;
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
-    vlogt "starting processing of table $db.$table " . ( $partition ? "partition $partition " : "" ). "to index '$index'";
-    get_columns() unless $create_columns;
+    vlogt "starting processing of table $db.$table " . ( $partition ? "partition $partition " : "" ) . ( $view ? "(via view $db.$view) " : "" ) . "to index '$index'";
+    get_columns() unless (@columns_found and $create_columns);
+    if($partition){
+        $partition_key   =~ s/=.*$//;
+        $partition_value =~ s/^.*=//;
+        isChars($partition_key, $valid_partition_key_chars) or die "ERROR: invalid partition key '$partition_key' detected\n";
+        isChars($partition_value, $valid_partition_value_chars) or die "ERROR: invalid partition value '$partition_value' detected\n";
+        # done at option parsing time for user supplied or at iteration time before calling this sub if indexing all partitions detected from Hive
+        #$partition =~ /^([$valid_partition_key_chars]+=[$valid_partition_value_chars]+)$/ or die "ERROR: invalid partition '$partition' detected\n";
+        #$partition = $1;
+        $index .= "_$partition_value" if scalar @partitions_found > 1;
+        if(not grep { $partition_key eq $_ } @columns_found){
+            die "Partition key '$partition_key' is not defined in the list of columns available in the table '$table'!\n";
+        }
+    }
     my $indices = $es->indices;
     #if($skip_existing and grep { $index eq $_ } get_ES_indices()){
     if($skip_existing){
         vlogt "user requested to skip existing index, checking if index '$index' exists";
+        # XXX: we don't want the whole script to crash if ES isn't available temporarily, but there would be a small race condition here if ignoring errors where this call fails but the Elasticsearch cluster/network then recovers and we re-index data that is already there... may be better to let it fail the script. If we need really want to be more robust maybe a shell loop on this script giving one partition per loop iteration may be better
+        #if($es->indices->exists('index' => $index, 'ignore' => $es_ignore_errors)){
         if($es->indices->exists('index' => $index)){
             vlogt "index '$index' already exists and user requested --skip-existing, skipping index '$index'";
             return 1;
@@ -319,22 +346,23 @@ LOCATION '/tmp/${table}_elasticsearch'
 TBLPROPERTIES(
                 'es.nodes'    = '$es_nodes',
                 'es.port'     = '$es_port',
-                'es.resource' = '$index/$type',
+                'es.resource' = '$index/$type', -- used to be \${index}_{partition_field}/\$type and the storage handler would infer the field correctly but now the index name is dynamically generated in code it's no longer needed
                 'es.index.auto.create'   = 'true', -- XXX: setting this to false may require type creation which would require manually mapping all Hive types to Elasticsearch types
-                'es.batch.write.refresh' = 'false'
+                'es.batch.write.refresh' = 'true'
              );
-INSERT INTO TABLE ${table}_elasticsearch SELECT
+INSERT OVERWRITE TABLE ${table}_elasticsearch SELECT
     $columns
-FROM $table";
+FROM " . ( $view ? $view : $table );
     $hql .= " WHERE $partition" if $partition;
     $hql .= ";";
     my $response;
     my $result;
-    if($es->indices->exists('index' => $index)){
+    # this may fail to recreate the index, may be better to loop on the script instead of allowing dups
+    if($es->indices->exists('index' => $index, 'ignore' => $es_ignore_errors)){
         if($recreate_index){
             vlogt "deleting pre-existing index '$index' for re-creation at user's request";
             #$response = curl_elasticsearch_raw "/$index", "DELETE";
-            $es->indices->delete('index' => $index, 'ignore' => 404);
+            $es->indices->delete('index' => $index, 'ignore' => $es_ignore_errors);
             $result = create_index($index);
         }
     } else {
@@ -351,23 +379,23 @@ FROM $table";
     system($cmd);
     my $exit_code = $?;
     my $secs = time - $start;
-    my $msg = "with exit code '$exit_code' for index '$index' with $shards shards in " . sec2human($secs);
+    my $msg = "with exit code '$exit_code' for index '$index' with $shards shards in $secs secs => " . sec2human($secs);
     if($secs > 60){
         $msg .= " ($secs)";
     }
     if($exit_code == 0){
         vlogt "refreshing index";
         #$response = curl_elasticsearch_raw "/$index/_refresh", "POST";
-        $es->indices->refresh('index' => $index);
+        $es->indices->refresh('index' => $index, 'ignore' => $es_ignore_errors); # not the end of the world you can call a manual refresh later
         if($alias){
             vlogt "aliasing index '$index' to alias '$alias'";
             #$response = curl_elasticsearch_raw "/$index/_alias/$alias", "PUT";
-            $es->indices->put_alias('index' => $index, 'name' => $alias)
+            $es->indices->put_alias('index' => $index, 'name' => $alias, 'ignore' => $es_ignore_errors) # again not critical can alias by hand later
         }
         if($optimize){
             vlogt "optimizing index '$index'";
             #$response = curl_elasticsearch_raw "/$index/_optimize?max_num_segments=1", "POST";
-            $es->indices->optimize('index' => $index);
+            $es->indices->optimize('index' => $index, 'ignore' => $es_ignore_errors); # can optimize later if this fails
         }
         vlogt "INDEXING SUCCEEDED $msg";
         vlogt "don't forget to add replicas (currently 0) and change the refresh interval (currently -1) if needed";
@@ -376,7 +404,7 @@ FROM $table";
         if($delete_on_failure){
             vlogt "deleting index '$index' to clean up";
             #delete_elasticsearch_index($index);
-            $es->indices->delete('index' => $index, 'ignore' => 404);
+            $es->indices->delete('index' => $index, 'ignore' => $es_ignore_errors); # not exit whole script if this fails, we still want to try other partitions
         }
         exit_if_controlc($exit_code);
         if($stop_on_failure){
@@ -439,6 +467,10 @@ my $partitions_found;
 vlogt "getting Hive partitions for table $db.$table (this may take a minute)";
 # define @partitions_found separately for quick debugging commenting out getting partitions which slows me down
 $partitions_found = `$hive -S -e 'show partitions $db.$table' 2>/dev/null`;
+unless($? == 0){
+    vlogt "Failed to determine partitions for table '$table', did you specify a non-existent table or perhaps a view for --table?\n";
+    exit $ERRORS{"UNKNOWN"};
+}
 exit_if_controlc($?);
 @partitions_found = split(/\n/, $partitions_found);
 vlogt "$db.$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
@@ -467,7 +499,7 @@ if(@partitions){
         }
         foreach my $partition (@partitions_found){
             # untaint partition since we'll be putting it in to code
-            if($partition =~ /^([A-Za-z0-9_-]+=[A-Za-z0-9_-]+)$/){
+            if($partition =~ /^([$valid_partition_key_chars]+=[$valid_partition_value_chars]+)$/){
                 $partition = $1;
             } else {
                 quit "UNKNOWN", "invalid partition '$partition' detected in Hive table when attempting to iterate and index all partitions. Re-run with -vvv and paste in to a ticket at the following URL for a fix/update: https://github.com/harisekhon/toolbox/issues";
