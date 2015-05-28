@@ -110,8 +110,8 @@ $nodes = "localhost:9200";
 %options = (
     %nodeoptions,
     "d|db|database=s"       =>  [ \$db,                 "Hive database (defaults to the 'default' database" ],
-    "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect Hive partitions)" ],
-    "view=s"                =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch" ],
+    "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect/iterate over Hive partitions)" ],
+    "view=s"                =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch)" ],
     "C|columns=s"           =>  [ \$columns,            "Hive table columns in the given table to index to Elasticsearch, comma separated (defaults to indexing all columns)" ],
     "column-file=s"         =>  [ \$column_file,       "File containing Hive column names to index, one per line (use when you have a lot of columns and don't want massive command lines)" ],
     "p|partition-key=s"     =>  [ \$partition_key,      "Hive table partition. Optional but recommended for high scale and to split Elasticsearch indexing jobs in to more easily repeatable units in case of failures" ],
