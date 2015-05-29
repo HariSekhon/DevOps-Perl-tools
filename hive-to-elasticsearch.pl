@@ -33,7 +33,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 1. jar files adjacent to this program in the same directory
 2. jar files in your \$HOME directory
-3. the standard distribution paths on Hortonworks HDP, Cloudera CDH (parcels) as well as /usr/lib/hadoop*/lib for legacy. This is mostly tested on the standard Hortonworks HDP though
+3. the standard distribution paths on Hortonworks HDP, Cloudera CDH (parcels) as well as /usr/lib/hive*/lib and /usr/lib/hadoop*/lib for legacy. This is mostly tested on the standard Hortonworks HDP though
 4. elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar in straight zip unpacked directories found in any of the above locations
 
 Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly and result in not indexing mismatched field types etc, so editing this process which I've spent a long time on is at your own peril. If you do make any modifications/improvements please submit a patch in the form of a github pull request to https://github.com/harisekhon/toolbox (which is part of my license in providing this to you for free).
@@ -76,7 +76,19 @@ my $hive_desc_opts="--hiveconf hive.execution.engine=mr";
 my $kinit = 'kinit';
 
 # search these locations for elasticsearch and http commons jars
-my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/jars /opt/cloudera/parcels/CDH/lib/hadoop/client /opt/cloudera/parcels/CDH/lib/hadoop/lib /usr/lib/hadoop*/lib};
+my @jar_search_paths = qw{
+    .
+    /usr/hdp/current/hive-client/lib
+    /usr/hdp/current/hadoop-client/lib
+    /usr/hdp/current/hadoop-client/client
+    /opt/cloudera/parcels/CDH/lib/hive/lib
+    /opt/cloudera/parcels/CDH/lib/hadoop/client
+    /opt/cloudera/parcels/CDH/lib/hadoop/lib
+    /opt/cloudera/parcels/CDH/jars
+    /opt/cloudera/parcels/CDH/lib
+    /usr/lib/hive*/lib
+    /usr/lib/hadoop*/lib
+};
 splice @jar_search_paths, 1, 0, $ENV{'HOME'};
 
 my $es_ignore_errors = [ 400, 404, 500 ];
@@ -331,6 +343,7 @@ sub indexToES($;$){
     my $table = $table;
     $table = $view if $view;
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
+    vlogt "# " . "=" x 76 . " #";
     vlogt "starting processing of $table_or_view $db.$table " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
     get_columns() unless (@columns_found and $create_columns);
     if($partition){
