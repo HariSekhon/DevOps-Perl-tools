@@ -40,7 +40,7 @@ Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly an
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.8.1";
+$VERSION = "0.8.2";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -282,7 +282,7 @@ sub get_columns(){
     $table = $view if $view;
     vlogt "checking columns in $table_or_view $db.$table (this may take a minute)";
     # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
-    my $output = `$hive -S -e 'describe $db.$table' 2>/dev/null`;
+    my $output = `$hive -S --hiveconf hive.session.id=ES-describe -e 'describe $db.$table' 2>/dev/null`;
     exit_if_controlc($?);
     my @output = split(/\n/, $output);
     my %columns;
@@ -363,10 +363,14 @@ sub indexToES($;$){
     my $hql = "
 ADD JAR $elasticsearch_hadoop_hive_jar;
 ADD JAR $commons_httpclient_jar;
-SET hive.session.id=$job_name;
+SET hive.session.id=$job_name; --  this is the one that seems to work for Tez
+SET hive.job.name=$job_name;
+SET hive.query.id=$job_name;
+SET mapreduce.job.name=Hive=$job_name;
 SET mapred.job.name=Hive=$job_name;
-SET tez.queue.name=$queue;
 SET mapreduce.job.queuename=$queue;
+SET mapred.job.queuename=$queue;
+SET tez.queue.name=$queue;
 " . ( $no_task_retries ? "
 SET mapreduce.map.maxattempts=1;
 SET mapreduce.reduce.maxattempts=1;
@@ -416,7 +420,8 @@ FROM $table";
     $result or vlogt "WARNING: failed to create index" . ( defined($result) ? ": $result" : "");
     #my $cmd = "$hive -S --hiveconf hive.session.id='$db.$table=>ES-$partition' -e '$hql'");
     # TODO: debug + fix why hive.session.id isn't taking effect, I used to use this all the time in all my other scripts doing this same operation
-    my $cmd = "$hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' -e \"$hql\"";
+    # passing job name on CLI since it's too late by the time Hive CLI launches Tez has a session with the ID set
+    my $cmd = "$hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' --hiveconf tez.job.name='$job_name' --hiveconf hive.job.name='$job_name' --hiveconf hive.query.id='$job_name' -e \"$hql\"";
     vlogt "running Hive => Elasticsearch indexing process for table $db.$table " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
     my $start = time;
     # hive -v instead
@@ -511,7 +516,7 @@ if(which($kinit)){
 if($table){
     vlogt "getting Hive partitions for table $db.$table (this may take a minute)";
     # define @partitions_found separately for quick debugging commenting out getting partitions which slows me down
-    $partitions_found = `$hive -S -e 'show partitions $db.$table' 2>/dev/null`;
+    $partitions_found = `$hive -S --hiveconf hive.session.id=ES-partitions -e 'show partitions $db.$table' 2>/dev/null`;
     unless($? == 0){
         vlogt "Failed to determine partitions for table '$table', did you specify a non-existent table or perhaps a view for --table?\n";
         exit $ERRORS{"UNKNOWN"};
