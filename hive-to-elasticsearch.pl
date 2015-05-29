@@ -40,7 +40,7 @@ Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly an
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.8.0";
+$VERSION = "0.8.1";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -177,6 +177,9 @@ $type   = validate_elasticsearch_type($type);
 $alias  = validate_elasticsearch_alias($alias) if defined($alias);
 $shards = validate_int($shards, "shards", 1, 1000);
 $queue  = validate_alnum($queue, "queue");
+if($alias eq $index and not $suffix_index){
+    die "cannot specify --alias with same name as --index when --suffix-index is not used!\n";
+}
 if((defined($partition_key) and not defined($partition_values)) or (defined($partition_values) and not defined($partition_key))){
     usage "if using partitions must specify both --partition-key and --partition-value";
 }
@@ -516,6 +519,12 @@ if($table){
     exit_if_controlc($?);
     @partitions_found = split(/\n/, $partitions_found);
     vlogt "$db.$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
+}
+
+if(@partitions and not $suffix_index){
+    warn "WARNING: you have specified partition(s) but not --suffix-index, are you sure you mean to index all partitions to the same index??\n";
+} elsif(@partitions_found and not $suffix_index){
+    warn "WARNING: partition(s) have been detected and will be iterated over but you have not specified --suffix-index, are you sure you mean to index all partitions to the same index??\n";
 }
 
 if(@partitions){
