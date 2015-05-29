@@ -36,6 +36,8 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 3. commons-httpclient.jar in the standard distribution paths on Hortonworks HDP
 4. elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar in straight zip unpacked directories found in any of the above locations
 
+Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly/buggy and result in not indexing mismatched field types or no data whatsoever even when processing through all the data (even more counter-intuitive that just failing), so editing this process which I've sent a long time on is at your peril. If you do make any modifications/improvements you should submit a patch in the form of a github pull request, which is part of my license in providing this to you for free.
+
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
 $VERSION = "0.7.2";
@@ -65,8 +67,8 @@ my $commons_httpclient_jar        = "";
 
 # Hardcode the paths to your hive and kinit commands if they're not in the basic $PATH (which gets scrubbed from the environment for security taint mode to just the system paths /bin:/usr/bin/:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin)
 # In case you're on Hortonworks and using Tez, I find that MapReduce is more robust, similar in terms of performance at high scale and gives better reporting in the Yarn Resource Manager as to whether a job succeeded or failed
-#my $hive  = 'hive';
-my $hive  = 'hive --hiveconf hive.execution.engine=mr';
+my $hive  = 'hive';
+#my $hive  = 'hive --hiveconf hive.execution.engine=mr';
 # if you must use Tez you can also put use -S switch for silent mode if you are tee-ing this to a log file and don't want all that interactive terminal progress bars cluttering up and enlarging your logs since they don't come out properly when written to a log file anyway
 # $hive .= ' -S';
 my $kinit = 'kinit';
@@ -83,6 +85,8 @@ my $es_ignore_errors = [ 400, 404, 500 ];
 set_timeout_max(86400 * 7);
 set_timeout_default(86400 * 3);
 
+# make it easier to just | tee some.log as it's easy to forget to 2>&1 and then not have the log info to look back on
+open STDERR, ">&STDOUT";
 autoflush();
 
 $verbose = 1;
@@ -125,7 +129,7 @@ $nodes = "localhost:9200";
     %elasticsearch_index,
     %elasticsearch_type,
     "s|shards=s"            => [ \$shards,              "Number of shards to create new index as, must be a positive integer (default: $shards_default)" ],
-    "suffix-index=s"        => [ \$suffix_index,        "Suffix partition value to the index name (consider combining with --alias). Requires a Hive partitioned table where --partition-key/--partition-values are specified or all partitions are auto-determined and processed using --table" ],
+    "suffix-index"          => [ \$suffix_index,        "Suffix partition value to the index name (consider combining with --alias). Requires a Hive partitioned table where --partition-key/--partition-values are specified or all partitions are auto-determined and processed using --table" ],
     "a|alias=s"             => [ \$alias,               "Elasticsearch alias to add the index to after it's finished indexing (optional)" ],
     "o|optimize"            => [ \$optimize,            "Optimize Elasticsearch index after indexing and aliasing finishes" ],
     "q|queue=s"             => [ \$queue,               "Hadoop scheduler queue to run the Hive job in (use this to throttle and not overload Elasticsearch and trigger indexing job failures, default: $queue)" ],
@@ -188,6 +192,8 @@ if($partition_values){
     vlog_options "deduped partitions to index", "@partitions";
 }
 ($skip_existing and $recreate_index) and usage "--skip-existing and --recreate-index are mutually exclusive!";
+my $es_ignore_errors_orig = $es_ignore_errors;
+$es_ignore_errors = [] if $stop_on_failure;
 
 my $es_nodes = join(",", @nodes);
 my $es_port  = $port;
@@ -302,6 +308,7 @@ sub get_columns(){
         vlog3t "auto-determined columns as follows:\n" . join("\n", @columns_found);
         @columns = @columns_found;
     }
+    # XXX: ordering of create and select columns must line up precisely for this to work
     $columns = join(",\n    ", @columns);
     foreach my $column (@columns){
         die "Error: no field type found for column '$column'\n" unless $columns{$column};
@@ -394,6 +401,8 @@ FROM $table";
         if($recreate_index){
             vlogt "deleting pre-existing index '$index' for re-creation at user's request";
             #$response = curl_elasticsearch_raw "/$index", "DELETE";
+            # ignore deletion of any pre-existing index even for $stop_on_failure;
+            #my $es_ignore_errors = $es_ignore_errors_orig if $stop_on_failure;
             $es->indices->delete('index' => $index, 'ignore' => $es_ignore_errors);
             $result = create_index($index);
         }
@@ -411,9 +420,9 @@ FROM $table";
     system($cmd);
     my $exit_code = $?;
     my $secs = time - $start;
-    my $msg = "with exit code '$exit_code' for index '$index' with $shards shards in $secs secs => " . sec2human($secs);
-    if($secs > 60){
-        $msg .= " ($secs)";
+    my $msg = "with exit code '$exit_code' for index '$index' with $shards shards in $secs secs";
+    if($secs > 59){
+        $msg .= " => " . sec2human($secs);
     }
     if($exit_code == 0){
         vlogt "refreshing index";
