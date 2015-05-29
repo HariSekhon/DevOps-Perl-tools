@@ -21,7 +21,7 @@ The programs 'hive' and 'kinit' are assummed to be in the base PATH $ENV{PATH}, 
 
 Creates hive table of same name as each indexed table with '_elasticsearch' suffixed to it. Deletes and re-creates that _elasticsearch table each time to ensure correct data is sent and aligned with Elasiticsearch.
 
-For partitioned Hive tables, the generated Elasticsearch indices are always suffixed with the partition value and then aliased back to either the specified alias name or the originally requested index name without the suffix if no alias is specified. It's very impractical to try to index a high scale Hive partitioned table in one go to a single index and lacks part-way resume behaviour which partitioned indices gives.
+For high scale multi-billion row partitioned Hive tables, I've found it very impractical to try to index it all in one go as any interruption in such long running jobs means you have to start the jobs from the beginning instead of the part-way resume behaviour which partitioning naturally gives, so I recommend using partitions with --suffix to create an index-per-partition and --alias those indicies back under a global index alias for conveniently querying via one name.
 
 For inline data transformations set up a Hive view and specify --view. If the view is based on a partitioned table(s) then you must specify --table to get the partitions to iterate over if not specifying --partition-key and --partition-value. You typically want to use a view to generate the id field or correctly format the date field for Elasticsearch. The limitations here are that the view must be in the same database if specifying --table to iterate on all the table partitions.
 
@@ -29,11 +29,16 @@ Libraries Required:
 
 ES Hadoop - https://www.elastic.co/downloads/hadoop
 
-You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the Apache 'commons-httpclient.jar' (which should be supplied inside your Hadoop distribution) in to the same directory as this program. For conveneience this program will attempt to automatically find the commons-httpclient.jar on Hortonworks HDP in the standard distribution paths and the elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar if you just unpack the zip from Elasticsearch directly in to the same directory as this program or even found in your home directory. If you put those two required jars directly adjacent to this program that will also work.
+You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the Apache 'commons-httpclient.jar' (which should be supplied inside your Hadoop distribution). For conveneience this program will attempt to automatically find the jars in the following locations:
 
-Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
+1. jar files adjacent to this program in the same directory
+2. jar files in your \$HOME directory
+3. commons-httpclient.jar in the standard distribution paths on Hortonworks HDP
+4. elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar in straight zip unpacked directories found in any of the above locations
 
-$VERSION = "0.7.1";
+Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
+
+$VERSION = "0.7.2";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -103,6 +108,7 @@ my $skip_existing;
 my $stop_on_failure;
 my $shards_default = 5;
 my $shards = $shards_default;
+my $suffix_index;
 
 # default if not specified, for those being lazy with development (ie me) and people who have colocated Elasticsearch+Hadoop clusters. Everyone else doing proper high scale remote Elasticsearch clusters will need to specify nodes
 $nodes = "localhost:9200";
@@ -113,12 +119,13 @@ $nodes = "localhost:9200";
     "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect/iterate over Hive partitions)" ],
     "E|view=s"              =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch)" ],
     "C|columns=s"           =>  [ \$columns,            "Hive table columns in the given table to index to Elasticsearch, comma separated (defaults to indexing all columns)" ],
-    "F|column-file=s"       =>  [ \$column_file,       "File containing Hive column names to index, one per line (use when you have a lot of columns and don't want massive command lines)" ],
+    "F|column-file=s"       =>  [ \$column_file,        "File containing Hive column names to index, one per line (use when you have a lot of columns and don't want massive command lines)" ],
     "p|partition-key=s"     =>  [ \$partition_key,      "Hive table partition. Optional but recommended for high scale and to split Elasticsearch indexing jobs in to more easily repeatable units in case of failures" ],
-    "u|partition-values=s"  => [ \$partition_values,    "Hive table partition value(s), can be comma separated to index multiple partitions. If multiple partitions are specified separated by commas then the index name will be suffixed with the partition value. Optional, but requires --parition-key if specified" ],
+    "u|partition-values=s"  => [ \$partition_values,    "Hive table partition value(s), can be comma separated to index multiple partitions. Optional, but requires --parition-key if specified" ],
     %elasticsearch_index,
     %elasticsearch_type,
     "s|shards=s"            => [ \$shards,              "Number of shards to create new index as, must be a positive integer (default: $shards_default)" ],
+    "suffix-index=s"        => [ \$suffix_index,        "Suffix partition value to the index name (consider combining with --alias). Requires a Hive partitioned table where --partition-key/--partition-values are specified or all partitions are auto-determined and processed using --table" ],
     "a|alias=s"             => [ \$alias,               "Elasticsearch alias to add the index to after it's finished indexing (optional)" ],
     "o|optimize"            => [ \$optimize,            "Optimize Elasticsearch index after indexing and aliasing finishes" ],
     "q|queue=s"             => [ \$queue,               "Hadoop scheduler queue to run the Hive job in (use this to throttle and not overload Elasticsearch and trigger indexing job failures, default: $queue)" ],
@@ -128,7 +135,6 @@ $nodes = "localhost:9200";
     "no-task-retries"       => [ \$no_task_retries,     "Fails job if any task fails to prevent duplicates being introduced if using autogenerated IDs as it be may be better to combine with --recreate-index or --delete-on-failure to recreate index without duplicates in that case" ],
     "stop-on-failure"       => [ \$stop_on_failure,     "Stop processing successive Hive partitions if a partition fails to index to Elasticsearch (default is to wait 10 mins after index failure before attempting the next one to iterate over the rest of the partitions in case the error is transitory, such as a temporary networking outage, in which case you may be able to get some or all of the rest of the partitions indexed when the network/cluster(s) recover and just go back and fill in the missing days, maximizing bulk indexing time for overnight jobs)" ],
 );
-#@usage_order .= # TODO ;
 @usage_order = qw/node nodes port db database table view columns column-file partition-key partition-values index type shards alias optimize queue recreate-index delete-on-failure skip-existing no-task-retries stop-on-failure/;
 
 get_options();
@@ -322,7 +328,7 @@ sub indexToES($;$){
         # done at option parsing time for user supplied or at iteration time before calling this sub if indexing all partitions detected from Hive
         #$partition =~ /^([$valid_partition_key_chars]+=[$valid_partition_value_chars]+)$/ or die "ERROR: invalid partition '$partition' detected\n";
         #$partition = $1;
-        $index .= "_$partition_value" if scalar @partitions_found > 1;
+        $index .= "_$partition_value" if $suffix_index and defined($partition_value);
         if(not grep { $partition_key eq $_ } @columns_found){
             die "Partition key '$partition_key' is not defined in the list of columns available in the table '$table'!\n";
         }
@@ -534,6 +540,9 @@ if(@partitions){
             indexToES($index, $partition);
         }
     } else {
+        if($suffix_index){
+            die "requested to suffix partition value to index but no partition(s) were specified or found" . ( $table ? "" : " and no table was specified to auto-determine any partitions!" ) . "\n";
+        }
         indexToES($index);
     }
 }
