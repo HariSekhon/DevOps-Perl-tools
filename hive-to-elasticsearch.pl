@@ -40,7 +40,7 @@ Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly an
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.8.2";
+$VERSION = "0.8.3";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -363,7 +363,7 @@ sub indexToES($;$){
     my $hql = "
 ADD JAR $elasticsearch_hadoop_hive_jar;
 ADD JAR $commons_httpclient_jar;
-SET hive.session.id=$job_name; --  this is the one that seems to work for Tez
+SET hive.session.id=$job_name --  this is the one that seems to work for Tez but needs to be set further down on CLI;
 SET hive.job.name=$job_name;
 SET hive.query.id=$job_name;
 SET mapreduce.job.name=Hive=$job_name;
