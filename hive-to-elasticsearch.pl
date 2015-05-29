@@ -33,14 +33,14 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 1. jar files adjacent to this program in the same directory
 2. jar files in your \$HOME directory
-3. commons-httpclient.jar in the standard distribution paths on Hortonworks HDP
+3. the standard distribution paths on Hortonworks HDP, Cloudera CDH (parcels) as well as /usr/lib/hadoop*/lib for legacy. This is mostly tested on the standard Hortonworks HDP though
 4. elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar in straight zip unpacked directories found in any of the above locations
 
-Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly/buggy and result in not indexing mismatched field types or no data whatsoever even when processing through all the data (even more counter-intuitive that just failing), so editing this process which I've sent a long time on is at your peril. If you do make any modifications/improvements you should submit a patch in the form of a github pull request, which is part of my license in providing this to you for free.
+Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly and result in not indexing mismatched field types etc, so editing this process which I've spent a long time on is at your own peril. If you do make any modifications/improvements please submit a patch in the form of a github pull request to https://github.com/harisekhon/toolbox (which is part of my license in providing this to you for free).
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.7.2";
+$VERSION = "0.8.0";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -74,7 +74,7 @@ my $hive  = 'hive';
 my $kinit = 'kinit';
 
 # search these locations for elasticsearch and http commons jars
-my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/hadoop/lib /usr/lib/hadoop*/lib};
+my @jar_search_paths = qw{ . /usr/hdp/current/hadoop-client/lib /opt/cloudera/parcels/CDH/lib /opt/cloudera/parcels/CDH/jars /opt/cloudera/parcels/CDH/lib/hadoop/client /opt/cloudera/parcels/CDH/lib/hadoop/lib /usr/lib/hadoop*/lib};
 splice @jar_search_paths, 1, 0, $ENV{'HOME'};
 
 my $es_ignore_errors = [ 400, 404, 500 ];
@@ -328,13 +328,13 @@ sub indexToES($;$){
     vlogt "starting processing of $table_or_view $db.$table " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
     get_columns() unless (@columns_found and $create_columns);
     if($partition){
+        # done at option parsing time as well as partition iteration time from Hive show partitions
+        #$partition =~ /^([$valid_partition_key_chars]+=[$valid_partition_value_chars]+)$/ or die "ERROR: invalid partition '$partition' detected\n";
+        #$partition = $1;
         $partition_key   =~ s/=.*$//;
         $partition_value =~ s/^.*=//;
         isChars($partition_key, $valid_partition_key_chars) or die "ERROR: invalid partition key '$partition_key' detected\n";
         isChars($partition_value, $valid_partition_value_chars) or die "ERROR: invalid partition value '$partition_value' detected\n";
-        # done at option parsing time for user supplied or at iteration time before calling this sub if indexing all partitions detected from Hive
-        #$partition =~ /^([$valid_partition_key_chars]+=[$valid_partition_value_chars]+)$/ or die "ERROR: invalid partition '$partition' detected\n";
-        #$partition = $1;
         $index .= "_$partition_value" if $suffix_index and defined($partition_value);
         if(not grep { $partition_key eq $_ } @columns_found){
             die "Partition key '$partition_key' is not defined in the list of columns available in the table '$table'!\n";
@@ -392,7 +392,8 @@ TBLPROPERTIES(
 INSERT OVERWRITE TABLE ${table}_elasticsearch SELECT
     $columns
 FROM $table";
-    $hql .= " WHERE $partition" if $partition;
+    # XXX: "where $partition" when partition_value=2015-02-14 results in trawling through all the data (looong) and indexes nothing since nothing matches the predicate, MUST USE $partition_key='$partition_value' QUOTED VALUE
+    $hql .= " WHERE $partition_key='$partition_value'" if $partition;
     $hql .= ";";
     my $response;
     my $result;
