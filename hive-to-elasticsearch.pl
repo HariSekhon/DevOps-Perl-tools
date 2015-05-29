@@ -209,6 +209,13 @@ if($partition_values){
     vlog_options "deduped partitions to index", "@partitions";
 }
 ($skip_existing and $recreate_index) and usage "--skip-existing and --recreate-index are mutually exclusive!";
+vlog_options_bool "suffix-index",      $suffix_index;
+vlog_options_bool "optimize",          $optimize;
+vlog_options_bool "recreate-index",    $recreate_index;
+vlog_options_bool "delete-on-failure", $delete_on_failure;
+vlog_options_bool "skip-existing",     $skip_existing;
+vlog_options_bool "no-task-retries",   $no_task_retries;
+vlog_options_bool "stop-on-failure",   $stop_on_failure;
 my $es_ignore_errors_orig = $es_ignore_errors;
 $es_ignore_errors = [] if $stop_on_failure;
 
