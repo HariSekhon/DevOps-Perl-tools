@@ -390,7 +390,7 @@ TBLPROPERTIES(
                 'es.port'     = '$es_port',
                 'es.resource' = '$index/$type', -- used to be \${index}_{partition_field}/\$type and the storage handler would infer the field correctly but now the index name is dynamically generated in code it's no longer needed
                 'es.index.auto.create'   = 'true', -- XXX: setting this to false may require type creation which would require manually mapping all Hive types to Elasticsearch types
-                'es.batch.write.refresh' = 'true'
+                'es.batch.write.refresh' = 'false'
              );
 INSERT OVERWRITE TABLE ${table}_elasticsearch SELECT
     $columns
