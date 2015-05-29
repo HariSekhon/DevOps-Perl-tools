@@ -350,6 +350,7 @@ sub indexToES($;$){
     my $table = $table;
     $table = $view if $view;
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
+    vlog;
     vlogt "# " . "=" x 76 . " #";
     vlogt "starting processing of $table_or_view $db.$table " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
     get_columns() unless (@columns_found and $create_columns);
