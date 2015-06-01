@@ -133,7 +133,7 @@ $nodes = "localhost:9200";
 
 %options = (
     %nodeoptions,
-    "d|db|database=s"       =>  [ \$db,                 "Hive database (defaults to the 'default' database" ],
+    "d|db|database=s"       =>  [ \$db,                 "Hive database (defaults to the 'default' database)" ],
     "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect/iterate over Hive partitions)" ],
     "E|view=s"              =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch)" ],
     "C|columns=s"           =>  [ \$columns,            "Hive table columns in the given table to index to Elasticsearch, comma separated (defaults to indexing all columns)" ],
