@@ -104,3 +104,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 The Advanced Nagios Plugins Collection which contains hundreds of production grade command line programs for Nagios compatible monitoring systems covering these technologies and others, that can also be used in scripts or on the command line as utilities as I often do.
 
 https://github.com/harisekhon/nagios-plugins
+
+Spark => Elasticsearch application written in Scala which is a Scala Spark port of ```pig-text-to-elasticsearch.pig```:
+
+https://github.com/harisekhon/spark-to-elasticsearch
