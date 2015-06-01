@@ -38,7 +38,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 
 Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly and result in not indexing mismatched field types etc, so editing this process which I've spent a long time on is at your own peril. If you do make any modifications/improvements please submit a patch in the form of a github pull request to https://github.com/harisekhon/toolbox (which is part of my license in providing this to you for free).
 
-Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see http://www.oreilly.com/velocity/fre://github.com/elastic/elasticsearch-hadoop/issues/359)";
+Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see https://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
 $VERSION = "0.8.5";
 
