@@ -23,7 +23,7 @@ Creates hive table of same name as each indexed table with '_elasticsearch' suff
 
 For high scale multi-billion row partitioned Hive tables, I've found it very impractical to try to index it all in one go as any interruption in such long running jobs means you have to start the jobs from the beginning instead of the part-way resume behaviour which partitioning naturally gives, so I recommend using partitions with --suffix to create an index-per-partition and --alias those indicies back under a global index alias for conveniently querying via one name.
 
-For inline data transformations set up a Hive view and specify --view. If the view is based on a partitioned table(s) then you must specify --table to get the partitions to iterate over if not specifying --partition-key and --partition-value. You typically want to use a view to generate the id field or correctly format the date field for Elasticsearch. The limitations here are that the view must be in the same database if specifying --table to iterate on all the table partitions.
+For inline data transformations set up a Hive view and specify --view. If the view is based on a partitioned table(s) then you must specify --table to get the partitions to iterate over if not specifying --partition-key and --partition-value. You typically want to use a view to generate the id field or correctly format the date field for Elasticsearch. A minor limitation to maintain simplicity is that the view must be in the same database as the table if specifying --table to auto-determine and iterate on all partitions. You can also use views to handle nested partitions or other scenarios not directly catered to.
 
 Libraries Required:
 
