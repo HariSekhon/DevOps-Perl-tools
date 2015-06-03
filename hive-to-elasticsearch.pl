@@ -23,7 +23,7 @@ Creates hive table of same name as each indexed table with '_elasticsearch' suff
 
 For high scale multi-billion row partitioned Hive tables, I've found it very impractical to try to index it all in one go as any interruption in such long running jobs means you have to start the jobs from the beginning instead of the part-way resume behaviour which partitioning naturally gives, so I recommend using partitions with --suffix to create an index-per-partition and --alias those indicies back under a global index alias for conveniently querying via one name.
 
-For inline data transformations set up a Hive view and specify --view. If the view is based on a partitioned table(s) then you must specify --table to get the partitions to iterate over if not specifying --partition-key and --partition-value. You typically want to use a view to generate the id field or correctly format the date field for Elasticsearch. A minor limitation to maintain simplicity is that the view must be in the same database as the table if specifying --table to auto-determine and iterate on all partitions. You can also use views to handle nested partitions or other scenarios not directly catered to.
+For inline data transformations set up a Hive view and specify --view. If the view is based on a partitioned table(s) then you must specify --table to get the partitions to iterate over if not specifying --partition-key and --partition-value. You typically want to use a view to generate the id field or correctly format the date field for Elasticsearch. You can also use views to handle nested partitions or other scenarios not directly catered to.
 
 Libraries Required:
 
@@ -40,7 +40,7 @@ Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly an
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see https://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.8.5";
+$VERSION = "0.8.6";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -133,9 +133,9 @@ $nodes = "localhost:9200";
 
 %options = (
     %nodeoptions,
-    "d|db|database=s"       =>  [ \$db,                 "Hive database (defaults to the 'default' database)" ],
-    "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect/iterate over Hive partitions)" ],
-    "E|view=s"              =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch)" ],
+    "d|db|database=s"       =>  [ \$db,                 "Hive database to work inside (defaults to the 'default' database)" ],
+    "T|table=s"             =>  [ \$table,              "Hive table to index to Elasticsearch (required to detect/iterate over Hive partitions). May be qualified with the database name" ],
+    "E|view=s"              =>  [ \$view,               "Hive view to actually query the data from (to allow for live transforms for generated IDs or correct date format for Elasticsearch). May be qualified with the database name" ],
     "C|columns=s"           =>  [ \$columns,            "Hive table columns in the given table to index to Elasticsearch, comma separated (defaults to indexing all columns)" ],
     "F|column-file=s"       =>  [ \$column_file,        "File containing Hive column names to index, one per line (use when you have a lot of columns and don't want massive command lines)" ],
     "p|partition-key=s"     =>  [ \$partition_key,      "Hive table partition. Optional but recommended for high scale and to split Elasticsearch indexing jobs in to more easily repeatable units in case of failures" ],
@@ -161,8 +161,17 @@ my @nodes = validate_nodeport_list($nodes);
 $host     = $nodes[0];
 $port     = validate_port($port);
 $db       = validate_database($db, "Hive");
-$table    = validate_database_tablename($table, "Hive") if defined($table);
-$view     = validate_database_viewname($view, "Hive") if defined($view);
+$table    = validate_database_tablename($table, "Hive", "allow qualified") if defined($table);
+$view     = validate_database_viewname($view, "Hive", "allow qualified") if defined($view);
+# Fix naming throughout code depending on if table/view are fully qualified or not
+my $tabledb = "$db.";
+my $viewdb  = "$db.";
+if($table and $table =~ /\./){
+    $tabledb = "";
+}
+if($view and $view =~ /\./){
+    $viewdb = "";
+}
 $table or $view or usage "must specify a table or a view";
 my @columns;
 ($columns and $column_file) and usage "--columns and --column-file are mutually exclusive!";
@@ -233,6 +242,7 @@ set_timeout();
 $status = "OK";
 
 my $table_or_view = ( $view ? "view" : "table" );
+my $table_or_view_db = ( $view ? $viewdb : $tabledb );
 
 vlog "# " . "=" x 76 . " #";
 # need to leave $table intact here still since if it exists later we will do partition checks
@@ -301,9 +311,9 @@ my $create_columns = "";
 sub get_columns(){
     my $table = $table;
     $table = $view if $view;
-    vlogt "checking columns in $table_or_view $db.$table (this may take a minute)";
-    # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $db.$table LIMIT 0'
-    my $output = `$hive -S $hive_desc_opts --hiveconf hive.session.id=ES-describe -e 'describe $db.$table' 2>/dev/null`;
+    vlogt "checking columns in $table_or_view ${table_or_view_db}$table (this may take a minute)";
+    # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM ${table_or_view_db}$table LIMIT 0'
+    my $output = `$hive -S $hive_desc_opts --hiveconf hive.session.id=ES-describe -e 'use $db; describe $table' 2>/dev/null`;
     exit_if_controlc($?);
     my @output = split(/\n/, $output);
     my %columns;
@@ -318,13 +328,13 @@ sub get_columns(){
             push(@columns_found, $1);
         }
     }
-    die "\nfound no columns for $db.$table - does $table_or_view exist?\n" unless @columns_found;
+    die "\nfound no columns for ${table_or_view_db}$table - does $table_or_view exist?\n" unless @columns_found;
     @columns_found = uniq_array2 @columns_found;
     if(@columns){
         if(not $view){
             vlogt "validating requested columns against $table_or_view definition";
             foreach my $column (@columns){
-                grep { $column eq $_ } @columns_found or die "column '$column' was not found in the Hive $table_or_view definition for '$db.$table'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns_found) . "\n";
+                grep { $column eq $_ } @columns_found or die "column '$column' was not found in the Hive $table_or_view definition for '${table_or_view_db}$table'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns_found) . "\n";
             }
         }
     } else {
@@ -352,7 +362,7 @@ sub indexToES($;$){
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
     vlog;
     vlogt "# " . "=" x 76 . " #";
-    vlogt "starting processing of $table_or_view $db.$table " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
+    vlogt "starting processing of $table_or_view ${table_or_view_db}$table " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
     get_columns() unless (@columns_found and $create_columns);
     if($partition){
         # done at option parsing time as well as partition iteration time from Hive show partitions
@@ -378,7 +388,7 @@ sub indexToES($;$){
             return 1;
         }
     }
-    my $job_name = "$db.$table=>ES" . ( $partition ? "-$partition" : "" );
+    my $job_name = "${table_or_view_db}$table=>ES" . ( $partition ? "-$partition" : "" );
     # Hive CLI is really buggy around comments, see http://stackoverflow.com/questions/15595295/comments-not-working-in-hive-cli
     # had to remove semicolons before comments and put the comments end of line / semicolon only after the last comment in each case to make each comment only end of line :-/
     # In fact inline comments caused so many issues I removed them from the HQL altogether
@@ -415,7 +425,7 @@ DROP TABLE IF EXISTS ${table}_elasticsearch;
 CREATE EXTERNAL TABLE ${table}_elasticsearch (
 $create_columns
 ) STORED BY 'org.elasticsearch.hadoop.hive.EsStorageHandler'
-LOCATION '/tmp/${table}_elasticsearch'
+LOCATION '/tmp/${table_or_view_db}${table}_elasticsearch'
 TBLPROPERTIES(
                 'es.nodes'    = '$es_nodes',
                 'es.port'     = '$es_port',
@@ -429,6 +439,8 @@ FROM $table";
     # XXX: "where $partition" when partition_value=2015-02-14 results in trawling through all the data (looong) and indexes nothing since nothing matches the predicate, MUST USE $partition_key='$partition_value' QUOTED VALUE
     $hql .= " WHERE $partition_key='$partition_value'" if $partition;
     $hql .= ";";
+    # could clean up the temporary table mapping but not sure if this will change final exitcode that we rely on to detect indexing failures
+    #$hql .= "\nDROP TABLE IF EXISTS ${table}_elasticsearch;";
     my $response;
     my $result;
     # this may fail to recreate the index, may be better to loop on the script instead of allowing dups
@@ -445,13 +457,13 @@ FROM $table";
         $result = create_index($index);
     }
     $result or vlogt "WARNING: failed to create index" . ( defined($result) ? ": $result" : "");
-    #my $cmd = "$hive -S --hiveconf hive.session.id='$db.$table=>ES-$partition' -e '$hql'");
+    #my $cmd = "$hive -S --hiveconf hive.session.id='${table_or_view_db}$table=>ES-$partition' -e '$hql'");
     # TODO: debug + fix why hive.session.id isn't taking effect, I used to use this all the time in all my other scripts doing this same operation
     # passing job name on CLI since it's too late by the time Hive CLI launches Tez has a session with the ID set
     # --hiveconf hive.query.id='$job_name' 
     # switch queue in session causes job name to be reset, so put queue up front on CLI
     my $cmd = "$hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' --hiveconf tez.job.name='$job_name' --hiveconf tez.queue.name='$queue' -e \"$hql\"";
-    vlogt "running Hive => Elasticsearch indexing process for $table_or_view $db.$table " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
+    vlogt "running Hive => Elasticsearch indexing process for $table_or_view ${table_or_view_db}$table " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
     my $start = time;
     # hive -v instead
     # vlog2t $cmd;
@@ -543,16 +555,16 @@ if(which($kinit)){
 }
 
 if($table){
-    vlogt "getting Hive partitions for table $db.$table (this may take a minute)";
+    vlogt "getting Hive partitions for table ${tabledb}$table (this may take a minute)";
     # define @partitions_found separately for quick debugging commenting out getting partitions which slows me down
-    $partitions_found = `$hive -S $hive_desc_opts --hiveconf hive.session.id=ES-partitions -e 'show partitions $db.$table' 2>/dev/null`;
-    unless($? == 0){
-        vlogt "Failed to determine partitions for table '$table', did you specify a non-existent table or perhaps a view for --table?\n";
+    $partitions_found = `$hive -S $hive_desc_opts --hiveconf hive.session.id=ES-partitions -e 'use $db; show partitions $table' 2>/dev/null`;
+    if($? != 0 and $suffix_index){
+        vlogt "Failed to determine partitions from table '${tabledb}$table' for --suffix-index. We have nothing to suffix to the index. Did you specify a non-existent table or perhaps --table <view>?\n";
         exit $ERRORS{"UNKNOWN"};
     }
     exit_if_controlc($?);
     @partitions_found = split(/\n/, $partitions_found);
-    vlogt "$db.$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
+    vlogt "${tabledb}$table is " . ( @partitions_found ? "" : "not ") . "a partitioned table";
 }
 
 if(@partitions and not $suffix_index){
@@ -564,7 +576,7 @@ if(@partitions and not $suffix_index){
 if(@partitions){
     foreach my $partition (@partitions){
         if(not grep { "$partition" eq $_ } @partitions_found){
-            die "partition '$partition' does not exist in list of available partitions for Hive table $db.$table\n";
+            die "partition '$partition' does not exist in list of available partitions for Hive table ${tabledb}$table\n";
         }
     }
     foreach my $partition (@partitions){
@@ -574,12 +586,12 @@ if(@partitions){
     # If this is a partitioned table then index it by partition to allow for easier partial restarts - important when dealing with very high scale
     if(@partitions_found){
         vlogt "partitioned table and no partitions specified, iterating on indexing all partitions";
-        my $answer = prompt "Are you sure you want to index all partitions of Hive table '$db.$table' to Elasticsearch? (this could be a *lot* of data to index and may take a very long time) [y/N]";
+        my $answer = prompt "Are you sure you want to index all partitions of Hive table '${tabledb}$table' to Elasticsearch? (this could be a *lot* of data to index and may take a very long time) [y/N]";
         vlog;
         isYes($answer) or die "aborting...\n";
         if($recreate_index){
             vlogt "index re-creation requested before indexing (clean index re-build)";
-            my $answer = prompt "Are you sure you want to delete and re-create all Elasticsearch indices for all partitions of Hive table '$db.$table'? (this will delete and re-index them one-by-one which could be a *lot* of data to re-index and may take a very long time) [y/N]";
+            my $answer = prompt "Are you sure you want to delete and re-create all Elasticsearch indices for all partitions of Hive table '${tabledb}$table'? (this will delete and re-index them one-by-one which could be a *lot* of data to re-index and may take a very long time) [y/N]";
             vlog;
             isYes($answer) or die "aborting...\n";
         }
