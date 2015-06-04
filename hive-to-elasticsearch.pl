@@ -40,7 +40,7 @@ Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly an
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see https://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.8.6";
+$VERSION = "0.8.7";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -56,6 +56,8 @@ use HariSekhonUtils qw/:DEFAULT :regex :time/;
 use HariSekhon::Elasticsearch;
 use Cwd 'abs_path';
 use Search::Elasticsearch;
+# see explanation further down why not using TT
+#use Template;
 
 ########################
 #
@@ -241,12 +243,25 @@ set_timeout();
 
 $status = "OK";
 
+# Safer to not template because:
+# - writing a templated HQL file would leave a race condition
+# - passing into code via system() has taint security implications
+#my $hql = dirname(__FILE__) . "/hive-to-elasticsearch.hql";
+#my $template_file = "$hql.tt2";
+#my $fh = open_file($template_file);
+#my %hql_template_vars = (
+#);
+#my $hql_template = <$fh>;
+#close $fh;
+#$hql_template or die "Failed to read HQL template file '$template_file'";
+#my $tt = Template->new or die $Template::ERROR, "\n";
+
 my $table_or_view = ( $view ? "view" : "table" );
-my $table_or_view_db = ( $view ? $viewdb : $tabledb );
+my $src = $view ? "$viewdb$view" : "$tabledb$table";
 
 vlog "# " . "=" x 76 . " #";
 # need to leave $table intact here still since if it exists later we will do partition checks
-vlog "#  Hive database '$db' $table_or_view '" . ( $view ? $view : $table ) . "' => Elasticsearch";
+vlog "#  Hive database '$db' $table_or_view '$src' => Elasticsearch";
 #plural @nodes;
 #vlog2 "(node$plural: '$es_nodes')";
 vlog "# " . "=" x 76 . " #\n";
@@ -311,8 +326,8 @@ my $create_columns = "";
 sub get_columns(){
     my $table = $table;
     $table = $view if $view;
-    vlogt "checking columns in $table_or_view ${table_or_view_db}$table (this may take a minute)";
-    # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM ${table_or_view_db}$table LIMIT 0'
+    vlogt "checking columns in $table_or_view $src (this may take a minute)";
+    # or try hive -S -e 'SET hive.cli.print.header=true; SELECT * FROM $src LIMIT 0'
     my $output = `$hive -S $hive_desc_opts --hiveconf hive.session.id=ES-describe -e 'use $db; describe $table' 2>/dev/null`;
     exit_if_controlc($?);
     my @output = split(/\n/, $output);
@@ -328,13 +343,13 @@ sub get_columns(){
             push(@columns_found, $1);
         }
     }
-    die "\nfound no columns for ${table_or_view_db}$table - does $table_or_view exist?\n" unless @columns_found;
+    die "\nfound no columns for $src - does $table_or_view exist?\n" unless @columns_found;
     @columns_found = uniq_array2 @columns_found;
     if(@columns){
         if(not $view){
             vlogt "validating requested columns against $table_or_view definition";
             foreach my $column (@columns){
-                grep { $column eq $_ } @columns_found or die "column '$column' was not found in the Hive $table_or_view definition for '${table_or_view_db}$table'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns_found) . "\n";
+                grep { $column eq $_ } @columns_found or die "column '$column' was not found in the Hive $table_or_view definition for '$src'!\n\nDid you specify the wrong column name?\n\nValid columns are:\n\n" . join("\n", @columns_found) . "\n";
             }
         }
     } else {
@@ -357,12 +372,10 @@ sub indexToES($;$){
     my $partition = shift;
     my $partition_key   = $partition;
     my $partition_value = $partition;
-    my $table = $table;
-    $table = $view if $view;
     isESIndex($index) or code_error "invalid Elasticsearch index '$index' passed to indexToES()";
     vlog;
     vlogt "# " . "=" x 76 . " #";
-    vlogt "starting processing of $table_or_view ${table_or_view_db}$table " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
+    vlogt "starting processing of $table_or_view $src " . ( $partition ? "partition $partition " : "" ) . "to index '$index'";
     get_columns() unless (@columns_found and $create_columns);
     if($partition){
         # done at option parsing time as well as partition iteration time from Hive show partitions
@@ -388,11 +401,11 @@ sub indexToES($;$){
             return 1;
         }
     }
-    my $job_name = "${table_or_view_db}$table=>ES" . ( $partition ? "-$partition" : "" );
+    my $job_name = "$src=>ES" . ( $partition ? "-$partition" : "" );
     # Hive CLI is really buggy around comments, see http://stackoverflow.com/questions/15595295/comments-not-working-in-hive-cli
     # had to remove semicolons before comments and put the comments end of line / semicolon only after the last comment in each case to make each comment only end of line :-/
     # In fact inline comments caused so many issues I removed them from the HQL altogether
-    # XXX: considered templating this but user editing of SQL template could mess job logic up badly, better to force user to change the code to understand such changes are of major impact
+    # XXX: considered templating this but user editing of SQL template could mess job logic up badly, better to force user to change the code to understand such changes are of major impact, also see implications around race conditions and security tainting further above where I started looking at porting to Template Toolkit
 # done on CLI now, removed from HQL because "--SET ... -- comments;"  / "--SET ...; -- comments;" is so buggy in parsing
 #SET hive.session.id=$job_name --  this is the one that seems to work for Tez but needs to be set further down on CLI;
 #SET tez.queue.name=$queue;
@@ -425,7 +438,7 @@ DROP TABLE IF EXISTS ${table}_elasticsearch;
 CREATE EXTERNAL TABLE ${table}_elasticsearch (
 $create_columns
 ) STORED BY 'org.elasticsearch.hadoop.hive.EsStorageHandler'
-LOCATION '/tmp/${table_or_view_db}${table}_elasticsearch'
+LOCATION '/tmp/${src}_elasticsearch'
 TBLPROPERTIES(
                 'es.nodes'    = '$es_nodes',
                 'es.port'     = '$es_port',
@@ -435,7 +448,7 @@ TBLPROPERTIES(
              );
 INSERT OVERWRITE TABLE ${table}_elasticsearch SELECT
     $columns
-FROM $table";
+FROM $src";
     # XXX: "where $partition" when partition_value=2015-02-14 results in trawling through all the data (looong) and indexes nothing since nothing matches the predicate, MUST USE $partition_key='$partition_value' QUOTED VALUE
     $hql .= " WHERE $partition_key='$partition_value'" if $partition;
     $hql .= ";";
@@ -457,13 +470,13 @@ FROM $table";
         $result = create_index($index);
     }
     $result or vlogt "WARNING: failed to create index" . ( defined($result) ? ": $result" : "");
-    #my $cmd = "$hive -S --hiveconf hive.session.id='${table_or_view_db}$table=>ES-$partition' -e '$hql'");
+    #my $cmd = "$hive -S --hiveconf hive.session.id='$src=>ES-$partition' -e '$hql'");
     # TODO: debug + fix why hive.session.id isn't taking effect, I used to use this all the time in all my other scripts doing this same operation
     # passing job name on CLI since it's too late by the time Hive CLI launches Tez has a session with the ID set
     # --hiveconf hive.query.id='$job_name' 
     # switch queue in session causes job name to be reset, so put queue up front on CLI
     my $cmd = "$hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' --hiveconf tez.job.name='$job_name' --hiveconf tez.queue.name='$queue' -e \"$hql\"";
-    vlogt "running Hive => Elasticsearch indexing process for $table_or_view ${table_or_view_db}$table " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
+    vlogt "running Hive => Elasticsearch indexing process for $table_or_view $src " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
     my $start = time;
     # hive -v instead
     # vlog2t $cmd;
