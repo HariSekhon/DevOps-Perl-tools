@@ -55,7 +55,7 @@ Tested on HDP 2.1, Ambari 1.5/1.6.1, FreeIPA 3.0.0";
 #   - LDAP 'cn=Directory Manager' --password (optional) to remove immediate IPA expiry of new accounts for Hadoop smoke test users (ambari-qa, hdfs, hbase), otherwise you'll end up with service start failures 'kinit: Password has expired while getting initial credentials'
 #   - /etc/ipa/ca.crt to verify LDAPS certificate on FreeIPA server (set up automatically by IPA client install)
 
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -308,6 +308,7 @@ sub create_principals(@){
             if(not grep { $host eq $_ } @{$ipa{"host"}}){
                 vlog "creating host '$host' in IPA system";
                 cmd("$IPA host-add --force '$host'", 1);
+                push(@{$ipa{"host"}}, $host);
             } else {
                 vlog3 "IPA host '$host' already exists, skipping...";
             }
