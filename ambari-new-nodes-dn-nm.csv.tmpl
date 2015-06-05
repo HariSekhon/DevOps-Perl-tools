@@ -1,0 +1,7 @@
+# If you do these users it will invalidate them on the existing nodes, scp the existing keytabs is better
+#_HOST,Ambari Smoke Test User,ambari-qa@LOCALDOMAIN,smokeuser.headless.keytab,/etc/security/keytabs,ambari-qa,hadoop,440
+#_HOST,HDFS User,hdfs@LOCALDOMAIN,hdfs.headless.keytab,/etc/security/keytabs,hdfs,hadoop,440
+_HOST,HDFS SPNEGO User,HTTP/_HOST@LOCALDOMAIN,spnego.service.keytab,/etc/security/keytabs,root,hadoop,440
+_HOST,DataNode,dn/_HOST@LOCALDOMAIN,dn.service.keytab,/etc/security/keytabs,hdfs,hadoop,400
+_HOST,NodeManager SPNEGO User,HTTP/_HOST@LOCALDOMAIN,spnego.service.keytab,/etc/security/keytabs,root,hadoop,440
+_HOST,NodeManager,nm/_HOST@LOCALDOMAIN,nm.service.keytab,/etc/security/keytabs,yarn,hadoop,400
