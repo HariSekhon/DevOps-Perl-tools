@@ -55,7 +55,7 @@ Tested on HDP 2.1, Ambari 1.5/1.6.1, FreeIPA 3.0.0";
 #   - LDAP 'cn=Directory Manager' --password (optional) to remove immediate IPA expiry of new accounts for Hadoop smoke test users (ambari-qa, hdfs, hbase), otherwise you'll end up with service start failures 'kinit: Password has expired while getting initial credentials'
 #   - /etc/ipa/ca.crt to verify LDAPS certificate on FreeIPA server (set up automatically by IPA client install)
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -229,6 +229,8 @@ sub parse_csv(){
 
     while (<$fh>){
         chomp;
+        s/#.*$//;
+        next if /^\s*$/;
         #(my $host, my $description, my $principal, my $keytab, my $keytab_dir, my $owner, my $group, my $perm) = split($_, 8);
         /^([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+?),([^,]+)$/ or die "ERROR: invalid CSV format detected on line $.: '$_' (expected 8 comma separated fields)\n";
         my $host        = $1;
