@@ -47,6 +47,8 @@ Requirements:
 
 6. Ambari creates local system accounts on all servers. If nsswitch lists files first or there is an SSSD user/group ID resolution problem when doing the chown of the headless keytabs then the local account UIDs will be set instead. To avoid this try to pre-stage the local system accounts for ambari-qa/hdfs/hbase with the same UIDs across servers and set the FreeIPA UIDs for those user accounts to be the same.
 
+Caveat: I have come across a situation where FreeIPA does not return existing service principals even though they exist, resulting in an error trying to create them again. There is no way for this code to determine this if FreeIPA lies to us. To work around I've added comment support for the principals.csv for lines starting with a hash #, just comment out those lines and re-run.
+
 Tested on HDP 2.1, Ambari 1.5/1.6.1, FreeIPA 3.0.0";
 
 # Heavily leverages my personal library for lots of error checking
