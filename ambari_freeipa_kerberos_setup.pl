@@ -315,6 +315,7 @@ sub create_principals(@){
             if(not grep { $principal eq $_ } @{$ipa{"service"}}){
                 vlog "creating host service principal '$principal'";
                 cmd("$IPA service-add --force '$principal'", 1);
+                push(@{$ipa{"service"}}, $principal);
             } else {
                 vlog "service principal '$principal' already exists, skipping...";
             }
