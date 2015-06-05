@@ -61,7 +61,7 @@ Tested on HDP 2.1, Ambari 1.5/1.6.1, FreeIPA 3.0.0";
 #   - LDAP 'cn=Directory Manager' --password (optional) to remove immediate IPA expiry of new accounts for Hadoop smoke test users (ambari-qa, hdfs, hbase), otherwise you'll end up with service start failures 'kinit: Password has expired while getting initial credentials'
 #   - /etc/ipa/ca.crt to verify LDAPS certificate on FreeIPA server (set up automatically by IPA client install)
 
-$VERSION = "0.7.2";
+$VERSION = "0.7.3";
 
 use strict;
 use warnings;
@@ -110,6 +110,7 @@ my $my_fqdn = hostfqdn() or warn "unable to determine FQDN of this host (will ss
 my @output;
 $verbose = 1;
 my $quiet;
+my $no_create_principals;
 my $export_service_keytabs;
 my $deploy_keytabs;
 my $ssh_key;
@@ -122,13 +123,14 @@ my $export_user_keytabs;
     "d|bind-dn=s"       => [ \$bind_dn,         "IPA LDAP Bind DN (optional, \$IPA_BIND_DN)" ],
     "w|bind-password=s" => [ \$bind_password,   "IPA LDAP Bind password (optional, \$IPA_BIND_PASSWORD)" ],
     #"b|base-dn=s"      => [ \$base_dn,         "Base DN of FreeIPA LDAP (will try to determine it from --bind-dn, otherwise must be specified)" ],
+    "no-create-principals" => [ \$no_create_principals, "Do not check and create principals if they don't already exist in FreeIPA (used this to work around a bug with FreeIPA not returning the principals even though they existed). Can also use this as a speed up optimization if you already have the keytabs in a directory and just want to deploy and set permissions on them" ],
     "export-service-keytabs=s" => [ \$export_service_keytabs, "Export service keytabs without prompting (yes/no). WARNING: will invalidate existing keytabs, you must --deploy-keytabs to keep your cluser working once you do this" ],
     "export-user-keytabs=s"    => [ \$export_user_keytabs,    "Export user keytabs without prompting (yes/no). Choose NO unless this is the very first cluster setup in this IPA realm to prevent invalidating the first cluster's smoketest accounts needed for service startups" ],
     "deploy-keytabs=s"  => [ \$deploy_keytabs,  "Deploy keytabs via rsync without prompting (yes/no). Will back up existing keytabs on the host if any are found just in case" ],
     "i|ssh-key=s"       => [ \$ssh_key,         "SSH private key to use to SSH the nodes as root (optional, will search for defaults ~/.ssh/id_dsa, ~/.ssh/id_ecdsa, ~/.ssh/id_rsa if not specified)" ],
     "q|quiet"           => [ \$quiet,           "Quiet mode" ],
 );
-splice @usage_order, 0, 0, qw/file server password bind-dn bind-password base-dn export-service-keytabs export-user-keytabs deploy-keytabs ssh-key quiet/;
+splice @usage_order, 0, 0, qw/file server password bind-dn bind-password base-dn no-create-principals export-service-keytabs export-user-keytabs deploy-keytabs ssh-key quiet/;
 
 get_options();
 
@@ -526,8 +528,10 @@ sub ask($$){
 
 sub main(){
     my @principals = parse_csv();
-    get_ipa_info();
-    create_principals @principals;
+    unless($no_create_principals){
+        get_ipa_info();
+        create_principals @principals;
+    }
 
     ask(\$export_service_keytabs, "About to export keytabs:
 
