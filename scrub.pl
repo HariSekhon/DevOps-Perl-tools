@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.7.4";
+$VERSION = "0.7.5";
 
 use strict;
 use warnings;
@@ -151,7 +151,7 @@ sub scrub_custom($){
     $phrase_regex =~ s/\|$//;
     #print "phrase_phrase: <$phrase_regex>\n";
     if($phrase_regex){
-        $string =~ s/(\b|_)(?:$phrase_regex)(\b|_)/$1<custom_scrubbed>$2/gio;
+        $string =~ s/(\b|[^A-Za-z])(?:$phrase_regex)(\b|[^A-Za-z])/$1<custom_scrubbed>$2/gio;
         #foreach(@custom_phrases){
         #    chomp;
         #    $string =~ s/(\b|_)$_(\b|_)/$1<custom_scrubbed>$2/gio;
