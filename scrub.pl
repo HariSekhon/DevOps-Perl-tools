@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.7.5";
+$VERSION = "0.8.0";
 
 use strict;
 use warnings;
@@ -108,11 +108,27 @@ if($custom){
             next if /^\s*$/;
             push(@custom_phrases, $_);
         }
-        #@custom_phrases or die "Failed to read any custom phrases from '$scrub_custom_conf'\n";
+        #@custom_phrases or warn "Failed to read any custom phrases from '$scrub_custom_conf'\n";
         close $fh;
     } else {
         warn "warning: failed to open file $scrub_custom_conf, continuing without...\n";
     }
+}
+
+my @ignore_lines;
+my $scrub_ignore_conf = dirname(__FILE__) . "/scrub_ignore.conf";
+my $fh;
+if(open $fh, $scrub_ignore_conf){
+    while(<$fh>){
+        chomp;
+        s/#.*//;
+        next if /^\s*$/;
+        push(@ignore_lines, $_);
+    }
+    #@ignore_lines or warn "Failed to read any line regex to ignore from '$scrub_ignore_conf'\n";
+    close $fh;
+} else {
+    warn "warning: failed to open file $scrub_ignore_conf, continuing without...\n";
 }
 
 sub scrub($){
@@ -124,6 +140,7 @@ sub scrub($){
     # this doesn't chomp \r, only \n
     #chomp $string;
     $string =~ s/(?:\r?\n)$//;
+    return "$string$line_ending" if scrub_ignore($string);
     $string = scrub_ip_prefix ($string) if $ip_prefix;
     $string = scrub_ip      ($string)  if $ip and not $ip_prefix;
     $string = scrub_kerberos($string)  if $kerberos; # must be done before scrub_email and scrub_host in order to match, otherwise scrub_email will leave user@<email_regex>
@@ -158,6 +175,22 @@ sub scrub_custom($){
         #}
     }
     return $string;
+}
+
+sub scrub_ignore($){
+    my $string = shift;
+    my $phrase_regex = "";
+    foreach(@ignore_lines){
+        chomp;
+        #print "ignore_phrase: <$_>\n";
+        $phrase_regex .= "$_|";
+    }
+    $phrase_regex =~ s/\|$//;
+    #print "phrase_phrase: <$phrase_regex>\n";
+    if($phrase_regex){
+        return 1 if $string =~ /$phrase_regex/;
+    }
+    return 0;
 }
 
 sub scrub_ip($){
