@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.txt in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.7.3";
+$VERSION = "0.7.4";
 
 use strict;
 use warnings;
@@ -219,7 +219,7 @@ sub skip_java_exceptions($$;$){
 sub scrub_hostname($){
     my $string = shift;
     return $string if skip_java_exceptions($string, $hostname_regex, "hostname");
-    $string =~ s/$hostname_regex(!<\.java):(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
+    $string =~ s/$hostname_regex(?<!\.java):(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
     return $string;
 }
 
