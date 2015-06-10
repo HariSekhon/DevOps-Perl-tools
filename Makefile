@@ -71,6 +71,7 @@ apt-packages:
 	$(SUDO) apt-get install -y libssl-dev || :
 	# needed to build XML::LibXML
 	$(SUDO) apt-get install -y libxml2-dev || :
+	$(SUDO) apt-get install -y ipython-notebook || :
 
 .PHONY: yum-packages
 yum-packages:
