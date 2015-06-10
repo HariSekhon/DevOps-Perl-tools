@@ -40,6 +40,7 @@ done
 cd "$srcdir/..";
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue
+    [ "$x" = "ipython-notebook-pyspark.py" ] && { echo "skipping ipython-notebook-pyspark.py for now"; continue; }
     set +e
     commit="$(git log "$x" | head -n1 | grep 'commit')"
     if [ -z "$commit" ]; then
