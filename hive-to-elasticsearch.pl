@@ -29,7 +29,7 @@ Libraries Required:
 
 ES Hadoop - https://www.elastic.co/downloads/hadoop
 
-You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the Apache 'commons-httpclient.jar' (which should be supplied inside your Hadoop distribution). For conveneience this program will attempt to automatically find the jars in the following locations:
+You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the Apache 'commons-httpclient.jar' (which should be supplied inside your Hadoop distribution). For convenience this program will attempt to automatically find the jars in the following locations:
 
 1. jar files adjacent to this program in the same directory
 2. jar files in your \$HOME directory
