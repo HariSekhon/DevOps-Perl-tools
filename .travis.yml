@@ -10,4 +10,10 @@ perl:
   - "5.8"
 
 install:
+  - pushd lib
+  - make apt-packages
+  - cpanm --installdeps --notest . || echo CPANM LIB FAILED
+  - popd
+  - make apt-packages
+  - cpanm --installdeps --notest . || echo CPANM FAILED
   - make
