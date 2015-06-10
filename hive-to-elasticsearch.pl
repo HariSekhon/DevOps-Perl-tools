@@ -144,7 +144,7 @@ $nodes = "localhost:9200";
     "u|partition-values=s"  => [ \$partition_values,    "Hive table partition value(s), can be comma separated to index multiple partitions. Optional, but requires --parition-key if specified" ],
     %elasticsearch_index,
     %elasticsearch_type,
-    "s|shards=s"            => [ \$shards,              "Number of shards to create new index as, must be a positive integer (default: $shards_default)" ],
+    "s|shards=s"            => [ \$shards,              "Number of shards to create for new index, must be a positive integer (default: $shards_default)" ],
     "suffix-index"          => [ \$suffix_index,        "Suffix partition value to the index name (consider combining with --alias). Requires a Hive partitioned table where --partition-key/--partition-values are specified or all partitions are auto-determined and processed using --table" ],
     "a|alias=s"             => [ \$alias,               "Elasticsearch alias to add the index to after it's finished indexing. Optional" ],
     "o|optimize"            => [ \$optimize,            "Optimize Elasticsearch index after indexing and aliasing finishes. Optional" ],
