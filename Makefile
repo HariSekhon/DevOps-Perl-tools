@@ -61,6 +61,9 @@ make:
 		|| :
 #		IO::Socket::SSL \
 #		Net::LDAP::Filter \
+	easy_install -U setuptools || :
+	$(SUDO) easy_install pip || :
+	$(SUDO) pip install jinja2 || :
 
 .PHONY: apt-packages
 apt-packages:
@@ -72,6 +75,7 @@ apt-packages:
 	# needed to build XML::LibXML
 	$(SUDO) apt-get install -y libxml2-dev || :
 	$(SUDO) apt-get install -y ipython-notebook || :
+	dpkg -l python-setuptools python-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev || :
 
 .PHONY: yum-packages
 yum-packages:
@@ -82,6 +86,8 @@ yum-packages:
 	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel || :
 	# needed to build XML::LibXML
 	rpm -q libxml2-devel || $(SUDO) yum install -y libxml2-devel || :
+	rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook || :
+	rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel || :
 
 .PHONY: test
 test:
