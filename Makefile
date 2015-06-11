@@ -41,7 +41,8 @@ make:
 	# workaround for broken pod coverage tests
 	#yes | $(SUDO) cpan --force XML::Validate || :
 
-	yes | $(SUDO2) cpan \
+	yes "" | $(SUDO2) cpan App::cpanminus
+	yes "" | $(SUDO2) cpanm --notest \
 		CAM::PDF \
 		JSON \
 		JSON::XS \
