@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.8.1";
+$VERSION = "0.8.2";
 
 use strict;
 use warnings;
@@ -41,6 +41,7 @@ my $http_auth = 0;
 my $kerberos  = 0;
 my $network   = 0;
 my $port      = 0;
+my $proxy     = 0;
 my $cisco     = 0;
 my $screenos  = 0;
 my $junos     = 0;
@@ -57,10 +58,11 @@ my $skip_java_exceptions = 0;
     "o|hostname"    => [ \$hostname,    "Apply hostname format scrubbing (only works on \"<host>:<port>\" otherwise this would match everything (consider using --custom and putting your hostname convention regex in scrub_custom.conf to catch other shortname references)" ],
     "d|domain"      => [ \$domain,      "Apply domain format scrubbing" ],
     "F|fqdn"        => [ \$fqdn,        "Apply fqdn format scrubbing" ],
-    "p|port"        => [ \$port,        "Apply port scrubbing (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
+    "P|port"        => [ \$port,        "Apply port scrubbing (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
     "T|http-auth"   => [ \$http_auth,   "Apply HTTP auth scrubbing to replace http://username:password\@ => http://<user>:<password>\@. Also works with https://" ],
     "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate scrub_custom.conf). These kerberos principals are scrubbed to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be scrubbed in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
     "E|email"       => [ \$email,       "Apply email format scrubbing" ],
+    "proxy"         => [ \$proxy,       "Apply scrubbing to remove proxy host, user etc (eg. from curl -iv output). You should probably also apply --ip and --host if using this" ],
     "n|network"     => [ \$network,     "Apply all network scrubbing, whether Cisco, ScreenOS, JunOS for secrets, auth, usernames, passwords, md5s, PSKs, AS, SNMP etc." ],
     "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format scrubbing" ],
     "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format scrubbing" ],
@@ -70,7 +72,7 @@ my $skip_java_exceptions = 0;
     "e|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
 );
 
-@usage_order = qw/files all ip ip-prefix host hostname domain fqdn port kerberos email network cisco screenos junos custom cr skip-java-exceptions/;
+@usage_order = qw/files all ip ip-prefix host hostname domain fqdn port kerberos email proxy network cisco screenos junos custom cr skip-java-exceptions/;
 get_options();
 if($all){
     $ip        = 1;
@@ -79,6 +81,7 @@ if($all){
     $http_auth = 1;
     $kerberos  = 1;
     $network   = 1;
+    $proxy     = 1;
     $custom    = 1;
 }
 unless(
@@ -94,6 +97,7 @@ unless(
     $kerberos +
     $network +
     $port +
+    $proxy +
     $screenos +
     $junos
     > 0){
@@ -157,6 +161,7 @@ sub scrub($){
     $string = scrub_hostname    ($string)  if $hostname and not $host;
     $string = scrub_port        ($string)  if $port;
     $string = scrub_http_auth   ($string)  if $http_auth;
+    $string = scrub_proxy       ($string)  if $proxy;
     $string = scrub_network     ($string)  if $network;
     $string = scrub_cisco       ($string)  if $cisco;
     $string = scrub_screenos    ($string)  if $screenos;
@@ -293,9 +298,31 @@ sub scrub_email($){
     return $string;
 }
 
+# initially built to scrub 'curl -iv' outputs
+sub scrub_proxy($){
+    my $string = shift;
+    # not just applying --host and --ip here as it may strip too much from a larger output
+    # this allows the user to choose and additionally specify --host and --ip if desired
+    $string =~ s/proxy $host_regex port \d+/proxy <proxy_host> port <proxy_port>/go;
+    $string =~ s/Trying $ip_regex/Trying <proxy_ip>/go;
+    $string =~ s/Connected to $host_regex \($ip_regex\) port \d+/Connected to <proxy_host> \(<proxy_ip>\) port <proxy_port>/go;
+    # * Connection #0 to host <host> left intact
+    $string =~ s/(Connection #\d+ to host )$host_regex/$1<proxy_host>/go;
+    # Via: 1.1 10.1.100.218 (Product Type and version)
+    $string =~ s/(Via:\s[^\s]+\s)$ip_regex.*/$1<proxy_ip>/go;
+    # trying to scrub passwords on the CLI will match too aggressively
+    #$string =~ s/curl\s.+U.+\s//go;
+    # if you are scrubbing proxy addresses then you almost certainly want to scrub the http_auth too
+    $string = scrub_http_auth($string);
+    return $string;
+}
+
 sub scrub_http_auth($){
     my $string = shift;
     $string =~ s/(https?:\/\/)[^:]+:[^\@]*\@/$1<user>:<password>\@/go;
+    $string =~ s/([\w-]*[\s-](?:Authentication|Authorization):\s*(?:Basic|Digest)\s+).+$/$1<auth_token>/go;
+    # Proxy auth using Basic with user '.+'
+    $string =~ s/(Proxy auth using \w+ with user )(['"]).+(['"])/$1'<proxy_user>$2$3/go;
     return $string;
 }
 
