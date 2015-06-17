@@ -101,10 +101,8 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-The Advanced Nagios Plugins Collection which contains hundreds of production grade command line programs for Nagios compatible monitoring systems covering these technologies and others, that can also be used in scripts or on the command line as utilities as I often do.
+[The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 220+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as traditional Linux and infrastructure
 
-https://github.com/harisekhon/nagios-plugins
+[My Perl/Python library repo](https://github.com/harisekhon/lib) - leveraged throughout this code as a submodule
 
-Spark => Elasticsearch application written in Scala which is a Scala Spark port of ```pig-text-to-elasticsearch.pig```:
-
-https://github.com/harisekhon/spark-to-elasticsearch
+[Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch, to index from Hadoop or locally via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig```
