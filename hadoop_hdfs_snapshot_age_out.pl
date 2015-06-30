@@ -10,7 +10,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# forked from hadoop_hdfs_retention_policy.pl
+# forked from hadoop_hdfs_file_age_out.pl
 
 $DESCRIPTION = "Prints snapshots that match a regex pattern or are older than the specified days. Requires snapshots to be named with 'YYYY-MM-DD' somewhere in the name since snapshot timestamps have proven to be inaccurate (eg. I've observed older snapshots with new timestamps on the .snapshot/<name> directory). Deletes those matching snapshots if specifying --delete (use without --delete to see what it would do first!)
 
