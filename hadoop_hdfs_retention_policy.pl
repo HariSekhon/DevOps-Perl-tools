@@ -12,6 +12,8 @@ $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (defau
 
 Credit to my old colleague Rob Dawson @ Specific Media for giving me this idea during lunch
 
+Don't forget to kinit first if running on a kerberized cluster!
+
 Tested on CDH 4.x, HDP 2.1, HDP 2.2";
 
 $VERSION = "0.9.0";
