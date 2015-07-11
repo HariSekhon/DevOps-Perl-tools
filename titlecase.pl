@@ -24,7 +24,7 @@ regex1  => MY_String
 regex2  => AnotherString
 ...
 
-Limitations: cannot use capture references in the regex in -f file.txt. It's really meant more for simpler phrase substitution and I couldn't make this work without some kind of ugly or dangerous hack. A better workaround is to simply call a proceeding sed or perl inline such as:
+Limitations: cannot use capture references in the regex in -f file.txt. It's really meant more for simpler phrase substitution and I couldn't make this work without some kind of ugly or dangerous hack. A better workaround is to simply call a sed or perl inline afterwards such as:
 
 echo \"catch and reprint any number while capitalizing K eg. 100k\" | titlecase.pl | perl -pe 's/(\\d+)k/\$1K/'
 ";
