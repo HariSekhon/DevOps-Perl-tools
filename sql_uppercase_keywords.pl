@@ -14,12 +14,12 @@ my $NEO4J_CYPHER_CONF = "neo4j_cypher_keywords.conf";
 
 our $DESCRIPTION = "Util to uppercase SQL-like keywords from stdin or file(s), prints to standard output
 
-Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc.
+Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Works with Apache Drill SQL too.
 
 Uses a regex list of keywords located in the same directory as this program
 called $CONF for easy maintainance and addition of keywords";
 
-$VERSION = "0.6";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
