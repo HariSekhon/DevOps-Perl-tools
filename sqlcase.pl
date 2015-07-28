@@ -41,7 +41,7 @@ my $no_upper_variables = 0;
 );
 @usage_order = qw/files comments/;
 
-if($progname eq "pigcase.pl"){
+if($progname =~ /pig/){
     $CONF = $PIG_CONF;
     $DESCRIPTION =~ s/various SQL.*/Pig code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)?/Pig/g;
@@ -51,9 +51,7 @@ if($progname eq "pigcase.pl"){
         "no-upper-variables" => [ \$no_upper_variables, "Do not uppercase Pig dollar variables (eg. \$date => \$DATE)" ],
     );
     $pig = 1;
-} elsif($progname eq "neo4j_cyphercase.pl" or
-        $progname eq "neo4jcase.pl"        or
-        $progname eq "cyphercase.pl"){
+} elsif($progname =~ /neo4j|cypher/){
     $CONF = $NEO4J_CYPHER_CONF;
     $DESCRIPTION =~ s/various SQL.*/Neo4j Cypher code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)?/Neo4j Cypher/g;
