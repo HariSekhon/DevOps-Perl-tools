@@ -1,1 +1,1 @@
-sql_uppercase_keywords.pl
+sqlcase.pl
