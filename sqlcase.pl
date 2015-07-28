@@ -13,7 +13,7 @@ my $PIG_CONF = "pig_keywords.conf";
 my $CASSANDRA_CQL_CONF = "cql_keywords.conf";
 my $NEO4J_CYPHER_CONF = "neo4j_cypher_keywords.conf";
 
-our $DESCRIPTION = "Util to uppercase SQL-like keywords from stdin or file(s), prints to standard output
+our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output
 
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Works with Apache Drill SQL too.
 
@@ -94,7 +94,7 @@ if($pig and not $no_upper_variables){
     $sql_keywords{'\$\w+'} = 1;
 }
 
-sub uppercase_sql ($) {
+sub recase ($) {
     my $string            = shift;
     my $captured_comments = undef;
     #$string =~ /(?:SELECT|SHOW|ALTER|DROP|TRUNCATE|GRANT|FLUSH)/ or return $string;
@@ -148,8 +148,8 @@ sub uppercase_sql ($) {
 if(@files){
     foreach my $file (@files){
         open(my $fh, $file) or die "Failed to open file '$file': $!\n";
-        while(<$fh>){ print uppercase_sql($_) }
+        while(<$fh>){ print recase($_) }
     }
 } else {
-    while(<STDIN>){ print uppercase_sql($_) }
+    while(<STDIN>){ print recase($_) }
 }
