@@ -10,6 +10,7 @@
 
 my $CONF     = "sql_keywords.conf";
 my $PIG_CONF = "pig_keywords.conf";
+my $CASSANDRA_CQL_CONF = "cql_keywords.conf";
 my $NEO4J_CYPHER_CONF = "neo4j_cypher_keywords.conf";
 
 our $DESCRIPTION = "Util to uppercase SQL-like keywords from stdin or file(s), prints to standard output
@@ -31,12 +32,13 @@ use HariSekhonUtils;
 
 my $file;
 my $comments;
+my $cql   = 0;
 my $pig   = 0;
 my $neo4j = 0;
 my $no_upper_variables = 0;
 
 %options = (
-    "f|files=s"      => [ \$file,       "File(s) to uppercase SQL from. Non-option arguments are added to the list of files" ],
+    "f|files=s"      => [ \$file,       "File(s) to re-case SQL from. Non-option arguments are added to the list of files" ],
     "c|comments"     => [ \$comments,   "Apply transformations even to lines that are commented out using -- or #" ],
 );
 @usage_order = qw/files comments/;
@@ -51,6 +53,13 @@ if($progname =~ /pig/){
         "no-upper-variables" => [ \$no_upper_variables, "Do not uppercase Pig dollar variables (eg. \$date => \$DATE)" ],
     );
     $pig = 1;
+} elsif($progname =~ /cassandra|cql/){
+    $CONF = $CASSANDRA_CQL_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Cassandra CQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)?/Cassandra CQL/g;
+    $DESCRIPTION =~ s/sql/cql/g;
+    @{$options{"f|files=s"}}[1] =~ s/SQL/CQL keywords/;
+    $cql = 1;
 } elsif($progname =~ /neo4j|cypher/){
     $CONF = $NEO4J_CYPHER_CONF;
     $DESCRIPTION =~ s/various SQL.*/Neo4j Cypher code and documentation/;
