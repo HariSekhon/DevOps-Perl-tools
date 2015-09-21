@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.8.3";
+$VERSION = "0.8.4";
 
 use strict;
 use warnings;
@@ -256,7 +256,8 @@ sub scrub_hostname($){
     }
     # XXX: review this special case to exclude
     # 21 Sep 2015 02:28:45,580  INFO [qtp-ambari-agent-6292] HeartBeatHandler:657 - State of service component MYSQL_SERVER of service HIVE of cluster ...
-    $string =~ s/(?<!\d\]\s)$hostname_regex(?<!\.java):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
+    # 21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionScheduler:311 - Operation completely failed, aborting request id:113
+    $string =~ s/(?<!\w\]\s)$hostname_regex(?<!\.java)(?<!\sid):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
     return $string;
 }
 
