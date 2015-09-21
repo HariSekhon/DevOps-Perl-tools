@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.8.2";
+$VERSION = "0.8.3";
 
 use strict;
 use warnings;
@@ -48,6 +48,8 @@ my $junos     = 0;
 my $custom    = 0;
 my $cr        = 0;
 my $skip_java_exceptions = 0;
+my $skip_python_tracebacks = 0;
+my $skip_exceptions = 0;
 
 %options = (
     "f|files=s"     => [ \$file,        "File(s) to scrub, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
@@ -69,10 +71,12 @@ my $skip_java_exceptions = 0;
     "j|junos"       => [ \$junos,       "Apply Juniper JunOS configuration format scrubbing (limited, please raise a ticket for extra matches to be added)" ],
     "m|custom"      => [ \$custom,      "Apply custom phrase scrubbing (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in scrub_custom.conf). Matching is case insensitive. Recommended to use to work around --host matching too many things" ],
     "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
-    "e|skip-java-exceptions" => [ \$skip_java_exceptions,  "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
+    "skip-java-exceptions"   => [ \$skip_java_exceptions,   "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
+    "skip-python-tracebacks" => [ \$skip_python_tracebacks, "Skip lines with Python Tracebacks, similar to --skip-java-exceptions" ],
+    "e|skip-exceptions"      => [ \$skip_exceptions,        "Skip both Java exceptions and Python tracebacks" ],
 );
 
-@usage_order = qw/files all ip ip-prefix host hostname domain fqdn port kerberos email proxy network cisco screenos junos custom cr skip-java-exceptions/;
+@usage_order = qw/files all ip ip-prefix host hostname domain fqdn port kerberos email proxy network cisco screenos junos custom cr skip-java-exceptions skip-python-tracebacks skip-exceptions/;
 get_options();
 if($all){
     $ip        = 1;
@@ -104,6 +108,10 @@ unless(
     usage "must specify one or more scrubbing types to apply";
 }
 ($ip and $ip_prefix) and usage "cannot specify both --ip and --ip-prefix, they are mutually exclusive behaviours";
+if($skip_exceptions){
+    $skip_python_tracebacks = 1;
+    $skip_java_exceptions   = 1;
+}
 
 my @files = parse_file_option($file, "args are files");
 
@@ -238,57 +246,44 @@ sub scrub_port($){
 # this host based scrubbings will still scrub class names in random debug messages that I can't predict, and there is always risk of not scrubbing sensitive hosts
 #### This is imperfect and a little risky stopping it interfering with Java stack traces this way because it effectively excludes the whole line which may potentially miss legitimiate host regex matches later in the line, will have to watch this
 
-sub skip_java_exceptions($$;$){
-    my $string = shift;
-    my $regex  = shift;
-    my $name   = shift || "";
-    $name = " $name";
-    if($skip_java_exceptions){
-        if($string =~ /(?:^\s+at|^Caused by:)\s+\w+(?:\.\w+)+/){
-            debug "skipping$name \\s+at|^Caused by";
-            return 1;
-        }
-        if($string =~ /\($regex:[\w-]+\(\d+\)\)/){
-            debug "skipping$name (regex):\\w(\\d+)";
-            return 1;
-        }
-        if($string =~ /(\b|_)$regex\.\w+Exception:/){
-            debug "skipping$name regex\\.\\w+Exception:";
-            return 1;
-        }
-        if($string =~ /^(?:\w+\.)*\w+Exception:/){
-            debug "skipping$name (?:\\w+\\.)*\\w+Exception:";
-            return 1;
-        }
-        if($string =~ /\$\w+\($regex:\d+\)/){
-            debug "skipping$name \$\\w+(regex)";
-            return 1;
-        }
-    }
-    return 0;
-}
-
 sub scrub_hostname($){
     my $string = shift;
-    return $string if skip_java_exceptions($string, $hostname_regex, "hostname");
-    $string =~ s/$hostname_regex(?<!\.java):(\d{1,5}(?:[^A-Za-z]|$))/<host>:$1/go;
+    if($skip_java_exceptions){
+        return $string if isJavaException($string);
+    }
+    if($skip_python_tracebacks){
+        return $string if isPythonTraceback($string);
+    }
+    # XXX: review this special case to exclude
+    # 21 Sep 2015 02:28:45,580  INFO [qtp-ambari-agent-6292] HeartBeatHandler:657 - State of service component MYSQL_SERVER of service HIVE of cluster ...
+    $string =~ s/(?<!\d\]\s)$hostname_regex(?<!\.java):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
     return $string;
 }
 
 sub scrub_domain($){
     my $string = shift;
-    return $string if skip_java_exceptions($string, $domain_regex2, "domain");
+    if($skip_java_exceptions){
+        return $string if isJavaException($string);
+    }
+    if($skip_python_tracebacks){
+        return $string if isPythonTraceback($string);
+    }
     # using stricter domain_regex2 which requires domain.tld format and not just tld
-    $string =~ s/$domain_regex2/<domain>/go;
+    $string =~ s/$domain_regex2(?!\.[A-Za-z])(\b|$)/<domain>/go;
     $string =~ s/\@$domain_regex/\@<domain>/go;
     return $string;
 }
 
 sub scrub_fqdn($){
     my $string = shift;
-    return $string if skip_java_exceptions($string, $fqdn_regex, "fqdn");
+    if($skip_java_exceptions){
+        return $string if isJavaException($string);
+    }
+    if($skip_python_tracebacks){
+        return $string if isPythonTraceback($string);
+    }
     # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
-    $string =~ s/$fqdn_regex/<fqdn>/go;
+    $string =~ s/$fqdn_regex(?!\.[A-Za-z])(\b|$)/<fqdn>/go;
     return $string;
 }
 
