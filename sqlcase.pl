@@ -12,15 +12,16 @@ my $CONF     = "sql_keywords.conf";
 my $PIG_CONF = "pig_keywords.conf";
 my $CASSANDRA_CQL_CONF = "cql_keywords.conf";
 my $NEO4J_CYPHER_CONF = "neo4j_cypher_keywords.conf";
+my $RECASE_CONF = "recase_keywords.conf";
 
 our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output
 
-Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Works with Apache Drill SQL too.
+Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Also works with Apache Drill, Oracle, SQL Server etc.
 
 Uses a regex list of keywords located in the same directory as this program
 called $CONF for easy maintainance and addition of keywords";
 
-$VERSION = "0.6.2";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -35,6 +36,7 @@ my $comments;
 my $cql   = 0;
 my $pig   = 0;
 my $neo4j = 0;
+my $recase = 0;
 my $no_upper_variables = 0;
 
 %options = (
@@ -67,35 +69,55 @@ if($progname =~ /pig/){
     $DESCRIPTION =~ s/sql/neo4j_cypher/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/Neo4j Cypher keywords/;
     $neo4j = 1;
+} elsif($progname eq "recase.pl"){
+    $CONF = $RECASE_CONF;
+    $DESCRIPTION =~ s/various SQL.*/code and documentation via generic recasing/;
+    $DESCRIPTION =~ s/SQL(?:-like)?/generic/g;
+    $DESCRIPTION =~ s/sql/recase/g;
+    $recase = 1;
 }
 
 get_options();
 
 my @files = parse_file_option($file, "args are files");
-my %sql_keywords;
+my %keywords;
+my %regexes;
 my $comment_chars = qr/(?:^|\s)(?:#|--)/;
 
 my $fh = open_file dirname(__FILE__) . "/$CONF";
+sub process_regex($){
+    my $regex = shift;
+    $regex =~ s/\s+/\\s+/g;
+    # protection against ppl leaving capturing brackets in sql_keywords.conf
+    $regex =~ s/([^\\])\(([^\?])/$1\(?:$2/g;
+    # wraps regex in (?:XISM: ) so don't replace the regex
+    validate_regex($regex);
+    return $regex;
+}
 foreach(<$fh>){
     chomp;
     s/(?:#|--).*//;
     $_ = trim($_);
     /^\s*$/ and next;
-    my $sql = $_;
-    $sql =~ s/\s+/\\s+/g;
-    # protection against ppl leaving matching brackets in sql_keywords.txt
-    $sql =~ s/([^\\])\(([^\?])/$1\(?:$2/g;
-    # wraps regex in (?:XISM: )
-    #$sql = validate_regex($sql);
-    $sql_keywords{$sql} = uc $_;
+    my $regex = $_;
+    # store case sensitive replacements separately, so we replace as-is
+    # this won't work due to \w, \s, \d etc
+    if($regex =~ /[a-z]/){
+        $regex = process_regex($regex);
+        $keywords{$regex} = 1;
+    } else {
+        $regex = process_regex($regex);
+        $regexes{$regex} = 1;
+    }
 }
 
-if($pig and not $no_upper_variables){
-    $sql_keywords{'\$\w+'} = 1;
-}
+#if($pig and $no_upper_variables == 0){
+#    $keywords{'\$\w+'} = 1;
+#}
 
-sub recase ($) {
-    my $string            = shift;
+sub recase ($;$) {
+    my $string = shift;
+    my $literal_replacement = shift;
     my $captured_comments = undef;
     #$string =~ /(?:SELECT|SHOW|ALTER|DROP|TRUNCATE|GRANT|FLUSH)/ or return $string;
     unless($comments){
@@ -106,35 +128,33 @@ sub recase ($) {
     if($string){
         # cannot simply use word boundary here since NULL would match /dev/null
         # removed \. because of WITH PARAMETERS (credentials.file=file.txt)
-        # removed :  because of "jdbc:oracle:..."
-        my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|' . "'|#|--";
         # don't uppercase group.domain => GROUP.domain
-        # but do camelCase org.apache.hcatalog.pig.HCatLoader()
-        # TODO: do this for Hive
-        # TODO: separate out each DB keywords
-        if($pig){
-            #$sep =~ s/\.\|//;
-            $sep .= '|org\.apache\.(?:\w+\.)*';
+        # removed colon :  because of "jdbc:oracle:..."
+        my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|#|--|' . "'";
+        # do camelCase org.apache.hcatalog.pig.HCatLoader()
+        foreach my $keyword_regex (sort keys %keywords){
+            $string =~ s/(^|$sep)(\Q$keyword_regex\E)($sep|$)/$1$keyword_regex$3/gi and vlog3 "replaced keyword $keyword_regex";
         }
-        foreach my $sql (sort keys %sql_keywords){
-            if($string =~ /(^|$sep)($sql)($sep|$)/gi){
-                my $uc_sql;
-                if($pig){
-                    if(not $no_upper_variables and $sql eq '\$\w+'){
-                        $uc_sql = uc $2;
+        foreach my $keyword_regex (sort keys %regexes){
+            if($string =~ /(^|$sep)($keyword_regex)($sep|$)/gi){
+                my $uc_keyword;
+                if($keyword_regex =~ /[a-z]/){
+                    # XXX: special rule to uppercase Pig variables
+                    if($pig and $no_upper_variables == 0 and $keyword_regex eq '\$\w+'){
+                        $uc_keyword = uc $2;
                     } else {
                         # this would have included regex chars instead of just the case replacements
-                        #$uc_sql = $sql;
-                        $uc_sql = $2;
-                        foreach(split(/[^A-Za-z_]/, $sql)){
-                            $uc_sql =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi;
+                        #$uc_keyword = $keyword;
+                        $uc_keyword = $2;
+                        foreach(split(/[^A-Za-z_]/, $keyword_regex)){
+                            $uc_keyword =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi;
                         }
                     }
                 } else {
-                    $uc_sql = uc $2;
+                    $uc_keyword = uc $2;
                 }
                 # have to redefine comment chars here because variable length negative lookbehind isn't implemented
-                $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$sql($sep|$)/$1$uc_sql$2/gi;
+                $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$keyword_regex($sep|$)/$1$uc_keyword$2/gi;
             }
         }
     }
