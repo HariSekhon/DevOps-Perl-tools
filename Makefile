@@ -63,8 +63,8 @@ make:
 #		IO::Socket::SSL \
 #		Net::LDAP::Filter \
 	easy_install -U setuptools || :
-	$(SUDO) easy_install pip || :
-	$(SUDO) pip install jinja2 || :
+	#$(SUDO) easy_install pip || :
+	#$(SUDO) pip install jinja2 || :
 
 .PHONY: apt-packages
 apt-packages:
@@ -75,8 +75,8 @@ apt-packages:
 	$(SUDO) apt-get install -y libssl-dev || :
 	# needed to build XML::LibXML
 	$(SUDO) apt-get install -y libxml2-dev || :
-	$(SUDO) apt-get install -y ipython-notebook || :
-	dpkg -l python-setuptools python-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev || :
+	#$(SUDO) apt-get install -y ipython-notebook || :
+	#dpkg -l python-setuptools python-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev || :
 
 .PHONY: yum-packages
 yum-packages:
@@ -89,8 +89,8 @@ yum-packages:
 	rpm -q libxml2-devel || $(SUDO) yum install -y libxml2-devel || :
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
 	rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" || :
-	rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel || :
-	rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook || :
+	#rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel || :
+	#rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook || :
 
 .PHONY: test
 test:
