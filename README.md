@@ -1,4 +1,4 @@
-Hadoop, NoSQL, Web, Unix Tools [![Build Status](https://travis-ci.org/harisekhon/toolbox.svg?branch=master)](https://travis-ci.org/harisekhon/toolbox)
+Hari Sekhon Tools - Hadoop, NoSQL, Web, Unix / Linux Tools [![Build Status](https://travis-ci.org/harisekhon/toolbox.svg?branch=master)](https://travis-ci.org/harisekhon/toolbox)
 ================================
 
 A few of the Hadoop, NoSQL, Web and other nifty "Unixy" / Linux tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
