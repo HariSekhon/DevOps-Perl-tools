@@ -1,9 +1,11 @@
-Hari Sekhon Tools - Hadoop, NoSQL, Web, Unix / Linux Tools [![Build Status](https://travis-ci.org/harisekhon/toolbox.svg?branch=master)](https://travis-ci.org/harisekhon/toolbox)
+Hari Sekhon Tools [![Build Status](https://travis-ci.org/harisekhon/toolbox.svg?branch=master)](https://travis-ci.org/harisekhon/toolbox)
 ================================
+
+### Hadoop, NoSQL, Web, Unix / Linux Tools ###
 
 A few of the Hadoop, NoSQL, Web and other nifty "Unixy" / Linux tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
 
-For many more tools, see the [Advanced Nagios Plugins Collection](//github.com/harisekhon/nagios-plugins) which contains many Hadoop, NoSQL, Web and infrastructure monitoring CLI programs that integrate with Nagios.
+For many more tools, see the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many Hadoop, NoSQL, Web and infrastructure monitoring CLI programs that integrate with Nagios.
 
 Hari Sekhon
 
@@ -14,6 +16,8 @@ http://www.linkedin.com/in/harisekhon
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodule and possibly new upstream libraries. #####
 
 ### A Sample of cool Programs in this Toolbox ###
+
+##### NOTE: Hadoop HDFS API Tools, Pig UDFs and authenticated PySpark IPython Notebook have moved to [PyTools](https://github.com/harisekhon/pytools) #####
 
 - ```pig-text-to-elasticsearch.pig``` / ```pig-text-to-solr.pig``` - bulk indexes unstructured files in Hadoop to Elasticsearch or Solr/SolrCloud clusters
 - ```hive-to-elasticsearch.pl``` - bulk indexes structured Hive tables in Hadoop to Elasticsearch clusters - includes support for Kerberos, Hive partitioned tables with selected partitions, selected columns, index creation with configurable sharding, index aliasing and optimization
@@ -79,7 +83,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-[PyTools](https://github.com/harisekhon/pytools) - Hadoop and Unix tools written in Python / Jython
+[PyTools](https://github.com/harisekhon/pytools) - Hadoop, Spark and other Linux/Unix tools written in Python / Jython
 
 [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 220+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as traditional Linux and infrastructure.
 
