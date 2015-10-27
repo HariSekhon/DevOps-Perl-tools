@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2014-05-27 (based on datameer-config-git.pl from 2013-12-05)
 #
-#  http://github.com/harisekhon/toolbox
+#  http://github.com/harisekhon/tools
 #
 #  License: see accompanying LICENSE file
 #

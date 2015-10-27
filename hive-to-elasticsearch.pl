@@ -37,7 +37,7 @@ You need the 'elasticsearch-hadoop-hive.jar' from the link above as well as the 
 4. the standard distribution paths on Hortonworks HDP, Cloudera CDH (parcels) as well as /usr/lib/hive*/lib and /usr/lib/hadoop*/lib for legacy. This is mostly tested on the standard Hortonworks HDP though
 5. elasticsearch-hadoop-hive.jar / elasticsearch-hadoop.jar in straight zip unpacked directories found in any of the above locations
 
-Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly and result in not indexing mismatched field types etc, so editing this process which I've spent a long time on is at your own peril. If you do make any modifications/improvements please submit a patch in the form of a github pull request to https://github.com/harisekhon/toolbox (which is part of my license in providing this to you for free).
+Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly and result in not indexing mismatched field types etc, so editing this process which I've spent a long time on is at your own peril. If you do make any modifications/improvements please submit a patch in the form of a github pull request to https://github.com/harisekhon/tools (which is part of my license in providing this to you for free).
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see https://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
@@ -615,7 +615,7 @@ if(@partitions){
             if($partition =~ /^([$valid_partition_key_chars]+=[$valid_partition_value_chars]+)$/){
                 $partition = $1;
             } else {
-                quit "UNKNOWN", "invalid partition '$partition' detected in Hive table when attempting to iterate and index all partitions. Re-run with -vvv and paste in to a ticket at the following URL for a fix/update: https://github.com/harisekhon/toolbox/issues";
+                quit "UNKNOWN", "invalid partition '$partition' detected in Hive table when attempting to iterate and index all partitions. Re-run with -vvv and paste in to a ticket at the following URL for a fix/update: https://github.com/harisekhon/tools/issues";
             }
             indexToES($index, $partition);
         }

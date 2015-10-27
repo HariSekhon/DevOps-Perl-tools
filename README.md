@@ -1,4 +1,4 @@
-Hari Sekhon Tools [![Build Status](https://travis-ci.org/harisekhon/toolbox.svg?branch=master)](https://travis-ci.org/harisekhon/toolbox)
+Hari Sekhon Tools [![Build Status](https://travis-ci.org/harisekhon/tools.svg?branch=master)](https://travis-ci.org/harisekhon/tools)
 ================================
 
 ### Hadoop, NoSQL, Web, Unix / Linux Tools ###
@@ -37,18 +37,18 @@ http://www.linkedin.com/in/harisekhon
 The 'make' command will initialize my library submodule and  use 'sudo' to install the required CPAN modules:
 
 ```
-git clone https://github.com/harisekhon/toolbox
-cd toolbox
+git clone https://github.com/harisekhon/tools
+cd tools
 make
 ```
 
 #### OR: Manual Setup ####
 
-Enter the toolbox directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
+Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
 ```
-git clone https://github.com/harisekhon/toolbox
-cd toolbox
+git clone https://github.com/harisekhon/tools
+cd tools
 git submodule init
 git submodule update
 ```

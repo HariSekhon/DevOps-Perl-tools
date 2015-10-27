@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2014-11-23 17:12:26 +0000 (Sun, 23 Nov 2014)
 #
-#  https://github.com/harisekhon/toolbox
+#  https://github.com/harisekhon/tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
@@ -80,7 +80,7 @@ use Net::Domain 'hostfqdn' ;
 #use Net::LDAP::Filter;
 use POSIX;
 
-$github_repo = "toolbox";
+$github_repo = "tools";
 
 my $ipa_server;
 #my $base_dn;

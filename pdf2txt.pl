@@ -6,7 +6,7 @@
 #
 #  License: see accompanying HariSekhon LICENSE
 #
-#  http://github.com/harisekhon/toolbox
+#  http://github.com/harisekhon/tools
 
 $DESCRIPTION="Tool for converting PDF to text for text analytics. Rustled this up quickly in Cloudera to analyze our internal KB for an unofficial topic challenge, which I won as a result of using this and a Java MapReduce word count :)
 
@@ -26,7 +26,7 @@ use HariSekhonUtils;
 use CAM::PDF;
 use CAM::PDF::PageText;
 
-$github_repo = "toolbox";
+$github_repo = "tools";
 
 my $filename;
 

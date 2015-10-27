@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2012-04-06 21:01:42 +0100 (Fri, 06 Apr 2012)
 #
-#  http://github.com/harisekhon/toolbox
+#  http://github.com/harisekhon/tools
 #
 #  License: see accompanying LICENSE file
 #

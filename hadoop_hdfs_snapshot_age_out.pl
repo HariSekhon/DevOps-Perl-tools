@@ -5,7 +5,7 @@
 #  Original Date: 2013-01-14 20:50:13 +0000 (Mon, 14 Jan 2013)
 #  Date: 2015-05-08
 #
-#  http://github.com/harisekhon/toolbox
+#  http://github.com/harisekhon/tools
 #
 #  License: see accompanying LICENSE file
 #
@@ -146,7 +146,7 @@ sub process_snapshots($){
             my $snapshot_name = basename($2);
             if($dir_type ne "d"){
                 # assert this should never happen
-                die "non-directory found! ('$dir'). see -vvv output and raise a ticket at https://github.com/harisekhon/toolbox/issues\n";
+                die "non-directory found! ('$dir'). see -vvv output and raise a ticket at https://github.com/harisekhon/tools/issues\n";
             }
             if ($snapshot_name =~ qr{ 
                                       [\'\"\`] |
