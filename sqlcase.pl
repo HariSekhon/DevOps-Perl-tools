@@ -18,7 +18,7 @@ my $MSSQL_CONF          = ".mssql_keywords.conf";
 my $MYSQL_CONF          = ".mysql_keywords.conf";
 my $NEO4J_CYPHER_CONF   = ".neo4j_cypher_keywords.conf";
 my $ORACLE_CONF         = ".oracle_keywords.conf";
-my $PGSQL_CONF          = ".postgres_keywords.conf";
+my $PGSQL_CONF          = ".pgsql_keywords.conf";
 my $PIG_CONF            = ".pig_keywords.conf";
 
 # Generic keywords are not hiddent .dot files as they are intended to be changed by user
@@ -187,14 +187,14 @@ sub recase ($;$) {
                         #$uc_keyword = $keyword;
                         $uc_keyword = $2;
                         foreach(split(/[^A-Za-z_]/, $keyword_regex)){
-                            $uc_keyword =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi;
+                            $uc_keyword =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi and vlog3 "replaced keyword $_ with uppercase";
                         }
                     }
                 } else {
                     $uc_keyword = uc $2;
                 }
                 # have to redefine comment chars here because variable length negative lookbehind isn't implemented
-                $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$keyword_regex($sep|$)/$1$uc_keyword$2/gi;
+                $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$keyword_regex($sep|$)/$1$uc_keyword$2/gi and vlog3 "replaced keyword '$uc_keyword'";
             }
         }
     }
