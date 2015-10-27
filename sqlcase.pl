@@ -8,20 +8,28 @@
 #  License: see accompanying LICENSE file
 #
 
-my $CONF     = "sql_keywords.conf";
-my $PIG_CONF = "pig_keywords.conf";
-my $CASSANDRA_CQL_CONF = "cql_keywords.conf";
-my $NEO4J_CYPHER_CONF = "neo4j_cypher_keywords.conf";
-my $RECASE_CONF = "recase_keywords.conf";
+# The SQL language files shouldn't be actively changed by users so are dot files
+my $CONF                = ".sql_keywords.conf";
+my $CASSANDRA_CQL_CONF  = ".cql_keywords.conf";
+my $DRILL_CONF          = ".drill_keywords.conf";
+my $HIVE_CONF           = ".hive_keywords.conf";
+my $IMPALA_CONF         = ".impala_keywords.conf";
+my $MSSQL_CONF          = ".mssql_keywords.conf";
+my $MYSQL_CONF          = ".mysql_keywords.conf";
+my $NEO4J_CYPHER_CONF   = ".neo4j_cypher_keywords.conf";
+my $ORACLE_CONF         = ".oracle_keywords.conf";
+my $PGSQL_CONF          = ".postgres_keywords.conf";
+my $PIG_CONF            = ".pig_keywords.conf";
+
+# Generic keywords are not hiddent .dot files as they are intended to be changed by user
+my $RECASE_CONF         = "recase_keywords.conf";
 
 our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output
 
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Also works with Apache Drill, Oracle, SQL Server etc.
+";
 
-Uses a regex list of keywords located in the same directory as this program
-called $CONF for easy maintainance and addition of keywords";
-
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -45,10 +53,38 @@ my $no_upper_variables = 0;
 );
 @usage_order = qw/files comments/;
 
-if($progname =~ /pig/){
+if($progname =~ /hive/){
+    $CONF = $HIVE_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Hive SQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/Hive SQL/g;
+} elsif($progname =~ /drill/){
+    $CONF = $DRILL_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Apache Drill SQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/Drill SQL/g;
+} elsif($progname =~ /impala/){
+    $CONF = $IMPALA_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Impala SQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/Impala SQL/g;
+} elsif($progname =~ /mysql/){
+    $CONF = $MYSQL_CONF;
+    $DESCRIPTION =~ s/various SQL.*/MySQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/MySQL SQL/g;
+} elsif($progname =~ /postgres|pgsql/){
+    $CONF = $PGSQL_CONF;
+    $DESCRIPTION =~ s/various SQL.*/PostgreSQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/PostgreSQL SQL/g;
+} elsif($progname =~ /mssql|microsoft/){
+    $CONF = $MSSQL_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Microsoft SQL Server code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/MSSQL/g;
+} elsif($progname =~ /plsql|oracle/){
+    $CONF = $ORACLE_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Oracle PL\/SQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/PL\/SQL/g;
+} elsif($progname =~ /pig/){
     $CONF = $PIG_CONF;
     $DESCRIPTION =~ s/various SQL.*/Pig code and documentation/;
-    $DESCRIPTION =~ s/SQL(?:-like)?/Pig/g;
+    $DESCRIPTION =~ s/SQL(?:-like)?/Pig Latin/g;
     $DESCRIPTION =~ s/sql/pig/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/Pig Latin/;
     %options = ( %options,
@@ -71,11 +107,15 @@ if($progname =~ /pig/){
     $neo4j = 1;
 } elsif($progname eq "recase.pl"){
     $CONF = $RECASE_CONF;
-    $DESCRIPTION =~ s/various SQL.*/code and documentation via generic recasing/;
-    $DESCRIPTION =~ s/SQL(?:-like)?/generic/g;
+    $DESCRIPTION =~ s/various SQL.*/code and documentation via generic re-casing/;
+    $DESCRIPTION =~ s/SQL/generic/g;
     $DESCRIPTION =~ s/sql/recase/g;
+    @{$options{"f|files=s"}}[1] =~ s/SQL/generic keywords/;
     $recase = 1;
 }
+$DESCRIPTION .= "
+Uses a regex list of keywords located in the same directory as this program
+called '$CONF' for easy maintainance and addition of keywords";
 
 get_options();
 
