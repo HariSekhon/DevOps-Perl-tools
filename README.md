@@ -1,4 +1,4 @@
-Hari Sekhon Tools [![Build Status](https://travis-ci.org/harisekhon/tools.svg?branch=master)](https://travis-ci.org/harisekhon/tools)
+Hari Sekhon's Tools [![Build Status](https://travis-ci.org/harisekhon/tools.svg?branch=master)](https://travis-ci.org/harisekhon/tools)
 ================================
 
 ### Hadoop, NoSQL, Web, Unix / Linux Tools ###
@@ -17,7 +17,7 @@ http://www.linkedin.com/in/harisekhon
 
 ### A Sample of cool Programs in this Toolbox ###
 
-##### NOTE: Hadoop HDFS API Tools, Pig UDFs and authenticated PySpark IPython Notebook have moved to [PyTools](https://github.com/harisekhon/pytools) #####
+##### NOTE: Hadoop HDFS API Tools, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to [PyTools](https://github.com/harisekhon/pytools) #####
 
 - ```pig-text-to-elasticsearch.pig``` / ```pig-text-to-solr.pig``` - bulk indexes unstructured files in Hadoop to Elasticsearch or Solr/SolrCloud clusters
 - ```hive-to-elasticsearch.pl``` - bulk indexes structured Hive tables in Hadoop to Elasticsearch clusters - includes support for Kerberos, Hive partitioned tables with selected partitions, selected columns, index creation with configurable sharding, index aliasing and optimization
