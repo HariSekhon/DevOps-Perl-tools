@@ -99,6 +99,7 @@ test:
 	#for x in *.pl; do perl -T -c $x; done
 	# TODO: add more functional tests back in here
 	tests/help.sh
+	for x in tests/*.sh; do [ "$x" = "tests/help.sh" ] && continue; ./$x || exit $?; done
 
 .PHONY: install
 install:
