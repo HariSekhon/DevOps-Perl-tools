@@ -11,16 +11,20 @@
 
 set -eu
 
-checksum='75055c31342ba35ea59c4091fff098c7'
+md5sum="md5sum"
+checksum='14afceeaf204606f9027af58a4f70c4c'
 
 pushd `dirname $0` >/dev/null || exit 1
 
 ../dockercase.pl Dockerfile > Dockerfile2
-if [ "`uname -s`" = 'Darwin' -a "`md5 -q Dockerfile2`"    = "$checksum" ] ||
-   [ "`uname -s`" = 'Linux'  -a "`md5sum -q Dockerfile2`" = "$checksum" ]; then
+if [ "`uname -s`" = 'Darwin' ]; then
+    md5sum="md5"
+fi
+if [ "`$md5sum -q Dockerfile2`"    = "$checksum" ]; then
     echo "recasing of Dockerfile succeeded"
  else
     echo "recasing of Dockerfile FAILED"
+    md5 Dockerfile2
     exit 1
 fi
 rm -f Dockerfile2
