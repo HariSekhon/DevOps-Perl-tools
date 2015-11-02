@@ -67,7 +67,7 @@ You're now ready to use these programs.
 
 #### Configuration ####
 
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list as done via the lib submodule. See [Lib](https://github.com/harisekhon/lib) for details on extending this for custom TLDs like ```.local``` or ```.intranet``` (supported by default).
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) submodule, see there for details on extending this for custom TLDs like ```.local``` or ```.intranet``` (supported by default).
 
 ### Updating ###
 
