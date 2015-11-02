@@ -65,9 +65,9 @@ sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::Hi
 
 You're now ready to use these programs.
 
-#### Configuration ####
+#### Configuration for Strict Domain / FQDN validation ####
 
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) submodule - see there for details on extending this for custom TLDs like ```.local``` or ```.intranet``` (supported by default).
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring this to permit custom TLDs like ```.local``` or ```.intranet``` (both supported by default).
 
 ### Updating ###
 
