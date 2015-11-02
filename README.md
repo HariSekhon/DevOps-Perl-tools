@@ -65,6 +65,10 @@ sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::Hi
 
 You're now ready to use these programs.
 
+#### Configuration ####
+
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list as done via the lib submodule. See [Lib](https://github.com/harisekhon/lib) for details on extending this for custom TLDs like ```.local``` or ```.intranet``` (supported by default).
+
 ### Updating ###
 
 Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates, then try to build again using 'make install' to fetch any new CPAN depe
