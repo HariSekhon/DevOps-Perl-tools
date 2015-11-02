@@ -18,12 +18,12 @@ cd "$srcdir";
 
 md5sum="md5sum"
 checksum='14afceeaf204606f9027af58a4f70c4c'
-set -x
+
 $perl -T $I_lib ../dockercase.pl Dockerfile > Dockerfile2
 if [ "`uname -s`" = 'Darwin' ]; then
-    md5sum="md5"
+    md5sum="md5 -r"
 fi
-if [ "`$md5sum Dockerfile2 | awk '{print $NF}'`" = "$checksum" ]; then
+if [ "`$md5sum Dockerfile2 | awk '{print $1}'`" = "$checksum" ]; then
     echo "recasing of Dockerfile succeeded"
  else
     echo "recasing of Dockerfile FAILED"
