@@ -14,7 +14,7 @@ set -eu
 md5sum="md5sum"
 checksum='14afceeaf204606f9027af58a4f70c4c'
 
-pushd `dirname $0` >/dev/null || exit 1
+pushd `dirname $0` >/dev/null || { echo "failed to change cwd"; exit 1; }
 
 ../dockercase.pl Dockerfile > Dockerfile2
 if [ "`uname -s`" = 'Darwin' ]; then
