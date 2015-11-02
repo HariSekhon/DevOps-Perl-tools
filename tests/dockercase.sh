@@ -20,7 +20,7 @@ pushd `dirname $0` >/dev/null || exit 1
 if [ "`uname -s`" = 'Darwin' ]; then
     md5sum="md5"
 fi
-if [ "`$md5sum Dockerfile2 | awk '{print $2}'`"    = "$checksum" ]; then
+if [ "`$md5sum Dockerfile2 | awk '{print $2}'`" = "$checksum" ]; then
     echo "recasing of Dockerfile succeeded"
  else
     echo "recasing of Dockerfile FAILED"
