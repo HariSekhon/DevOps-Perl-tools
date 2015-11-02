@@ -182,7 +182,7 @@ sub recase ($;$) {
         my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|#|--|' . "'";
 	if($docker){
             foreach my $keyword_regex (sort keys %keywords){
-                $string =~ s/^$keyword_regex(\s)/$keyword_regex$1/gi and vlog3 "replaced Docker keyword $keyword_regex";
+                $string =~ s/^(\s*)$keyword_regex(\s)/$1$keyword_regex$2/gi and vlog3 "replaced Docker keyword $keyword_regex";
             }
         } else {
             # do camelCase org.apache.hcatalog.pig.HCatLoader()
