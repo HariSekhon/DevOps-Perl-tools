@@ -2,6 +2,8 @@
 #
 # VERSION               0.0.1
 
+# Intentionally miscapitalized to test dockercase.pl
+
 FRom      ubuntu
 MAINTaineR Hari
 
