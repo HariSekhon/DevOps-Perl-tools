@@ -18,26 +18,9 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-export PERLBREW_ROOT="${PERLBREW_ROOT:-~/perl5/perlbrew}"
+. tests/travis.sh
 
-export TRAVIS_PERL_VERSION="${TRAVIS_PERL_VERSION:-*}"
-
-# For Travis CI which installs modules locally
-export PERL5LIB=$(echo \
-    ${PERL5LIB:-.} \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.*/x86_64-linux \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.* \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.*/x86_64-linux \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.* \
-    | tr '\n' ':'
-)
-# Taint code doesn't use PERL5LIB, use -I instead
-I_lib=""
-for x in $(echo "$PERL5LIB" | tr ':' ' '); do
-    I_lib+="-I $x "
-done
-
-cd "$srcdir/..";
+cd "$srcdir/.."
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue
     [ "$x" = "ipython-notebook-pyspark.py" ] && { echo "skipping ipython-notebook-pyspark.py for now"; continue; }
@@ -48,7 +31,7 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     fi
     optional_cmd=""
     if [[ $x =~ .*\.pl$ ]]; then
-        optional_cmd="perl -T $I_lib"
+        optional_cmd="$perl -T $I_lib"
     fi
     echo $optional_cmd ./$x --help
     $optional_cmd ./$x --help # >/dev/null

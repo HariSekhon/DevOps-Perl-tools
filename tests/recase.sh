@@ -10,14 +10,19 @@
 #
 
 set -eu
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if echo oRg.Apache.Hadoop.Mapred.TextInputFormaT | `dirname $0`/../recase.pl | tee /dev/stderr | grep -q org.apache.hadoop.mapred.TextInputFormat; then
+cd "$srcdir/..";
+
+. tests/travis.sh
+
+if echo oRg.Apache.Hadoop.Mapred.TextInputFormaT | $perl -T $I_lib ./recase.pl | tee /dev/stderr | grep -q org.apache.hadoop.mapred.TextInputFormat; then
     echo "recasing of Hadoop TextInputFormat succeeded"
  else
     echo "recasing of Hadoop TextInputFormat FAILED"
     exit 1
 fi
-if echo 'org.apache.hcatalog.pig.hcatloader()' | `dirname $0`/../recase.pl | tee /dev/stderr | grep -q 'org.apache.hcatalog.pig.HCatLoader()'; then
+if echo 'org.apache.hcatalog.pig.hcatloader()' | $perl -T $I_lib ./recase.pl | tee /dev/stderr | grep -q 'org.apache.hcatalog.pig.HCatLoader()'; then
     echo "recasing of HCatLoader() succeeded"
 else
      echo "recasing of HCatLoader() FAILED"

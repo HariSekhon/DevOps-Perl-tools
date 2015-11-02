@@ -10,13 +10,15 @@
 #
 
 set -eu
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-pushd `dirname $0` >/dev/null || exit 1
+cd "$srcdir/..";
 
-if echo "select * from blah" | ../sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
+. tests/travis.sh
+
+if echo "select * from blah" | $perl -T $I_lib ./sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
     echo "recasing of SQL succeeded"
  else
     echo "recasing of SQL FAILED"
     exit 1
 fi
-popd >/dev/null

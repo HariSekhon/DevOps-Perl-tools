@@ -10,13 +10,16 @@
 #
 
 set -eu
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd "$srcdir";
+
+. travis.sh
 
 md5sum="md5sum"
 checksum='14afceeaf204606f9027af58a4f70c4c'
 
-pushd `dirname $0` >/dev/null || { echo "failed to change cwd"; exit 1; }
-
-../dockercase.pl Dockerfile > Dockerfile2
+$perl -T $I_lib ../dockercase.pl Dockerfile > Dockerfile2
 if [ "`uname -s`" = 'Darwin' ]; then
     md5sum="md5"
 fi
@@ -27,4 +30,3 @@ if [ "`$md5sum Dockerfile2 | awk '{print $NF}'`" = "$checksum" ]; then
     exit 1
 fi
 rm -f Dockerfile2
-popd >/dev/null
