@@ -8,23 +8,6 @@
 #  License: see accompanying LICENSE file
 #
 
-# The SQL language files shouldn't be actively changed by users so are dot files
-my $CONF                = ".sql_keywords.conf";
-my $CASSANDRA_CQL_CONF  = ".cql_keywords.conf";
-my $DRILL_CONF          = ".drill_keywords.conf";
-my $HIVE_CONF           = ".hive_keywords.conf";
-my $IMPALA_CONF         = ".impala_keywords.conf";
-my $MSSQL_CONF          = ".mssql_keywords.conf";
-my $MYSQL_CONF          = ".mysql_keywords.conf";
-my $NEO4J_CYPHER_CONF   = ".neo4j_cypher_keywords.conf";
-my $ORACLE_CONF         = ".oracle_keywords.conf";
-my $PGSQL_CONF          = ".pgsql_keywords.conf";
-my $PIG_CONF            = ".pig_keywords.conf";
-my $DOCKER_CONF	        = ".docker_keywords.conf";
-
-# Generic keywords are not hiddent .dot files as they are intended to be changed by user
-my $RECASE_CONF         = "recase_keywords.conf";
-
 our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output
 
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Also works with Apache Drill, Oracle, SQL Server etc.
@@ -39,6 +22,23 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+
+# The SQL language files shouldn't be actively changed by users so are dot files
+my $CONF                = ".sql_keywords.conf";
+my $CASSANDRA_CQL_CONF  = ".cql_keywords.conf";
+my $DOCKER_CONF	        = ".docker_keywords.conf";
+my $DRILL_CONF          = ".drill_keywords.conf";
+my $HIVE_CONF           = ".hive_keywords.conf";
+my $IMPALA_CONF         = ".impala_keywords.conf";
+my $MSSQL_CONF          = ".mssql_keywords.conf";
+my $MYSQL_CONF          = ".mysql_keywords.conf";
+my $NEO4J_CYPHER_CONF   = ".neo4j_cypher_keywords.conf";
+my $ORACLE_CONF         = ".oracle_keywords.conf";
+my $PGSQL_CONF          = ".pgsql_keywords.conf";
+my $PIG_CONF            = ".pig_keywords.conf";
+
+# Generic keywords are not hiddent .dot files as they are intended to be changed by user
+my $RECASE_CONF         = "recase_keywords.conf";
 
 my $file;
 my $comments;
