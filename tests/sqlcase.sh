@@ -11,9 +11,12 @@
 
 set -eu
 
-if echo "select * from blah" | `dirname $0`/../sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
+pushd `dirname $0` >/dev/null || exit 1
+
+if echo "select * from blah" | ../sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
     echo "recasing of SQL succeeded"
  else
     echo "recasing of SQL FAILED"
     exit 1
 fi
+popd >/dev/null
