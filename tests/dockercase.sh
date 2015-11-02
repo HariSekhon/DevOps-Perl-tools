@@ -18,7 +18,7 @@ cd "$srcdir";
 
 md5sum="md5sum"
 checksum='14afceeaf204606f9027af58a4f70c4c'
-
+set -x
 $perl -T $I_lib ../dockercase.pl Dockerfile > Dockerfile2
 if [ "`uname -s`" = 'Darwin' ]; then
     md5sum="md5"
