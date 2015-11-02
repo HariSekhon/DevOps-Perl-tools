@@ -20,6 +20,7 @@ my $NEO4J_CYPHER_CONF   = ".neo4j_cypher_keywords.conf";
 my $ORACLE_CONF         = ".oracle_keywords.conf";
 my $PGSQL_CONF          = ".pgsql_keywords.conf";
 my $PIG_CONF            = ".pig_keywords.conf";
+my $DOCKER_CONF	        = ".docker_keywords.conf";
 
 # Generic keywords are not hiddent .dot files as they are intended to be changed by user
 my $RECASE_CONF         = "recase_keywords.conf";
@@ -29,7 +30,7 @@ our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), pri
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Also works with Apache Drill, Oracle, SQL Server etc.
 ";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -41,9 +42,10 @@ use HariSekhonUtils;
 
 my $file;
 my $comments;
-my $cql   = 0;
-my $pig   = 0;
-my $neo4j = 0;
+my $cql    = 0;
+my $docker = 0;
+my $pig    = 0;
+my $neo4j  = 0;
 my $recase = 0;
 my $no_upper_variables = 0;
 
@@ -105,6 +107,13 @@ if($progname =~ /hive/){
     $DESCRIPTION =~ s/sql/neo4j_cypher/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/Neo4j Cypher keywords/;
     $neo4j = 1;
+} elsif($progname eq "dockercase.pl"){
+    $CONF = $DOCKER_CONF;
+    $DESCRIPTION =~ s/various SQL.*/Dockerfiles by recasing the leading keywords/;
+    $DESCRIPTION =~ s/SQL-like/Dockerfile/g;
+    $DESCRIPTION =~ s/sql/docker/g;
+    @{$options{"f|files=s"}}[1] =~ s/SQL/Dockerfile keywords/;
+    $docker = 1;
 } elsif($progname eq "recase.pl"){
     $CONF = $RECASE_CONF;
     $DESCRIPTION =~ s/various SQL.*/code and documentation via generic re-casing/;
@@ -142,7 +151,7 @@ foreach(<$fh>){
     my $regex = $_;
     # store case sensitive replacements separately, so we replace as-is
     # this won't work due to \w, \s, \d etc
-    if($regex =~ /[a-z]/){
+    if($regex =~ /[a-z]/ or $docker){
         $regex = process_regex($regex);
         $keywords{$regex} = 1;
     } else {
@@ -171,30 +180,36 @@ sub recase ($;$) {
         # don't uppercase group.domain => GROUP.domain
         # removed colon :  because of "jdbc:oracle:..."
         my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|#|--|' . "'";
-        # do camelCase org.apache.hcatalog.pig.HCatLoader()
-        foreach my $keyword_regex (sort keys %keywords){
-            $string =~ s/(^|$sep)(\Q$keyword_regex\E)($sep|$)/$1$keyword_regex$3/gi and vlog3 "replaced keyword $keyword_regex";
-        }
-        foreach my $keyword_regex (sort keys %regexes){
-            if($string =~ /(^|$sep)($keyword_regex)($sep|$)/gi){
-                my $uc_keyword;
-                if($keyword_regex =~ /[a-z]/){
-                    # XXX: special rule to uppercase Pig variables
-                    if($pig and $no_upper_variables == 0 and $keyword_regex eq '\$\w+'){
-                        $uc_keyword = uc $2;
-                    } else {
-                        # this would have included regex chars instead of just the case replacements
-                        #$uc_keyword = $keyword;
-                        $uc_keyword = $2;
-                        foreach(split(/[^A-Za-z_]/, $keyword_regex)){
-                            $uc_keyword =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi and vlog3 "replaced keyword $_ with uppercase";
+	if($docker){
+            foreach my $keyword_regex (sort keys %keywords){
+                $string =~ s/^$keyword_regex(\s)/$keyword_regex$1/gi and vlog3 "replaced Docker keyword $keyword_regex";
+            }
+        } else {
+            # do camelCase org.apache.hcatalog.pig.HCatLoader()
+            foreach my $keyword_regex (sort keys %keywords){
+                $string =~ s/(^|$sep)(\Q$keyword_regex\E)($sep|$)/$1$keyword_regex$3/gi and vlog3 "replaced keyword $keyword_regex";
+            }
+            foreach my $keyword_regex (sort keys %regexes){
+                if($string =~ /(^|$sep)($keyword_regex)($sep|$)/gi){
+                    my $uc_keyword;
+                    if($keyword_regex =~ /[a-z]/){
+                        # XXX: special rule to uppercase Pig variables
+                        if($pig and $no_upper_variables == 0 and $keyword_regex eq '\$\w+'){
+                            $uc_keyword = uc $2;
+                        } else {
+                            # this would have included regex chars instead of just the case replacements
+                            #$uc_keyword = $keyword;
+                            $uc_keyword = $2;
+                            foreach(split(/[^A-Za-z_]/, $keyword_regex)){
+                                $uc_keyword =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi and vlog3 "replaced keyword $_ with uppercase";
+                            }
                         }
+                    } else {
+                        $uc_keyword = uc $2;
                     }
-                } else {
-                    $uc_keyword = uc $2;
+                    # have to redefine comment chars here because variable length negative lookbehind isn't implemented
+                    $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$keyword_regex($sep|$)/$1$uc_keyword$2/gi and vlog3 "replaced keyword '$uc_keyword'";
                 }
-                # have to redefine comment chars here because variable length negative lookbehind isn't implemented
-                $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$keyword_regex($sep|$)/$1$uc_keyword$2/gi and vlog3 "replaced keyword '$uc_keyword'";
             }
         }
     }
