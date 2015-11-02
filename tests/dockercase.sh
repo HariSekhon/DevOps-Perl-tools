@@ -20,11 +20,10 @@ pushd `dirname $0` >/dev/null || { echo "failed to change cwd"; exit 1; }
 if [ "`uname -s`" = 'Darwin' ]; then
     md5sum="md5"
 fi
-if [ "`$md5sum Dockerfile2 | awk '{print $2}'`" = "$checksum" ]; then
+if [ "`$md5sum Dockerfile2 | awk '{print $NF}'`" = "$checksum" ]; then
     echo "recasing of Dockerfile succeeded"
  else
     echo "recasing of Dockerfile FAILED"
-    md5 Dockerfile2
     exit 1
 fi
 rm -f Dockerfile2
