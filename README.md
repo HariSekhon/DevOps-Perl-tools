@@ -1,7 +1,7 @@
 Hari Sekhon's Tools [![Build Status](https://travis-ci.org/harisekhon/tools.svg?branch=master)](https://travis-ci.org/harisekhon/tools)
 ================================
 
-### Hadoop, NoSQL, Web, Unix / Linux Tools ###
+### Hadoop, Hive, Solr, NoSQL, Web, Linux Tools ###
 
 A few of the Hadoop, NoSQL, Web and other nifty "Unixy" / Linux tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
 
