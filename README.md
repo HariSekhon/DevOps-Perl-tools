@@ -5,7 +5,7 @@ Hari Sekhon's Tools [![Build Status](https://travis-ci.org/harisekhon/tools.svg?
 
 A few of the Hadoop, NoSQL, Web and other nifty "Unixy" / Linux tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
 
-For many more tools, see the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many Hadoop, NoSQL, Web and infrastructure monitoring CLI programs that integrate with Nagios.
+For more tools [PyTools](https://github.com/harisekhon/pytools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools. 
 
 Hari Sekhon
 
