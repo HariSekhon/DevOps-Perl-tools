@@ -76,7 +76,7 @@ if(scalar @ARGV == 2){
     usage "wrong number of args given, should be 2 xml files or URLs and an optional xsl configuration file";
 }
 
-$xsl_path = validate_file($xsl_path, 0, "xsl file");
+$xsl_path = validate_file($xsl_path, "xsl file");
 
 vlog2;
 set_timeout();

@@ -44,7 +44,7 @@ Restore Procedure:
 Used on Pentaho 5.0
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -96,8 +96,8 @@ get_options();
 
 getpwuid($<) eq "pentaho" or die "error: you must be the 'pentaho' user to run a backup\n";
 
-$install_dir = validate_dir($install_dir, 0, "install directory");
-$backup_dir  = validate_dir($backup_dir,  0, "backup directory");
+$install_dir = validate_dir($install_dir, "install directory");
+$backup_dir  = validate_dir($backup_dir,  "backup directory");
 vlog_options "ba-server", "true" if $ba_server;
 vlog_options "di-server", "true" if $di_server;
 vlog_options "no-postgres", "true" if $no_postgres;

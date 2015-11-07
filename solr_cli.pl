@@ -25,7 +25,7 @@ Tested on Solr / SolrCloud 4.x";
 
 our $DESCRIPTION_CONFIG = "For SolrCloud upload / download config zkcli.sh is must be in the \$PATH and if on Mac must appear in \$PATH before zookeeper/bin otherwise Mac matches zkCli.sh due to Mac case insensitivity. Alternatively specify ZKCLI_PATH explicitly in solr-env.sh";
 
-our $VERSION = "0.5.2";
+our $VERSION = "0.5.3";
 
 my $path;
 BEGIN {
@@ -308,7 +308,7 @@ if($upload_config or $download_config){
     if(defined($ENV{'ZKCLI_PATH'})){
         $zkcli = $ENV{'ZKCLI_PATH'};
         $zkcli =~ /\bzkcli.sh$/ or usage "invalid zkcli.sh path, does not end in zkcli.sh";
-        $zkcli = validate_file($zkcli, 0, "zkcli");
+        $zkcli = validate_file($zkcli, "zkcli");
     }
     $config_name = validate_dirname($config_name, "config");
     $zookeeper_ensemble = validate_zookeeper_ensemble($zookeeper_ensemble);

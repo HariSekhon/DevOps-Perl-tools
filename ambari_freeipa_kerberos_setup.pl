@@ -61,7 +61,7 @@ Tested on HDP 2.1, Ambari 1.5/1.6.1, FreeIPA 3.0.0";
 #   - LDAP 'cn=Directory Manager' --password (optional) to remove immediate IPA expiry of new accounts for Hadoop smoke test users (ambari-qa, hdfs, hbase), otherwise you'll end up with service start failures 'kinit: Password has expired while getting initial credentials'
 #   - /etc/ipa/ca.crt to verify LDAPS certificate on FreeIPA server (set up automatically by IPA client install)
 
-$VERSION = "0.7.3";
+$VERSION = "0.7.4";
 
 use strict;
 use warnings;
@@ -136,7 +136,7 @@ get_options();
 
 $verbose-- if $quiet;
 
-$csv = validate_file($csv, 0, "Principals CSV");
+$csv = validate_file($csv, "Principals CSV");
 $ipa_server = validate_host($ipa_server, "IPA");
 isFqdn($ipa_server) or warn "WARNING: KDC host --server is not an FQDN, this may cause a SASL Bind error due to not validating the LDAP SSL certificate (may still work with straight LDAP credentials --bind-dn and --bind-password\n";
 #if($ipa_server ne "localhost"){
@@ -179,7 +179,7 @@ if(defined($deploy_keytabs)){
     parse_response(\$deploy_keytabs, $deploy_keytabs, "deploy-keytabs");
 }
 if(defined($ssh_key)){
-    $ssh_key = validate_file($ssh_key, 0, "ssh private key");
+    $ssh_key = validate_file($ssh_key, "ssh private key");
     $ssh_key = "-i $ssh_key";
 } else {
     $ssh_key = "";

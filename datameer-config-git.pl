@@ -36,7 +36,7 @@ Can optionally specify just a subset of one or more of the following config type
 
 Tested on Datameer 3.0.11 and 3.1.1";
 
-$VERSION = "0.5";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -84,9 +84,9 @@ $verbose++ unless $quiet;
 # Putting rel2abs after validate re-taints the $dir, but putting it before rel2abs assumes "." on undefined $dir, avoiding the validation defined check, so check defined before rel2abs and then validate final $dir format before usage
 $dir or usage "git directory not defined";
 $dir = File::Spec->rel2abs($dir);
-$dir = validate_directory($dir, 0, "git");
+$dir = validate_directory($dir, "git");
 $git = which($git, 1);
-$git = validate_file($git, 0, "git binary");
+$git = validate_file($git, "git binary");
 $git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
 vlog_options "commit to git", ( $no_git ? "False" : "True" );
 my %selected_types;

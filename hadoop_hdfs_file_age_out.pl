@@ -16,7 +16,7 @@ Don't forget to kinit first if running on a kerberized cluster!
 
 Tested on CDH 4.x, HDP 2.1, HDP 2.2";
 
-$VERSION = "0.9.0";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -93,9 +93,9 @@ $mins    = validate_float($mins,  "mins",  0, 59);
 my $max_age_secs = ($days * 86400) + ($hours * 3600) + ($mins * 60);
 usage "must specify a total max age > 5 minutes" if ($max_age_secs < 300);
 my @paths = ();
-push(@paths, validate_filename($path, 0, "path")) if defined($path); # because validate_dir[ectory] checks the directory existance on the local filesystem
+push(@paths, validate_filename($path, "path")) if defined($path); # because validate_dir[ectory] checks the directory existance on the local filesystem
 foreach(@ARGV){
-    push(@paths, validate_filename($_, 0, "path") );
+    push(@paths, validate_filename($_, "path") );
 }
 if(@paths){
     $path = "'" . join("' '", uniq_array @paths) . "'";

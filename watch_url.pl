@@ -10,7 +10,7 @@
 
 $DESCRIPTION = "Watch a given URL, outputting status code, content, round trip time and percentages of return codes. Useful for testing web farms and load balancers";
 
-$VERSION = "0.4.4";
+$VERSION = "0.4.5";
 
 use strict;
 use warnings;
@@ -85,7 +85,7 @@ if(defined($ssl_noverify)){
     $ua->ssl_opts( verify_hostname => 0 );
 }
 if(defined($ssl_ca_path)){
-    $ssl_ca_path = validate_directory($ssl_ca_path, undef, "SSL CA directory", "no vlog");
+    $ssl_ca_path = validate_directory($ssl_ca_path, "SSL CA directory", undef, "no vlog");
     $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
 }
 vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);

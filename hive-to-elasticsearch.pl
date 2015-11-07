@@ -41,7 +41,7 @@ Caveats: the Hive->Elasticsearch indexing integration can be extremely fiddly an
 
 Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5.2 using ES Hadoop 2.1.0 (I recommend Beta4 onwards as there was some job xml character bug prior to that in Beta3, see https://github.com/elastic/elasticsearch-hadoop/issues/359)";
 
-$VERSION = "0.8.8";
+$VERSION = "0.8.9";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
 # 
@@ -534,7 +534,7 @@ foreach my $path (@jar_search_paths){
             if(basename($_) =~ /^elasticsearch-hadoop(?:-hive)?-\d+(?:\.\d+)*(?:\.Beta\d+)?\.jar$/i){
                 $elasticsearch_hadoop_hive_jar = abs_path($_);
                 vlog2t "found jar $elasticsearch_hadoop_hive_jar";
-                $elasticsearch_hadoop_hive_jar = validate_file($elasticsearch_hadoop_hive_jar, 0, "elasticsearch hadoop hive jar", "no vlog");
+                $elasticsearch_hadoop_hive_jar = validate_file($elasticsearch_hadoop_hive_jar, "elasticsearch hadoop hive jar", 0, "no vlog");
             }
         }
     }
@@ -548,7 +548,7 @@ foreach my $path (@jar_search_paths){
             if(basename($_) =~ /^commons-httpclient.*\.jar$/){
                 $commons_httpclient_jar = abs_path($_);
                 vlog2t "found jar $commons_httpclient_jar";
-                $commons_httpclient_jar = validate_file($commons_httpclient_jar, 0, "commons httpclient jar", "no vlog");
+                $commons_httpclient_jar = validate_file($commons_httpclient_jar, "commons httpclient jar", 0, "no vlog");
             }
         }
     }

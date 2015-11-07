@@ -24,7 +24,7 @@ Requirements:
 
 Tested on BigInsights 2.1.2.0";
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 use strict;
 use warnings;
@@ -72,7 +72,7 @@ $verbose++ unless $quiet;
 # Putting rel2abs after validate re-taints the $dir, but putting it before rel2abs assumes "." on undefined $dir, avoiding the validation defined check, so check defined before rel2abs and then validate final $dir format before usage
 $dir or usage "git directory not defined";
 $dir = File::Spec->rel2abs($dir);
-$dir = validate_directory($dir, 0, "git");
+$dir = validate_directory($dir, "git");
 $git = which($git, 1);
 $git = validate_file($git, 0, "git binary");
 $git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
@@ -109,7 +109,7 @@ isArray($json->{"workbooks"}) or die "Error: 'workbooks' field is not an array a
 foreach my $workbook (@{$json->{"workbooks"}}){
     defined($workbook->{"name"}) or die "Error: no 'name' field for workbook!";
     $name = $workbook->{"name"};
-    $name = validate_filename($name, 0, "workbook", 1);
+    $name = validate_filename($name, "workbook", 0, 1);
     $filename = "$dir/$name";
     vlog "fetching workbook '$name'";
     curl_bigsheets "workbooks/" . uri_escape($name) . "?type=exportmetadata", $user, $password;
