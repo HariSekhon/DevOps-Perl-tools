@@ -74,7 +74,7 @@ $dir or usage "git directory not defined";
 $dir = File::Spec->rel2abs($dir);
 $dir = validate_directory($dir, "git");
 $git = which($git, 1);
-$git = validate_file($git, 0, "git binary");
+$git = validate_file($git, "git binary");
 $git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
 vlog_options "commit to git", ( $no_git ? "False" : "True" );
 
