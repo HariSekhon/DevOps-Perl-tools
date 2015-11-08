@@ -88,7 +88,7 @@ $dir = validate_directory($dir, "git");
 $git = which($git, 1);
 $git = validate_file($git, "git binary");
 $git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
-vlog_options "commit to git", ( $no_git ? "False" : "True" );
+vlog_option "commit to git", ( $no_git ? "False" : "True" );
 my %selected_types;
 if($type){
     foreach $type (split(/\s*,\s*/, $type)){
@@ -103,8 +103,8 @@ if($type){
 if(not %selected_types){
     %selected_types = map { $_ => 0 } @valid_types;
 }
-vlog_options "types",       join(" ", sort keys %selected_types);
-#vlog_options "skip-error",  ( $skip_error ? "True" : "False" );
+vlog_option "types",       join(" ", sort keys %selected_types);
+#vlog_option "skip-error",  ( $skip_error ? "True" : "False" );
 
 vlog2;
 set_timeout();

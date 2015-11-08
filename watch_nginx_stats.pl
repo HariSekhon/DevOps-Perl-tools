@@ -74,8 +74,8 @@ isInt($count)      or usage "Invalid number of attempts given";
 isFloat($interval) or usage "Invalid sleep interval given, must be a float";
 $interval > 0      or usage "Interval must be greater than zero";
 
-vlog_options "Count", $count ? $count : "$count (unlimited)";
-vlog_options "Sleep interval", $interval;
+vlog_option "Count", $count ? $count : "$count (unlimited)";
+vlog_option "Sleep interval", $interval;
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon Watch Nginx Stats version $main::VERSION");

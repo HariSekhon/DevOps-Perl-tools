@@ -76,7 +76,7 @@ $dir = validate_directory($dir, "git");
 $git = which($git, 1);
 $git = validate_file($git, "git binary");
 $git =~ /\/git$/ or usage "--git-binary must be the path to the 'git' command!";
-vlog_options "commit to git", ( $no_git ? "False" : "True" );
+vlog_option "commit to git", ( $no_git ? "False" : "True" );
 
 vlog2;
 set_timeout();

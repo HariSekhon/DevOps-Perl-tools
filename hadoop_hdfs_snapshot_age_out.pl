@@ -77,10 +77,10 @@ if(defined($exclude)){
 if($Xmx){
     $Xmx =~ /^(\d+)$/ or usage "-Xmx must be an integer representing the number of MB to allocate to the Heap";
     $Xmx = $1;
-    vlog_options "Xmx (Max Heap MB)", $Xmx;
+    vlog_option "Xmx (Max Heap MB)", $Xmx;
 }
 $hdfs = validate_program_path($hdfs, "hdfs");
-vlog_options_bool "delete", $delete;
+vlog_option_bool "delete", $delete;
 vlog2;
 
 set_timeout();

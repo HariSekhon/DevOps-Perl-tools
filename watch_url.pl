@@ -71,7 +71,7 @@ $url = validate_url($url);
 #isFloat($interval) or usage "Invalid sleep interval given, must be a positive floating point number";
 #$interval > 0      or usage "Interval must be greater than zero";
 
-#vlog_options "Count", $count ? $count : "$count (unlimited)";
+#vlog_option "Count", $count ? $count : "$count (unlimited)";
 validate_int($count, "count", 0, 1000000);
 validate_float($interval, "interval", 0.00001, 1000);
 $regex = validate_regex($regex) if $regex;
@@ -88,8 +88,8 @@ if(defined($ssl_ca_path)){
     $ssl_ca_path = validate_directory($ssl_ca_path, "SSL CA directory", undef, "no vlog");
     $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
 }
-vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
-vlog_options "SSL noverify", $ssl_noverify ? "true" : "false";
+vlog_option "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
+vlog_option "SSL noverify", $ssl_noverify ? "true" : "false";
 vlog2;
 
 my $req = HTTP::Request->new(GET => $url);

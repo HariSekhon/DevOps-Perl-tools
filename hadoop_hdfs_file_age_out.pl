@@ -113,14 +113,14 @@ if(defined($exclude)){
 if($Xmx){
     $Xmx =~ /^(\d+)$/ or usage "-Xmx must be an integer representing the number of MB to allocate to the Heap";
     $Xmx = $1;
-    vlog_options "Xmx (Max Heap MB)", $Xmx; 
+    vlog_option "Xmx (Max Heap MB)", $Xmx; 
 }
 $hdfs  = which($hdfs, 1);
 $hdfs  =~ /\b\/?hdfs$/ or die "invalid hadoop hdfs program '$hdfs' given, should be called 'hdfs'!\n";
 $batch       = validate_int($batch, "batch size", 0, $max_batch_size);
-vlog_options "rm",          $rm        ? "true" : "false";
-vlog_options "skipTrash",   $skipTrash ? "true" : "false";
-vlog_options "hadoop 'hdfs' path", $hdfs;
+vlog_option "rm",          $rm        ? "true" : "false";
+vlog_option "skipTrash",   $skipTrash ? "true" : "false";
+vlog_option "hadoop 'hdfs' path", $hdfs;
 vlog2;
 
 # might leave a hdfs dfs -rm running when we exit but I don't want to submit a kill sub to timeout in case it interferes with any other hdfs dfs -rm command any user might be executing on the same system.

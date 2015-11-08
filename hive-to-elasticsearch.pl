@@ -196,7 +196,7 @@ if($columns){
         push(@columns, $_);
     }
     @columns = uniq_array2 @columns;
-    vlog_options "deduped columns to index", "@columns";
+    vlog_option "deduped columns to index", "@columns";
 }
 $index  = validate_elasticsearch_index($index);
 $type or $type = $index;
@@ -219,16 +219,16 @@ if($partition_values){
         push(@partitions, "$partition_key=$_");
     }
     @partitions = uniq_array2 @partitions;
-    vlog_options "deduped partitions to index", "@partitions";
+    vlog_option "deduped partitions to index", "@partitions";
 }
 ($skip_existing and $recreate_index) and usage "--skip-existing and --recreate-index are mutually exclusive!";
-vlog_options_bool "suffix-index",      $suffix_index;
-vlog_options_bool "optimize",          $optimize;
-vlog_options_bool "recreate-index",    $recreate_index;
-vlog_options_bool "delete-on-failure", $delete_on_failure;
-vlog_options_bool "skip-existing",     $skip_existing;
-vlog_options_bool "no-task-retries",   $no_task_retries;
-vlog_options_bool "stop-on-failure",   $stop_on_failure;
+vlog_option_bool "suffix-index",      $suffix_index;
+vlog_option_bool "optimize",          $optimize;
+vlog_option_bool "recreate-index",    $recreate_index;
+vlog_option_bool "delete-on-failure", $delete_on_failure;
+vlog_option_bool "skip-existing",     $skip_existing;
+vlog_option_bool "no-task-retries",   $no_task_retries;
+vlog_option_bool "stop-on-failure",   $stop_on_failure;
 my $es_ignore_errors_orig = $es_ignore_errors;
 $es_ignore_errors = [] if $stop_on_failure;
 

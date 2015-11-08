@@ -320,7 +320,7 @@ if($upload_config or $download_config){
     if($collection_opts){
         $collection_opts =~ /^((?:\w+=[\w\/-]+)(?:\&\w+=[\w\/-]+)*)?$/ or usage "invalid collection opts";
         $collection_opts = $1;
-        vlog_options "collection opts", $collection_opts;
+        vlog_option "collection opts", $collection_opts;
     }
     $collection       = validate_solr_collection($collection) if $collection;
     $collection_alias = validate_solr_collection_alias($collection_alias) if $collection_alias;
@@ -334,7 +334,7 @@ if($clusterprop){
         $value = validate_alnum($value, "value");
     } else {
         $value = "";
-        vlog_options "value", "<unset>";
+        vlog_option "value", "<unset>";
     }
 }
 

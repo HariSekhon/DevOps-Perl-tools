@@ -98,9 +98,9 @@ getpwuid($<) eq "pentaho" or die "error: you must be the 'pentaho' user to run a
 
 $install_dir = validate_dir($install_dir, "install directory");
 $backup_dir  = validate_dir($backup_dir,  "backup directory");
-vlog_options "ba-server", "true" if $ba_server;
-vlog_options "di-server", "true" if $di_server;
-vlog_options "no-postgres", "true" if $no_postgres;
+vlog_option "ba-server", "true" if $ba_server;
+vlog_option "di-server", "true" if $di_server;
+vlog_option "no-postgres", "true" if $no_postgres;
 if(not $ba_server and not $di_server){
     $backup_ba_di = 1;
 }
@@ -109,7 +109,7 @@ go_flock_yourself();
 
 vlog2;
 my $timestamp = strftime("%F_%T", localtime);
-vlog_options "backup timestamp", $timestamp;
+vlog_option "backup timestamp", $timestamp;
 
 $backup_dir .= "/$timestamp";
 
