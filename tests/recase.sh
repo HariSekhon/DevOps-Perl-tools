@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2015-07-28 18:47:41 +0100 (Tue, 28 Jul 2015)
 #
-#  https://github.com/harisekhon
+#  https://github.com/harisekhon/tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
