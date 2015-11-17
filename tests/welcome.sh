@@ -20,4 +20,4 @@ cd "$srcdir/.."
 
 . tests/travis.sh
 
-$perl -T $I_lib ../welcome.pl
+$perl -T $I_lib ./welcome.pl
