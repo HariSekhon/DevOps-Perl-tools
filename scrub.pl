@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.8.5";
+$VERSION = "0.8.6";
 
 use strict;
 use warnings;
@@ -277,12 +277,13 @@ sub scrub_domain($){
     if($skip_java_exceptions){
         return $string if isJavaException($string);
     }
+    # (?!", line \d+) - prevent matching Python tracebacks
+    # check isPythonTraceback instead
     if($skip_python_tracebacks){
         return $string if isPythonTraceback($string);
     }
     # using stricter domain_regex_strict which requires domain.tld format and not just tld
-    # (?!", line \d+) - prevent matching Python tracebacks
-    $string =~ s/(?![^\s]*exception)$domain_regex_strict(?!\.[A-Za-z])(?!", line \d+)(\b|$)/<domain>/go;
+    $string =~ s/(?![^\s]*exception)$domain_regex_strict(?!\.[A-Za-z])(\b|$)/<domain>/go;
     $string =~ s/\@$domain_regex/\@<domain>/go;
     return $string;
 }
@@ -292,11 +293,12 @@ sub scrub_fqdn($){
     if($skip_java_exceptions){
         return $string if isJavaException($string);
     }
+    # (?!", line \d+) - prevent matching Python tracebacks
+    # use isPythonTraceback instead
     if($skip_python_tracebacks){
         return $string if isPythonTraceback($string);
     }
     # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
-    # (?!", line \d+) - prevent matching Python tracebacks
     $string =~ s/(?![^\s]*exception)$fqdn_regex(?!\.[A-Za-z])(?!", line \d+)(\b|$)/<fqdn>/goi;
     return $string;
 }

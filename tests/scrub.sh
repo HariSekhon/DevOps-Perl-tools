@@ -38,7 +38,7 @@ src[6]='21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionScheduler
 dest[6]='21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionScheduler:311 - Operation completely failed, aborting request id:113'
 
 for (( i = 0 ; i < ${#src[@]} ; i++ )); do
-    result="$($perl -T $I_lib ./scrub.pl -a <<< "$src[$i]")"
+    result="$($perl -T $I_lib ./scrub.pl -ae <<< "$src[$i]")"
     if ! grep -Fq "$dest[$i]" <<< "$result"; then
         echo "FAILED to scrub line"
         echo "input:    $src[$i]"
