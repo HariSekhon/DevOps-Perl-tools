@@ -31,6 +31,12 @@ dest[3]='File "/usr/lib/python2.6/site-packages/resource_management/libraries/sc
 src[4]='resource_management.core.exceptions.Fail: Ranger Database connection check failed'
 dest[4]='resource_management.core.exceptions.Fail: Ranger Database connection check failed'
 
+src[5]='21 Sep 2015 02:28:45,580  INFO [qtp-ambari-agent-6292] HeartBeatHandler:657 - State of service component MYSQL_SERVER of service HIVE of cluster ...'
+dest[5]='21 Sep 2015 02:28:45,580  INFO [qtp-ambari-agent-6292] HeartBeatHandler:657 - State of service component MYSQL_SERVER of service HIVE of cluster ...'
+
+src[6]='21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionScheduler:311 - Operation completely failed, aborting request id:113'
+dest[6]='21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionScheduler:311 - Operation completely failed, aborting request id:113'
+
 for (( i = 0 ; i < ${#src[@]} ; i++ )); do
     result="$($perl -T $I_lib ./scrub.pl -a <<< "$src[$i]")"
     if ! grep -Fq "$dest[$i]" <<< "$result"; then
