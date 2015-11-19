@@ -265,9 +265,6 @@ sub scrub_hostname($){
     if($skip_python_tracebacks){
         return $string if isPythonTraceback($string);
     }
-    # XXX: review this special case to exclude
-    # 21 Sep 2015 02:28:45,580  INFO [qtp-ambari-agent-6292] HeartBeatHandler:657 - State of service component MYSQL_SERVER of service HIVE of cluster ...
-    # 21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionScheduler:311 - Operation completely failed, aborting request id:113
     # since digits are now valid hostnames, must use the following to avoid replacing on timestamps
     #  negative lookbehind for NN:
     #  negative lookahead for :NN:NN
