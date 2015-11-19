@@ -39,12 +39,13 @@ dest[6]='21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionSchedule
 
 for (( i = 0 ; i < ${#src[@]} ; i++ )); do
     result="$($perl -T $I_lib ./scrub.pl -ae <<< "$src[$i]")"
-    if ! grep -Fq "$dest[$i]" <<< "$result"; then
+    if grep -Fq "$dest[$i]" <<< "$result"; then
+        echo "SUCCEEDED scrubbing test $i"
+    else
         echo "FAILED to scrub line"
         echo "input:    $src[$i]"
         echo "expected: $dest[$i]"
         echo "got:      $result"
         exit 1
     fi
-    echo "SUCCEEDED scrubbing test $i"
 done
