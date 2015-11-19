@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.8.4";
+$VERSION = "0.8.5";
 
 use strict;
 use warnings;
@@ -40,6 +40,7 @@ my $email     = 0;
 my $http_auth = 0;
 my $kerberos  = 0;
 my $network   = 0;
+my $password  = 0;
 my $port      = 0;
 my $proxy     = 0;
 my $cisco     = 0;
@@ -61,6 +62,7 @@ my $skip_exceptions = 0;
     "d|domain"      => [ \$domain,      "Apply domain format scrubbing" ],
     "F|fqdn"        => [ \$fqdn,        "Apply fqdn format scrubbing" ],
     "P|port"        => [ \$port,        "Apply port scrubbing (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
+    "p|password"    => [ \$password,    "Apply password scrubbing against --password switches (can't catch MySQL -p<password> since it's too ambiguous with bunched arguments, can use --custom to work around)" ],
     "T|http-auth"   => [ \$http_auth,   "Apply HTTP auth scrubbing to replace http://username:password\@ => http://<user>:<password>\@. Also works with https://" ],
     "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate scrub_custom.conf). These kerberos principals are scrubbed to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be scrubbed in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
     "E|email"       => [ \$email,       "Apply email format scrubbing" ],
@@ -76,7 +78,7 @@ my $skip_exceptions = 0;
     "e|skip-exceptions"      => [ \$skip_exceptions,        "Skip both Java exceptions and Python tracebacks" ],
 );
 
-@usage_order = qw/files all ip ip-prefix host hostname domain fqdn port kerberos email proxy network cisco screenos junos custom cr skip-java-exceptions skip-python-tracebacks skip-exceptions/;
+@usage_order = qw/files all ip ip-prefix host hostname domain fqdn port password kerberos email proxy network cisco screenos junos custom cr skip-java-exceptions skip-python-tracebacks skip-exceptions/;
 get_options();
 if($all){
     $ip        = 1;
@@ -85,6 +87,7 @@ if($all){
     $http_auth = 1;
     $kerberos  = 1;
     $network   = 1;
+    $password  = 1;
     $proxy     = 1;
     $custom    = 1;
 }
@@ -100,6 +103,7 @@ unless(
     $email +
     $kerberos +
     $network +
+    $password +
     $port +
     $proxy +
     $screenos +
@@ -167,6 +171,7 @@ sub scrub($){
     $string = scrub_fqdn        ($string)  if $fqdn     and not $host;
     $string = scrub_domain      ($string)  if $domain   and not $host;
     $string = scrub_hostname    ($string)  if $hostname and not $host;
+    $string = scrub_password    ($string)  if $password;
     $string = scrub_port        ($string)  if $port;
     $string = scrub_http_auth   ($string)  if $http_auth;
     $string = scrub_proxy       ($string)  if $proxy;
@@ -236,6 +241,12 @@ sub scrub_ip_prefix($){
     return $string;
 }
 
+sub scrub_password($){
+    my $string = shift;
+    $string =~ s/(--password(?:=|\s+))[^\s]+/$1<password>/go;
+    return $string;
+}
+
 sub scrub_port($){
     my $string = shift;
     $string =~ s/:\d+/:<port>/go;
@@ -257,7 +268,10 @@ sub scrub_hostname($){
     # XXX: review this special case to exclude
     # 21 Sep 2015 02:28:45,580  INFO [qtp-ambari-agent-6292] HeartBeatHandler:657 - State of service component MYSQL_SERVER of service HIVE of cluster ...
     # 21 Sep 2015 14:54:44,811  WARN [ambari-action-scheduler] ActionScheduler:311 - Operation completely failed, aborting request id:113
-    $string =~ s/(?<!\w\]\s)$hostname_regex(?<!\.java)(?<!\sid):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
+    # since digits are now valid hostnames, must use the following to avoid replacing on timestamps
+    #  negative lookbehind for NN:
+    #  negative lookahead for :NN:NN
+    $string =~ s/(?<!\w\]\s)(?<!\d{2}:)(?!\d{1,2}:\d{2})$hostname_regex(?<!\.java)(?<!\sid):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
     return $string;
 }
 
@@ -269,8 +283,9 @@ sub scrub_domain($){
     if($skip_python_tracebacks){
         return $string if isPythonTraceback($string);
     }
-    # using stricter domain_regex2 which requires domain.tld format and not just tld
-    $string =~ s/$domain_regex2(?!\.[A-Za-z])(\b|$)/<domain>/go;
+    # using stricter domain_regex_strict which requires domain.tld format and not just tld
+    # (?!", line \d+) - prevent matching Python tracebacks
+    $string =~ s/(?![^\s]*exception)$domain_regex_strict(?!\.[A-Za-z])(?!", line \d+)(\b|$)/<domain>/go;
     $string =~ s/\@$domain_regex/\@<domain>/go;
     return $string;
 }
@@ -284,7 +299,8 @@ sub scrub_fqdn($){
         return $string if isPythonTraceback($string);
     }
     # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
-    $string =~ s/$fqdn_regex(?!\.[A-Za-z])(\b|$)/<fqdn>/go;
+    # (?!", line \d+) - prevent matching Python tracebacks
+    $string =~ s/(?![^\s]*exception)$fqdn_regex(?!\.[A-Za-z])(?!", line \d+)(\b|$)/<fqdn>/goi;
     return $string;
 }
 
