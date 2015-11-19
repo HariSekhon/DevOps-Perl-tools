@@ -75,7 +75,7 @@ my $skip_exceptions = 0;
     "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
     "skip-java-exceptions"   => [ \$skip_java_exceptions,   "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
     "skip-python-tracebacks" => [ \$skip_python_tracebacks, "Skip lines with Python Tracebacks, similar to --skip-java-exceptions" ],
-    "e|skip-exceptions"      => [ \$skip_exceptions,        "Skip both Java exceptions and Python tracebacks" ],
+    "e|skip-exceptions"      => [ \$skip_exceptions,        "Skip both Java exceptions and Python tracebacks (recommended)" ],
 );
 
 @usage_order = qw/files all ip ip-prefix host hostname domain fqdn port password kerberos email proxy network cisco screenos junos custom cr skip-java-exceptions skip-python-tracebacks skip-exceptions/;
@@ -299,7 +299,7 @@ sub scrub_fqdn($){
         return $string if isPythonTraceback($string);
     }
     # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
-    $string =~ s/(?![^\s]*exception)$fqdn_regex(?!\.[A-Za-z])(?!", line \d+)(\b|$)/<fqdn>/goi;
+    $string =~ s/(?![^\s]*exception)$fqdn_regex(?!\.[A-Za-z])(\b|$)/<fqdn>/goi;
     return $string;
 }
 
