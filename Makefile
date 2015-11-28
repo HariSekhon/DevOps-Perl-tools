@@ -66,6 +66,8 @@ make:
 	easy_install -U setuptools
 	#$(SUDO) easy_install pip
 	#$(SUDO) pip install jinja2
+	@echo
+	@echo BUILD SUCCESSFUL
 
 .PHONY: apt-packages
 apt-packages:
