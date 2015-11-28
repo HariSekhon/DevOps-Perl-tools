@@ -40,7 +40,7 @@ make:
 	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
 
 	# workaround for broken pod coverage tests
-	#yes | $(SUDO) cpan --force XML::Validate || :
+	#yes | $(SUDO) cpan --force XML::Validate
 
 	yes "" | $(SUDO2) cpan App::cpanminus
 	yes "" | $(SUDO2) cpanm --notest \
@@ -63,35 +63,35 @@ make:
 		|| :
 #		IO::Socket::SSL \
 #		Net::LDAP::Filter \
-	easy_install -U setuptools || :
-	#$(SUDO) easy_install pip || :
-	#$(SUDO) pip install jinja2 || :
+	easy_install -U setuptools
+	#$(SUDO) easy_install pip
+	#$(SUDO) pip install jinja2
 
 .PHONY: apt-packages
 apt-packages:
-	$(SUDO) apt-get install -y gcc || :
+	$(SUDO) apt-get install -y gcc
 	# needed to fetch the library submodule at end of build
-	$(SUDO) apt-get install -y git || :
+	$(SUDO) apt-get install -y git
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	$(SUDO) apt-get install -y libssl-dev || :
+	$(SUDO) apt-get install -y libssl-dev
 	# needed to build XML::LibXML
-	$(SUDO) apt-get install -y libxml2-dev || :
-	#$(SUDO) apt-get install -y ipython-notebook || :
-	#dpkg -l python-setuptools python-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev || :
+	$(SUDO) apt-get install -y libxml2-dev
+	#$(SUDO) apt-get install -y ipython-notebook
+	#dpkg -l python-setuptools python-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc || $(SUDO) yum install -y gcc || :
+	rpm -q gcc || $(SUDO) yum install -y gcc
 	# needed to fetch the library submodule and CPAN modules
-	rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN git || :
+	rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN git
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel || :
+	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# needed to build XML::LibXML
-	rpm -q libxml2-devel || $(SUDO) yum install -y libxml2-devel || :
+	rpm -q libxml2-devel || $(SUDO) yum install -y libxml2-devel
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
-	rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" || :
-	#rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel || :
-	#rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook || :
+	rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	#rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel
+	#rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook
 
 .PHONY: test
 test:
