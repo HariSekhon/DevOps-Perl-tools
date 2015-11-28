@@ -60,7 +60,7 @@ make:
 		Time::HiRes \
 		XML::LibXML \
 		XML::Validate \
-		|| :
+		;
 #		IO::Socket::SSL \
 #		Net::LDAP::Filter \
 	easy_install -U setuptools
