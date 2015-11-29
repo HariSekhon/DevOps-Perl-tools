@@ -17,7 +17,7 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
 
-$VERSION = "0.8.6";
+$VERSION = "0.8.7";
 
 use strict;
 use warnings;
@@ -62,7 +62,7 @@ my $skip_exceptions = 0;
     "d|domain"      => [ \$domain,      "Apply domain format scrubbing" ],
     "F|fqdn"        => [ \$fqdn,        "Apply fqdn format scrubbing" ],
     "P|port"        => [ \$port,        "Apply port scrubbing (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
-    "p|password"    => [ \$password,    "Apply password scrubbing against --password switches (can't catch MySQL -p<password> since it's too ambiguous with bunched arguments, can use --custom to work around)" ],
+    "p|password"    => [ \$password,    "Apply password scrubbing against --password switches (can't catch MySQL -p<password> since it's too ambiguous with bunched arguments, can use --custom to work around). Also covers curl -u user:password" ],
     "T|http-auth"   => [ \$http_auth,   "Apply HTTP auth scrubbing to replace http://username:password\@ => http://<user>:<password>\@. Also works with https://" ],
     "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate scrub_custom.conf). These kerberos principals are scrubbed to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be scrubbed in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
     "E|email"       => [ \$email,       "Apply email format scrubbing" ],
@@ -243,7 +243,10 @@ sub scrub_ip_prefix($){
 
 sub scrub_password($){
     my $string = shift;
-    $string =~ s/(--password(?:=|\s+))[^\s]+/$1<password>/go;
+    my $pw_regex = qr/(?:'[^']+'|"[^"]+"|[^\s]+)/;
+    $string =~ s/(--password(?:=|\s+))$pw_regex/$1<password>/go;
+    #$string =~ s/(\bcurl\s.*?-[A-Za-tv-z]*u(?:=|\s+)?)[^:\s]+:[^\s]+/$1<user>:<password>/go;
+    $string =~ s/(\bcurl\s.*?-[A-Za-tv-z]*u(?:=|\s+)?)[^:\s]+:$pw_regex/$1<user>:<password>/go;
     return $string;
 }
 
