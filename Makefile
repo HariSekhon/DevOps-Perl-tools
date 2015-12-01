@@ -9,8 +9,10 @@
 
 ifdef TRAVIS
 	SUDO2 =
+	CPANM = cpanm
 else
 	SUDO2 = sudo
+	CPANM = /usr/local/bin/cpanm
 endif
 
 # EUID /  UID not exported in Make
@@ -43,7 +45,7 @@ make:
 	#yes | $(SUDO) cpan --force XML::Validate
 
 	yes "" | $(SUDO2) cpan App::cpanminus
-	yes "" | $(SUDO2) cpanm --notest \
+	yes "" | $(SUDO2) $(CPANM) --notest \
 		CAM::PDF \
 		JSON \
 		JSON::XS \
