@@ -15,9 +15,11 @@ Also has support for network device configurations including Cisco and Juniper, 
 
 Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output (to redirect to a new file or copy buffer).
 
-Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored";
+Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored.
 
-$VERSION = "0.8.7";
+Ignore phrases using a similar file scrub_ignore.conf, also adjacent to this program.";
+
+$VERSION = "0.9.0";
 
 use strict;
 use warnings;
@@ -137,18 +139,26 @@ if($custom){
     }
 }
 
-my @ignore_lines;
 my $scrub_ignore_conf = dirname(__FILE__) . "/scrub_ignore.conf";
 my $fh;
+my $ignore_regex;
 if(open $fh, $scrub_ignore_conf){
     while(<$fh>){
         chomp;
         s/#.*//;
         next if /^\s*$/;
-        push(@ignore_lines, $_);
+        isRegex($_) or die "Invalid regex detected in $scrub_ignore_conf: $_\n";
+        $ignore_regex .= "$_|";
     }
-    #@ignore_lines or warn "Failed to read any line regex to ignore from '$scrub_ignore_conf'\n";
     close $fh;
+    if(defined($ignore_regex)){
+        $ignore_regex =~ s/\|$//;
+        $ignore_regex =~ /^\s*$/ and code_error "Invalid ignore regex, cannot be blank!";
+        $ignore_regex = qr/$ignore_regex/o;
+        vlog3 "ignore regex: $ignore_regex";
+    } else {
+        warn "Failed to read any regex to ignore from '$scrub_ignore_conf'\n";
+    }
 } else {
     warn "warning: failed to open file $scrub_ignore_conf, continuing without...\n";
 }
@@ -162,7 +172,7 @@ sub scrub($){
     # this doesn't chomp \r, only \n
     #chomp $string;
     $string =~ s/(?:\r?\n)$//;
-    return "$string$line_ending" if scrub_ignore($string);
+    #return "$string$line_ending" if scrub_ignore($string);
     $string = scrub_ip_prefix   ($string)  if $ip_prefix;
     $string = scrub_ip          ($string)  if $ip and not $ip_prefix;
     $string = scrub_kerberos    ($string)  if $kerberos; # must be done before scrub_email and scrub_host in order to match, otherwise scrub_email will leave user@<email_regex>
@@ -203,28 +213,32 @@ sub scrub_custom($){
     return $string;
 }
 
-sub scrub_ignore($){
-    my $string = shift;
-    my $phrase_regex = "";
-    foreach(@ignore_lines){
-        chomp;
-        #print "ignore_phrase: <$_>\n";
-        $phrase_regex .= "$_|";
-    }
-    $phrase_regex =~ s/\|$//;
-    #print "phrase_phrase: <$phrase_regex>\n";
-    if($phrase_regex){
-        return 1 if $string =~ /$phrase_regex/;
-    }
-    return 0;
-}
+# This used to do one ignore per line, but that is much too inflexible as we may want to ignore part of a line but not the whole line
+#sub scrub_ignore($){
+#    my $string = shift;
+#    my $phrase_regex = "";
+#    foreach(@ignore_lines){
+#        chomp;
+#        #print "ignore_phrase: <$_>\n";
+#        $phrase_regex .= "$_|";
+#    }
+#    $phrase_regex =~ s/\|$//;
+#    #print "phrase_phrase: <$phrase_regex>\n";
+#    if($phrase_regex){
+#        return 1 if $string =~ /$phrase_regex/;
+#    }
+#    return 0;
+#}
 
 sub scrub_ip($){
     my $string = shift;
+    # leave cidr mask for debugging clusters
+    # XXX: re-enable this?
     #$string =~ s/$ip_regex\/\d+/<ip>\/<cidr>/go;
     #$string =~ s/$subnet_mask_regex\/\d+/<subnet>\/<cidr>/go;
-    $string =~ s/$ip_regex/<ip>/go;
-    $string =~ s/$subnet_mask_regex/<subnet>/go;
+    $string =~ s/$ip_regex(?!.\d+)/<ip>/go;
+    # this will never match now that $ip_regex permits ending in 0 for cidr
+    #$string =~ s/$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet>/go;
     $string =~ s/$mac_regex/<mac>/g;
     # network device format Mac address
     $string =~ s/\b(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}\b/<mac>/g;
@@ -233,7 +247,7 @@ sub scrub_ip($){
 
 sub scrub_ip_prefix($){
     my $string = shift;
-    $string =~ s/$ip_prefix_regex/<ip_prefix>/go;
+    $string =~ s/$ip_prefix_regex(?!\.\d+\.\d+)/<ip_prefix>./go;
     $string =~ s/$subnet_mask_regex/<subnet>/go;
     $string =~ s/$mac_regex/<mac>/g;
     # network device format Mac address
@@ -257,8 +271,8 @@ sub scrub_port($){
 }
 
 ##############################
-# this host based scrubbings will still scrub class names in random debug messages that I can't predict, and there is always risk of not scrubbing sensitive hosts
-#### This is imperfect and a little risky stopping it interfering with Java stack traces this way because it effectively excludes the whole line which may potentially miss legitimiate host regex matches later in the line, will have to watch this
+# this host based scrubbing will sometimes scrub class names in debug messages and logs, isJavaException & isPythonTraceback minimize it, but there is always a slight chance of not scrubbing sensitive hosts if using host name scrubbing must double check the output
+# the alternative is to not use hostname/domain/fqdn scrubbing and instead put your domains and host naming conventions in to scrub_custom.conf and use --custom
 
 sub scrub_hostname($){
     my $string = shift;
@@ -267,11 +281,17 @@ sub scrub_hostname($){
     }
     if($skip_python_tracebacks){
         return $string if isPythonTraceback($string);
+        return $string if isGenericPythonLogLine($string);
     }
     # since digits are now valid hostnames, must use the following to avoid replacing on timestamps
     #  negative lookbehind for NN:
     #  negative lookahead for :NN:NN
-    $string =~ s/(?<!\w\]\s)(?<!\d{2}:)(?!\d{1,2}:\d{2})$hostname_regex(?<!\.java)(?<!\sid):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
+    #$string =~ s/(?<!\w\]\s)(?<!\d{2}:)(?!\d{1,2}:\d{2}(?:\d{3})?\s|$ignore_regex|\d+[^A-Za-z0-9])$hostname_regex(?<!\.java)(?<!\sid):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
+    # (?!\d+[^A-Za-z0-9] prevents the match from being just a number as updated hostname_regex permits numbers as valid host identifiers that are being used in the wil in FQDNs
+    # (?!<\.) prevents hostname matching mid-filename otherwise matches filename extensions - XXX: however this is slightly dangerous as sentences without a space after the full stop won't be scrubbed
+    # XXX: shouldn't really do negative lookbehind for .py as that's a valid IANA domain - review this
+    $string =~ s/(?<!\w\]\s)(?<!\.)(?!\d+[^A-Za-z0-9]|$ignore_regex)$hostname_regex(?i:(?<!\.java)(?<!\.py)(?<!\sid)):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
+    $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/g;
     return $string;
 }
 
@@ -284,9 +304,10 @@ sub scrub_domain($){
     # check isPythonTraceback instead
     if($skip_python_tracebacks){
         return $string if isPythonTraceback($string);
+        return $string if isGenericPythonLogLine($string);
     }
     # using stricter domain_regex_strict which requires domain.tld format and not just tld
-    $string =~ s/(?![^\s]*exception)$domain_regex_strict(?!\.[A-Za-z])(\b|$)/<domain>/go;
+    $string =~ s/(?!$ignore_regex)$domain_regex_strict(?!\.[A-Za-z])(\b|$)/<domain>/go;
     $string =~ s/\@$domain_regex/\@<domain>/go;
     return $string;
 }
@@ -300,10 +321,16 @@ sub scrub_fqdn($){
     # use isPythonTraceback instead
     if($skip_python_tracebacks){
         return $string if isPythonTraceback($string);
+        return $string if isGenericPythonLogLine($string);
     }
     # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
-    $string =~ s/(?![^\s]*exception)$fqdn_regex(?!\.[A-Za-z])(\b|$)/<fqdn>/goi;
+    $string =~ s/(?!$ignore_regex)$fqdn_regex(?!\.[A-Za-z])(\b|$)/<fqdn>/goi;
     return $string;
+}
+
+sub isGenericPythonLogLine(){
+    my $line=shift;
+    $line =~ /\s$filename_regex.py:\d+ - loglevel=[\w\.]+\s*$/
 }
 
 sub scrub_email($){
