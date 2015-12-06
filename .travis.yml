@@ -9,6 +9,7 @@ perl:
   - "5.20"
   # Redis module now requires Perl 5.10
   - "5.10"
+  - "5.8"
 
 install:
   #- pushd lib
