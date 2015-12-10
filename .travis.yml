@@ -6,9 +6,8 @@
 
 language: perl
 perl:
-  #- "5.20"
-  # newer 5.20.3 builds are broken with 'Can't locate strict.pm in @INC'
-  - "5.20.0"
+  - "5.22"
+  - "5.20"
   # Redis module now requires Perl 5.10
   - "5.10"
   - "5.8"
