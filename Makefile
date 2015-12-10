@@ -44,6 +44,8 @@ make:
 	# workaround for broken pod coverage tests
 	#yes | $(SUDO) cpan --force XML::Validate
 
+	# auto-configure cpan for Perl 5.8 which otherwise gets stuck prompting for a region for downloads
+	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
 	yes "" | $(SUDO2) cpan App::cpanminus
 	yes "" | $(SUDO2) $(CPANM) --notest \
 		CAM::PDF \
