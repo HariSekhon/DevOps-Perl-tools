@@ -7,7 +7,7 @@
 language: perl
 perl:
   - "5.22"
-  - "5.20"
+  - "5.16"
   # Redis module now requires Perl 5.10
   - "5.10"
   - "5.8"
