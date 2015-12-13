@@ -14,7 +14,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir";
 
-. travis.sh
+. utils.sh
 
 md5sum="md5sum"
 checksum='14afceeaf204606f9027af58a4f70c4c'

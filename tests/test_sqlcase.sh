@@ -14,7 +14,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. tests/travis.sh
+. tests/utils.sh
 
 if echo "select * from blah" | $perl -T $I_lib ./sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
     echo "recasing of SQL succeeded"
