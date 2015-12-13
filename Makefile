@@ -7,7 +7,7 @@
 #  License: see accompanying LICENSE file
 #
 
-ifdef TRAVIS
+ifdef PERLBREW_PERL
 	SUDO2 =
 	CPANM = cpanm
 else
