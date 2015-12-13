@@ -12,9 +12,10 @@
 set -eu
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$srcdir";
+cd "$srcdir/";
 
-. utils.sh
+# don't pick up $PATH/spark/bin/utils.sh
+. ./utils.sh
 
 md5sum="md5sum"
 checksum='14afceeaf204606f9027af58a4f70c4c'
