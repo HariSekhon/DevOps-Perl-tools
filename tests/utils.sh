@@ -22,8 +22,9 @@ hr(){
 # Taint code doesn't use PERL5LIB, use -I instead
 I_lib=""
 
-if [ -n "${PERLBREW_PERL:-}" ]; then
+perl=""
 
+if [ -n "${PERLBREW_PERL:-}" ]; then
     PERL_VERSION="${PERLBREW_PERL}"
     PERL_VERSION="${PERLBREW_PERL/perl-/}"
 
@@ -46,7 +47,9 @@ if [ -n "${PERLBREW_PERL:-}" ]; then
     sudo=sudo
     #perl="/home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl"
     perl=perl
+    PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
 else
     sudo=""
     perl=perl
+    PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
 fi
