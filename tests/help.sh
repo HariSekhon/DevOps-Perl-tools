@@ -20,14 +20,9 @@ cd "$srcdir/..";
 
 . tests/utils.sh
 
-cd "$srcdir/.."
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
-    [[ "$x" =~ ^\* ]] && continue
+    isExcluded "$x" && continue
     set +e
-    commit="$(git log "$x" | head -n1 | grep 'commit')"
-    if [ -z "$commit" ]; then
-        continue
-    fi
     optional_cmd=""
     if [[ $x =~ .*\.pl$ ]]; then
         optional_cmd="$perl -T $I_lib"
