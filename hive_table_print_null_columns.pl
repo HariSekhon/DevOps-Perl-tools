@@ -13,7 +13,7 @@ $DESCRIPTION = "Hive tool to print any columns from a table that contain entirel
 
 Written to find and clean data before importing to 0xdata H2O since there is a Java bug relating to entirely null columns";
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 my $hive        = "hive";
 my $hive_opts   = "";
@@ -99,7 +99,7 @@ foreach(@null_cols){
 }
 if($num_null_cols){
     print "Columns with all NULLs:\n\n";
-    foreach(my $i=0; $i < length(@null_cols); $i++){
+    foreach(my $i=0; $i < scalar @null_cols; $i++){
         $null_cols[$i] and print $columns[$i] . "\n";
     }
 } else {
