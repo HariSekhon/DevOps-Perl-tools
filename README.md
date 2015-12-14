@@ -15,6 +15,20 @@ http://www.linkedin.com/in/harisekhon
 
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodule and possibly new upstream libraries. #####
 
+### Quick Setup ###
+
+```
+git clone https://github.com/harisekhon/tools
+cd tools
+make
+```
+
+The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/tools#manualsetup) section instead.
+
+### Usage ###
+
+All programs come with a ```--help``` switch which includes a program description and the list of command line options.
+
 ### A Sample of cool Programs in this Toolbox ###
 
 ##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [PyTools](https://github.com/harisekhon/pytools) repo. #####
@@ -31,17 +45,7 @@ http://www.linkedin.com/in/harisekhon
 - ```ibm-bigsheets-config-git.pl``` - revision controls IBM BigSheets configurations from API to Git
 - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions as well.
 
-### Setup ###
-
-The 'make' command will initialize my library submodule and  use 'sudo' to install the required CPAN modules:
-
-```
-git clone https://github.com/harisekhon/tools
-cd tools
-make
-```
-
-#### OR: Manual Setup ####
+#### Manual Setup ####
 
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
@@ -63,10 +67,6 @@ sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::Hi
 ```
 
 You're now ready to use these programs.
-
-### Usage ###
-
-All programs come with a ```--help``` switch which includes a program description and the list of command line options.
 
 #### Configuration for Strict Domain / FQDN validation ####
 
