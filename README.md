@@ -23,7 +23,7 @@ cd tools
 make
 ```
 
-The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/tools#manualsetup) section instead.
+The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/tools#manual-setup) section instead.
 
 ### Usage ###
 
