@@ -1,4 +1,4 @@
-Hari Sekhon Tools [![Build Status](https://travis-ci.org/harisekhon/tools.svg?branch=master)](https://travis-ci.org/harisekhon/tools)
+Hari Sekhon Tools [![Build Status](https://travis-ci.org/HariSekhon/tools.svg?branch=master)](https://travis-ci.org/HariSekhon/tools)
 ================================
 
 ### Hadoop, Hive, Solr, NoSQL, Web, Linux Tools ###
