@@ -79,6 +79,7 @@ make:
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get install -y gcc
+	$(SUDO) apt-get install -y git
 	# needed to fetch the library submodule at end of build
 	$(SUDO) apt-get install -y git
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
@@ -91,6 +92,7 @@ apt-packages:
 .PHONY: yum-packages
 yum-packages:
 	rpm -q gcc || $(SUDO) yum install -y gcc
+	rpm -q git || $(SUDO) yum install -y git
 	# needed to fetch the library submodule and CPAN modules
 	rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN git
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
@@ -98,7 +100,7 @@ yum-packages:
 	# needed to build XML::LibXML
 	rpm -q libxml2-devel || $(SUDO) yum install -y libxml2-devel
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
-	rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	rpm -q epel-release || yum install -y epel-release || rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
 	#rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel
 	#rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook
 
