@@ -12,7 +12,7 @@ $DESCRIPTION = "Prints a slick welcome message with last login time
 
 Tested on Mac OS X and Linux";
 
-$VERSION = "1.0";
+$VERSION = "1.1";
 
 use strict;
 use warnings;
@@ -25,10 +25,10 @@ use Time::HiRes 'sleep';
 
 $| = 1;
 
-my $simple;
+my $quick;
 
 %options = (
-    "s|simple" => [ \$simple,   "Print instantly without fancy effect, saves 2-3 seconds (you can also Control-C to make output complete instantly)" ],
+    "q|quick" => [ \$quick, "Print instantly without fancy scrolling effect, saves 2-3 seconds (you can also Control-C to make output complete instantly)" ],
 );
 get_options();
 
@@ -75,7 +75,7 @@ my $ESC = "\033";
 print "${ESC}[s";
 $SIG{'INT'} = sub { print "${ESC}[u$msg\n"; exit 1; };
 
-if($simple){
+if($quick){
     print "$msg\n";
     exit 0;
 }
