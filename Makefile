@@ -79,7 +79,6 @@ make:
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get install -y gcc
-	$(SUDO) apt-get install -y git
 	# needed to fetch the library submodule at end of build
 	$(SUDO) apt-get install -y git
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
