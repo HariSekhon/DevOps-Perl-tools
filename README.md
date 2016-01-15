@@ -29,7 +29,7 @@ The 'make' command will initialize my library submodule and  use 'sudo' to insta
 
 All programs come with a ```--help``` switch which includes a program description and the list of command line options.
 
-Some common options also support optional $ENVIRONMENT_VARIABLES for convenience which are mentioned in the --help descriptions in brackets eg. ($HOST or more specific ones with higher precedence like $AMBARI_HOST, $SOLR_HOST, $ELASTICSEARCH_HOST etc).
+Some common options also support optional environment variables for convenience to reduce repeated --switch usage or to hide them from being exposed in the process list. These are indicated in the --help descriptions in brackets next to each option eg. $HOST or more specific ones with higher precedence like $AMBARI_HOST, $SOLR_HOST, $ELASTICSEARCH_HOST etc.
 
 ### A Sample of cool Programs in this Toolbox ###
 
