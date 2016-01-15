@@ -29,6 +29,8 @@ The 'make' command will initialize my library submodule and  use 'sudo' to insta
 
 All programs come with a ```--help``` switch which includes a program description and the list of command line options.
 
+Some common options support $ENVIRONMENT_VARIABLES which are mentioned in the --help descriptions in brackets eg. ($HOST or more specific ones which take preference like $AMBARI_HOST)
+
 ### A Sample of cool Programs in this Toolbox ###
 
 ##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [PyTools](https://github.com/harisekhon/pytools) repo. #####
