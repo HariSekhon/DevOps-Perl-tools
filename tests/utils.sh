@@ -56,3 +56,14 @@ else
 fi
 
 . "$srcdir/excluded.sh"
+
+check(){
+    cmd=$1
+    msg=$2
+    if eval $cmd; then
+        echo "SUCCESS: $msg"
+    else
+        echo "FAILED: $msg"
+        exit 1
+    fi
+}
