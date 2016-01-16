@@ -13,7 +13,7 @@ our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), pri
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Also works with Apache Drill, Oracle, SQL Server etc.
 ";
 
-$VERSION = "0.7.2";
+$VERSION = "0.7.3";
 
 use strict;
 use warnings;
@@ -23,21 +23,22 @@ BEGIN {
 }
 use HariSekhonUtils;
 
-# The SQL language files shouldn't be actively changed by users so are dot files
-my $CONF                = ".sql_keywords.conf";
-my $CASSANDRA_CQL_CONF  = ".cql_keywords.conf";
-my $DOCKER_CONF	        = ".docker_keywords.conf";
-my $DRILL_CONF          = ".drill_keywords.conf";
-my $HIVE_CONF           = ".hive_keywords.conf";
-my $IMPALA_CONF         = ".impala_keywords.conf";
-my $MSSQL_CONF          = ".mssql_keywords.conf";
-my $MYSQL_CONF          = ".mysql_keywords.conf";
-my $NEO4J_CYPHER_CONF   = ".neo4j_cypher_keywords.conf";
-my $ORACLE_CONF         = ".oracle_keywords.conf";
-my $PGSQL_CONF          = ".pgsql_keywords.conf";
-my $PIG_CONF            = ".pig_keywords.conf";
+my $CONF_DIR            = ".recase";
+# The SQL language files shouldn't be actively changed by users so hidden/tidied away under .recase directory
+my $CONF                = "sql_keywords.conf";
+my $CASSANDRA_CQL_CONF  = "cql_keywords.conf";
+my $DOCKER_CONF	        = "docker_keywords.conf";
+my $DRILL_CONF          = "drill_keywords.conf";
+my $HIVE_CONF           = "hive_keywords.conf";
+my $IMPALA_CONF         = "impala_keywords.conf";
+my $MSSQL_CONF          = "mssql_keywords.conf";
+my $MYSQL_CONF          = "mysql_keywords.conf";
+my $NEO4J_CYPHER_CONF   = "neo4j_cypher_keywords.conf";
+my $ORACLE_CONF         = "oracle_keywords.conf";
+my $PGSQL_CONF          = "pgsql_keywords.conf";
+my $PIG_CONF            = "pig_keywords.conf";
 
-# Generic keywords are not hiddent .dot files as they are intended to be changed by user
+# Generic keywords are not hidden .dot files as they are intended to be changed by user
 my $RECASE_CONF         = "recase_keywords.conf";
 
 my $file;
@@ -56,35 +57,35 @@ my $no_upper_variables = 0;
 @usage_order = qw/files comments/;
 
 if($progname =~ /hive/){
-    $CONF = $HIVE_CONF;
+    $CONF = "$CONF_DIR/$HIVE_CONF";
     $DESCRIPTION =~ s/various SQL.*/Hive SQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/Hive SQL/g;
 } elsif($progname =~ /drill/){
-    $CONF = $DRILL_CONF;
+    $CONF = "$CONF_DIR/$DRILL_CONF";
     $DESCRIPTION =~ s/various SQL.*/Apache Drill SQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/Drill SQL/g;
 } elsif($progname =~ /impala/){
-    $CONF = $IMPALA_CONF;
+    $CONF = "$CONF_DIR/$IMPALA_CONF";
     $DESCRIPTION =~ s/various SQL.*/Impala SQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/Impala SQL/g;
 } elsif($progname =~ /mysql/){
-    $CONF = $MYSQL_CONF;
+    $CONF = "$CONF_DIR/$MYSQL_CONF";
     $DESCRIPTION =~ s/various SQL.*/MySQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/MySQL SQL/g;
 } elsif($progname =~ /postgres|pgsql/){
-    $CONF = $PGSQL_CONF;
+    $CONF = "$CONF_DIR/$PGSQL_CONF";
     $DESCRIPTION =~ s/various SQL.*/PostgreSQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/PostgreSQL SQL/g;
 } elsif($progname =~ /mssql|microsoft/){
-    $CONF = $MSSQL_CONF;
+    $CONF = "$CONF_DIR/$MSSQL_CONF";
     $DESCRIPTION =~ s/various SQL.*/Microsoft SQL Server code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/MSSQL/g;
 } elsif($progname =~ /plsql|oracle/){
-    $CONF = $ORACLE_CONF;
+    $CONF = "$CONF_DIR/$ORACLE_CONF";
     $DESCRIPTION =~ s/various SQL.*/Oracle PL\/SQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/PL\/SQL/g;
 } elsif($progname =~ /pig/){
-    $CONF = $PIG_CONF;
+    $CONF = "$CONF_DIR/$PIG_CONF";
     $DESCRIPTION =~ s/various SQL.*/Pig code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)?/Pig Latin/g;
     $DESCRIPTION =~ s/sql/pig/g;
@@ -94,21 +95,21 @@ if($progname =~ /hive/){
     );
     $pig = 1;
 } elsif($progname =~ /cassandra|cql/){
-    $CONF = $CASSANDRA_CQL_CONF;
+    $CONF = "$CONF_DIR/$CASSANDRA_CQL_CONF";
     $DESCRIPTION =~ s/various SQL.*/Cassandra CQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)?/Cassandra CQL/g;
     $DESCRIPTION =~ s/sql/cql/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/CQL keywords/;
     $cql = 1;
 } elsif($progname =~ /neo4j|cypher/){
-    $CONF = $NEO4J_CYPHER_CONF;
+    $CONF = "$CONF_DIR/$NEO4J_CYPHER_CONF";
     $DESCRIPTION =~ s/various SQL.*/Neo4j Cypher code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)?/Neo4j Cypher/g;
     $DESCRIPTION =~ s/sql/neo4j_cypher/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/Neo4j Cypher keywords/;
     $neo4j = 1;
 } elsif($progname eq "dockercase.pl"){
-    $CONF = $DOCKER_CONF;
+    $CONF = "$CONF_DIR/$DOCKER_CONF";
     $DESCRIPTION =~ s/various SQL.*/Dockerfiles by recasing the leading keywords/;
     $DESCRIPTION =~ s/SQL-like/Dockerfile/g;
     $DESCRIPTION =~ s/sql/docker/g;
@@ -121,10 +122,11 @@ if($progname =~ /hive/){
     $DESCRIPTION =~ s/sql/recase/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/generic keywords/;
     $recase = 1;
+} else {
+    $CONF = "$CONF_DIR/$CONF";
 }
 $DESCRIPTION .= "
-Uses a regex list of keywords located in the same directory as this program
-called '$CONF' for easy maintainance and addition of keywords";
+Uses a regex list of keywords from '$CONF' for easy maintainance and addition of keywords";
 
 get_options();
 
