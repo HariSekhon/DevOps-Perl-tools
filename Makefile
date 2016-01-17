@@ -82,6 +82,7 @@ apt-packages:
 	$(SUDO) apt-get install -y gcc
 	# needed to fetch the library submodule at end of build
 	$(SUDO) apt-get install -y git
+	$(SUDO) apt-get install -y wget
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 	$(SUDO) apt-get install -y libssl-dev
 	# needed to build XML::LibXML
@@ -93,6 +94,7 @@ apt-packages:
 yum-packages:
 	rpm -q gcc || $(SUDO) yum install -y gcc
 	rpm -q git || $(SUDO) yum install -y git
+	rpm -q wget || $(SUDO) yum install -y wget
 	# needed to fetch the library submodule and CPAN modules
 	rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN git
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
