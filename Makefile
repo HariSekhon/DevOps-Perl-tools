@@ -129,4 +129,4 @@ update2:
 .PHONY: update-no-recompile
 update-no-recompile:
 	git pull
-	git submodule update --init --remote
+	git submodule update --init --recursive --remote
