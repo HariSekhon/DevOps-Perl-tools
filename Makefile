@@ -132,3 +132,7 @@ update2:
 update-no-recompile:
 	git pull
 	git submodule update --init --remote --recursive
+
+.PHONY: clean
+clean:
+	@echo Nothing to clean
