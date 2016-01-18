@@ -14,7 +14,7 @@ perl:
   - "5.10"
   #- "5.8"
 
-sudo: true
+sudo: required
 
 notifications:
   email: false
