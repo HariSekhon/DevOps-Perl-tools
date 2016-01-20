@@ -26,7 +26,7 @@ use HariSekhonUtils;
 my $CONF_DIR            = ".recase";
 # The SQL language files shouldn't be actively changed by users so hidden/tidied away under .recase directory
 my $CONF                = "sql_keywords.conf";
-my $CASSANDRA_CQL_CONF  = "cql_keywords.conf";
+my $CASSANDRA_CQL_CONF  = "cassandra_cql_keywords.conf";
 my $COUCHBASE_N1QL_CONF = "couchbase_n1ql_keywords.conf";
 my $DOCKER_CONF	        = "docker_keywords.conf";
 my $DRILL_CONF          = "drill_keywords.conf";
