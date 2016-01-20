@@ -10,10 +10,10 @@
 
 our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output
 
-Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL etc. Also works with Apache Drill, Oracle, SQL Server etc.
+Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL / Couchbase N1QL / Apache Drill etc. Also works with Oracle, SQL Server specific keywords and generic SQL etc.
 ";
 
-$VERSION = "0.7.3";
+$VERSION = "0.7.4";
 
 use strict;
 use warnings;
@@ -27,6 +27,7 @@ my $CONF_DIR            = ".recase";
 # The SQL language files shouldn't be actively changed by users so hidden/tidied away under .recase directory
 my $CONF                = "sql_keywords.conf";
 my $CASSANDRA_CQL_CONF  = "cql_keywords.conf";
+my $COUCHBASE_N1QL_CONF = "couchbase_n1ql_keywords.conf";
 my $DOCKER_CONF	        = "docker_keywords.conf";
 my $DRILL_CONF          = "drill_keywords.conf";
 my $HIVE_CONF           = "hive_keywords.conf";
@@ -44,6 +45,7 @@ my $RECASE_CONF         = "recase_keywords.conf";
 my $file;
 my $comments;
 my $cql    = 0;
+my $n1ql   = 0;
 my $docker = 0;
 my $pig    = 0;
 my $neo4j  = 0;
@@ -100,6 +102,13 @@ if($progname =~ /hive/){
     $DESCRIPTION =~ s/SQL(?:-like)?/Cassandra CQL/g;
     $DESCRIPTION =~ s/sql/cql/g;
     @{$options{"f|files=s"}}[1] =~ s/SQL/CQL keywords/;
+    $cql = 1;
+} elsif($progname =~ /couchbase|n1ql/){
+    $CONF = "$CONF_DIR/$COUCHBASE_N1QL_CONF";
+    $DESCRIPTION =~ s/various SQL.*/Couchbase N1QL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)?/Couchbase N1QL/g;
+    $DESCRIPTION =~ s/sql/n1ql/g;
+    @{$options{"f|files=s"}}[1] =~ s/SQL/N1QL keywords/;
     $cql = 1;
 } elsif($progname =~ /neo4j|cypher/){
     $CONF = "$CONF_DIR/$NEO4J_CYPHER_CONF";
