@@ -3,9 +3,9 @@ Hari Sekhon Tools [![Build Status](https://travis-ci.org/HariSekhon/tools.svg?br
 
 ### Hadoop, Hive, Solr, NoSQL, Web, Linux Tools ###
 
-A few of the Hadoop, NoSQL, Web and other nifty "Unixy" / Linux tools I've written over the years that are generally useful across environments. All programs have --help to list the available options.
+A few of the Hadoop, NoSQL, Web & Linux tools I've written over the years. All programs have --help to list the available options.
 
-For more tools see [PyTools](https://github.com/harisekhon/pytools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools. 
+For many more tools see [PyTools](https://github.com/harisekhon/pytools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools. 
 
 Hari Sekhon
 
@@ -90,6 +90,8 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 220+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as traditional Linux and infrastructure.
 
-[My Perl library repo](https://github.com/harisekhon/lib) - leveraged throughout this code as a submodule
+[Perl Lib](https://github.com/harisekhon/lib) - my personal Perl library leveraged in this repo as a submodule
+
+[PyLib](https://github.com/harisekhon/pylib) - Python port of the above library
 
 [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [PyTools](https://github.com/harisekhon/pytools) repo.

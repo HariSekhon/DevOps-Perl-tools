@@ -10,6 +10,7 @@
 #
 
 set -euo pipefail
+[ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 test_num="${1:-}"
