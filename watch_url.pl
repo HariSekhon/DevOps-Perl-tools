@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2011-05-24 10:38:54 +0100 (Tue, 24 May 2011)
 #
-#  http://github.com/harisekhon/tools
+#  https://github.com/harisekhon/tools
 #
 #  License: see accompanying LICENSE file
 #
 
 $DESCRIPTION = "Watch a given URL, outputting status code, content, round trip time and percentages of return codes. Useful for testing web farms and load balancers";
 
-$VERSION = "0.4.5";
+$VERSION = "0.4.6";
 
 use strict;
 use warnings;
@@ -31,6 +31,7 @@ my $interval = 1;
 my $output;
 my $regex;
 my $res;
+my $request_timeout = 1;
 my $returned = 0;
 my $sleep_time;
 my $ssl_ca_path;
@@ -51,13 +52,14 @@ $usage_line = "usage: $progname --url http://host.domain.com/page [ --interval=1
     "u|url=s"           => [ \$url,           "URL to GET. Will use first arg as URL if this switch is omitted. URL may optionally be prefixed with http:// or https:// for SSL" ],
     "c|count=i"         => [ \$count,         "Number of times to request the given URL. Default: 0 (unlimited)" ],
     "i|interval=f"      => [ \$interval,      "Interval in secs between URL requests. Default: 1" ],
+    "t|request-timeout=s" => [ \$request_timeout, "Per request timeout in secs. Default: 1" ],
     "o|output"          => [ \$output,        "Show raw output at end of each line or on new line if output contains carriage returns or newlines or is longer than --output-length characters" ],
     "r|regex=s"         => [ \$regex,         "Output regex match of against entire web page (useful for testing embedded host information of systems behind load balancers)" ],
     "l|output-length=i" => [ \$output_length, "Max length of single line output before putting in on a separate line (defaults to $default_output_length chars)" ],
     "ssl-CA-path=s"     => [ \$ssl_ca_path,   "Path to CA certificate directory to verify SSL certificate if specifying https://" ],
     "ssl-noverify"      => [ \$ssl_noverify,  "Do not verify SSL certificate if specifying https://" ],
 );
-@usage_order=qw/url count interval output regex output-length ssl-CA-path tls-noverify/;
+@usage_order=qw/url count interval request-timeout output regex output-length ssl-CA-path tls-noverify/;
 
 remove_timeout();
 
@@ -74,12 +76,14 @@ $url = validate_url($url);
 #vlog_option "Count", $count ? $count : "$count (unlimited)";
 validate_int($count, "count", 0, 1000000);
 validate_float($interval, "interval", 0.00001, 1000);
+validate_float($request_timeout, "request timeout", 1, 100);
 $regex = validate_regex($regex) if $regex;
 validate_int($output_length, "output length", 0, 1000);
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon Watch URL version $main::VERSION ");
 $ua->show_progress(1) if $debug;
+$ua->timeout($request_timeout);
 
 if(defined($ssl_noverify)){
     $ua->ssl_opts( verify_hostname => 0 );
@@ -106,8 +110,8 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     $res     = $ua->request($req);
     $tstamp2 = time;
     vlog2 "* got response";
-    $status  = $status_line  = $res->status_line;
-    $status  =~ s/\s.*$//;
+    $status_line = $res->status_line;
+    $status = $res->code;
     $total++;
     if($status !~ /^\d+$/){
         warn "$time\tCODE ERROR: status code '$status' is not a number (status line was: '$status_line')\n";
@@ -124,8 +128,9 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     }
     foreach(sort keys %stats){
         #$msg .= "$_ = $stats{$_} (" . int($stats{$_} / $returned * 100) . "% $stats{$_}/$returned) (" . int($stats{$_} / $total * 100) . "% $stats{$_}/$total)\t\t";
-        $msg .= "$_ = " . int($stats{$_} / $total * 100) . "% ($stats{$_}/$total)\t\t";
+        $msg .= "$_ = " . int($stats{$_} / $total * 100) . "% ($stats{$_}/$total),  ";
     }
+    $msg =~ s/,\s*$//;
     print "$time\t$i\t\t$msg";
     if($output or $regex or $verbose >= 3){
         my $content = $res->content;
