@@ -13,7 +13,7 @@ our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), pri
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL / Couchbase N1QL / Apache Drill etc. Also works with Oracle, SQL Server specific keywords and generic SQL etc.
 ";
 
-$VERSION = "0.7.4";
+$VERSION = "0.7.5";
 
 use strict;
 use warnings;
@@ -32,6 +32,7 @@ my $DOCKER_CONF	        = "docker_keywords.conf";
 my $DRILL_CONF          = "drill_keywords.conf";
 my $HIVE_CONF           = "hive_keywords.conf";
 my $IMPALA_CONF         = "impala_keywords.conf";
+my $INFLUXDB_CONF       = "influxdb_keywords.conf";
 my $MSSQL_CONF          = "mssql_keywords.conf";
 my $MYSQL_CONF          = "mysql_keywords.conf";
 my $NEO4J_CYPHER_CONF   = "neo4j_cypher_keywords.conf";
@@ -70,6 +71,10 @@ if($progname =~ /hive/){
     $CONF = "$CONF_DIR/$IMPALA_CONF";
     $DESCRIPTION =~ s/various SQL.*/Impala SQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/Impala SQL/g;
+} elsif($progname =~ /influx/){
+    $CONF = "$CONF_DIR/$INFLUXDB_CONF";
+    $DESCRIPTION =~ s/various SQL.*/InfluxDB QL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/InfluxDB QL/g;
 } elsif($progname =~ /mysql/){
     $CONF = "$CONF_DIR/$MYSQL_CONF";
     $DESCRIPTION =~ s/various SQL.*/MySQL code and documentation/;
@@ -197,6 +202,7 @@ sub recase ($;$) {
             }
         } else {
             # do camelCase org.apache.hcatalog.pig.HCatLoader()
+            # XXX: why does this not work on "-- # alter " but it works on "-- #alter " or "-- #  alter "
             foreach my $keyword_regex (sort keys %keywords){
                 $string =~ s/(^|$sep)(\Q$keyword_regex\E)($sep|$)/$1$keyword_regex$3/gi and vlog3 "replaced keyword $keyword_regex";
             }
