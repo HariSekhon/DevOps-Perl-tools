@@ -32,6 +32,3 @@ install:
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # fixed core build to switch to cpanm for speed
   - make
-
-after_success:
-  - curl -H "Content-Type: application/json" --data '{"build": true}' -X POST https://registry.hub.docker.com/u/harisekhon/tools/trigger/6b4c6eeb-ed48-4e01-954f-ec2e0692ca35/
