@@ -5,7 +5,7 @@
 #  Original Date: 2013-01-14 20:50:13 +0000 (Mon, 14 Jan 2013)
 #  Date: 2015-05-08
 #
-#  http://github.com/harisekhon/tools
+#  https://github.com/harisekhon/tools
 #
 #  License: see accompanying LICENSE file
 #

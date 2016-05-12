@@ -4,7 +4,7 @@
 #  Date:         2010-05-18 10:39:51 +0100 (Tue, 18 May 2010)
 #  Rewrite Date: 2013-07-18 21:17:41 +0100 (Thu, 18 Jul 2013)
 #
-#  http://github.com/harisekhon/tools
+#  https://github.com/harisekhon/tools
 #
 #  License: see accompanying LICENSE file
 #  

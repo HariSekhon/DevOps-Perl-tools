@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2012-12-29 10:53:23 +0000 (Sat, 29 Dec 2012)
 #
-#  http://github.com/harisekhon/tools
+#  https://github.com/harisekhon/tools
 #
 #  License: see accompanying LICENSE file
 #
