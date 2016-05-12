@@ -5,7 +5,12 @@
 #
 #  https://github.com/harisekhon/tools
 #
-#  License: see accompanying LICENSE file
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
 #
 
 $DESCRIPTION = "Filter program to print only non-repeated lines in input - unlike the unix command 'uniq' lines do not have to be adjacent, this is order preserving compared to 'sort | uniq'. I rustled this up quickly after needing to parse unique missing modules for building but maintaining order as some modules depend on others being built first.

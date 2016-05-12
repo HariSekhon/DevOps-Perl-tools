@@ -5,7 +5,12 @@
 #
 #  https://github.com/harisekhon/tools
 #
-#  License: see accompanying LICENSE file
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
 #
 
 $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (default /tmp) that are older than the given Days Hours Mins. Deletes files if specifying --rm

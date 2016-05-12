@@ -1,14 +1,17 @@
 #!/usr/bin/perl -T
 #
-#   Author: Hari Sekhon
-#   Date: 2013-02-11 11:50:00 +0000 (Mon, 11 Feb 2013)
-#  $LastChangedBy$
-#  $LastChangedDate$
-#  $Revision$
-#  $URL$
-#  $Id$
+#  Author: Hari Sekhon
+#  Date: 2013-02-11 11:50:00 +0000 (Mon, 11 Feb 2013)
 #
-#  vim:ts=4:sw=4:et
+#  https://github.com/harisekhon/tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
 
 $DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex.
 

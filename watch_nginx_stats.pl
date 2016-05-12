@@ -1,14 +1,17 @@
 #!/usr/bin/perl -T
 #
-#   Author: Hari Sekhon
-#   Date: 2011-05-24 10:38:54 +0100 (Tue, 24 May 2011)
-#  $LastChangedBy$
-#  $LastChangedDate$
-#  $Revision$
-#  $URL$
-#  $Id$
+#  Author: Hari Sekhon
+#  Date: 2011-05-24 10:38:54 +0100 (Tue, 24 May 2011)
 #
-#  vim:ts=4:sw=4:et
+#  https://github.com/harisekhon/tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
 
 $DESCRIPTION = "Watch Nginx stats. Nginx will need to be configured to support this, see documentation at http://wiki.nginx.org/HttpStubStatusModule";
 

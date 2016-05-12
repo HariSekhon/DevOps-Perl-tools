@@ -5,8 +5,13 @@
 #
 #  https://github.com/harisekhon/tools
 #
-#  License: see accompanying LICENSE file
-#  
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
 
 # TODO: rewrite with native XML parsing
 

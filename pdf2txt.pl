@@ -1,12 +1,17 @@
 #!/usr/bin/perl -T
-#  vim:ts=4:sw=4:et
 #
 #  Author: Hari Sekhon
 #  Date: 2013-02-01 16:22:00 +0000 (Fri, 01 Feb 2013)
 #
-#  License: see accompanying HariSekhon LICENSE
-#
 #  https://github.com/harisekhon/tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
 
 $DESCRIPTION="Tool for converting PDF to text for text analytics. Rustled this up quickly in Cloudera to analyze our internal KB for an unofficial topic challenge, which I won as a result of using this and a Java MapReduce word count :)
 

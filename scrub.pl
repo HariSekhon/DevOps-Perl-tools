@@ -6,8 +6,13 @@
 #
 #  https://github.com/harisekhon/tools
 #
-#  License: see accompanying LICENSE file
-#  
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
 
 $DESCRIPTION = "Scrub usernames/passwords, IP addresses, hostnames, emails addresses, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
 
