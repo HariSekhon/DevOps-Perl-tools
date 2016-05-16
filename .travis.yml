@@ -23,6 +23,9 @@ branches:
   only:
     - master
 
+services:
+  - docker
+
 install:
   #- pushd lib
   #- make apt-packages
