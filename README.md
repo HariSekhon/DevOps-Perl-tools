@@ -1,5 +1,8 @@
-Hari Sekhon Tools [![Build Status](https://travis-ci.org/HariSekhon/tools.svg?branch=master)](https://travis-ci.org/HariSekhon/tools) ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-lightgrey.svg) [![DockerHub](https://img.shields.io/badge/docker%20container-available-blue.svg)](https://hub.docker.com/r/harisekhon/tools/)
+Hari Sekhon Tools
 =================
+[![Build Status](https://travis-ci.org/HariSekhon/tools.svg?branch=master)](https://travis-ci.org/HariSekhon/tools)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-lightgrey.svg)
+[![DockerHub](https://img.shields.io/badge/docker%20container-available-blue.svg)](https://hub.docker.com/r/harisekhon/tools/)
 
 ### Hadoop, Hive, Solr, NoSQL, Web, Linux Tools ###
 
