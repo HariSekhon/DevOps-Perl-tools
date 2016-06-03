@@ -18,7 +18,7 @@ our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), pri
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL / Couchbase N1QL / Apache Drill etc. Also works with Oracle, SQL Server specific keywords and generic SQL etc.
 ";
 
-$VERSION = "0.7.5";
+$VERSION = "0.7.6";
 
 use strict;
 use warnings;
@@ -200,8 +200,8 @@ sub recase ($;$) {
         # removed \. because of WITH PARAMETERS (credentials.file=file.txt)
         # don't uppercase group.domain => GROUP.domain
         # removed colon :  because of "jdbc:oracle:..."
-        my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|#|--|' . "'";
-	if($docker){
+        my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|#|--|<|>|' . "'";
+        if($docker){
             foreach my $keyword_regex (sort keys %keywords){
                 $string =~ s/^(\s*)$keyword_regex(\s)/$1$keyword_regex$2/gi and vlog3 "replaced Docker keyword $keyword_regex";
             }
