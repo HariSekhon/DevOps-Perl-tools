@@ -20,6 +20,21 @@ https://www.linkedin.com/in/harisekhon
 
 ### Quick Setup ###
 
+#### Ready to run Docker image #####
+
+All programs and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/tools/).
+
+List all programs:
+```
+docker run harisekhon/tools
+```
+Run any given program:
+```
+docker run harisekhon/tools <program> <args>
+```
+
+#### Automated Build from source #####
+
 ```
 git clone https://github.com/harisekhon/tools
 cd tools
