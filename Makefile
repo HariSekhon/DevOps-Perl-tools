@@ -139,6 +139,13 @@ update-no-recompile:
 	git pull
 	git submodule update --init --recursive
 
+.PHONY: update-submodules
+update-submodules:
+	git submodule update --init --recursive --remote
+.PHONY: updatem
+updatem:
+	make update-submodules
+
 .PHONY: clean
 clean:
 	@echo Nothing to clean
