@@ -1,7 +1,7 @@
 #!/usr/bin/perl -T
 #
 #  Author: Hari Sekhon
-#  Date: 2014-05-27 (based on datameer-config-git.pl from 2013-12-05)
+#  Date: 2014-05-27 (based on datameer_config_git.pl from 2013-12-05)
 #
 #  https://github.com/harisekhon/tools
 #
@@ -17,7 +17,7 @@
 
 $DESCRIPTION = "Program to revision control IBM BigSheets workbooks to Git
 
-Inspired by Rancid and datameer-config-git.pl from this same Toolbox
+Inspired by Rancid and datameer_config_git.pl from this same Tools repo
 
 Fetches configuration via the IBM BigSheets Rest API and writes it to files under specified Git directory repo, then commits those files to Git
 
