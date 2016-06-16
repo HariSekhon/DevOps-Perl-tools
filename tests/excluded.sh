@@ -20,8 +20,9 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-$perl -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
+${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
 
 isExcluded(){
     local prog="$1" 
