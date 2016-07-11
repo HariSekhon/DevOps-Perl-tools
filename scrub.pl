@@ -24,7 +24,7 @@ Create a list of phrases to scrub from config by placing them in scrub_custom.co
 
 Ignore phrases using a similar file scrub_ignore.conf, also adjacent to this program.";
 
-$VERSION = "0.9.0";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -235,18 +235,29 @@ sub scrub_custom($){
 #    return 0;
 #}
 
-sub scrub_ip($){
+sub scrub_mac($){
     my $string = shift;
-    # leave cidr mask for debugging clusters
-    # XXX: re-enable this?
-    #$string =~ s/$ip_regex\/\d+/<ip>\/<cidr>/go;
-    #$string =~ s/$subnet_mask_regex\/\d+/<subnet>\/<cidr>/go;
-    $string =~ s/$ip_regex(?!.\d+)/<ip>/go;
-    # this will never match now that $ip_regex permits ending in 0 for cidr
-    #$string =~ s/$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet>/go;
     $string =~ s/$mac_regex/<mac>/g;
     # network device format Mac address
     $string =~ s/\b(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}\b/<mac>/g;
+    return $string;
+}
+
+sub scrub_ip($){
+    my $string = shift;
+    # leave cidr mask for debugging clusters
+    #$string =~ s/$ip_regex\/\d+/<ip>\/<cidr>/go;
+    #$string =~ s/$subnet_mask_regex\/\d+/<subnet>\/<cidr>/go;
+
+    # unfortunately this scrubs /usr/hdp/2.3.0.0-2557 => /usr/hdp/<ip>-2557
+    #$string =~ s/$ip_regex/<ip>/go;
+    # make sure it's not part of a bigger numeric string like a version number, but still catch ip:port
+    $string =~ s/$ip_regex(?![^:]\d+)/<ip>/go;
+
+    # this will never match now that $ip_regex permits ending in 0 for cidr
+    #$string =~ s/$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet>/go;
+
+    $string = scrub_mac($string);
     return $string;
 }
 
@@ -254,9 +265,7 @@ sub scrub_ip_prefix($){
     my $string = shift;
     $string =~ s/$ip_prefix_regex(?!\.\d+\.\d+)/<ip_prefix>./go;
     $string =~ s/$subnet_mask_regex/<subnet>/go;
-    $string =~ s/$mac_regex/<mac>/g;
-    # network device format Mac address
-    $string =~ s/\b(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}\b/<mac>/g;
+    $string = scrub_mac($string);
     return $string;
 }
 
