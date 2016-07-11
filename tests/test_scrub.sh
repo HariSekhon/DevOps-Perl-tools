@@ -94,6 +94,12 @@ dest[19]="ranger-plugins-audit-0.5.0.2.3.0.0-2557.jar"
 src[20]="yarn-yarn-resourcemanager-ip-172-31-1-2.log"
 dest[20]="yarn-yarn-resourcemanager-<aws_hostname>.log"
 
+src[21]="192.168.99.100:9092"
+dest[21]="<ip>:9092"
+
+src[22]="192.168.99.100"
+dest[22]="<ip>"
+
 test_scrub(){
     src="$1"
     dest="$2" 
