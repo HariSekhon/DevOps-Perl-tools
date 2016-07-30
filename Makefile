@@ -123,6 +123,7 @@ apt-packages:
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
+	cd lib && make apt-packages-remove
 	$(SUDO) apt-get purge -y build-essential
 	$(SUDO) apt-get purge -y libssl-dev
 	$(SUDO) apt-get purge -y libsasl2-dev
@@ -131,6 +132,7 @@ apt-packages-remove:
 
 .PHONY: yum-packages
 yum-packages:
+	cd lib && make yum-packages-remove
 	rpm -q gcc || $(SUDO) yum install -y gcc
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q wget || $(SUDO) yum install -y wget
