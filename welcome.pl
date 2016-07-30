@@ -56,6 +56,8 @@ if(which("last", 0)){
         $last_login = $output[$i];
         last;
     }
+} else {
+    print STDERR "WARNING: 'last' command not found, will not be able to get last login information\n";
 }
 my $msg = "Welcome $user - ";
 if($last_login){
