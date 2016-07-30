@@ -34,6 +34,7 @@ endif
 
 .PHONY: build
 build:
+	if [ -x /sbin/apk ];        then make apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 
@@ -55,7 +56,7 @@ build:
 	# auto-configure cpan for Perl 5.8 which otherwise gets stuck prompting for a region for downloads
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
-	yes "" | $(SUDO2) cpan App::cpanminus
+	which cpanm &>/dev/null || yes "" | $(SUDO2) cpan App::cpanminus
 	yes "" | $(SUDO2) $(CPANM) --notest \
 		CAM::PDF \
 		JSON \
@@ -82,6 +83,30 @@ build:
 	@echo
 	@echo "BUILD SUCCESSFUL (tools)"
 
+.PHONY: apk-packages
+apk-packages:
+	$(SUDO) apk update
+	$(SUDO) apk add alpine-sdk
+	$(SUDO) apk add bash
+	$(SUDO) apk add expat-dev
+	$(SUDO) apk add gcc
+	$(SUDO) apk add git
+	$(SUDO) apk add libxml2-dev
+	$(SUDO) apk add openssl-dev
+	$(SUDO) apk add perl
+	$(SUDO) apk add perl-dev
+	$(SUDO) apk add wget
+
+.PHONY: apk-packages-remove
+apk-packages-remove:
+	$(SUDO) apk del alpine-sdk
+	$(SUDO) apk del expat-dev
+	$(SUDO) apk del gcc
+	$(SUDO) apk del libxml2-dev
+	$(SUDO) apk del openssl-dev
+	$(SUDO) apk del perl-dev
+	$(SUDO) apk del wget
+
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
@@ -96,13 +121,21 @@ apt-packages:
 	#$(SUDO) apt-get install -y ipython-notebook
 	#dpkg -l python-setuptools python-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev
 
+.PHONY: apt-packages-remove
+apt-packages-remove:
+	$(SUDO) apt-get purge -y build-essential
+	$(SUDO) apt-get purge -y libssl-dev
+	$(SUDO) apt-get purge -y libsasl2-dev
+	$(SUDO) apt-get purge -y libmysqlclient-dev
+	$(SUDO) apt-get purge -y libexpat1-dev
+
 .PHONY: yum-packages
 yum-packages:
 	rpm -q gcc || $(SUDO) yum install -y gcc
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q wget || $(SUDO) yum install -y wget
 	# needed to fetch the library submodule and CPAN modules
-	rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN git
+	which cpanm &>/dev/null || rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# needed to build XML::LibXML
@@ -111,6 +144,12 @@ yum-packages:
 	rpm -q epel-release || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
 	rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel
 	#rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook
+
+.PHONY: yum-packages-remove
+yum-packages-remove:
+	rpm -q gcc && $(SUDO) yum remove -y gcc
+	rpm -q perl-CPAN && $(SUDO) yum remove -y perl-CPAN
+	rpm -q mysql-devel && $(SUDO) yum remove -y mysql-devel
 
 .PHONY: test
 test:
