@@ -99,6 +99,7 @@ apk-packages:
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
+	cd lib && make apk-packages-remove
 	$(SUDO) apk del alpine-sdk
 	$(SUDO) apk del expat-dev
 	$(SUDO) apk del gcc
