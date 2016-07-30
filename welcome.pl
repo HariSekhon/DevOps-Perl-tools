@@ -17,7 +17,7 @@ $DESCRIPTION = "Prints a slick welcome message with last login time
 
 Tested on Mac OS X and Linux";
 
-$VERSION = "1.1";
+$VERSION = "2.0";
 
 use strict;
 use warnings;
@@ -48,12 +48,14 @@ if($user eq "root"){
 } else {
     $user = ucfirst lc $user;
 }
-my @output = cmd("last -100");
 my $last_login;
-for(my $i=1; $i < $#output; $i++){
-    $output[$i] =~ /^(?:reboot|wtmp)|^\s*$/ and next;
-    $last_login = $output[$i];
-    last;
+if(which("last", 0)){
+    my @output = cmd("last -100", 1);
+    for(my $i=1; $i < $#output; $i++){
+        $output[$i] =~ /^(?:reboot|wtmp)|^\s*$/ and next;
+        $last_login = $output[$i];
+        last;
+    }
 }
 my $msg = "Welcome $user - ";
 if($last_login){
