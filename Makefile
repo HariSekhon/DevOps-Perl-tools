@@ -151,8 +151,12 @@ yum-packages:
 .PHONY: yum-packages-remove
 yum-packages-remove:
 	rpm -q gcc && $(SUDO) yum remove -y gcc
+	rpm -q wget && $(SUDO) yum remove -y wget
 	rpm -q perl-CPAN && $(SUDO) yum remove -y perl-CPAN
 	rpm -q mysql-devel && $(SUDO) yum remove -y mysql-devel
+	rpm -q python-devel && $(SUDO) yum remove -y python-devel
+	rpm -q libxml2-devel && $(SUDO) yum remove -y libxml2-devel
+	rpm -q openssl-devel && $(SUDO) yum remove -y openssl-devel
 
 .PHONY: test
 test:
