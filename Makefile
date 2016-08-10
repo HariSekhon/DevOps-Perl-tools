@@ -133,7 +133,6 @@ apt-packages-remove:
 
 .PHONY: yum-packages
 yum-packages:
-	cd lib && make yum-packages-remove
 	rpm -q gcc || $(SUDO) yum install -y gcc
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q wget || $(SUDO) yum install -y wget
@@ -150,6 +149,7 @@ yum-packages:
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
+	cd lib && make yum-packages-remove
 	rpm -q gcc && $(SUDO) yum remove -y gcc
 	rpm -q wget && $(SUDO) yum remove -y wget
 	rpm -q perl-CPAN && $(SUDO) yum remove -y perl-CPAN
