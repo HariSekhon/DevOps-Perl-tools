@@ -34,7 +34,7 @@ install:
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # fixed core build to switch to cpanm for speed
-  - sudo chown -R travis /usr/lib/perl
+  - sudo chown -R travis /usr/lib/perl*
   - make
 
 after_success:
