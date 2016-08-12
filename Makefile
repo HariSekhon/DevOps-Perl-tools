@@ -56,7 +56,7 @@ build:
 	# auto-configure cpan for Perl 5.8 which otherwise gets stuck prompting for a region for downloads
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
-	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
+	which cpanm || { yes "" | $(SUDO) cpan App::cpanminus; }
 	yes "" | $(SUDO2) $(CPANM) --notest \
 		CAM::PDF \
 		JSON \
@@ -133,7 +133,6 @@ apt-packages-remove:
 
 .PHONY: yum-packages
 yum-packages:
-	cd lib && make yum-packages-remove
 	rpm -q gcc || $(SUDO) yum install -y gcc
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q wget || $(SUDO) yum install -y wget
@@ -150,6 +149,7 @@ yum-packages:
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
+	cd lib && make yum-packages-remove
 	rpm -q gcc && $(SUDO) yum remove -y gcc
 	rpm -q wget && $(SUDO) yum remove -y wget
 	rpm -q perl-CPAN && $(SUDO) yum remove -y perl-CPAN
