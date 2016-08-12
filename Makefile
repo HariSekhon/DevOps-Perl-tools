@@ -56,7 +56,7 @@ build:
 	# auto-configure cpan for Perl 5.8 which otherwise gets stuck prompting for a region for downloads
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
-	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
+	which cpanm || { yes "" | $(SUDO) cpan App::cpanminus; }
 	yes "" | $(SUDO2) $(CPANM) --notest \
 		CAM::PDF \
 		JSON \
