@@ -22,4 +22,4 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-$perl -T $I_lib ./colors.pl
+$perl -T ./colors.pl
