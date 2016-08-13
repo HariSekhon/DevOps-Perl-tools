@@ -74,9 +74,9 @@ test_nginx(){
         return 0
     fi
     hr
-    $perl -T $I_lib ./watch_nginx_stats.pl --url "http://$NGINX_HOST/status" --interval=1 --count=3
+    $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST/status" --interval=1 --count=3
     hr
-    $perl -T $I_lib ./watch_url.pl --url "http://$NGINX_HOST/" --interval=1 --count=3
+    $perl -T ./watch_url.pl --url "http://$NGINX_HOST/" --interval=1 --count=3
     hr
     delete_container
     hr
