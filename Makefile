@@ -17,12 +17,6 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
-ifneq ("$(PERLBREW_PERL)$(TRAVIS)", "")
-	SUDO2 =
-else
-	SUDO2 = sudo
-endif
-
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
@@ -30,6 +24,12 @@ ifeq '$(shell id -u)' '0'
 	SUDO2 =
 else
 	SUDO = sudo
+endif
+
+ifdef PERLBREW_PERL
+	SUDO2 =
+else
+	SUDO2 = sudo
 endif
 
 .PHONY: build
