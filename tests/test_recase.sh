@@ -22,13 +22,13 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-if echo oRg.Apache.Hadoop.Mapred.TextInputFormaT | $perl -T $I_lib ./recase.pl | tee /dev/stderr | grep -q org.apache.hadoop.mapred.TextInputFormat; then
+if echo oRg.Apache.Hadoop.Mapred.TextInputFormaT | $perl -T ./recase.pl | tee /dev/stderr | grep -q org.apache.hadoop.mapred.TextInputFormat; then
     echo "recasing of Hadoop TextInputFormat succeeded"
  else
     echo "recasing of Hadoop TextInputFormat FAILED"
     exit 1
 fi
-if echo 'org.apache.hcatalog.pig.hcatloader()' | $perl -T $I_lib ./recase.pl | tee /dev/stderr | grep -q 'org.apache.hcatalog.pig.HCatLoader()'; then
+if echo 'org.apache.hcatalog.pig.hcatloader()' | $perl -T ./recase.pl | tee /dev/stderr | grep -q 'org.apache.hcatalog.pig.HCatLoader()'; then
     echo "recasing of HCatLoader() succeeded"
 else
      echo "recasing of HCatLoader() FAILED"
