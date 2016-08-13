@@ -104,7 +104,7 @@ test_scrub(){
     src="$1"
     dest="$2" 
     #[ -z "${src[$i]:-}" ] && { echo "skipping test $i..."; continue; }
-    result="$($perl -T $I_lib ./scrub.pl -ae <<< "$src")"
+    result="$($perl -T ./scrub.pl -ae <<< "$src")"
     if grep -Fq "$dest" <<< "$result"; then
         echo "SUCCEEDED scrubbing test $i"
     else
@@ -141,7 +141,7 @@ done
 # test ip prefix
 src="4.3.2.1"
 dest="<ip_prefix>.1"
-result="$($perl -T $I_lib ./scrub.pl --ip-prefix <<< "$src")"
+result="$($perl -T ./scrub.pl --ip-prefix <<< "$src")"
 if grep -Fq "<ip_prefix>.1" <<< "$result"; then
     echo "SUCCEEDED scrubbing test ip_prefix"
 else
