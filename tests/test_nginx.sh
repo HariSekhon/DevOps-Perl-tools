@@ -13,7 +13,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-set -eu
+set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -30,7 +30,7 @@ echo "
 # ============================================================================ #
 "
 
-export NGINX_VERSIONS="${@:-latest 1.10 1.11.0}"
+export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-latest 1.10 1.11.0}}"
 
 NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
 NGINX_HOST="${NGINX_HOST##*/}"
@@ -47,8 +47,8 @@ if ! is_docker_available; then
     exit 0
 fi
 
-startupwait=1
-is_travis && let startupwait+=4
+startupwait 1
+is_CI && let startupwait+=4
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Nginx checks!!!'
@@ -66,8 +66,7 @@ test_nginx(){
         docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
         docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
         docker start "$DOCKER_CONTAINER"
-        echo "waiting $startupwait seconds for Nginx to start up"
-        sleep $startupwait
+        when_ports_available $startupwait $NGINX_HOST $NGINX_PORT
     else
         echo "Docker Nginx test container already running"
     fi
@@ -84,7 +83,7 @@ test_nginx(){
     echo
 }
 
-for version in $NGINX_VERSIONS; do
+for version in $(ci_sample $NGINX_VERSIONS); do
     test_nginx $version
 done
 
