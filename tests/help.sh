@@ -27,7 +27,7 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     set +e
     optional_cmd=""
     if [[ $x =~ .*\.pl$ ]]; then
-        optional_cmd="$perl -T $I_lib"
+        optional_cmd="$perl -T"
     fi
     echo $optional_cmd ./$x --help
     $optional_cmd ./$x --help # >/dev/null
