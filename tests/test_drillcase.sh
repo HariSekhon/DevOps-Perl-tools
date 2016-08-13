@@ -22,7 +22,7 @@ cd $srcdir/..
 
 . ./tests/utils.sh
 
-if echo "select columns[0] from myTable where name = 'hari';" | $perl -T $I_lib drillcase.pl | tee /dev/stderr | grep -qF "SELECT columns[0] FROM myTable WHERE name = 'hari';"; then
+if echo "select columns[0] from myTable where name = 'hari';" | $perl -T ./drillcase.pl | tee /dev/stderr | grep -qF "SELECT columns[0] FROM myTable WHERE name = 'hari';"; then
     echo "recasing of Drill statement succeeded"
 else
     echo "recasing of Drill statement FAILED"
