@@ -22,7 +22,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-if echo "select * from blah" | $perl -T $I_lib ./sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
+if echo "select * from blah" | $perl -T ./sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
     echo "recasing of SQL succeeded"
  else
     echo "recasing of SQL FAILED"
