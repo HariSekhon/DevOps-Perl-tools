@@ -21,7 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-if echo "create keyspace hari with replication = {'class':'simplestrategy','replication_factor':3};" | $perl -T $I_lib ./cqlcase.pl | tee /dev/stderr | grep -q "CREATE KEYSPACE hari WITH replication = {'class':'SimpleStrategy','replication_factor':3};"; then
+if echo "create keyspace hari with replication = {'class':'simplestrategy','replication_factor':3};" | $perl -T ./cqlcase.pl | tee /dev/stderr | grep -q "CREATE KEYSPACE hari WITH replication = {'class':'SimpleStrategy','replication_factor':3};"; then
     echo "recasing of CQL succeeded"
  else
     echo "recasing of CQL FAILED"
