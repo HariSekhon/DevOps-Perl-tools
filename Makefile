@@ -17,6 +17,13 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
+ifdef PERLBREW_PERL
+	SUDO2 =
+else
+	SUDO2 = sudo
+endif
+
+# must come after to reset SUDO2 to blank if root
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
@@ -24,12 +31,6 @@ ifeq '$(shell id -u)' '0'
 	SUDO2 =
 else
 	SUDO = sudo
-endif
-
-ifdef PERLBREW_PERL
-	SUDO2 =
-else
-	SUDO2 = sudo
 endif
 
 .PHONY: build
