@@ -36,6 +36,9 @@ install:
   # fixed core build to switch to cpanm for speed
   - make
 
+script:
+  - make test
+
 after_success:
   - curl -ivv --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/tools/trigger/6b4c6eeb-ed48-4e01-954f-ec2e0692ca35/
   - curl -ivv --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/alpine-github/trigger/8d9cb826-48df-439c-8c20-1975713064fc/
