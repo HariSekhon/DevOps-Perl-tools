@@ -88,7 +88,7 @@ build:
 apk-packages:
 	$(SUDO) apk update
 	$(SUDO) apk add \
-		alpine-sdk
+		alpine-sdk \
 		bash \
 		expat-dev \
 		gcc \
