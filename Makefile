@@ -66,30 +66,12 @@ build:
 .PHONY: apk-packages
 apk-packages:
 	$(SUDO) apk update
-	$(SUDO) apk add \
-		alpine-sdk \
-		bash \
-		expat-dev \
-		gcc \
-		git \
-		libxml2-dev \
-		openssl-dev \
-		perl \
-		perl-dev \
-		wget
+	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' < apk-packages.txt`
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
 	cd lib && make apk-packages-remove
-	$(SUDO) apk del \
-		alpine-sdk \
-		expat-dev \
-		gcc \
-		libxml2-dev \
-		openssl-dev \
-		perl-dev \
-		wget \
-		|| :
+	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
