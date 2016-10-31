@@ -1,0 +1,30 @@
+#  vim:ts=4:sts=4:sw=4:noet
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                            RPM Package Requirements
+# ============================================================================ #
+
+gcc
+git
+wget
+# needed to fetch the library submodule and CPAN modules
+perl-CPAN
+# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+openssl-devel
+# needed to build XML::LibXML
+libxml2-devel
+
+# python-pip requires EPEL, so try to get the correct EPEL rpm
+#rpm -q epel-release || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
+#rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel
+#rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook
