@@ -77,52 +77,21 @@ apk-packages-remove:
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
-	$(SUDO) apt-get install -y gcc
-	# needed to fetch the library submodule at end of build
-	$(SUDO) apt-get install -y git
-	$(SUDO) apt-get install -y wget
-	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	$(SUDO) apt-get install -y libssl-dev
-	# needed to build XML::LibXML
-	$(SUDO) apt-get install -y libxml2-dev
-	#$(SUDO) apt-get install -y ipython-notebook
-	#dpkg -l python-setuptools python-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' < deb-packages.txt`
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
 	cd lib && make apt-packages-remove
-	$(SUDO) apt-get purge -y build-essential
-	$(SUDO) apt-get purge -y libssl-dev
-	$(SUDO) apt-get purge -y libsasl2-dev
-	$(SUDO) apt-get purge -y libmysqlclient-dev
-	$(SUDO) apt-get purge -y libexpat1-dev
+	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < deb-packages-dev.txt`
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc || $(SUDO) yum install -y gcc
-	rpm -q git || $(SUDO) yum install -y git
-	rpm -q wget || $(SUDO) yum install -y wget
-	# needed to fetch the library submodule and CPAN modules
-	which cpanm &>/dev/null || rpm -q perl-CPAN git || $(SUDO) yum install -y perl-CPAN
-	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
-	# needed to build XML::LibXML
-	rpm -q libxml2-devel || $(SUDO) yum install -y libxml2-devel
-	# python-pip requires EPEL, so try to get the correct EPEL rpm
-	rpm -q epel-release || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
-	rpm -q python-setuptools python-pip python-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel
-	#rpm -q ipython-notebook || $(SUDO) yum install -y ipython-notebook
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < rpm-packages.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
 	cd lib && make yum-packages-remove
-	rpm -q gcc && $(SUDO) yum remove -y gcc
-	rpm -q wget && $(SUDO) yum remove -y wget
-	rpm -q perl-CPAN && $(SUDO) yum remove -y perl-CPAN
-	rpm -q mysql-devel && $(SUDO) yum remove -y mysql-devel
-	rpm -q python-devel && $(SUDO) yum remove -y python-devel
-	rpm -q libxml2-devel && $(SUDO) yum remove -y libxml2-devel
-	rpm -q openssl-devel && $(SUDO) yum remove -y openssl-devel
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < rpm-packages-dev.txt`; do rpm -q $$x && $(SUDO) yum remove -y $$x; done
 
 .PHONY: test
 test:
