@@ -58,29 +58,8 @@ build:
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
 	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
-	yes "" | $(SUDO2) $(CPANM) --notest \
-		CAM::PDF \
-		JSON \
-		JSON::XS \
-		LWP::Simple \
-		LWP::UserAgent \
-		Net::LDAP \
-		Net::LDAPI \
-		Net::LDAPS \
-		Module::CPANfile::Result \
-		Module::Install::Admin \
-		Search::Elasticsearch \
-		Term::ReadKey \
-		Text::Unidecode \
-		Time::HiRes \
-		XML::LibXML \
-		XML::Validate \
-		;
-#		IO::Socket::SSL \
-#		Net::LDAP::Filter \
-	easy_install -U setuptools
-	#$(SUDO) easy_install pip
-	#$(SUDO) pip install jinja2
+	yes "" | $(SUDO2) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < cpan-requirements.txt`
+
 	@echo
 	@echo "BUILD SUCCESSFUL (tools)"
 
