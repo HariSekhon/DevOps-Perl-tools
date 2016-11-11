@@ -28,7 +28,7 @@ BEGIN {
 use HariSekhonUtils;
 use Time::HiRes 'sleep';
 
-$| = 1;
+autoflush();
 
 my $quick;
 
