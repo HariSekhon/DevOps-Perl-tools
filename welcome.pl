@@ -41,14 +41,19 @@ set_timeout();
 
 # not set on Alpine Linux in Docker
 my $user = $ENV{"USER"};
-# whoami is available though
-$user or $user = `whoami`;
-# last fallback
 unless($user){
+    vlog2 "\$USER not populated, trying whoami";
+    $user = `whoami`;
+}
+unless($user){
+    vlog2 "whoami failed, trying 'id' command";
     $user = `id`;
     $user =~ s/.*?\(([^\)]+?)\).*/$1/;
 }
-$user or $user = "user";
+unless($user){
+    vlog2 "couldn't determine username, falling back to generic user salutation";
+    $user = "user";
+}
 $user = isUser(trim($user)) || die "invalid user '$user' determined from environment variable \$USER\n";
 if($user eq "root"){
     $user = uc $user;
