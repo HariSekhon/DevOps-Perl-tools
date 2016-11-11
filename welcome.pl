@@ -17,7 +17,7 @@ $DESCRIPTION = "Prints a slick welcome message with last login time
 
 Tested on Mac OS X and Linux";
 
-$VERSION = "2.0";
+$VERSION = "2.1";
 
 use strict;
 use warnings;
@@ -39,7 +39,16 @@ get_options();
 
 set_timeout();
 
-my $user = $ENV{"USER"} || "user";
+# not set on Alpine Linux in Docker
+my $user = $ENV{"USER"};
+# whoami is available though
+$user or $user = `whoami`;
+# last fallback
+unless($user){
+    $user = `id`;
+    $user =~ s/.*?\(([^\)]+?)\).*/$1/;
+}
+$user or $user = "user";
 $user = isUser(trim($user)) || die "invalid user '$user' determined from environment variable \$USER\n";
 if($user eq "root"){
     $user = uc $user;
