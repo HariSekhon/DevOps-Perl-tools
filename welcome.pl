@@ -17,7 +17,7 @@ $DESCRIPTION = "Prints a slick welcome message with last login time
 
 Tested on Mac OS X and Linux";
 
-$VERSION = "2.0";
+$VERSION = "2.1";
 
 use strict;
 use warnings;
@@ -28,7 +28,7 @@ BEGIN {
 use HariSekhonUtils;
 use Time::HiRes 'sleep';
 
-$| = 1;
+autoflush();
 
 my $quick;
 
@@ -39,7 +39,21 @@ get_options();
 
 set_timeout();
 
-my $user = $ENV{"USER"} || "user";
+# not set on Alpine Linux in Docker
+my $user = $ENV{"USER"};
+unless($user){
+    vlog2 "\$USER not populated, trying whoami";
+    $user = `whoami`;
+}
+unless($user){
+    vlog2 "whoami failed, trying 'id' command";
+    $user = `id`;
+    $user =~ s/.*?\(([^\)]+?)\).*/$1/;
+}
+unless($user){
+    vlog2 "couldn't determine username, falling back to generic user salutation";
+    $user = "user";
+}
 $user = isUser(trim($user)) || die "invalid user '$user' determined from environment variable \$USER\n";
 if($user eq "root"){
     $user = uc $user;

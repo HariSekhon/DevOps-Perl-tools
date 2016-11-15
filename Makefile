@@ -130,3 +130,19 @@ updatem:
 .PHONY: clean
 clean:
 	@echo Nothing to clean
+
+.PHONY: docker-run
+docker-run:
+	docker run -ti --rm harisekhon/tools ${ARGS}
+
+.PHONY: run
+run:
+	make docker-run
+
+.PHONY: docker-mount
+docker-mount:
+	docker run -ti --rm -v $$PWD:/tools harisekhon/tools bash -c "cd /tools; exec bash"
+
+.PHONY: mount
+mount:
+	make docker-mount
