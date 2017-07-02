@@ -258,7 +258,7 @@ $msg = "$progname Complete - $snapshot_dir_count snapshottable dir$plural, ";
 plural $included_count;
 $msg .= "$included_count dir$plural processed, $excluded_count excluded, ";
 plural $snapshot_count;
-$msg .= "$snapshot_count snapshots total, ";
+$msg .= "$snapshot_count snapshot$plural total, ";
 plural $snapshots_removed;
 $msg .= "$snapshots_removed snapshot$plural older than ";
 plural $days;
