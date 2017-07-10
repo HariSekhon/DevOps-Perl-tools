@@ -18,6 +18,7 @@ alpine-sdk
 expat-dev
 gcc
 libxml2-dev
-openssl-dev
+#openssl-dev
+libressl-dev
 perl-dev
 wget
