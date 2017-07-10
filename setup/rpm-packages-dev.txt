@@ -15,9 +15,9 @@
 # ============================================================================ #
 
 gcc
-wget
-perl-CPAN
-mysql-devel
-python-devel
 libxml2-devel
+mysql-devel
 openssl-devel
+perl-CPAN
+python-devel
+wget

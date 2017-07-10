@@ -15,7 +15,6 @@
 # ============================================================================ #
 
 gcc
-# needed to fetch the library submodule at end of build
 git
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev

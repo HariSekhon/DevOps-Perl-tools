@@ -15,7 +15,7 @@
 # ============================================================================ #
 
 build-essential
-libssl-dev
-libsasl2-dev
-libmysqlclient-dev
 libexpat1-dev
+libmysqlclient-dev
+libsasl2-dev
+libssl-dev
