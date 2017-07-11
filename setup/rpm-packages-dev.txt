@@ -16,7 +16,7 @@
 
 gcc
 libxml2-devel
-mysql-devel
+#mysql-devel
 openssl-devel
 perl-CPAN
 python-devel
