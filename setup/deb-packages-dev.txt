@@ -16,5 +16,6 @@
 
 build-essential
 libexpat1-dev
+libmariadbd-dev
 libsasl2-dev
 libssl-dev
