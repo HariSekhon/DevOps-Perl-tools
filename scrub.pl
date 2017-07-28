@@ -24,7 +24,7 @@ Create a list of phrases to scrub from config by placing them in scrub_custom.co
 
 Ignore phrases using a similar file scrub_ignore.conf, also adjacent to this program.";
 
-$VERSION = "0.9.1";
+$VERSION = "0.9.2";
 
 use strict;
 use warnings;
@@ -84,6 +84,7 @@ my $skip_exceptions = 0;
     "skip-python-tracebacks" => [ \$skip_python_tracebacks, "Skip lines with Python Tracebacks, similar to --skip-java-exceptions" ],
     "e|skip-exceptions"      => [ \$skip_exceptions,        "Skip both Java exceptions and Python tracebacks (recommended)" ],
 );
+remove_timeout();
 
 @usage_order = qw/files all ip ip-prefix host hostname domain fqdn port password kerberos email proxy network cisco screenos junos custom cr skip-java-exceptions skip-python-tracebacks skip-exceptions/;
 get_options();
