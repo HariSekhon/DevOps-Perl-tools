@@ -54,11 +54,12 @@ my $ignore_whitespace;
     "i|ignore-case"       => [ \$ignore_case,       "Ignore case in comparisons" ],
     "w|ignore-whitespace" => [ \$ignore_whitespace, "Ignore whitespace in comparisons" ],
 );
+remove_timeout();
 splice @usage_order, 6, 0, qw/additions-only removals-only blocks ignore-case ignore-whitespace/;
 
 get_options();
 
-set_timeout();
+#set_timeout();
 
 $additions_only and $removals_only and usage "--additions-only and --removals-only are mutually exclusive options!";
 
