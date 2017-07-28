@@ -26,7 +26,7 @@ $DESCRIPTION = "Filter program to print net line additions/removals from diff / 
 
 # TODO: use counters so that I don't discount 2 removals for 1 addition etc
 
-$VERSION = "0.5.1";
+$VERSION = "0.5.2";
 
 use strict;
 use warnings;
@@ -57,6 +57,8 @@ my $ignore_whitespace;
 splice @usage_order, 6, 0, qw/additions-only removals-only blocks ignore-case ignore-whitespace/;
 
 get_options();
+
+set_timeout();
 
 $additions_only and $removals_only and usage "--additions-only and --removals-only are mutually exclusive options!";
 
