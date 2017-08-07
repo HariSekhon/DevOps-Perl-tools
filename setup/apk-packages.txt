@@ -19,9 +19,10 @@ bash
 expat-dev
 gcc
 git
-libxml2-dev
+#libxml2-dev
 #openssl-dev
 libressl-dev
 perl
 perl-dev
+perl-xml-libxml
 wget
