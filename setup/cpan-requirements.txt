@@ -34,5 +34,6 @@ Term::ReadKey
 Text::PDF
 Text::Unidecode
 Time::HiRes
-XML::LibXML
+# use system package instead now as this fails to compile on Debian 9 Stretch citing libxml2 version unsupported
+#XML::LibXML
 XML::Validate
