@@ -15,7 +15,7 @@
 # ============================================================================ #
 
 gcc
-libxml2-devel
+#libxml2-devel
 #mysql-devel
 openssl-devel
 perl-CPAN
