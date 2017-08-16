@@ -48,7 +48,7 @@ export HBASE_VERSIONS="${@:-1.0 1.1 1.2}"
 
 check_docker_available
 
-export MNTDIR="/pytools"
+export MNTDIR="/tools"
 
 if ! is_docker_available; then
     echo "WARNING: Docker not available, skipping HBase checks"
