@@ -48,7 +48,7 @@ Tested on Hortonworks HDP 2.2 using Hive 0.14 => Elasticsearch 1.2.1, 1.4.1, 1.5
 $VERSION = "0.8.9";
 
 # XXX: Beeline CLI doesn't have ability to add local jars yet as of 0.14, see https://issues.apache.org/jira/browse/HIVE-9302
-# 
+#
 # This would be needed for any port to Beeline otherwise the jars are assumed to be on the HiveServer2, and then that would only work from Hive 1.2, not porting this any time soon :-/
 
 use strict;
@@ -479,7 +479,7 @@ FROM $src";
     #my $cmd = "$hive -S --hiveconf hive.session.id='$src=>ES-$partition' -e '$hql'");
     # TODO: debug + fix why hive.session.id isn't taking effect, I used to use this all the time in all my other scripts doing this same operation
     # passing job name on CLI since it's too late by the time Hive CLI launches Tez has a session with the ID set
-    # --hiveconf hive.query.id='$job_name' 
+    # --hiveconf hive.query.id='$job_name'
     # switch queue in session causes job name to be reset, so put queue up front on CLI
     my $cmd = "$hive " . ( $verbose > 1 ? "-v " : "" ) . "--hiveconf hive.session.id='$job_name' --hiveconf tez.job.name='$job_name' --hiveconf tez.queue.name='$queue' -e \"$hql\"";
     vlogt "running Hive => Elasticsearch indexing process for $table_or_view $src " . ( $partition ? "partition $partition " : "" ) . "(this may run for a very long time)";
@@ -542,7 +542,7 @@ foreach my $path (@jar_search_paths){
             }
         }
     }
-    # iterate on all the 
+    # iterate on all the
     last if $elasticsearch_hadoop_hive_jar;
 }
 foreach my $path (@jar_search_paths){

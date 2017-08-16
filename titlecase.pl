@@ -87,7 +87,7 @@ if($recase){
                 warn "skipping invalid phrase string in file '$recase': '$parts[0]' (must be an alphanumeric string - may also contain dots, quotes and dashes only, must not be a regex unless followed by '=> someString'\n";
                 next;
             }
-            push(@recase_phrases, $parts[0]); 
+            push(@recase_phrases, $parts[0]);
         }
     }
 }

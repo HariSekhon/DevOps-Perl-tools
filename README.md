@@ -12,7 +12,7 @@ Hari Sekhon Tools
 
 A few of the Hadoop, NoSQL, Web & Linux tools I've written over the years. All programs have --help to list the available options.
 
-For many more tools see [PyTools](https://github.com/harisekhon/pytools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools. 
+For many more tools see [PyTools](https://github.com/harisekhon/pytools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools.
 
 Hari Sekhon
 
@@ -88,7 +88,7 @@ Then proceed to install the CPAN modules below by hand.
 Install the following CPAN modules using the cpan command, use sudo if you're not root:
 
 ```
-sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::HiRes XML::LibXML XML::Validate 
+sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::HiRes XML::LibXML XML::Validate
 ```
 
 You're now ready to use these programs.

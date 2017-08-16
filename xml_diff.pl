@@ -129,7 +129,7 @@ sub xsltproc($){
 #    # validation done before calling this sub, not doing more here
 #    #open my $fh, "| xsltproc '$xsl_path' - | sort |" or die "Failed to execute xsltproc for $name contents\n";
 #    print Writer $xml_string or die "Failed to pipe in to xslt for $name contents\n";
-#    my $tokenized_xml = <Reader>; 
+#    my $tokenized_xml = <Reader>;
 #    Writer->close();
 #    Reader->close();
 #    $tokenized_xml =~ /^\s*$/ and die "got back blank output from xlstproc for $name contents\n";

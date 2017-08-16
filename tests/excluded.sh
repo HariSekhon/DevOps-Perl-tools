@@ -25,7 +25,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
 
 isExcluded(){
-    local prog="$1" 
+    local prog="$1"
     [[ "$prog" =~ ^\* ]] && return 0
     # ignore zookeeper plugins if Net::ZooKeeper module is not available
     if grep -q "Net::ZooKeeper" "$prog" && ! [ $zookeeper_built ]; then

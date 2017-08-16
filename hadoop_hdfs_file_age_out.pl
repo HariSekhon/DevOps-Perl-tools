@@ -118,7 +118,7 @@ if(defined($exclude)){
 if($Xmx){
     $Xmx =~ /^(\d+)$/ or usage "-Xmx must be an integer representing the number of MB to allocate to the Heap";
     $Xmx = $1;
-    vlog_option "Xmx (Max Heap MB)", $Xmx; 
+    vlog_option "Xmx (Max Heap MB)", $Xmx;
 }
 $hdfs  = which($hdfs, 1);
 $hdfs  =~ /\b\/?hdfs$/ or die "invalid hadoop hdfs program '$hdfs' given, should be called 'hdfs'!\n";
@@ -175,7 +175,7 @@ while (<$fh>){
             # - share/lib/ is under /user/oozie, don't remove that either
             # - not anchoring /tmp intentionally since hdfs dfs -ls ../../tmp results in ../../tmp and without anchor this will still exclude
             # - added /apps/ to cover /apps/hive, /apps/hbase, /apps/hcatalog on HDP
-            if ($filename =~ qr{ 
+            if ($filename =~ qr{
                                     /tmp/mapred/ |
                                     /apps/       |
                                     /hbase/      |

@@ -385,7 +385,7 @@ sub scrub_http_auth($){
 sub scrub_kerberos($){
     my $string = shift;
     if($string =~ /\/_HOST\@/){
-        # only take the realm off not the 
+        # only take the realm off not the
         $string =~ s/$user_regex\/_HOST\@$domain_regex/<kerberos_primary>\/_HOST\@<kerberos_realm>/go;
     } else {
         # krb5_principal_regex is too permission here since it's designed to permit user input, not to differentiate between arbitrary tokens and definitely kerberos principals

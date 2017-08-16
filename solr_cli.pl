@@ -245,7 +245,7 @@ $commit_collection = 1 if $soft_commit;
 my $list_count = $list_collections + $list_collection_aliases + $list_shards + $list_replicas + $list_cores + $list_nodes;
 $list_count > 1 and usage "can only list one thing at a time";
 unless($list_count){
-    my $action_count = 
+    my $action_count =
        $create_collection
      + $commit_collection
      + $download_config

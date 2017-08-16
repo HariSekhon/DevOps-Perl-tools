@@ -68,7 +68,7 @@ dest[11]="curl -u=<user>:<password> 'http://<hostname>:8080/...'"
 src[12]=" main.py:74 - loglevel=logging.INFO"
 dest[12]=" main.py:74 - loglevel=logging.INFO"
 
-# creating an exception for this would prevent scrubbing legitimate .PY domains after a leading timestamp, which is legit, added main.py to 
+# creating an exception for this would prevent scrubbing legitimate .PY domains after a leading timestamp, which is legit, added main.py to
 src[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://ip-1-2-3-4.eu-west-1.compute.internal:8440 (1.2.3.4)"
 dest[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://<fqdn>:8440 (<ip>)"
 
@@ -102,7 +102,7 @@ dest[22]="<ip>"
 
 test_scrub(){
     src="$1"
-    dest="$2" 
+    dest="$2"
     #[ -z "${src[$i]:-}" ] && { echo "skipping test $i..."; continue; }
     result="$($perl -T ./scrub.pl -ae <<< "$src")"
     if grep -Fq "$dest" <<< "$result"; then

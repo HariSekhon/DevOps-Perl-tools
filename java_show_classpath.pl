@@ -119,14 +119,14 @@ sub show_jinfo_classpath($){
             $count++;
         }
         print "\n" if $count;
-        #print "\n" . "="x80 . "\n"; 
+        #print "\n" . "="x80 . "\n";
         plural $count;
         print "$count classpath$plural found\n\n";
         $found_classpath = 1;
         last;
     }
     $found_classpath or die "Failed to find java classpath in output from jinfo!\n";
-    print "="x80 . "\n"; 
+    print "="x80 . "\n";
 }
 
 my $fh;

@@ -107,7 +107,7 @@ while(<$fh>){
     my $line = $_;
     if($line =~ /^[d-]$rwxt_regex\s+(?:\d+|-)\s+[\w-]+\s+[\w-]+\s+\d+\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\s+\d+\s+\d+\s+($dirname_regex)\s*$/){
         my $dir = $1;
-        if ($dir =~ qr{ 
+        if ($dir =~ qr{
                         [\'\"\`] |
                         \$\(
                       }ix){
@@ -153,7 +153,7 @@ sub process_snapshots($){
                 # assert this should never happen
                 die "non-directory found! ('$dir'). see -vvv output and raise a ticket at https://github.com/harisekhon/tools/issues\n";
             }
-            if ($snapshot_name =~ qr{ 
+            if ($snapshot_name =~ qr{
                                       [\'\"\`] |
                                       \$\(
                                     }ix){
@@ -169,7 +169,7 @@ sub process_snapshots($){
                 warn "skipping snapshot without date in name '$snapshot_name'\n";
                 next;
             }
-            $snapshots_by_date{$year}{$month}{$day}{$snapshot_name}  = 1; 
+            $snapshots_by_date{$year}{$month}{$day}{$snapshot_name}  = 1;
         } else {
             warn "$progname: WARNING - failed to match line from hadoop output: \"$line\"\n";
         }
