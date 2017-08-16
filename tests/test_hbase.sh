@@ -50,11 +50,6 @@ check_docker_available
 
 export MNTDIR="/tools"
 
-if ! is_docker_available; then
-    echo "WARNING: Docker not available, skipping HBase checks"
-    exit 0
-fi
-
 startupwait=50
 
 docker_exec(){
