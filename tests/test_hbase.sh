@@ -67,7 +67,7 @@ EOF
 test_hbase(){
     local version="$1"
     section2 "Setting up HBase $version test container"
-    local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    #local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
     hbase_stargate_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT" | sed 's/.*://'`"
