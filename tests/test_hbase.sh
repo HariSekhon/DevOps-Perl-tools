@@ -59,9 +59,7 @@ startupwait=50
 
 docker_exec(){
     docker exec -i docker_hbase_1 /bin/bash <<-EOF
-    set -x
     export JAVA_HOME=/usr
-    ls $MNTDIR
     $MNTDIR/$@
 EOF
 }
