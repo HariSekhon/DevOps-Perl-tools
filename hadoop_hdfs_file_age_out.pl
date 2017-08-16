@@ -177,10 +177,10 @@ while (<$fh>){
             # - added /apps/ to cover /apps/hive, /apps/hbase, /apps/hcatalog on HDP
             if ($filename =~ qr{
                                     /tmp/mapred/ |
-                                    /apps/       |
-                                    /hbase/      |
-                                    /solr/       |
-                                    \.Trash/     |
+                                    /apps/   |
+                                    /hbase/  |
+                                    /solr/   |
+                                    \.Trash/ |
                                     warehouse/   |
                                     share/lib/   |
                                     \.cloudera_health_monitoring_canary_files |

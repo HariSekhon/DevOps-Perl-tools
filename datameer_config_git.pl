@@ -37,7 +37,7 @@ Requirements:
 
 Can optionally specify just a subset of one or more of the following config types (fetches all config of given types or all configs of all of the following types if none are specified):
 
-" . join("\n", @valid_types) . " 
+" . join("\n", @valid_types) . "
 
 Tested on Datameer 3.0.11 and 3.1.1";
 

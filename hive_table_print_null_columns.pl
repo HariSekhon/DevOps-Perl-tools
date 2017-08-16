@@ -55,9 +55,9 @@ sub hive_check_output_line($){
     my $line = shift;
     if($line =~
     /^(?:
-    \s*$                 |
-    OK$                  |
-    Time\staken          |
+    \s*$  |
+    OK$   |
+    Time\staken |
     Logging\sinitialized |
     Hive\shistory
     )/ix){

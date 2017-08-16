@@ -26,7 +26,7 @@ use Fcntl ':flock';
 BEGIN {
     delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
     $ENV{'PATH'} = '/bin:/usr/bin';
-    $| = 1; 
+    $| = 1;
 }
 
 my $progname = basename $0;
