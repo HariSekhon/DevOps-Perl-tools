@@ -35,6 +35,10 @@ endif
 
 .PHONY: build
 build:
+	@echo ===========
+	@echo Tools Build
+	@echo ===========
+
 	if [ -x /sbin/apk ];        then make apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
