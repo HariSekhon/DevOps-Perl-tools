@@ -33,6 +33,23 @@ else
 	SUDO = sudo
 endif
 
+# ===================
+# bootstrap commands:
+
+# Alpine:
+#
+#   apk add --no-cache git make && git clone https://github.com/harisekhon/tools && cd tools && make
+
+# Debian / Ubuntu:
+#
+#   apt-get update && apt-get install -y make git && git clone https://github.com/harisekhon/tools && cd tools && make
+
+# RHEL / CentOS:
+#
+#   yum install -y make git && git clone https://github.com/harisekhon/tools && cd tools && make
+
+# ===================
+
 .PHONY: build
 build:
 	@echo ===========
