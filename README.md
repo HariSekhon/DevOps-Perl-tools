@@ -110,7 +110,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 - integration tests of the top level programs using the libraries for things like option parsing
 - [functional tests](https://github.com/HariSekhon/tools/tree/master/tests) for the top level programs using local test data and [Dockerized containers](https://hub.docker.com/u/harisekhon/)
 
-Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to integration and functional tests using local input and docker containers if docker is available
+Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to integration and functional tests using local input and docker containers if docker is available.
 
 ### Contributions ###
 
