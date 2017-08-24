@@ -124,7 +124,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-* [PyTools](https://github.com/harisekhon/pytools) - Hadoop, Spark (PySpark), Pig => Solr / Elasticsearch indexers, Pig Jython UDFs, Ambari Blueprints, AWS CloudFormation templates, HBase, Linux, IPython Notebook, Data converters between different data formats and syntactic validators for Avro, Parquet, CSV, JSON, YAML...
+* [PyTools](https://github.com/harisekhon/pytools) - 50+ tools for Hadoop, Spark (PySpark), Pig => Solr / Elasticsearch indexers, Pig Jython UDFs, Ambari Blueprints, AWS CloudFormation templates, HBase, Linux, IPython Notebook, Data converters between different data formats and syntactic validators for Avro, Parquet, CSV, JSON, LDIF, XML, YAML...
 
 * [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 350+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
 
