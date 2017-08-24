@@ -106,7 +106,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 ### Testing
 
 [Continuous Integration](https://travis-ci.org/HariSekhon/tools) is run on this repo with tests for success and failure scenarios:
-- unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) libraries
+- unit tests for the custom supporting [perl library](https://github.com/harisekhon/lib)
 - integration tests of the top level programs using the libraries for things like option parsing
 - [functional tests](https://github.com/HariSekhon/tools/tree/master/tests) for the top level programs using local test data and [Dockerized containers](https://hub.docker.com/u/harisekhon/)
 
