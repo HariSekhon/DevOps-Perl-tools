@@ -27,6 +27,8 @@ section "Docker Image"
 export DOCKER_IMAGE="harisekhon/tools"
 
 if is_CI && is_docker_available; then
-    docker pull "$DOCKER_IMAGE"
+    [ -n "${NO_DOCKER:-}" ] && exit 0
+    [ -n "${NO_PULL:-}" ] ||
+        docker pull "$DOCKER_IMAGE"
     docker run "$DOCKER_IMAGE" tests/all.sh
 fi
