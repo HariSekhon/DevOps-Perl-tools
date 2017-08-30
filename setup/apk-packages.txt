@@ -24,5 +24,6 @@ git
 libressl-dev
 perl
 perl-dev
+perl-doc
 perl-xml-libxml
 wget
