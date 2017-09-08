@@ -133,3 +133,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 * [PyLib](https://github.com/harisekhon/pylib) - Python port of the above library
 
 * [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [PyTools](https://github.com/harisekhon/pytools) repo.
+
+You might also be interested in the following really nice Jupyter notebook for HDFS space analysis created by another Hortonworks guy Jonas Straub:
+
+* https://github.com/mr-jstraub/HDFSQuota/blob/master/HDFSQuota.ipynb
