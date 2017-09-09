@@ -125,7 +125,7 @@ lib-test:
 
 .PHONY: test
 test:
-	make lib-tests
+	make lib-test
 	tests/all.sh
 
 .PHONY: basic-test
