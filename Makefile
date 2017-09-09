@@ -33,8 +33,29 @@ else
 	SUDO = sudo
 endif
 
+# ===================
+# bootstrap commands:
+
+# Alpine:
+#
+#   apk add --no-cache git make && git clone https://github.com/harisekhon/tools && cd tools && make
+
+# Debian / Ubuntu:
+#
+#   apt-get update && apt-get install -y make git && git clone https://github.com/harisekhon/tools && cd tools && make
+
+# RHEL / CentOS:
+#
+#   yum install -y make git && git clone https://github.com/harisekhon/tools && cd tools && make
+
+# ===================
+
 .PHONY: build
 build:
+	@echo ===========
+	@echo Tools Build
+	@echo ===========
+
 	if [ -x /sbin/apk ];        then make apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
@@ -70,7 +91,7 @@ quick:
 .PHONY: apk-packages
 apk-packages:
 	$(SUDO) apk update
-	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages.txt`
+	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages.txt setup/apk-packages-dev.txt`
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
@@ -81,7 +102,7 @@ apk-packages-remove:
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
-	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages.txt`
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
@@ -90,7 +111,7 @@ apt-packages-remove:
 
 .PHONY: yum-packages
 yum-packages:
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
 
 .PHONY: yum-packages-remove
 yum-packages-remove:

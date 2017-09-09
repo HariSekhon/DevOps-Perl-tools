@@ -22,3 +22,5 @@ gcc
 libressl-dev
 perl-dev
 wget
+# needed to build Net::SSLeay
+zlib-dev

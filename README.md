@@ -103,18 +103,37 @@ Run ```make update```. This will git pull and then git submodule update which is
 
 If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update-no-recompile``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
 
+### Testing
+
+[Continuous Integration](https://travis-ci.org/HariSekhon/tools) is run on this repo with tests for success and failure scenarios:
+- unit tests for the custom supporting [perl library](https://github.com/harisekhon/lib)
+- integration tests of the top level programs using the libraries for things like option parsing
+- [functional tests](https://github.com/HariSekhon/tools/tree/master/tests) for the top level programs using local test data and [Docker containers](https://hub.docker.com/u/harisekhon/)
+
+To trigger all tests run:
+
+```
+make test
+```
+
+which will start with the underlying libraries, then move on to top level integration tests and functional tests using docker containers if docker is available.
+
 ### Contributions ###
 
 Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
 
 ### See Also ###
 
-* [PyTools](https://github.com/harisekhon/pytools) - Hadoop, Spark (PySpark), Pig => Solr / Elasticsearch indexers, Pig Jython UDFs, Ambari Blueprints, AWS CloudFormation templates, HBase, Linux, IPython Notebook, Data converters between different data formats and syntactic validators for Avro, Parquet, CSV, JSON, YAML...
+* [PyTools](https://github.com/harisekhon/pytools) - 50+ tools for Hadoop, Spark (PySpark), Pig => Solr / Elasticsearch indexers, Pig Jython UDFs, Ambari Blueprints, AWS CloudFormation templates, HBase, Linux, IPython Notebook, Data converters between different data formats and syntactic validators for Avro, Parquet, CSV, JSON, LDIF, XML, YAML...
 
-* [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 220+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as traditional Linux and infrastructure.
+* [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 350+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
 
 * [Perl Lib](https://github.com/harisekhon/lib) - my personal Perl library leveraged in this repo as a submodule
 
 * [PyLib](https://github.com/harisekhon/pylib) - Python port of the above library
 
 * [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [PyTools](https://github.com/harisekhon/pytools) repo.
+
+You might also be interested in the following really nice Jupyter notebook for HDFS space analysis created by another Hortonworks guy Jonas Straub:
+
+* https://github.com/mr-jstraub/HDFSQuota/blob/master/HDFSQuota.ipynb

@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2016-12-08 14:38:37 +0000 (Thu, 08 Dec 2016)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/harisekhon/tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
@@ -27,6 +27,8 @@ section "Docker Image"
 export DOCKER_IMAGE="harisekhon/tools"
 
 if is_CI && is_docker_available; then
-    docker pull "$DOCKER_IMAGE"
-    docker run "$DOCKER_IMAGE" tests/all.sh
+    [ -n "${NO_DOCKER:-}" ] && exit 0
+    [ -n "${NO_PULL:-}" ] ||
+        docker pull "$DOCKER_IMAGE"
+    docker run --rm -e DEBUG="${DEBUG:-}" -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/all.sh
 fi
