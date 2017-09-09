@@ -97,13 +97,21 @@ yum-packages-remove:
 	cd lib && make yum-packages-remove
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do rpm -q $$x && $(SUDO) yum remove -y $$x; done
 
+.PHONY: lib-test
+lib-test:
+	cd lib && make test
+	rm -fr lib/cover_db || :
+
 .PHONY: test
 test:
-	cd lib && make test
-	# doesn't return a non-zero exit code to test
-	#for x in *.pl; do perl -T -c $x; done
-	# TODO: add more functional tests back in here
+	make lib-tests
 	tests/all.sh
+
+.PHONY: basic-test
+basic-test:
+	make lib-test
+	. tests/excluded.sh; bash-tools/all.sh
+	tests/help.sh
 
 .PHONY: install
 install:
