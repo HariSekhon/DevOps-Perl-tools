@@ -30,61 +30,51 @@ echo "
 # ============================================================================ #
 "
 
-export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-latest 1.10 1.11.0}}"
+export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-latest 1.7 1.8 1.9 1.10 1.11 1.12 1.13}}"
 
 NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
 NGINX_HOST="${NGINX_HOST##*/}"
 NGINX_HOST="${NGINX_HOST%%:*}"
 export NGINX_HOST
 
-export NGINX_PORT="80"
+export NGINX_PORT_DEFAULT="80"
 
 export DOCKER_IMAGE="nginx"
 export DOCKER_CONTAINER="nagios-plugins-nginx-test"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Nginx checks!!!'
-    exit 0
-fi
-
 startupwait 1
 is_CI && let startupwait+=4
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Nginx checks!!!'
-    exit 0
-fi
+check_docker_available
 
-trap_container
+trap_debug_env nginx
 
 test_nginx(){
     local version="$1"
     echo "Setting up Nginx $version test container"
-    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-        echo "Starting Docker Nginx test container"
-        docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
-        docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
-        docker start "$DOCKER_CONTAINER"
+    #if ! is_docker_container_running "$DOCKER_CONTAINER"; then
+        #docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
+        #docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
+        VERSION="$version" docker-compose create
+        docker cp "$srcdir/conf/nginx/conf.d/default.conf" docker_nginx_1:/etc/nginx/conf.d/default.conf
+        #docker start "$DOCKER_CONTAINER"
+        VERSION="$version" docker-compose start
+        export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
         when_ports_available $startupwait $NGINX_HOST $NGINX_PORT
-    else
-        echo "Docker Nginx test container already running"
-    fi
+    #else
+    #    echo "Docker Nginx test container already running"
+    #fi
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
     hr
-    $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST/status" --interval=1 --count=3
+    $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
     hr
-    $perl -T ./watch_url.pl --url "http://$NGINX_HOST/" --interval=1 --count=3
+    $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
     hr
-    delete_container
+    docker-compose down
     hr
     echo
 }
 
-for version in $(ci_sample $NGINX_VERSIONS); do
-    test_nginx $version
-done
-
-untrap
+run_test_versions "Nginx"
