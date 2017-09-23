@@ -1,0 +1,24 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2017-09-23 22:33:43 +0100 (Sat, 23 Sep 2017)
+#
+#  https://github.com/harisekhon/tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+
+services:
+  nginx:
+    extends:
+      file: common.yml
+      service: common
+    image: nginx:${VERSION:-latest}
+    ports:
+      - 80
