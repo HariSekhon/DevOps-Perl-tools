@@ -164,4 +164,8 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     vlog2 "* sleeping for $sleep_time seconds\n";
     sleep $sleep_time;
 }
-exit 0;
+if($status =~ /^2/){
+    exit 0;
+} else {
+    exit 2;
+}
