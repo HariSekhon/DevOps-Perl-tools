@@ -55,7 +55,10 @@ test_nginx(){
     #if ! is_docker_container_running "$DOCKER_CONTAINER"; then
         #docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         #docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
-        VERSION="$version" docker-compose create
+        # docker-compose up to create docker_default network, otherwise just doing create and then start results in error:
+        # ERROR: for nginx  Cannot start service nginx: network docker_default not found
+        VERSION="$version" docker-compose up -d
+        VERSION="$version" docker-compose stop
         docker cp "$srcdir/conf/nginx/conf.d/default.conf" docker_nginx_1:/etc/nginx/conf.d/default.conf
         #docker start "$DOCKER_CONTAINER"
         VERSION="$version" docker-compose start
