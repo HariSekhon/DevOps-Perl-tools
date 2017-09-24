@@ -15,7 +15,7 @@
 
 $DESCRIPTION = "Watch a given URL, outputting status code, content, round trip time and percentages of return codes. Useful for testing web farms and load balancers";
 
-$VERSION = "0.4.6";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -157,4 +157,9 @@ for(my $i=1;$i<=$count or $count eq 0;$i++){
     $sleep_time = ($interval - $time_taken) < 0 ? 0 : ($interval - $time_taken);
     vlog2 "* sleeping for $sleep_time seconds\n";
     sleep $sleep_time;
+}
+if($status =~ /^2/){
+    exit 0;
+} else {
+    exit 2;
 }
