@@ -18,13 +18,13 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "
-# ================== #
-# Running Tools ALL
-# ================== #
-"
-
 cd "$srcdir";
+
+. "$srcdir/../bash-tools/utils.sh"
+
+export PROJECT="tools (perl)"
+
+section "Tools ALL Tests"
 
 ./syntax.sh
 
@@ -34,5 +34,5 @@ done
 
 ./help.sh
 
-cd "$srcdir/.."
+cd ".."
 bash-tools/all.sh
