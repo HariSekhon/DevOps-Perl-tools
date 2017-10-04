@@ -26,8 +26,6 @@ export PROJECT="tools (perl)"
 
 section "Tools ALL Tests"
 
-./syntax.sh
-
 for script in $(find . -name 'test*.sh'); do
     ./$script
 done
