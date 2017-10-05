@@ -159,7 +159,11 @@ updatem: update-submodules
 
 .PHONY: clean
 clean:
-	@echo Nothing to clean
+	cd lib && make clean
+
+.PHONY: deep-clean
+deep-clean: clean
+	cd lib && make deep-clean
 
 .PHONY: docker-run
 docker-run:
