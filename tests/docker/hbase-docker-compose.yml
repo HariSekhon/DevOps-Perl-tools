@@ -29,3 +29,8 @@ services:
       - 16010
       - 16201
       - 16301
+    networks:
+      - hbase
+
+networks:
+  hbase:
