@@ -35,11 +35,11 @@ HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
 HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
-export HBASE_STARGATE_PORT=8080
-export HBASE_THRIFT_PORT=9090
-export ZOOKEEPER_PORT=2181
-export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 16000 16010 16201 16301"
-export HBASE_TEST_PORTS="$ZOOKEEPER_PORT $HBASE_THRIFT_PORT"
+export HBASE_MASTER_PORT_DEFAULT=16010
+export HBASE_REGIONSERVER_PORT_DEFAULT=16301
+export HBASE_STARGATE_PORT_DEFAULT=8080
+export HBASE_THRIFT_PORT_DEFAULT=9090
+export ZOOKEEPER_PORT_DEFAULT=2181
 
 export HBASE_VERSIONS="${@:-latest 0.96 0.98 1.0 1.1 1.2 1.3}"
 
@@ -64,13 +64,35 @@ test_hbase(){
     #local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
-    hbase_stargate_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT" | sed 's/.*://'`"
-    hbase_thrift_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT" | sed 's/.*://'`"
-    zookeeper_port="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
-    #hbase_ports=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
-    hbase_ports="$hbase_stargate_port $hbase_thrift_port $zookeeper_port"
-    when_ports_available "$startupwait" "$HBASE_HOST" $hbase_ports
-    #when_ports_available $startupwait $HBASE_HOST $HBASE_TEST_PORTS
+    if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
+        local export HBASE_MASTER_PORT_DEFAULT=60010
+        local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
+    fi
+    echo "getting HBase dynamic port mappings:"
+    printf "getting HBase Master port       => "
+    export HBASE_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$HBASE_MASTER_PORT"
+    printf "getting HBase RegionServer port => "
+    export HBASE_REGIONSERVER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_REGIONSERVER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$HBASE_REGIONSERVER_PORT"
+    printf "getting HBase Stargate port     => "
+    export HBASE_STARGATE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$HBASE_STARGATE_PORT"
+    printf "getting HBase Thrift port       => "
+    export HBASE_THRIFT_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$HBASE_THRIFT_PORT"
+    printf "getting HBase ZooKeeper port    => "
+    export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$ZOOKEEPER_PORT"
+    #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
+    export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
+    hr
+    when_ports_available "$startupwait" "$HBASE_HOST" $HBASE_PORTS
+    hr
+    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
+    hr
+    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
+    hr
     echo "setting up test tables"
     uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
