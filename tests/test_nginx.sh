@@ -57,8 +57,13 @@ test_nginx(){
     # ensure we start fresh otherwise the first nginx stats stub failure test will fail as it finds the old stub config
     VERSION="$version" docker-compose down
     VERSION="$version" docker-compose up -d
+    echo "getting Nginx dynamic port mapping:"
+    printf "Nginx HTTP port => "
     export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
+    echo "$NGINX_PORT"
+    hr
     when_ports_available $startupwait $NGINX_HOST $NGINX_PORT
+    hr
     if [ -z "${NOTESTS:-}" ]; then
         hr
         $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
