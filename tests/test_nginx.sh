@@ -39,9 +39,6 @@ export NGINX_HOST
 
 export NGINX_PORT_DEFAULT="80"
 
-export DOCKER_IMAGE="nginx"
-export DOCKER_CONTAINER="nagios-plugins-nginx-test"
-
 startupwait 5
 
 check_docker_available
@@ -73,13 +70,20 @@ test_nginx(){
     fi
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
     VERSION="$version" docker-compose stop
+    hr
     echo "Now reconfiguring Nginx to support stats and restarting:"
-    docker cp "$srcdir/conf/nginx/conf.d/default.conf" docker_nginx_1:/etc/nginx/conf.d/default.conf
+    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "docker_${DOCKER_SERVICE}_1":/etc/nginx/conf.d/default.conf
+    hr
     #docker start "$DOCKER_CONTAINER"
     VERSION="$version" docker-compose start
+    hr
     # ports get remapped at this point, must determine again
+    echo "getting Nginx dynamic port mapping:"
+    printf "Nginx HTTP port => "
     export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
-    when_ports_available $startupwait $NGINX_HOST $NGINX_PORT
+    echo "$NGINX_PORT"
+    hr
+    when_ports_available "$NGINX_HOST" "$NGINX_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
@@ -88,6 +92,9 @@ test_nginx(){
     hr
     run $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
     hr
+    echo "Completed $run_count Nginx tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo "Completed $run_count Nginx tests"
