@@ -42,8 +42,7 @@ export NGINX_PORT_DEFAULT="80"
 export DOCKER_IMAGE="nginx"
 export DOCKER_CONTAINER="nagios-plugins-nginx-test"
 
-startupwait 1
-is_CI && let startupwait+=4
+startupwait 5
 
 check_docker_available
 
@@ -62,17 +61,14 @@ test_nginx(){
     export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
     echo "$NGINX_PORT"
     hr
-    when_ports_available $startupwait $NGINX_HOST $NGINX_PORT
+    when_ports_available "$NGINX_HOST" "$NGINX_PORT"
     hr
     if [ -z "${NOTESTS:-}" ]; then
         hr
-        $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
+        run $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
         hr
-        set +e
         echo "Testing Nginx stats stub failure:"
-        $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
-        check_exit_code 2
-        set -e
+        run_fail 2 $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
         hr
     fi
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
@@ -88,9 +84,9 @@ test_nginx(){
         return 0
     fi
     hr
-    $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
+    run $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
     hr
-    $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
+    run $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
     hr
     docker-compose down
     hr
