@@ -52,7 +52,13 @@ startupwait=50
 docker_exec(){
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
     #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
-    docker exec -i "${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
+    run++
+    echo "docker exec -i "${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1" /bin/bash <<EOF
+    export JAVA_HOME=/usr
+    $MNTDIR/$@
+EOF
+"
+    docker exec -i "${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1" /bin/bash <<EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF
@@ -87,11 +93,11 @@ test_hbase(){
     #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
     hr
-    when_ports_available "$startupwait" "$HBASE_HOST" $HBASE_PORTS
+    when_ports_available "$HBASE_HOST" $HBASE_PORTS
     hr
-    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
+    when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
     hr
-    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
+    when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
     hr
     echo "setting up test tables"
     uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
@@ -117,12 +123,8 @@ EOF
     hr
     docker_exec hbase_flush_tables.sh .2
     hr
-
-    #delete_container
     docker-compose down
     echo
 }
 
-for version in $HBASE_VERSIONS; do
-    test_hbase $version
-done
+run_test_versions "HBase"
