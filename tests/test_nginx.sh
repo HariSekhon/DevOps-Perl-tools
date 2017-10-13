@@ -90,6 +90,8 @@ test_nginx(){
     hr
     docker-compose down
     hr
+    echo "Completed $run_count Nginx tests"
+    hr
     echo
 }
 
