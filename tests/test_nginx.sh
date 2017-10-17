@@ -57,9 +57,11 @@ test_nginx(){
     printf "Nginx HTTP port => "
     export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
     echo "$NGINX_PORT"
+    # ============================================================================ #
     hr
     when_ports_available "$NGINX_HOST" "$NGINX_PORT"
     hr
+    # ============================================================================ #
     if [ -z "${NOTESTS:-}" ]; then
         hr
         run $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
@@ -68,6 +70,7 @@ test_nginx(){
         run_fail 2 $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
         hr
     fi
+    # ============================================================================ #
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
     VERSION="$version" docker-compose stop
     hr
@@ -77,6 +80,7 @@ test_nginx(){
     #docker start "$DOCKER_CONTAINER"
     VERSION="$version" docker-compose start
     hr
+    # ============================================================================ #
     # ports get remapped at this point, must determine again
     echo "getting Nginx dynamic port mapping:"
     printf "Nginx HTTP port => "
@@ -84,6 +88,7 @@ test_nginx(){
     echo "$NGINX_PORT"
     hr
     when_ports_available "$NGINX_HOST" "$NGINX_PORT"
+    # ============================================================================ #
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
