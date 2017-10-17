@@ -1,6 +1,7 @@
 [submodule "lib"]
 	path = lib
 	url = https://github.com/harisekhon/lib
+	branch = master
 [submodule "bash-tools"]
 	path = bash-tools
 	url = https://github.com/harisekhon/bash-tools
