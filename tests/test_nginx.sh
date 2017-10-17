@@ -54,9 +54,7 @@ test_nginx(){
     VERSION="$version" docker-compose down
     VERSION="$version" docker-compose up -d
     echo "getting Nginx dynamic port mapping:"
-    printf "Nginx HTTP port => "
-    export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
-    echo "$NGINX_PORT"
+    docker_compose_port NGINX_PORT "Nginx HTTP"
     # ============================================================================ #
     hr
     when_ports_available "$NGINX_HOST" "$NGINX_PORT"
