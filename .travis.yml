@@ -26,7 +26,7 @@ branches:
 
 env:
   #- DEBUG=1
-  - PYTHONUNBUFFERED=1
+  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1
 
 services:
   - docker
