@@ -73,7 +73,7 @@ test_nginx(){
     VERSION="$version" docker-compose stop
     hr
     echo "Now reconfiguring Nginx to support stats and restarting:"
-    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "docker_${DOCKER_SERVICE}_1":/etc/nginx/conf.d/default.conf
+    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
     hr
     #docker start "$DOCKER_CONTAINER"
     VERSION="$version" docker-compose start
