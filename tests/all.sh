@@ -26,11 +26,10 @@ export PROJECT="tools (perl)"
 
 section "Tools ALL Tests"
 
-for script in $(find . -name 'test*.sh'); do
-    ./$script
-done
+../bash-tools/all.sh
 
 ./help.sh
 
-cd ".."
-bash-tools/all.sh
+for script in $(find . -name 'test*.sh'); do
+    ./$script
+done
