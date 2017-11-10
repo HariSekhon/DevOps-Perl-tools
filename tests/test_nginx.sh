@@ -24,11 +24,7 @@ cd "$srcdir2/..";
 # because including bash-tools/util.sh resets the srcdir
 srcdir="$srcdir2"
 
-echo "
-# ============================================================================ #
-#                                   N g i n x
-# ============================================================================ #
-"
+section "N g i n x"
 
 export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-latest 1.7 1.8 1.9 1.10 1.11 1.12 1.13}}"
 
@@ -53,6 +49,7 @@ test_nginx(){
     # ensure we start fresh otherwise the first nginx stats stub failure test will fail as it finds the old stub config
     VERSION="$version" docker-compose down
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Nginx dynamic port mapping:"
     docker_compose_port Nginx
     # ============================================================================ #
@@ -61,12 +58,10 @@ test_nginx(){
     hr
     # ============================================================================ #
     if [ -z "${NOTESTS:-}" ]; then
-        hr
         run $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
-        hr
+
         echo "Testing Nginx stats stub failure:"
         run_fail 2 $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
-        hr
     fi
     # ============================================================================ #
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
@@ -84,15 +79,15 @@ test_nginx(){
     docker_compose_port Nginx
     hr
     when_ports_available "$NGINX_HOST" "$NGINX_PORT"
+    hr
     # ============================================================================ #
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    hr
     run $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
-    hr
+
     run $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
-    hr
+
     echo "Completed $run_count Nginx tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
