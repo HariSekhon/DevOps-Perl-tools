@@ -25,11 +25,7 @@ cd "$srcdir2/.."
 
 srcdir="$srcdir2"
 
-echo "
-# ============================================================================ #
-#                                   H B a s e
-# ============================================================================ #
-"
+section "H B a s e"
 
 HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
@@ -49,27 +45,11 @@ export MNTDIR="/tools"
 
 startupwait 30
 
-docker_exec(){
-    # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
-    #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
-    run++
-    echo "docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
-    export JAVA_HOME=/usr
-    $MNTDIR/$@
-EOF
-"
-    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
-    export JAVA_HOME=/usr
-    $MNTDIR/$@
-EOF
-}
-
 test_hbase(){
     local version="$1"
     section2 "Setting up HBase $version test container"
-    #local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
+    hr
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
@@ -90,31 +70,33 @@ test_hbase(){
     when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
     hr
     # ============================================================================ #
-    echo "setting up test tables"
-    uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
-    # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
-    #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
-    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
-        export JAVA_HOME=/usr
-        /hbase/bin/hbase shell <<-EOF2
-        create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
-        create 't2', 'cf2', { 'REGION_REPLICATION' => 1 }
-        disable 't2'
-        put 't1', 'r1', 'cf1:q1', '$uniq_val'
-        put 't1', 'r2', 'cf1:q2', 'test'
-        list
+    if [ -z "${NOSETUP:-}" ]; then
+        echo "setting up test tables"
+        uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
+        # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
+        #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
+        docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+            export JAVA_HOME=/usr
+            /hbase/bin/hbase shell <<-EOF2
+            create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
+            create 't2', 'cf2', { 'REGION_REPLICATION' => 1 }
+            disable 't2'
+            put 't1', 'r1', 'cf1:q1', '$uniq_val'
+            put 't1', 'r2', 'cf1:q2', 'test'
+            list
 EOF2
-    exit
+        exit
 EOF
+    fi
     if [ -n "${NOTESTS:-}" ]; then
         return
     fi
     hr
     # ============================================================================ #
     docker_exec hbase_flush_tables.sh
-    hr
+
     docker_exec hbase_flush_tables.sh .2
-    hr
+
     docker-compose down
     echo
 }
