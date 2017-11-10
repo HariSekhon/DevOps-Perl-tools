@@ -22,6 +22,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$srcdir/../bash-tools/utils.sh"
 . "$srcdir/../bash-tools/docker.sh"
 
+export COMPOSE_PROJECT_NAME="tools"
+
 # Taint code doesn't use PERL5LIB, use -I instead
 #I_lib=""
 
