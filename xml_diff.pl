@@ -139,8 +139,8 @@ sub xsltproc($){
     while(<$fh>){
         # This breaks on multi-line XML like core-site.xml hadoop.security.auth_to_local RULEs
         #unless(/^\s*(.*=.*)?\s*$/){
-	#    chomp $_;
-	#    die "Failed basic line validation on xlstproc output from '$xml_path', got '$_' instead of key=value pair\n";
+        #chomp $_;
+        #die "Failed basic line validation on xlstproc output from '$xml_path', got '$_' instead of key=value pair\n";
         #}
         $tokenized_xml .= $_;
     }
