@@ -38,15 +38,15 @@ endif
 
 # Alpine:
 #
-#   apk add --no-cache git make && git clone https://github.com/harisekhon/tools && cd tools && make
+#   apk add --no-cache git $(MAKE) && git clone https://github.com/harisekhon/tools && cd tools && $(MAKE)
 
 # Debian / Ubuntu:
 #
-#   apt-get update && apt-get install -y make git && git clone https://github.com/harisekhon/tools && cd tools && make
+#   apt-get update && apt-get install -y $(MAKE) git && git clone https://github.com/harisekhon/tools && cd tools && $(MAKE)
 
 # RHEL / CentOS:
 #
-#   yum install -y make git && git clone https://github.com/harisekhon/tools && cd tools && make
+#   yum install -y $(MAKE) git && git clone https://github.com/harisekhon/tools && cd tools && $(MAKE)
 
 # ===================
 
@@ -56,14 +56,14 @@ build:
 	@echo Tools Build
 	@echo ===========
 
-	if [ -x /sbin/apk ];        then make apk-packages; fi
-	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
-	if [ -x /usr/bin/yum ];     then make yum-packages; fi
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
 
 	git submodule init
 	git submodule update --recursive
 
-	cd lib && make
+	cd lib && $(MAKE)
 
 	# don't track and commit your personal name, company name etc additions to scrub_custom.conf back to Git since they are personal to you
 	git update-index --assume-unchanged scrub_custom.conf
@@ -86,7 +86,7 @@ build:
 
 .PHONY: quick
 quick:
-	QUICK=1 make
+	QUICK=1 $(MAKE)
 
 .PHONY: apk-packages
 apk-packages:
@@ -95,7 +95,7 @@ apk-packages:
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
-	cd lib && make apk-packages-remove
+	cd lib && $(MAKE) apk-packages-remove
 	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
@@ -106,7 +106,7 @@ apt-packages:
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
-	cd lib && make apt-packages-remove
+	cd lib && $(MAKE) apt-packages-remove
 	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
 
 .PHONY: yum-packages
@@ -115,12 +115,12 @@ yum-packages:
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
-	cd lib && make yum-packages-remove
+	cd lib && $(MAKE) yum-packages-remove
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do rpm -q $$x && $(SUDO) yum remove -y $$x; done
 
 .PHONY: lib-test
 lib-test:
-	cd lib && make test
+	cd lib && $(MAKE) test
 	rm -fr lib/cover_db || :
 
 .PHONY: test
@@ -139,7 +139,7 @@ install:
 .PHONY: update
 update: update2 build
 	:
-	@#make test
+	@#$(MAKE) test
 
 .PHONY: update2
 update2: update-no-recompile
@@ -159,11 +159,11 @@ updatem: update-submodules
 
 .PHONY: clean
 clean:
-	cd lib && make clean
+	cd lib && $(MAKE) clean
 
 .PHONY: deep-clean
 deep-clean: clean
-	cd lib && make deep-clean
+	cd lib && $(MAKE) deep-clean
 
 .PHONY: docker-run
 docker-run:
@@ -171,7 +171,7 @@ docker-run:
 
 .PHONY: run
 run:
-	make docker-run
+	$(MAKE) docker-run
 
 .PHONY: docker-mount
 docker-mount:
