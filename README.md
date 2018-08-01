@@ -122,7 +122,7 @@ mv -f lib tools/
 
 Proceed to install CPAN modules for whichever programs you want to use using your standard procedure - usually an internal mirror or proxy server to CPAN, or rpms / debs (some libraries are packaged by Linux distributions).
 
-All CPAN modules are listed in ```setup/cpan-requirements.txt``` file.
+All CPAN modules are listed in the ```setup/cpan-requirements.txt``` file.
 
 
 #### Configuration for Strict Domain / FQDN validation ####
