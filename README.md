@@ -94,6 +94,18 @@ sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::Hi
 
 You're now ready to use these programs.
 
+#### Offline Setup
+
+Download the Tools and Lib git repos as zip files:
+
+https://github.com/HariSekhon/tools/archive/master.zip
+
+https://github.com/HariSekhon/lib/archive/master.zip
+
+Unzip both and move Lib to the ```lib``` folder under the folder containing tools.
+
+Proceed to install CPAN modules for whichever programs you want to use using your internal mirror or standard procedure. All CPAN modules are listed in ```setup/cpan-requirements.txt``` file.
+
 #### Configuration for Strict Domain / FQDN validation ####
 
 Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via my [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring this to permit custom TLDs like ```.local``` or ```.intranet``` (both supported by default).
