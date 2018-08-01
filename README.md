@@ -47,6 +47,7 @@ make
 
 The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/tools#manual-setup) section instead.
 
+
 ### Usage ###
 
 All programs come with a ```--help``` switch which includes a program description and the list of command line options.
@@ -74,6 +75,7 @@ Highlights:
 - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions as well.
 - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [PyTools](https://github.com/harisekhon/pytools) repo)
 
+
 #### Manual Setup ####
 
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
@@ -87,6 +89,7 @@ git submodule update
 
 Then proceed to install the CPAN modules below by hand.
 
+
 ###### CPAN Modules ######
 
 Install the following CPAN modules using the cpan command, use sudo if you're not root:
@@ -97,6 +100,7 @@ sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::Hi
 
 You're now ready to use these programs.
 
+
 #### Offline Setup
 
 Download the Tools and Lib git repos as zip files:
@@ -105,19 +109,33 @@ https://github.com/HariSekhon/tools/archive/master.zip
 
 https://github.com/HariSekhon/lib/archive/master.zip
 
-Unzip both and move Lib to the ```lib``` folder under the folder containing tools.
+Unzip both and move Lib to the ```lib``` folder under Tools.
 
-Proceed to install CPAN modules for whichever programs you want to use using your internal mirror or standard procedure. All CPAN modules are listed in ```setup/cpan-requirements.txt``` file.
+```
+unzip tools-master.zip
+unzip lib-master.zip
+
+mv tools-master tools
+mv lib lib
+mv -f lib tools/
+```
+
+Proceed to install CPAN modules for whichever programs you want to use using your standard procedure - usually an internal mirror or proxy server to CPAN, or rpms / debs (some libraries are packaged by Linux distributions).
+
+All CPAN modules are listed in ```setup/cpan-requirements.txt``` file.
+
 
 #### Configuration for Strict Domain / FQDN validation ####
 
 Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via my [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring this to permit custom TLDs like ```.local``` or ```.intranet``` (both supported by default).
+
 
 ### Updating ###
 
 Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates.
 
 If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update-no-recompile``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
+
 
 ### Testing
 
@@ -134,9 +152,11 @@ make test
 
 which will start with the underlying libraries, then move on to top level integration tests and functional tests using docker containers if docker is available.
 
+
 ### Contributions ###
 
 Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
+
 
 ### See Also ###
 
