@@ -116,7 +116,7 @@ unzip tools-master.zip
 unzip lib-master.zip
 
 mv tools-master tools
-mv lib lib
+mv lib-master lib
 mv -f lib tools/
 ```
 
