@@ -70,6 +70,7 @@ Environment variables are supported for convenience and also to hide credentials
 - ```datameer_config_git.pl``` - revision controls Datameer configurations from API to Git
 - ```ibm_bigsheets_config_git.pl``` - revision controls IBM BigSheets configurations from API to Git
 - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions as well.
+- ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [PyTools](https://github.com/harisekhon/pytools) repo)
 
 #### Manual Setup ####
 
