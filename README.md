@@ -80,7 +80,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```hive_table_count_rows_with_nulls.pl``` - counts number of rows containing NULLs in any field
   - ```ibm_bigsheets_config_git.pl``` - revision controls IBM BigSheets configurations from API to Git
   - ```datameer_config_git.pl``` - revision controls Datameer configurations from API to Git
-  - ```solr_cli.pl``` - Solr CLI tool for fast and easy Solr / SolrCloud administration. Supports optional environment variables (can also be permanently set in `solr-env.sh`) to allow for minimal required --options to make it faster and easier to administer a Solr/SolrCloud cluster via the Collections and Cores APIs
+  - ```solr_cli.pl``` - Solr CLI tool for fast and easy Solr / SolrCloud administration. Supports optional environment variables for ease of use to minimize --switches (can also be permanently set in `solr-env.sh`). Uses the Solr Cores and Collections APIs, makes Solr administration a lot easier
 
 #### Manual Setup ####
 
