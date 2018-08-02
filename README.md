@@ -78,9 +78,9 @@ Environment variables are supported for convenience and also to hide credentials
   - ```hive_to_elasticsearch.pl``` - bulk indexes structured Hive tables in Hadoop to Elasticsearch clusters - includes support for Kerberos, Hive partitioned tables with selected partitions, selected columns, index creation with configurable sharding, index aliasing and optimization
   - ```hive_table_print_null_columns.pl``` - finds Hive columns with all NULLs
   - ```hive_table_count_rows_with_nulls.pl``` - counts number of rows containing NULLs in any field
-  - ```solr_cli.pl``` - Solr command line tool with shortcuts under ```solr/``` which make it much easier and quicker to use the Solr APIs instead of always using long tedious curl commands. Supports a lot of environments variables and tricks to allow for minimal typing when administering a Solr/SolrCloud cluster via the Collections and Cores APIs
   - ```ibm_bigsheets_config_git.pl``` - revision controls IBM BigSheets configurations from API to Git
   - ```datameer_config_git.pl``` - revision controls Datameer configurations from API to Git
+  - ```solr_cli.pl``` - Solr command line tool with shortcuts under ```solr/``` which make it much easier and quicker to use the Solr APIs instead of always using long tedious curl commands. Supports optional environment variables (can also be permanently set in `solr-env.sh`) to allow for minimal required --options to make it faster and easier to administer a Solr/SolrCloud cluster via the Collections and Cores APIs
 
 #### Manual Setup ####
 
