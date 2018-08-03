@@ -113,10 +113,18 @@ Then proceed to install the CPAN modules below by hand.
 
 ###### CPAN Modules ######
 
-Install the following CPAN modules using the cpan command, use sudo if you're not root:
+Install the following CPAN modules using the cpan command, using sudo if you're not root:
 
 ```
-sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::HiRes XML::LibXML XML::Validate
+sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::HiRes XML::LibXML XML::Validate ...
+```
+
+The full list of CPAN modules is in ```setup/cpan-requirements.txt```.
+
+You can install the entire list of cpan requirements like so:
+
+```
+sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt)
 ```
 
 You're now ready to use these programs.
