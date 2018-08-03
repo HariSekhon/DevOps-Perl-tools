@@ -68,7 +68,7 @@ dest[11]="curl -u=<user>:<password> 'http://<hostname>:8080/...'"
 src[12]=" main.py:74 - loglevel=logging.INFO"
 dest[12]=" main.py:74 - loglevel=logging.INFO"
 
-# creating an exception for this would prevent scrubbing legitimate .PY domains after a leading timestamp, which is legit, added main.py to
+# creating an exception for this would prevent anonymization legitimate .PY domains after a leading timestamp, which is legit, added main.py to
 src[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://ip-1-2-3-4.eu-west-1.compute.internal:8440 (1.2.3.4)"
 dest[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://<fqdn>:8440 (<ip>)"
 
@@ -100,15 +100,15 @@ dest[21]="<ip>:9092"
 src[22]="192.168.99.100"
 dest[22]="<ip>"
 
-test_scrub(){
+test_anonymize(){
     src="$1"
     dest="$2"
     #[ -z "${src[$i]:-}" ] && { echo "skipping test $i..."; continue; }
-    result="$($perl -T ./scrub.pl -ae <<< "$src")"
+    result="$($perl -T ./anonymize.pl -ae <<< "$src")"
     if grep -Fq "$dest" <<< "$result"; then
-        echo "SUCCEEDED scrubbing test $i"
+        echo "SUCCEEDED anonymization test $i"
     else
-        echo "FAILED to scrub line during test $i"
+        echo "FAILED to anonymize line during test $i"
         echo "input:    $src"
         echo "expected: $dest"
         echo "got:      $result"
@@ -121,7 +121,7 @@ if [ -n "$test_num" ]; then
     i=$test_num
     [ -n "${src[$i]:-}" ]  || { echo "invalid test number given: src[$i] not defined"; exit 1; }
     [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
-    test_scrub "${src[$i]}" "${dest[$i]}"
+    test_anonymize "${src[$i]}" "${dest[$i]}"
     exit 0
 fi
 
@@ -132,20 +132,20 @@ for i in ${!src[@]}; do
     [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
     [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
     if [ -n "$parallel" ]; then
-        test_scrub "${src[$i]}" "${dest[$i]}" &
+        test_anonymize "${src[$i]}" "${dest[$i]}" &
     else
-        test_scrub "${src[$i]}" "${dest[$i]}"
+        test_anonymize "${src[$i]}" "${dest[$i]}"
     fi
 done
 
 # test ip prefix
 src="4.3.2.1"
 dest="<ip_prefix>.1"
-result="$($perl -T ./scrub.pl --ip-prefix <<< "$src")"
+result="$($perl -T ./anonymize.pl --ip-prefix <<< "$src")"
 if grep -Fq "<ip_prefix>.1" <<< "$result"; then
-    echo "SUCCEEDED scrubbing test ip_prefix"
+    echo "SUCCEEDED anonymization test ip_prefix"
 else
-    echo "FAILED to scrub line during test ip_prefix"
+    echo "FAILED to anonymize line during test ip_prefix"
     echo "input:    $src"
     echo "expected: $dest"
     echo "got:      $result"
