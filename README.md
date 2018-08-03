@@ -102,6 +102,14 @@ Environment variables are supported for convenience and also to hide credentials
   - ```hadoop_config_diff.pl``` - tool to diff configs between Hadoop clusters XML from files or live HTTP config endpoints
   - ```solr_cli.pl``` - Solr CLI tool for fast and easy Solr / SolrCloud administration. Supports optional environment variables to minimize --switches (can be set permanently in `solr/solr-env.sh`). Uses the Solr Cores and Collections APIs, makes Solr administration a lot easier
 
+
+### Detailed Build Instructions
+
+##### Perlbrew localized installs
+
+The automated build will use 'sudo' to install required Perl CPAN libraries to the system unless running as root or it detects being inside Perlbrew. If you want to install some of the common Perl libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the Manual Build section below.
+
+
 #### Manual Setup ####
 
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
