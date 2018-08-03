@@ -59,21 +59,29 @@ Environment variables are supported for convenience and also to hide credentials
 
 ##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [PyTools](https://github.com/harisekhon/pytools) repo. #####
 
-- DevOps general:
-  - ```scrub.pl``` - anonymizes your configs / logs for pasting to online forums, Apache Jira tickets etc. Replaces hostnames/domains/FQDNs, email addresses, IP + MAC addresses, Kerberos principals, Cisco/Juniper passwords/shared keys and SNMP strings, as well as taking a configuration file of your Name/Company/Project/Database/Tables as regex to be able to also easily cover things like table naming conventions etc. Each replacement is replaced with a placeholder token indicating what was replaced (eg. ```<fqdn>```, ```<password>```, ```<custom>```), and there is even an --ip-prefix switch to leave the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
-  - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved
-  - ```sqlcase.pl / *case.pl``` - fixes SQL capitalization of keywords in files or stdin (Hive, Impala, Cassandra CQL, Couchbase N1QL, MySQL, PostgreSQL, Apache Drill, Microsoft SQL Server, Oracle), Pig Latin, Neo4j, InfluxDB and Docker. More specific ```*case.pl``` command calls limit case rewriting to the targeted platform for tighter control to avoid recasing things that may be keywords in other SQL[-like] dialects. Primarily written to help clean up docs and SQL scripts.
-  - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return which server you're hitting for each request in real-time)
-  - ```watch_nginx_stats.pl``` - watches nginx stats via the HttpStubStatusModule module
-  - ```diffnet.pl``` - print net line additions/removals from diff / patch files or stdin
+- Linux:
+  - ```scrub.pl``` - anonymizes your configs / logs for pasting to online forums, Apache Jira tickets etc
+    - replaces hostnames/domains/FQDNs, email addresses, IP + MAC addresses, Kerberos principals, Cisco/Juniper passwords/shared keys and SNMP strings
+    - ```scrub_custom.conf``` - put regex of your Name/Company/Project/Database/Tables to anonymize to ```<custom>```
+    - placeholder tokens indicating what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
+    - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
+  - ```sqlcase.pl``` - capitalizes SQL code in files or stdin:
+    - ```*case.pl``` - more specific language support for Hive, Impala, Cassandra CQL, Couchbase N1QL, MySQL, PostgreSQL, Apache Drill, Microsoft SQL Server, Oracle, Pig Latin, Neo4j, InfluxDB and Docker
+    - written to help clean up docs and SQL scripts (I don't even bother writing capitalising SQL code any more I just run it once through this at the end from a vim shortcut)
+  - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
+  - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
   - ```titlecase.pl``` - capitalizes the first letter of each input word in files or stdin
-  - ```xml_diff.pl / hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
+  - ```pdf_to_txt.pl``` - converts PDF to text for analytics (see also [Apache PDFBox](https://pdfbox.apache.org/) and pdf2text unix tool)
   - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
   - ```flock.pl``` - file locking to prevent running the same program twice at the same time. RHEL 6 now has a native version of this
   - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
   - ```colors.pl``` - prints ASCII color code matrix fg/bg with corresponding terminal escape codes to help with tuning your shell
   - ```matrix.pl``` - prints a cool matrix of vertical scrolling characters using terminal tricks
   - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [PyTools](https://github.com/harisekhon/pytools) repo)
+
+- Web:
+  - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return which server you're hitting for each request in real-time)
+  - ```watch_nginx_stats.pl``` - watches nginx stats via the HttpStubStatusModule module
 
 - Hadoop Ecosystem:
   - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions as well.
@@ -86,6 +94,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```pentaho_backup.pl``` - script to back up the local Pentaho BA or DI Server
   - ```ibm_bigsheets_config_git.pl``` - revision controls IBM BigSheets configurations from API to Git
   - ```datameer_config_git.pl``` - revision controls Datameer configurations from API to Git
+  - ```hadoop_config_diff.pl``` - tool to diff configs between Hadoop clusters XML from files or live HTTP config endpoints
   - ```solr_cli.pl``` - Solr CLI tool for fast and easy Solr / SolrCloud administration. Supports optional environment variables to minimize --switches (can be set permanently in `solr/solr-env.sh`). Uses the Solr Cores and Collections APIs, makes Solr administration a lot easier
 
 #### Manual Setup ####
