@@ -17,7 +17,7 @@ $DESCRIPTION="Tool for converting PDF to text for text analytics. Rustled this u
 
 Operates as a standard unix filter program taking any number of PDF files as arguments (or -f/--pdf comma separated files or PDF content in standard input) and outputting the text to standard output.
 
-See also Apache pdfbox and pdf2text unix tool";
+See also Apache PDFBox and pdf2text unix tool";
 
 $VERSION = "0.1";
 
