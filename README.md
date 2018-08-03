@@ -47,6 +47,7 @@ make
 
 The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/tools#manual-setup) section instead.
 
+Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/tools#detailed-build-instructions) further down for more information.
 
 ### Usage ###
 
