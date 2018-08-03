@@ -60,7 +60,7 @@ Environment variables are supported for convenience and also to hide credentials
 ##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [PyTools](https://github.com/harisekhon/pytools) repo. #####
 
 - Linux:
-  - ```anonymize.pl``` - anonymizes your configs / logs from files or stdin (for pasting to online forums, Apache Jira tickets etc)
+  - ```anonymize.pl``` - anonymizes your configs / logs from files or stdin (for pasting to online forums / Apache Jira tickets)
     - anonymizes:
       - hostnames / domains / FQDNs
       - email addresses
