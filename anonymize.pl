@@ -14,15 +14,15 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-$DESCRIPTION = "Scrub usernames/passwords, IP addresses, hostnames, emails addresses, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
+$DESCRIPTION = "Anonymizes usernames/passwords, IP addresses, hostnames, emails addresses, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
 
 Also has support for network device configurations including Cisco and Juniper, and should work on devices with similar configs as well.
 
 Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output (to redirect to a new file or copy buffer).
 
-Create a list of phrases to scrub from config by placing them in scrub_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored.
+Create a list of phrases to anonymize from config by placing them in anonymize_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored.
 
-Ignore phrases using a similar file scrub_ignore.conf, also adjacent to this program.";
+Ignore phrases using a similar file anonymize_ignore.conf, also adjacent to this program.";
 
 $VERSION = "0.9.2";
 
@@ -60,27 +60,27 @@ my $skip_python_tracebacks = 0;
 my $skip_exceptions = 0;
 
 %options = (
-    "f|files=s"     => [ \$file,        "File(s) to scrub, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
-    "a|all"         => [ \$all,         "Apply all scrubbings (careful this includes --host which can be overzealous and match too many things, in which case try more targeted scrubbings below)" ],
-    "i|ip"          => [ \$ip,          "Apply IPv4 IP address and Mac address format scrubbing. This and --ip-prefix below can end up matching version numbers (eg. \"HDP 2.2.4.2\" => \"HDP <ip>\"), in which case you can switch to putting your network prefix regex in scrub_custom.conf and using just use --custom instead" ],
-    "ip-prefix"     => [ \$ip_prefix,   "Apply IPv4 IP address prefix scrubbing but leave last octet to help distinguish nodes for cluster debugging (eg. \"node 172.16.100.51 failed to contact 172.16.100.52\" => \"<ip_prefix>.51 failed to contact <ip_prefix>.52\") , still applies full Mac address format scrubbing" ],
-    "H|host"        => [ \$host,        "Apply host, domain and fqdn format scrubbing (same as -odF). This may scrub some Java stack traces of class names also, in which case you can either try --skip-java-exceptions or avoid using --domain/--fqdn (or --host/--all which includes them), and instead use --custom and put your host/domain regex in scrub_custom.conf" ],
-    "o|hostname"    => [ \$hostname,    "Apply hostname format scrubbing (only works on \"<host>:<port>\" otherwise this would match everything (consider using --custom and putting your hostname convention regex in scrub_custom.conf to catch other shortname references)" ],
-    "d|domain"      => [ \$domain,      "Apply domain format scrubbing" ],
-    "F|fqdn"        => [ \$fqdn,        "Apply fqdn format scrubbing" ],
-    "P|port"        => [ \$port,        "Apply port scrubbing (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
-    "p|password"    => [ \$password,    "Apply password scrubbing against --password switches (can't catch MySQL -p<password> since it's too ambiguous with bunched arguments, can use --custom to work around). Also covers curl -u user:password" ],
-    "T|http-auth"   => [ \$http_auth,   "Apply HTTP auth scrubbing to replace http://username:password\@ => http://<user>:<password>\@. Also works with https://" ],
-    "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate scrub_custom.conf). These kerberos principals are scrubbed to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be scrubbed in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
-    "E|email"       => [ \$email,       "Apply email format scrubbing" ],
-    "x|proxy"       => [ \$proxy,       "Apply scrubbing to remove proxy host, user etc (eg. from curl -iv output). You should probably also apply --ip and --host if using this" ],
-    "n|network"     => [ \$network,     "Apply all network scrubbing, whether Cisco, ScreenOS, JunOS for secrets, auth, usernames, passwords, md5s, PSKs, AS, SNMP etc." ],
-    "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format scrubbing" ],
-    "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format scrubbing" ],
-    "j|junos"       => [ \$junos,       "Apply Juniper JunOS configuration format scrubbing (limited, please raise a ticket for extra matches to be added)" ],
-    "m|custom"      => [ \$custom,      "Apply custom phrase scrubbing (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in scrub_custom.conf). Matching is case insensitive. Recommended to use to work around --host matching too many things" ],
+    "f|files=s"     => [ \$file,        "File(s) to anonymize, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
+    "a|all"         => [ \$all,         "Apply all anonymizations (careful this includes --host which can be overzealous and match too many things, in which case try more targeted anonymizations below)" ],
+    "i|ip"          => [ \$ip,          "Apply IPv4 IP address and Mac address format anonymization. This and --ip-prefix below can end up matching version numbers (eg. \"HDP 2.2.4.2\" => \"HDP <ip>\"), in which case you can switch to putting your network prefix regex in anonymize_custom.conf and using just use --custom instead" ],
+    "ip-prefix"     => [ \$ip_prefix,   "Apply IPv4 IP address prefix anonymization but leave last octet to help distinguish nodes for cluster debugging (eg. \"node 172.16.100.51 failed to contact 172.16.100.52\" => \"<ip_prefix>.51 failed to contact <ip_prefix>.52\") , still applies full Mac address format anonymization" ],
+    "H|host"        => [ \$host,        "Apply host, domain and fqdn format anonymization (same as -odF). This may anonymize some Java stack traces of class names also, in which case you can either try --skip-java-exceptions or avoid using --domain/--fqdn (or --host/--all which includes them), and instead use --custom and put your host/domain regex in anonymize_custom.conf" ],
+    "o|hostname"    => [ \$hostname,    "Apply hostname format anonymization (only works on \"<host>:<port>\" otherwise this would match everything (consider using --custom and putting your hostname convention regex in anonymize_custom.conf to catch other shortname references)" ],
+    "d|domain"      => [ \$domain,      "Apply domain format anonymization" ],
+    "F|fqdn"        => [ \$fqdn,        "Apply fqdn format anonymization" ],
+    "P|port"        => [ \$port,        "Apply port anonymization (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
+    "p|password"    => [ \$password,    "Apply password anonymization against --password switches (can't catch MySQL -p<password> since it's too ambiguous with bunched arguments, can use --custom to work around). Also covers curl -u user:password" ],
+    "T|http-auth"   => [ \$http_auth,   "Apply HTTP auth anonymization to replace http://username:password\@ => http://<user>:<password>\@. Also works with https://" ],
+    "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate anonymize_custom.conf). These kerberos principals are anonymizebed to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be anonymizebed in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
+    "E|email"       => [ \$email,       "Apply email format anonymization" ],
+    "x|proxy"       => [ \$proxy,       "Apply anonymization to remove proxy host, user etc (eg. from curl -iv output). You should probably also apply --ip and --host if using this" ],
+    "n|network"     => [ \$network,     "Apply all network anonymization, whether Cisco, ScreenOS, JunOS for secrets, auth, usernames, passwords, md5s, PSKs, AS, SNMP etc." ],
+    "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format anonymization" ],
+    "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format anonymization" ],
+    "j|junos"       => [ \$junos,       "Apply Juniper JunOS configuration format anonymization (limited, please raise a ticket for extra matches to be added)" ],
+    "m|custom"      => [ \$custom,      "Apply custom phrase anonymization (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in anonymize_custom.conf). Matching is case insensitive. Recommended to use to work around --host matching too many things" ],
     "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
-    "skip-java-exceptions"   => [ \$skip_java_exceptions,   "Skip lines with Java Exceptions from generic host/domain/fqdn scrubbing to prevent scrubbing java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate scrub_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
+    "skip-java-exceptions"   => [ \$skip_java_exceptions,   "Skip lines with Java Exceptions from generic host/domain/fqdn anonymization to prevent anonymization java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate anonymize_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
     "skip-python-tracebacks" => [ \$skip_python_tracebacks, "Skip lines with Python Tracebacks, similar to --skip-java-exceptions" ],
     "e|skip-exceptions"      => [ \$skip_exceptions,        "Skip both Java exceptions and Python tracebacks (recommended)" ],
 );
@@ -117,7 +117,7 @@ unless(
     $screenos +
     $junos
     > 0){
-    usage "must specify one or more scrubbing types to apply";
+    usage "must specify one or more anonymization types to apply";
 }
 ($ip and $ip_prefix) and usage "cannot specify both --ip and --ip-prefix, they are mutually exclusive behaviours";
 if($skip_exceptions){
@@ -129,31 +129,31 @@ my @files = parse_file_option($file, "args are files");
 
 my @custom_phrases;
 if($custom){
-    my $scrub_custom_conf = dirname(__FILE__) . "/scrub_custom.conf";
+    my $anonymize_custom_conf = dirname(__FILE__) . "/anonymize_custom.conf";
     my $fh;
-    if(open $fh, $scrub_custom_conf){
+    if(open $fh, $anonymize_custom_conf){
         while(<$fh>){
             chomp;
             s/#.*//;
             next if /^\s*$/;
             push(@custom_phrases, $_);
         }
-        #@custom_phrases or warn "Failed to read any custom phrases from '$scrub_custom_conf'\n";
+        #@custom_phrases or warn "Failed to read any custom phrases from '$anonymize_custom_conf'\n";
         close $fh;
     } else {
-        warn "warning: failed to open file $scrub_custom_conf, continuing without...\n";
+        warn "warning: failed to open file $anonymize_custom_conf, continuing without...\n";
     }
 }
 
-my $scrub_ignore_conf = dirname(__FILE__) . "/scrub_ignore.conf";
+my $anonymize_ignore_conf = dirname(__FILE__) . "/anonymize_ignore.conf";
 my $fh;
 my $ignore_regex;
-if(open $fh, $scrub_ignore_conf){
+if(open $fh, $anonymize_ignore_conf){
     while(<$fh>){
         chomp;
         s/#.*//;
         next if /^\s*$/;
-        isRegex($_) or die "Invalid regex detected in $scrub_ignore_conf: $_\n";
+        isRegex($_) or die "Invalid regex detected in $anonymize_ignore_conf: $_\n";
         $ignore_regex .= "$_|";
     }
     close $fh;
@@ -163,13 +163,13 @@ if(open $fh, $scrub_ignore_conf){
         $ignore_regex = qr/$ignore_regex/o;
         vlog3 "ignore regex: $ignore_regex";
     } else {
-        warn "Failed to read any regex to ignore from '$scrub_ignore_conf'\n";
+        warn "Failed to read any regex to ignore from '$anonymize_ignore_conf'\n";
     }
 } else {
-    warn "warning: failed to open file $scrub_ignore_conf, continuing without...\n";
+    warn "warning: failed to open file $anonymize_ignore_conf, continuing without...\n";
 }
 
-sub scrub($){
+sub anonymize($){
     my $string = shift;
     $string =~ /(\r?\n)$/;
     my $line_ending = $1;
@@ -178,28 +178,28 @@ sub scrub($){
     # this doesn't chomp \r, only \n
     #chomp $string;
     $string =~ s/(?:\r?\n)$//;
-    #return "$string$line_ending" if scrub_ignore($string);
-    $string = scrub_ip_prefix   ($string)  if $ip_prefix;
-    $string = scrub_ip          ($string)  if $ip and not $ip_prefix;
-    $string = scrub_kerberos    ($string)  if $kerberos; # must be done before scrub_email and scrub_host in order to match, otherwise scrub_email will leave user@<email_regex>
-    $string = scrub_email       ($string)  if $email;    # must be done before scrub_host in order to match
-    $string = scrub_host        ($string)  if $host;
-    $string = scrub_fqdn        ($string)  if $fqdn     and not $host;
-    $string = scrub_domain      ($string)  if $domain   and not $host;
-    $string = scrub_hostname    ($string)  if $hostname and not $host;
-    $string = scrub_password    ($string)  if $password;
-    $string = scrub_port        ($string)  if $port;
-    $string = scrub_http_auth   ($string)  if $http_auth;
-    $string = scrub_proxy       ($string)  if $proxy;
-    $string = scrub_network     ($string)  if $network;
-    $string = scrub_cisco       ($string)  if $cisco;
-    $string = scrub_screenos    ($string)  if $screenos;
-    $string = scrub_junos       ($string)  if $junos;
-    $string = scrub_custom      ($string)  if $custom;
+    #return "$string$line_ending" if anonymize_ignore($string);
+    $string = anonymize_ip_prefix   ($string)  if $ip_prefix;
+    $string = anonymize_ip          ($string)  if $ip and not $ip_prefix;
+    $string = anonymize_kerberos    ($string)  if $kerberos; # must be done before anonymize_email and anonymize_host in order to match, otherwise anonymize_email will leave user@<email_regex>
+    $string = anonymize_email       ($string)  if $email;    # must be done before anonymize_host in order to match
+    $string = anonymize_host        ($string)  if $host;
+    $string = anonymize_fqdn        ($string)  if $fqdn     and not $host;
+    $string = anonymize_domain      ($string)  if $domain   and not $host;
+    $string = anonymize_hostname    ($string)  if $hostname and not $host;
+    $string = anonymize_password    ($string)  if $password;
+    $string = anonymize_port        ($string)  if $port;
+    $string = anonymize_http_auth   ($string)  if $http_auth;
+    $string = anonymize_proxy       ($string)  if $proxy;
+    $string = anonymize_network     ($string)  if $network;
+    $string = anonymize_cisco       ($string)  if $cisco;
+    $string = anonymize_screenos    ($string)  if $screenos;
+    $string = anonymize_junos       ($string)  if $junos;
+    $string = anonymize_custom      ($string)  if $custom;
     return "$string$line_ending";
 }
 
-sub scrub_custom($){
+sub anonymize_custom($){
     my $string = shift;
     my $phrase_regex = "";
     foreach(@custom_phrases){
@@ -210,17 +210,17 @@ sub scrub_custom($){
     $phrase_regex =~ s/\|$//;
     #print "phrase_phrase: <$phrase_regex>\n";
     if($phrase_regex){
-        $string =~ s/(\b|[^A-Za-z])(?:$phrase_regex)(\b|[^A-Za-z])/$1<custom_scrubbed>$2/gio;
+        $string =~ s/(\b|[^A-Za-z])(?:$phrase_regex)(\b|[^A-Za-z])/$1<custom_anonymizebed>$2/gio;
         #foreach(@custom_phrases){
         #    chomp;
-        #    $string =~ s/(\b|_)$_(\b|_)/$1<custom_scrubbed>$2/gio;
+        #    $string =~ s/(\b|_)$_(\b|_)/$1<custom_anonymizebed>$2/gio;
         #}
     }
     return $string;
 }
 
 # This used to do one ignore per line, but that is much too inflexible as we may want to ignore part of a line but not the whole line
-#sub scrub_ignore($){
+#sub anonymize_ignore($){
 #    my $string = shift;
 #    my $phrase_regex = "";
 #    foreach(@ignore_lines){
@@ -236,7 +236,7 @@ sub scrub_custom($){
 #    return 0;
 #}
 
-sub scrub_mac($){
+sub anonymize_mac($){
     my $string = shift;
     $string =~ s/$mac_regex/<mac>/g;
     # network device format Mac address
@@ -244,13 +244,13 @@ sub scrub_mac($){
     return $string;
 }
 
-sub scrub_ip($){
+sub anonymize_ip($){
     my $string = shift;
     # leave cidr mask for debugging clusters
     #$string =~ s/$ip_regex\/\d+/<ip>\/<cidr>/go;
     #$string =~ s/$subnet_mask_regex\/\d+/<subnet>\/<cidr>/go;
 
-    # unfortunately this scrubs /usr/hdp/2.3.0.0-2557 => /usr/hdp/<ip>-2557
+    # unfortunately this anonymizes /usr/hdp/2.3.0.0-2557 => /usr/hdp/<ip>-2557
     #$string =~ s/$ip_regex/<ip>/go;
     # make sure it's not part of a bigger numeric string like a version number, but still catch ip:port
     $string =~ s/$ip_regex(?![^:]\d+)/<ip>/go;
@@ -258,19 +258,19 @@ sub scrub_ip($){
     # this will never match now that $ip_regex permits ending in 0 for cidr
     #$string =~ s/$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet>/go;
 
-    $string = scrub_mac($string);
+    $string = anonymize_mac($string);
     return $string;
 }
 
-sub scrub_ip_prefix($){
+sub anonymize_ip_prefix($){
     my $string = shift;
     $string =~ s/$ip_prefix_regex(?!\.\d+\.\d+)/<ip_prefix>./go;
     $string =~ s/$subnet_mask_regex/<subnet>/go;
-    $string = scrub_mac($string);
+    $string = anonymize_mac($string);
     return $string;
 }
 
-sub scrub_password($){
+sub anonymize_password($){
     my $string = shift;
     my $pw_regex = qr/(?:'[^']+'|"[^"]+"|[^\s]+)/;
     $string =~ s/(--password(?:=|\s+))$pw_regex/$1<password>/go;
@@ -279,17 +279,17 @@ sub scrub_password($){
     return $string;
 }
 
-sub scrub_port($){
+sub anonymize_port($){
     my $string = shift;
     $string =~ s/:\d+/:<port>/go;
     return $string;
 }
 
 ##############################
-# this host based scrubbing will sometimes scrub class names in debug messages and logs, isJavaException & isPythonTraceback minimize it, but there is always a slight chance of not scrubbing sensitive hosts if using host name scrubbing must double check the output
-# the alternative is to not use hostname/domain/fqdn scrubbing and instead put your domains and host naming conventions in to scrub_custom.conf and use --custom
+# this host based anonymization will sometimes anonymize class names in debug messages and logs, isJavaException & isPythonTraceback minimize it, but there is always a slight chance of not anonymization sensitive hosts if using host name anonymization must double check the output
+# the alternative is to not use hostname/domain/fqdn anonymization and instead put your domains and host naming conventions in to anonymize_custom.conf and use --custom
 
-sub scrub_hostname($){
+sub anonymize_hostname($){
     my $string = shift;
     if($skip_java_exceptions){
         return $string if isJavaException($string);
@@ -303,14 +303,14 @@ sub scrub_hostname($){
     #  negative lookahead for :NN:NN
     #$string =~ s/(?<!\w\]\s)(?<!\d{2}:)(?!\d{1,2}:\d{2}(?:\d{3})?\s|$ignore_regex|\d+[^A-Za-z0-9])$hostname_regex(?<!\.java)(?<!\sid):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
     # (?!\d+[^A-Za-z0-9] prevents the match from being just a number as updated hostname_regex permits numbers as valid host identifiers that are being used in the wil in FQDNs
-    # (?!<\.) prevents hostname matching mid-filename otherwise matches filename extensions - XXX: however this is slightly dangerous as sentences without a space after the full stop won't be scrubbed
+    # (?!<\.) prevents hostname matching mid-filename otherwise matches filename extensions - XXX: however this is slightly dangerous as sentences without a space after the full stop won't be anonymizebed
     # XXX: shouldn't really do negative lookbehind for .py as that's a valid IANA domain - review this
     $string =~ s/(?<!\w\]\s)(?<!\.)(?!\d+[^A-Za-z0-9]|$ignore_regex)$hostname_regex(?i:(?<!\.java)(?<!\.py)(?<!\sid)):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
     $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/g;
     return $string;
 }
 
-sub scrub_domain($){
+sub anonymize_domain($){
     my $string = shift;
     if($skip_java_exceptions){
         return $string if isJavaException($string);
@@ -327,7 +327,7 @@ sub scrub_domain($){
     return $string;
 }
 
-sub scrub_fqdn($){
+sub anonymize_fqdn($){
     my $string = shift;
     if($skip_java_exceptions){
         return $string if isJavaException($string);
@@ -348,14 +348,14 @@ sub isGenericPythonLogLine(){
     $line =~ /\s$filename_regex.py:\d+ - loglevel=[\w\.]+\s*$/
 }
 
-sub scrub_email($){
+sub anonymize_email($){
     my $string = shift;
     $string =~ s/$email_regex/<email>/go;
     return $string;
 }
 
-# initially built to scrub 'curl -iv' outputs
-sub scrub_proxy($){
+# initially built to anonymize 'curl -iv' outputs
+sub anonymize_proxy($){
     my $string = shift;
     # not just applying --host and --ip here as it may strip too much from a larger output
     # this allows the user to choose and additionally specify --host and --ip if desired
@@ -366,14 +366,14 @@ sub scrub_proxy($){
     $string =~ s/(Connection #\d+ to host )$host_regex/$1<proxy_host>/go;
     # Via: 1.1 10.1.100.218 (Product Type and version)
     $string =~ s/(Via:\s[^\s]+\s)$ip_regex.*/$1<proxy_ip>/go;
-    # trying to scrub passwords on the CLI will match too aggressively
+    # trying to anonymize passwords on the CLI will match too aggressively
     #$string =~ s/curl\s.+U.+\s//go;
-    # if you are scrubbing proxy addresses then you almost certainly want to scrub the http_auth too
-    $string = scrub_http_auth($string);
+    # if you are anonymization proxy addresses then you almost certainly want to anonymize the http_auth too
+    $string = anonymize_http_auth($string);
     return $string;
 }
 
-sub scrub_http_auth($){
+sub anonymize_http_auth($){
     my $string = shift;
     $string =~ s/(https?:\/\/)[^:]+:[^\@]*\@/$1<user>:<password>\@/go;
     $string =~ s/([\w-]*[\s-](?:Authentication|Authorization):\s*(?:Basic|Digest)\s+).+$/$1<auth_token>/go;
@@ -382,7 +382,7 @@ sub scrub_http_auth($){
     return $string;
 }
 
-sub scrub_kerberos($){
+sub anonymize_kerberos($){
     my $string = shift;
     if($string =~ /\/_HOST\@/){
         # only take the realm off not the
@@ -394,32 +394,32 @@ sub scrub_kerberos($){
     return $string;
 }
 
-sub scrub_host($){
+sub anonymize_host($){
     my $string = shift;
-    $string = scrub_fqdn($string);
-    $string = scrub_domain($string);
-    $string = scrub_hostname($string);
+    $string = anonymize_fqdn($string);
+    $string = anonymize_domain($string);
+    $string = anonymize_hostname($string);
     return $string;
 }
 ##############################
 
-sub scrub_network($){
+sub anonymize_network($){
     my $string = shift;
-    $string = scrub_cisco($string);
-    $string = scrub_screenos($string);
-    $string = scrub_junos($string);
-    $string = scrub_network_generic($string);
+    $string = anonymize_cisco($string);
+    $string = anonymize_screenos($string);
+    $string = anonymize_junos($string);
+    $string = anonymize_network_generic($string);
     return $string;
 }
 
-sub scrub_network_generic($){
+sub anonymize_network_generic($){
     my $string = shift;
     $string =~ s/username .*/username <username>/;
     $string =~ s/syscontact .*/syscontact <syscontact>/;
     return $string;
 }
 
-sub scrub_cisco($){
+sub anonymize_cisco($){
     my $string = shift;
     $string =~ s/username .+ (?:password|secret) .*?$/username <username> password <password>/g;
     $string =~ s/password .*?$/password <password>/g;
@@ -429,27 +429,27 @@ sub scrub_cisco($){
     $string =~ s/(standby\s+\d+\s+authentication).*/$1 <auth>/g;
     $string =~ s/\sremote-as\s\d+/remote-as <AS>/g;
     $string =~ s/\sdescription\s.*$/description <description>/g;
-    $string = scrub_network_generic($string) unless $network;
+    $string = anonymize_network_generic($string) unless $network;
     return $string;
 }
 
-sub scrub_screenos($){
+sub anonymize_screenos($){
     my $string = shift;
-    $string =~ s/set admin (name|user|password) "?.+"?/set admin $1 <scrubbed>/g;
-    $string =~ s/set snmp (community|host) "?.+"?/set snmp $1 <scrubbed>/g;
+    $string =~ s/set admin (name|user|password) "?.+"?/set admin $1 <anonymizebed>/g;
+    $string =~ s/set snmp (community|host) "?.+"?/set snmp $1 <anonymizebed>/g;
     $string =~ s/ md5 "?.+"?/ md5 <md5>/g;
     $string =~ s/ key [^\s]+ (?:!enable)/ key <key>/g;
     $string =~ s/set nsmgmt init id [^\s]+/set nsmgmt init id <id>/g;
     $string =~ s/preshare .+? /preshare <psk> /g;
-    $string = scrub_network_generic($string) unless $network;
+    $string = anonymize_network_generic($string) unless $network;
     return $string;
 }
 
-sub scrub_junos($){
+sub anonymize_junos($){
     my $string = shift;
     $string =~ s/pre-shared-key\s.*/pre-shared-key <psk>/g;
     $string =~ s/\shome\s+.*/ home <home>/g;
-    $string = scrub_network_generic($string) unless $network;
+    $string = anonymize_network_generic($string) unless $network;
     return $string;
 }
 
@@ -458,8 +458,8 @@ sub scrub_junos($){
 if(@files){
     foreach my $file (@files){
         open(my $fh, $file) or die "Failed to open file '$file': $!\n";
-        while(<$fh>){ print scrub($_) }
+        while(<$fh>){ print anonymize($_) }
     }
 } else {
-    while(<STDIN>){ print scrub($_) }
+    while(<STDIN>){ print anonymize($_) }
 }
