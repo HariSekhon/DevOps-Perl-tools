@@ -68,7 +68,7 @@ Environment variables are supported for convenience and also to hide credentials
       - Kerberos principals
       - Cisco & Juniper ScreenOS configurations passwords, shared keys and SNMP strings
     - ```anonymize_custom.conf``` - put regex of your Name/Company/Project/Database/Tables to anonymize to ```<custom>```
-    - placeholder tokens indicating what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
+    - placeholder tokens indicate what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
   - ```sqlcase.pl``` - capitalizes SQL code in files or stdin:
     - ```*case.pl``` - more specific language support for Hive, Impala, Cassandra CQL, Couchbase N1QL, MySQL, PostgreSQL, Apache Drill, Microsoft SQL Server, Oracle, Pig Latin, Neo4j, InfluxDB and Docker
