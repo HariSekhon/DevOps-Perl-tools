@@ -72,7 +72,7 @@ Environment variables are supported for convenience and also to hide credentials
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
   - ```sqlcase.pl``` - capitalizes SQL code in files or stdin:
     - ```*case.pl``` - more specific language support for Hive, Impala, Cassandra CQL, Couchbase N1QL, MySQL, PostgreSQL, Apache Drill, Microsoft SQL Server, Oracle, Pig Latin, Neo4j, InfluxDB and Docker
-    - written to help clean up docs and SQL scripts (I don't even bother writing capitalising SQL code any more I just run it once through this at the end from a vim shortcut)
+    - written to help clean up docs and SQL scripts (I don't even bother writing capitalised SQL code any more I just run it through this via a vim shortcut)
   - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
   - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
   - ```titlecase.pl``` - capitalizes the first letter of each input word in files or stdin
