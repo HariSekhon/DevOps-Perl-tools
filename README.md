@@ -61,7 +61,12 @@ Environment variables are supported for convenience and also to hide credentials
 
 - Linux:
   - ```anonymize.pl``` - anonymizes your configs / logs for pasting to online forums, Apache Jira tickets etc
-    - replaces hostnames/domains/FQDNs, email addresses, IP + MAC addresses, Kerberos principals, Cisco/Juniper passwords/shared keys and SNMP strings
+    - anonymizes:
+      - hostnames / domains / FQDNs
+      - email addresses
+      - IP + MAC addresses
+      - Kerberos principals
+      - Cisco & Juniper ScreenOS configurations passwords, shared keys and SNMP strings
     - ```anonymize_custom.conf``` - put regex of your Name/Company/Project/Database/Tables to anonymize to ```<custom>```
     - placeholder tokens indicating what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
