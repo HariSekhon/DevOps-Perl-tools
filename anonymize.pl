@@ -71,7 +71,7 @@ my $skip_exceptions = 0;
     "P|port"        => [ \$port,        "Apply port anonymization (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
     "p|password"    => [ \$password,    "Apply password anonymization against --password switches (can't catch MySQL -p<password> since it's too ambiguous with bunched arguments, can use --custom to work around). Also covers curl -u user:password" ],
     "T|http-auth"   => [ \$http_auth,   "Apply HTTP auth anonymization to replace http://username:password\@ => http://<user>:<password>\@. Also works with https://" ],
-    "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate anonymize_custom.conf). These kerberos principals are anonymizebed to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be anonymizebed in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
+    "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate anonymize_custom.conf). These kerberos principals are anonymized to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be anonymized in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
     "E|email"       => [ \$email,       "Apply email format anonymization" ],
     "x|proxy"       => [ \$proxy,       "Apply anonymization to remove proxy host, user etc (eg. from curl -iv output). You should probably also apply --ip and --host if using this" ],
     "n|network"     => [ \$network,     "Apply all network anonymization, whether Cisco, ScreenOS, JunOS for secrets, auth, usernames, passwords, md5s, PSKs, AS, SNMP etc." ],
@@ -210,10 +210,10 @@ sub anonymize_custom($){
     $phrase_regex =~ s/\|$//;
     #print "phrase_phrase: <$phrase_regex>\n";
     if($phrase_regex){
-        $string =~ s/(\b|[^A-Za-z])(?:$phrase_regex)(\b|[^A-Za-z])/$1<custom_anonymizebed>$2/gio;
+        $string =~ s/(\b|[^A-Za-z])(?:$phrase_regex)(\b|[^A-Za-z])/$1<custom_anonymized>$2/gio;
         #foreach(@custom_phrases){
         #    chomp;
-        #    $string =~ s/(\b|_)$_(\b|_)/$1<custom_anonymizebed>$2/gio;
+        #    $string =~ s/(\b|_)$_(\b|_)/$1<custom_anonymized>$2/gio;
         #}
     }
     return $string;
@@ -303,7 +303,7 @@ sub anonymize_hostname($){
     #  negative lookahead for :NN:NN
     #$string =~ s/(?<!\w\]\s)(?<!\d{2}:)(?!\d{1,2}:\d{2}(?:\d{3})?\s|$ignore_regex|\d+[^A-Za-z0-9])$hostname_regex(?<!\.java)(?<!\sid):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
     # (?!\d+[^A-Za-z0-9] prevents the match from being just a number as updated hostname_regex permits numbers as valid host identifiers that are being used in the wil in FQDNs
-    # (?!<\.) prevents hostname matching mid-filename otherwise matches filename extensions - XXX: however this is slightly dangerous as sentences without a space after the full stop won't be anonymizebed
+    # (?!<\.) prevents hostname matching mid-filename otherwise matches filename extensions - XXX: however this is slightly dangerous as sentences without a space after the full stop won't be anonymized
     # XXX: shouldn't really do negative lookbehind for .py as that's a valid IANA domain - review this
     $string =~ s/(?<!\w\]\s)(?<!\.)(?!\d+[^A-Za-z0-9]|$ignore_regex)$hostname_regex(?i:(?<!\.java)(?<!\.py)(?<!\sid)):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
     $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/g;
@@ -435,8 +435,8 @@ sub anonymize_cisco($){
 
 sub anonymize_screenos($){
     my $string = shift;
-    $string =~ s/set admin (name|user|password) "?.+"?/set admin $1 <anonymizebed>/g;
-    $string =~ s/set snmp (community|host) "?.+"?/set snmp $1 <anonymizebed>/g;
+    $string =~ s/set admin (name|user|password) "?.+"?/set admin $1 <anonymized>/g;
+    $string =~ s/set snmp (community|host) "?.+"?/set snmp $1 <anonymized>/g;
     $string =~ s/ md5 "?.+"?/ md5 <md5>/g;
     $string =~ s/ key [^\s]+ (?:!enable)/ key <key>/g;
     $string =~ s/set nsmgmt init id [^\s]+/set nsmgmt init id <id>/g;
