@@ -14,7 +14,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-$DESCRIPTION = "Anonymizes usernames/passwords, IP addresses, hostnames, emails addresses, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets/jiras or pastebin like websites.
+$DESCRIPTION = "Anonymizes usernames, passwords, IP addresses, hostnames, emails addresses, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets, Jiras or pastebin like websites.
 
 Also has support for network device configurations including Cisco and Juniper, and should work on devices with similar configs as well.
 
@@ -24,7 +24,7 @@ Create a list of phrases to anonymize from config by placing them in anonymize_c
 
 Ignore phrases using a similar file anonymize_ignore.conf, also adjacent to this program.";
 
-$VERSION = "0.9.2";
+$VERSION = "0.9.3";
 
 use strict;
 use warnings;
@@ -79,7 +79,7 @@ my $skip_exceptions = 0;
     "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format anonymization" ],
     "j|junos"       => [ \$junos,       "Apply Juniper JunOS configuration format anonymization (limited, please raise a ticket for extra matches to be added)" ],
     "m|custom"      => [ \$custom,      "Apply custom phrase anonymization (add your Name, Company Name etc to the list of blacklisted words/phrases one per line in anonymize_custom.conf). Matching is case insensitive. Recommended to use to work around --host matching too many things" ],
-    "r|cr"          => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
+    "r|strip-cr"    => [ \$cr,          "Strip carriage returns ('\\r') from end of lines leaving only newlines ('\\n')" ],
     "skip-java-exceptions"   => [ \$skip_java_exceptions,   "Skip lines with Java Exceptions from generic host/domain/fqdn anonymization to prevent anonymization java classes needed for debugging stack traces. This is slightly risky as it may potentially miss hostnames/fqdns if colocated on the same lines. Should populate anonymize_custom.conf with your domain to remove those instances. After tighter improvements around matching only IANA TLDs this should be less needed now" ],
     "skip-python-tracebacks" => [ \$skip_python_tracebacks, "Skip lines with Python Tracebacks, similar to --skip-java-exceptions" ],
     "e|skip-exceptions"      => [ \$skip_exceptions,        "Skip both Java exceptions and Python tracebacks (recommended)" ],
