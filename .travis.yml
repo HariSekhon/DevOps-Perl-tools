@@ -39,10 +39,10 @@ install:
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # fixed core build to switch to cpanm for speed
-  - make
+  - travis_retry make
 
 script:
-  - make test
+  - travis_retry make test
 
 after_success:
   - curl --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/tools/trigger/6b4c6eeb-ed48-4e01-954f-ec2e0692ca35/
