@@ -22,7 +22,10 @@ Works like a standard unix filter program, taking input from standard input or f
 
 Create a list of phrases to anonymize from config by placing them in anonymize_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored.
 
-Ignore phrases using a similar file anonymize_ignore.conf, also adjacent to this program.";
+Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to this program.
+
+There is also a Python version Anonymize.py available at https://github.com/harisekhon/pytools
+";
 
 $VERSION = "0.9.3";
 
