@@ -284,6 +284,7 @@ sub anonymize_user($){
     my $string = shift;
     $string =~ s/(-user[=\s]+)\S+/$1<user>/go;
     $string =~ s/\/home\/\S+/\/home\/<user>/go;
+    $string =~ s/(user\s*=\s*)\S+/$1<user>/go;
     return $string;
 }
 
