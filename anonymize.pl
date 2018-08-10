@@ -27,7 +27,7 @@ Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to thi
 There is also a Python version Anonymize.py available at https://github.com/harisekhon/pytools
 ";
 
-$VERSION = "0.9.3";
+$VERSION = "0.10.0";
 
 use strict;
 use warnings;
@@ -50,6 +50,7 @@ my $email     = 0;
 my $http_auth = 0;
 my $kerberos  = 0;
 my $network   = 0;
+my $user      = 0;
 my $password  = 0;
 my $port      = 0;
 my $proxy     = 0;
@@ -72,11 +73,12 @@ my $skip_exceptions = 0;
     "d|domain"      => [ \$domain,      "Apply domain format anonymization" ],
     "F|fqdn"        => [ \$fqdn,        "Apply fqdn format anonymization" ],
     "P|port"        => [ \$port,        "Apply port anonymization (not included in --all since you usually want to include port numbers for cluster or service debugging)" ],
+    "u|user"        => [ \$user,        "Apply user anonymization (user=<user>). Auto enables --password)" ],
     "p|password"    => [ \$password,    "Apply password anonymization against --password switches (can't catch MySQL -p<password> since it's too ambiguous with bunched arguments, can use --custom to work around). Also covers curl -u user:password" ],
     "T|http-auth"   => [ \$http_auth,   "Apply HTTP auth anonymization to replace http://username:password\@ => http://<user>:<password>\@. Also works with https://" ],
     "k|kerberos"    => [ \$kerberos,    "Kerberos 5 principals in the form <primary>@<realm> or <primary>/<instance>@<realm> (where <realm> must match a valid domain name - otherwise use --custom and populate anonymize_custom.conf). These kerberos principals are anonymized to <kerberos_principal>. There is a special exemption for Hadoop Kerberos principals such as NN/_HOST@<realm> which preserves the literal '_HOST' instance since that's useful to know for debugging, the principal and realm will still be anonymized in those cases (if wanting to retain NN/_HOST then use --domain instead of --kerberos). This is applied before --email in order to not prevent the email replacement leaving this as user/host\@realm to user/<email_regex>, which would have exposed 'user'" ],
     "E|email"       => [ \$email,       "Apply email format anonymization" ],
-    "x|proxy"       => [ \$proxy,       "Apply anonymization to remove proxy host, user etc (eg. from curl -iv output). You should probably also apply --ip and --host if using this" ],
+    "x|proxy"       => [ \$proxy,       "Apply anonymization to remove proxy host, user etc (eg. from curl -iv output). You should probably also apply --ip and --host if using this.Auto enables --http-auth" ],
     "n|network"     => [ \$network,     "Apply all network anonymization, whether Cisco, ScreenOS, JunOS for secrets, auth, usernames, passwords, md5s, PSKs, AS, SNMP etc." ],
     "c|cisco"       => [ \$cisco,       "Apply Cisco IOS/IOS-XR/NX-OS configuration format anonymization" ],
     "s|screenos"    => [ \$screenos,    "Apply Juniper ScreenOS configuration format anonymization" ],
@@ -114,6 +116,7 @@ unless(
     $email +
     $kerberos +
     $network +
+    $user +
     $password +
     $port +
     $proxy +
@@ -126,6 +129,9 @@ unless(
 if($skip_exceptions){
     $skip_python_tracebacks = 1;
     $skip_java_exceptions   = 1;
+}
+if($user){
+    $password = 1;
 }
 
 my @files = parse_file_option($file, "args are files");
@@ -190,6 +196,7 @@ sub anonymize($){
     $string = anonymize_fqdn        ($string)  if $fqdn     and not $host;
     $string = anonymize_domain      ($string)  if $domain   and not $host;
     $string = anonymize_hostname    ($string)  if $hostname and not $host;
+    $string = anonymize_user        ($string)  if $user;
     $string = anonymize_password    ($string)  if $password;
     $string = anonymize_port        ($string)  if $port;
     $string = anonymize_http_auth   ($string)  if $http_auth;
@@ -256,10 +263,10 @@ sub anonymize_ip($){
     # unfortunately this anonymizes /usr/hdp/2.3.0.0-2557 => /usr/hdp/<ip>-2557
     #$string =~ s/$ip_regex/<ip>/go;
     # make sure it's not part of a bigger numeric string like a version number, but still catch ip:port
-    $string =~ s/$ip_regex(?![^:]\d+)/<ip>/go;
+    $string =~ s/(?<!\d\.)$ip_regex(?![^:]\d+)/<ip>/go;
 
     # this will never match now that $ip_regex permits ending in 0 for cidr
-    #$string =~ s/$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet>/go;
+    $string =~ s/(?<!\d\.)$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet>/go;
 
     $string = anonymize_mac($string);
     return $string;
@@ -267,16 +274,24 @@ sub anonymize_ip($){
 
 sub anonymize_ip_prefix($){
     my $string = shift;
-    $string =~ s/$ip_prefix_regex(?!\.\d+\.\d+)/<ip_prefix>./go;
-    $string =~ s/$subnet_mask_regex/<subnet>/go;
+    $string =~ s/(?<!\d\.)$ip_prefix_regex(?!\.\d+\.\d+)/<ip_prefix>./go;
+    $string =~ s/(?<!\d\.)$subnet_mask_regex/<subnet>/go;
     $string = anonymize_mac($string);
+    return $string;
+}
+
+sub anonymize_user($){
+    my $string = shift;
+    $string =~ s/(-user[=\s]+)\S+/$1<user>/go;
+    $string =~ s/\/home\/\S+/\/home\/<user>/go;
     return $string;
 }
 
 sub anonymize_password($){
     my $string = shift;
     my $pw_regex = qr/(?:'[^']+'|"[^"]+"|[^\s]+)/;
-    $string =~ s/(--password(?:=|\s+))$pw_regex/$1<password>/go;
+    # openssl uses -passin switch
+    $string =~ s/(\b(?:password|passin)(?:=|\s+))$pw_regex/$1<password>/go;
     #$string =~ s/(\bcurl\s.*?-[A-Za-tv-z]*u(?:=|\s+)?)[^:\s]+:[^\s]+/$1<user>:<password>/go;
     $string =~ s/(\bcurl\s.*?-[A-Za-tv-z]*u(?:=|\s+)?)[^:\s]+:$pw_regex/$1<user>:<password>/go;
     return $string;
