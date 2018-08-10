@@ -100,6 +100,7 @@ if($all){
     $http_auth = 1;
     $kerberos  = 1;
     $network   = 1;
+    $user      = 1;
     $password  = 1;
     $proxy     = 1;
     $custom    = 1;
@@ -220,7 +221,7 @@ sub anonymize_custom($){
     $phrase_regex =~ s/\|$//;
     #print "phrase_phrase: <$phrase_regex>\n";
     if($phrase_regex){
-        $string =~ s/(\b|[^A-Za-z])(?:$phrase_regex)(\b|[^A-Za-z])/$1<custom_anonymized>$2/gio;
+        $string =~ s/(\b|[^A-Za-z])(?:$phrase_regex)(\b|[^A-Za-z])/$1<custom>$2/gio;
         #foreach(@custom_phrases){
         #    chomp;
         #    $string =~ s/(\b|_)$_(\b|_)/$1<custom_anonymized>$2/gio;
@@ -324,7 +325,17 @@ sub anonymize_hostname($){
     # (?!\d+[^A-Za-z0-9] prevents the match from being just a number as updated hostname_regex permits numbers as valid host identifiers that are being used in the wil in FQDNs
     # (?!<\.) prevents hostname matching mid-filename otherwise matches filename extensions - XXX: however this is slightly dangerous as sentences without a space after the full stop won't be anonymized
     # XXX: shouldn't really do negative lookbehind for .py as that's a valid IANA domain - review this
-    $string =~ s/(?<!\w\]\s)(?<!\.)(?!\d+[^A-Za-z0-9]|$ignore_regex)$hostname_regex(?i:(?<!\.java)(?<!\.py)(?<!\sid)):(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/go;
+    # (?!\d+T\d+:\d+) = don't match 2018-01-01T00:00:00 => 2018-01-<hostname>:00:00
+    $string =~ s/(?<!\w\]\s)
+                 (?<!\.)
+                 (?!\d+T\d+:\d+)
+                 (?!\d+[^A-Za-z0-9]
+                 |$ignore_regex)
+                 $hostname_regex
+                 (?i:(?<!\.java)
+                 (?<!\.py)
+                 (?<!\sid))
+                 :(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/gox;
     $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/g;
     return $string;
 }
