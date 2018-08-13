@@ -27,7 +27,7 @@ Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to thi
 There is also a Python version Anonymize.py available at https://github.com/harisekhon/pytools
 ";
 
-$VERSION = "0.10.0";
+$VERSION = "0.11.0";
 
 use strict;
 use warnings;
@@ -36,6 +36,11 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw /:DEFAULT :regex/;
+
+my $user_name = 'user(?:name)?';
+my $arg_sep = '[=\s:]+';
+# openssl uses -passin switch
+my $pass_word_phrase = 'pass(?:word|phrase|in)?';
 
 my $file;
 
@@ -283,9 +288,9 @@ sub anonymize_ip_prefix($){
 
 sub anonymize_user($){
     my $string = shift;
-    $string =~ s/(-user[=\s]+)\S+/$1<user>/go;
-    $string =~ s/\/home\/\S+/\/home\/<user>/go;
-    $string =~ s/(user\s*=\s*)\S+/$1<user>/go;
+    $string =~ s/(-$user_name$arg_sep)$user/$1<user>/go;
+    $string =~ s/\/home\/$user_regex/\/home\/<user>/go;
+    $string =~ s/($user_name$arg_sep)\S+/$1<user>/go;
     return $string;
 }
 
@@ -293,15 +298,16 @@ sub anonymize_password($){
     my $string = shift;
     my $pw_regex = qr/(?:'[^']+'|"[^"]+"|[^\s]+)/;
     # openssl uses -passin switch
-    $string =~ s/(\b(?:password|passin)(?:=|\s+))$pw_regex/$1<password>/go;
+    $string =~ s/(-${pass_word_phrase}$arg_sep)$pw_regex/$1<password>/go;
     #$string =~ s/(\bcurl\s.*?-[A-Za-tv-z]*u(?:=|\s+)?)[^:\s]+:[^\s]+/$1<user>:<password>/go;
-    $string =~ s/(\bcurl\s.*?-[A-Za-tv-z]*u(?:=|\s+)?)[^:\s]+:$pw_regex/$1<user>:<password>/go;
+    $string =~ s/(\bcurl\s.*?-[A-Za-tv-z]*u[=\s]*)[^\s:]+:$pw_regex/$1<user>:<password>/go;
+    $string =~ s/\b(${user_name}$arg_sep)\S+([\,\.\s]+${pass_word_phrase}$arg_sep)$pw_regex/$1<user>$2<password>/go;
     return $string;
 }
 
 sub anonymize_port($){
     my $string = shift;
-    $string =~ s/:\d+/:<port>/go;
+    $string =~ s/:\d+(?!\.?[\w-])/$1:<port>/go;
     return $string;
 }
 
@@ -326,8 +332,10 @@ sub anonymize_hostname($){
     # (?!<\.) prevents hostname matching mid-filename otherwise matches filename extensions - XXX: however this is slightly dangerous as sentences without a space after the full stop won't be anonymized
     # XXX: shouldn't really do negative lookbehind for .py as that's a valid IANA domain - review this
     # (?!\d+T\d+:\d+) = don't match 2018-01-01T00:00:00 => 2018-01-<hostname>:00:00
+    # (?<!\$) - ignore Java SomeClass$method:20
     $string =~ s/(?<!\w\]\s)
                  (?<!\.)
+                 (?<!\$)
                  (?!\d+T\d+:\d+)
                  (?!\d+[^A-Za-z0-9]
                  |$ignore_regex)
@@ -335,7 +343,7 @@ sub anonymize_hostname($){
                  (?i:(?<!\.java)
                  (?<!\.py)
                  (?<!\sid))
-                 :(\d{1,5}(?:[^A-Za-z]|$))/<hostname>:$1/gox;
+                 :(\d{1,5}(?!\.?\w))/<hostname>:$1/gox;
     $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/g;
     return $string;
 }
@@ -452,13 +460,13 @@ sub anonymize_network_generic($){
 sub anonymize_cisco($){
     my $string = shift;
     $string =~ s/username .+ (?:password|secret) .*?$/username <username> password <password>/g;
-    $string =~ s/password .*?$/password <password>/g;
+    $string =~ s/password .*?$/password <cisco_password>/g;
     $string =~ s/secret .*?$/secret <secret>/g;
     $string =~ s/\smd5\s+.*?$/ md5 <md5>/g;
     $string =~ s/\scommunity\s+.*$/ community <community>/g;
     $string =~ s/(standby\s+\d+\s+authentication).*/$1 <auth>/g;
     $string =~ s/\sremote-as\s\d+/remote-as <AS>/g;
-    $string =~ s/\sdescription\s.*$/description <description>/g;
+    $string =~ s/description\s.*$/description <cisco_description>/g;
     $string = anonymize_network_generic($string) unless $network;
     return $string;
 }
