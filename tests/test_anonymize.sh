@@ -109,19 +109,16 @@ dest[24]="2018-01-01T00:00:00 INFO user=<user>"
 src[25]="BigInsight:4.2"
 dest[25]="BigInsight:4.2"
 
-src[26]="reading password from foo"
-dest[26]="reading password from foo"
+src[26]="user: hari, password: foo bar"
+dest[26]="user: <user> password: <password> bar"
 
-src[27]="some description = blah, module = foo"
-dest[27]="some description = blah, module = foo"
+src[27]="SomeClass\$method:20 something happened"
+dest[27]="SomeClass\$method:20 something happened"
 
-src[28]="user: hari, password: foo bar"
-src[28]="user: <user>, password: <password> bar"
+#src[28]="-passphase 'foo'"
+#dest[28]="-passphrase '<password>'"
 
-src[29]="SomeClass\$method:20 something happened"
-dest[29]="SomeClass\$method:20 something happened"
-
-args="-aPe"
+args="-ae"
 test_anonymize(){
     src="$1"
     dest="$2"
@@ -150,15 +147,19 @@ fi
 # suport sparse arrays so that we can easily comment out any check pair for convenience
 # this gives the number of elements and prevents testing the last element(s) if commenting something out in the middle
 #for (( i = 0 ; i < ${#src[@]} ; i++ )); do
-for i in ${!src[@]}; do
-    [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
-    [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
-    if [ -n "$parallel" ]; then
-        test_anonymize "${src[$i]}" "${dest[$i]}" &
-    else
-        test_anonymize "${src[$i]}" "${dest[$i]}"
-    fi
-done
+run_tests(){
+    test_numbers="${@:-${!src[@]}}"
+    for i in $test_numbers; do
+        [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
+        [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
+        if [ -n "$parallel" ]; then
+            test_anonymize "${src[$i]}" "${dest[$i]}" &
+        else
+            test_anonymize "${src[$i]}" "${dest[$i]}"
+        fi
+    done
+}
+run_tests
 
 # test ip prefix
 src="4.3.2.1"
@@ -175,24 +176,24 @@ else
 fi
 
 # check normal don't strip these
-src[28]="reading password from foo"
-dest[28]="reading password from foo"
+src[101]="reading password from foo"
+dest[101]="reading password from foo"
 
-src[29]="some description = blah, module = foo"
-dest[29]="some description = blah, module = foo"
+src[102]="some description = blah, module = foo"
+dest[102]="some description = blah, module = foo"
 
 args="-Hiukex"
-run_tests 28 29
+run_tests 101 102
 
 # now check --network / --cisco / --juniper do strip these
-src[30]="reading password from bar"
-dest[30]="reading password <cisco_password>"
+src[103]="reading password from bar"
+dest[103]="reading password <cisco_password>"
 
-src[31]="some description = blah, module=bar"
-dest[31]="some description <cisco_description>"
+src[104]="some description = blah, module=bar"
+dest[104]="some description <cisco_description>"
 
 args="--network"
-run_tests 30 31
+run_tests 103 104
 
 if [ -n "$parallel" ]; then
     # can't trust exit code for parallel yet, only for quick local testing
