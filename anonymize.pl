@@ -333,6 +333,7 @@ sub anonymize_hostname($){
     # XXX: shouldn't really do negative lookbehind for .py as that's a valid IANA domain - review this
     # (?!\d+T\d+:\d+) = don't match 2018-01-01T00:00:00 => 2018-01-<hostname>:00:00
     # (?<!\$) - ignore Java SomeClass$method:20
+    # (?!\(\w+\.java:\d+\)) - ignore Java stack traces eg. at SomeClass(Thread.java;789)
     $string =~ s/(?<!\w\]\s)
                  (?<!\.)
                  (?<!\$)
@@ -343,7 +344,8 @@ sub anonymize_hostname($){
                  (?i:(?<!\.java)
                  (?<!\.py)
                  (?<!\sid))
-                 :(\d{1,5}(?!\.?\w))/<hostname>:$1/gox;
+                 :(\d{1,5})
+                 (?!\.?\w)/<hostname>:$1/gox;
     $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/g;
     return $string;
 }
@@ -360,7 +362,7 @@ sub anonymize_domain($){
         return $string if isGenericPythonLogLine($string);
     }
     # using stricter domain_regex_strict which requires domain.tld format and not just tld
-    $string =~ s/(?!$ignore_regex)$domain_regex_strict(?!\.[A-Za-z])(\b|$)/<domain>/go;
+    $string =~ s/(?!$ignore_regex)$domain_regex_strict(?!\.[A-Za-z])(?!\(\w+\.java:\d+\))(\b|$)/<domain>/go;
     $string =~ s/\@$domain_regex/\@<domain>/go;
     return $string;
 }
@@ -377,7 +379,7 @@ sub anonymize_fqdn($){
         return $string if isGenericPythonLogLine($string);
     }
     # variable length lookbehind is not implemented, so can't use full $tld_regex (which might be too permissive anyway)
-    $string =~ s/(?!$ignore_regex)$fqdn_regex(?!\.[A-Za-z])(\b|$)/<fqdn>/goi;
+    $string =~ s/(?!$ignore_regex)$fqdn_regex(?!\.[A-Za-z])(?!\(\w+\.java:\d+\))(\b|$)/<fqdn>/goi;
     return $string;
 }
 
