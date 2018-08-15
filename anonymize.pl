@@ -27,7 +27,7 @@ Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to thi
 There is also a Python version Anonymize.py available at https://github.com/harisekhon/pytools
 ";
 
-$VERSION = "0.12.0";
+$VERSION = "0.13.0";
 
 use strict;
 use warnings;
@@ -269,10 +269,10 @@ sub anonymize_ip($){
     # unfortunately this anonymizes /usr/hdp/2.3.0.0-2557 => /usr/hdp/<ip>-2557
     #$string =~ s/$ip_regex/<ip>/go;
     # make sure it's not part of a bigger numeric string like a version number, but still catch ip:port
-    $string =~ s/(?<!\d\.)$ip_regex(?![^:]\d+)/<ip>/go;
+    $string =~ s/(?<!\d\.)$ip_regex(?![^:]\d+)/<ip_x.x.x.x>/go;
 
     # this will never match now that $ip_regex permits ending in 0 for cidr
-    $string =~ s/(?<!\d\.)$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet>/go;
+    $string =~ s/(?<!\d\.)$subnet_mask_regex(?!\.\d+)(?!-\d+)/<subnet_x.x.x.x>/go;
 
     $string = anonymize_mac($string);
     return $string;
@@ -280,8 +280,8 @@ sub anonymize_ip($){
 
 sub anonymize_ip_prefix($){
     my $string = shift;
-    $string =~ s/(?<!\d\.)$ip_prefix_regex(?!\.\d+\.\d+)/<ip_prefix>./go;
-    $string =~ s/(?<!\d\.)$subnet_mask_regex/<subnet>/go;
+    $string =~ s/(?<!\d\.)$ip_prefix_regex(?!\.\d+\.\d+)/<ip_x.x.x>./go;
+    $string =~ s/(?<!\d\.)$subnet_mask_regex/<subnet_x.x.x.x>/go;
     $string = anonymize_mac($string);
     return $string;
 }
@@ -307,7 +307,7 @@ sub anonymize_password($){
 
 sub anonymize_port($){
     my $string = shift;
-    $string =~ s/:\d+(?!\.?[\w-])/$1:<port>/go;
+    $string =~ s/:\d+(?!\.?[\w-])/:<port>/go;
     return $string;
 }
 
