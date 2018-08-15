@@ -9,7 +9,7 @@
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
-N  and optionally send me feedback to help improve or steer this or other code I publish
+#  and optionally send me feedback to help improve or steer this or other code I publish
 #
 #  https://www.linkedin.com/in/harisekhon
 #
@@ -120,6 +120,18 @@ dest[27]="SomeClass\$method:20 something happened"
 
 src[29]=" at host.domain.com(Thread.java:789)"
 dest[29]=" at host.domain.com(Thread.java:789"
+
+src[30]="jdbc:hive2://hiveserver2:10000/myDB"
+dest[30]="jdbc:hive2://<hostname>:10000/myDB"
+
+src[31]="http://blah"
+dest[31]="http://<hostname>"
+
+src[32]="https://blah:443/path"
+dest[32]="https://<hostname>:443/path"
+
+src[33]="tcp://blah:8080"
+dest[33]="tcp://<hostname>:8080"
 
 args="-ae"
 test_anonymize(){
