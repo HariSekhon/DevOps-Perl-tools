@@ -68,12 +68,7 @@ build:
 
 .PHONY: common
 common: system-packages submodules
-	# Workaround for Mac OS X not finding the OpenSSL libraries when building
-	if [ -d /usr/local/opt/openssl/include -a \
-	     -d /usr/local/opt/openssl/lib     -a \
-	     `uname` = Darwin ]; then \
-	     yes "" | $(SUDO_PERL) OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
-	fi
+	:
 
 .PHONY: submodules
 submodules:
@@ -99,6 +94,14 @@ perl: perl-libs
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
 	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
+
+	# Workaround for Mac OS X not finding the OpenSSL libraries when building
+	if [ -d /usr/local/opt/openssl/include -a \
+	     -d /usr/local/opt/openssl/lib     -a \
+	     `uname` = Darwin ]; then \
+	     yes "" | $(SUDO_PERL) OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) Crypt::SSLeay; \
+	fi
+
 	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`
 
 .PHONY: perl-libs
