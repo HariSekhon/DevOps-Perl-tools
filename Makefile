@@ -72,7 +72,7 @@ common: system-packages submodules
 	if [ -d /usr/local/opt/openssl/include -a \
 	     -d /usr/local/opt/openssl/lib     -a \
 	     `uname` = Darwin ]; then \
-	     $(SUDO_PERL) OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
+	     yes "" | $(SUDO_PERL) OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
 	fi
 
 .PHONY: submodules
