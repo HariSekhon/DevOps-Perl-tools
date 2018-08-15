@@ -45,7 +45,7 @@ script:
   - travis_retry make test
 
 after_success:
-  - curl --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/devops-perl-tools/trigger/6b4c6eeb-ed48-4e01-954f-ec2e0692ca35/
+  - curl --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/tools/trigger/6b4c6eeb-ed48-4e01-954f-ec2e0692ca35/
   - curl --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/alpine-github/trigger/8d9cb826-48df-439c-8c20-1975713064fc/
   - curl --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/centos-github/trigger/316d1158-7ffb-49a4-a7bd-8e5456ba2d15/
   - curl --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/debian-github/trigger/0cfb3fe7-2028-494b-a43b-068435e6a2b3/
