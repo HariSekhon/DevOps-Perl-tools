@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2016-12-08 14:38:37 +0000 (Thu, 08 Dec 2016)
 #
-#  https://github.com/harisekhon/tools
+#  https://github.com/harisekhon/devops-perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "Docker Image"
 
-export DOCKER_IMAGE="harisekhon/tools"
+export DOCKER_IMAGE="harisekhon/devops-perl-tools"
 
 if is_CI && is_docker_available; then
     [ -n "${NO_DOCKER:-}" ] && exit 0

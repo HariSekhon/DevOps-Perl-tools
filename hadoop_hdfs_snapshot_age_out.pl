@@ -5,7 +5,7 @@
 #  Original Date: 2013-01-14 20:50:13 +0000 (Mon, 14 Jan 2013)
 #  Date: 2015-05-08
 #
-#  https://github.com/harisekhon/tools
+#  https://github.com/harisekhon/devops-perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
@@ -151,7 +151,7 @@ sub process_snapshots($){
             my $snapshot_name = basename($2);
             if($dir_type ne "d"){
                 # assert this should never happen
-                die "non-directory found! ('$dir'). see -vvv output and raise a ticket at https://github.com/harisekhon/tools/issues\n";
+                die "non-directory found! ('$dir'). see -vvv output and raise a ticket at https://github.com/harisekhon/devops-perl-tools/issues\n";
             }
             if ($snapshot_name =~ qr{
                                       [\'\"\`] |

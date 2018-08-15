@@ -41,7 +41,7 @@ export HBASE_VERSIONS="${@:-latest 0.96 0.98 1.0 1.1 1.2 1.3}"
 
 check_docker_available
 
-export MNTDIR="/tools"
+export MNTDIR="/devops-perl-tools"
 
 startupwait 30
 

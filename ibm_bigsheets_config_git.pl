@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2014-05-27 (based on datameer_config_git.pl from 2013-12-05)
 #
-#  https://github.com/harisekhon/tools
+#  https://github.com/harisekhon/devops-perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #

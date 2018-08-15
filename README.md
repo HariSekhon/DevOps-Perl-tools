@@ -1,12 +1,12 @@
 Hari Sekhon - DevOps Perl Tools
 ===============================
 [![Build Status](https://travis-ci.org/HariSekhon/perl-tools.svg?branch=master)](https://travis-ci.org/HariSekhon/perl-tools)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1769cc854b5246968ee2bae1818f771a)](https://www.codacy.com/app/harisekhon/tools)
-[![GitHub stars](https://img.shields.io/github/stars/harisekhon/tools.svg)](https://github.com/harisekhon/tools/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/harisekhon/tools.svg)](https://github.com/harisekhon/tools/network)
-[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-blue.svg)](https://github.com/harisekhon/tools#hari-sekhon-tools)
-[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/tools/)
-[![](https://images.microbadger.com/badges/image/harisekhon/tools.svg)](http://microbadger.com/#/images/harisekhon/tools)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1769cc854b5246968ee2bae1818f771a)](https://www.codacy.com/app/harisekhon/devops-perl-tools)
+[![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/network)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-blue.svg)](https://github.com/harisekhon/devops-perl-tools#hari-sekhon-tools)
+[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/devops-perl-tools/)
+[![](https://images.microbadger.com/badges/image/harisekhon/devops-perl-tools.svg)](http://microbadger.com/#/images/harisekhon/devops-perl-tools)
 
 ### Hadoop, Hive, Solr, NoSQL, Web, Linux Tools ###
 
@@ -26,28 +26,28 @@ https://www.linkedin.com/in/harisekhon
 
 #### Ready to run Docker image #####
 
-All programs and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/tools/).
+All programs and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/devops-perl-tools/).
 
 List all programs:
 ```
-docker run harisekhon/tools
+docker run harisekhon/devops-perl-tools
 ```
 Run any given program:
 ```
-docker run harisekhon/tools <program> <args>
+docker run harisekhon/devops-perl-tools <program> <args>
 ```
 
 #### Automated Build from source #####
 
 ```
-git clone https://github.com/harisekhon/tools
+git clone https://github.com/harisekhon/devops-perl-tools
 cd tools
 make
 ```
 
-The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/tools#manual-setup) section instead.
+The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/devops-perl-tools#manual-setup) section instead.
 
-Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/tools#detailed-build-instructions) further down for more information.
+Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/devops-perl-tools#detailed-build-instructions) further down for more information.
 
 ### Usage ###
 
@@ -116,7 +116,7 @@ The automated build will use 'sudo' to install required Perl CPAN libraries to t
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
 ```
-git clone https://github.com/harisekhon/tools
+git clone https://github.com/harisekhon/devops-perl-tools
 cd tools
 git submodule init
 git submodule update
@@ -148,7 +148,7 @@ You're now ready to use these programs.
 
 Download the Tools and Lib git repos as zip files:
 
-https://github.com/HariSekhon/tools/archive/master.zip
+https://github.com/HariSekhon/devops-perl-tools/archive/master.zip
 
 https://github.com/HariSekhon/lib/archive/master.zip
 
@@ -182,10 +182,10 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 ### Testing
 
-[Continuous Integration](https://travis-ci.org/HariSekhon/tools) is run on this repo with tests for success and failure scenarios:
+[Continuous Integration](https://travis-ci.org/HariSekhon/devops-perl-tools) is run on this repo with tests for success and failure scenarios:
 - unit tests for the custom supporting [perl library](https://github.com/harisekhon/lib)
 - integration tests of the top level programs using the libraries for things like option parsing
-- [functional tests](https://github.com/HariSekhon/tools/tree/master/tests) for the top level programs using local test data and [Docker containers](https://hub.docker.com/u/harisekhon/)
+- [functional tests](https://github.com/HariSekhon/devops-perl-tools/tree/master/tests) for the top level programs using local test data and [Docker containers](https://hub.docker.com/u/harisekhon/)
 
 To trigger all tests run:
 

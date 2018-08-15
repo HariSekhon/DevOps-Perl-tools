@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
 #
-#  https://github.com/harisekhon/tools
+#  https://github.com/harisekhon/devops-perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
@@ -38,15 +38,15 @@ endif
 
 # Alpine:
 #
-#   apk add --no-cache git $(MAKE) && git clone https://github.com/harisekhon/tools && cd tools && $(MAKE)
+#   apk add --no-cache git $(MAKE) && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && $(MAKE)
 
 # Debian / Ubuntu:
 #
-#   apt-get update && apt-get install -y $(MAKE) git && git clone https://github.com/harisekhon/tools && cd tools && $(MAKE)
+#   apt-get update && apt-get install -y $(MAKE) git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && $(MAKE)
 
 # RHEL / CentOS:
 #
-#   yum install -y $(MAKE) git && git clone https://github.com/harisekhon/tools && cd tools && $(MAKE)
+#   yum install -y $(MAKE) git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && $(MAKE)
 
 # ===================
 
@@ -197,7 +197,7 @@ deep-clean: clean
 
 .PHONY: docker-run
 docker-run:
-	docker run -ti --rm harisekhon/tools ${ARGS}
+	docker run -ti --rm harisekhon/devops-perl-tools ${ARGS}
 
 .PHONY: run
 run:
@@ -205,7 +205,7 @@ run:
 
 .PHONY: docker-mount
 docker-mount:
-	docker run -ti --rm -v $$PWD:/tools harisekhon/tools bash -c "cd /tools; exec bash"
+	docker run -ti --rm -v $$PWD:/devops-perl-tools harisekhon/devops-perl-tools bash -c "cd /devops-perl-tools; exec bash"
 
 .PHONY: mount
 mount: docker-mount
