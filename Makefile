@@ -197,7 +197,7 @@ deep-clean: clean
 
 .PHONY: docker-run
 docker-run:
-	docker run -ti --rm harisekhon/devops-perl-tools ${ARGS}
+	docker run -ti --rm harisekhon/tools ${ARGS}
 
 .PHONY: run
 run:
@@ -205,7 +205,7 @@ run:
 
 .PHONY: docker-mount
 docker-mount:
-	docker run -ti --rm -v $$PWD:/devops-perl-tools harisekhon/devops-perl-tools bash -c "cd /devops-perl-tools; exec bash"
+	docker run -ti --rm -v $$PWD:/tools harisekhon/tools bash -c "cd /tools; exec bash"
 
 .PHONY: mount
 mount: docker-mount
