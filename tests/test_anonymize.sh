@@ -29,6 +29,8 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
+anonymize="$perl -T ./anonymize.pl"
+
 src[0]="2015-11-19 09:59:59,893 - Execution of 'mysql -u root --password=somep@ssword! -h myHost.internal  -s -e \"select version();\"' returned 1. ERROR 2003 (HY000): Can't connect to MySQL server on 'host.domain.com' (111)"
 dest[0]="2015-11-19 09:59:59,893 - Execution of 'mysql -u root --password=<password> -h <fqdn>  -s -e \"select version();\"' returned 1. ERROR 2003 (HY000): Can't connect to MySQL server on '<fqdn>' (111)"
 
@@ -70,10 +72,10 @@ dest[12]=" main.py:74 - loglevel=logging.INFO"
 
 # creating an exception for this would prevent anonymization legitimate .PY domains after a leading timestamp, which is legit, added main.py to
 src[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://ip-1-2-3-4.eu-west-1.compute.internal:8440 (1.2.3.4)"
-dest[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://<fqdn>:8440 (<ip>)"
+dest[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://<fqdn>:8440 (<ip_x.x.x.x>)"
 
 src[14]=" Connecting to Ambari server at https://ip-1-2-3-4.eu-west-1.compute.internal:8440 (1.2.3.4)"
-dest[14]=" Connecting to Ambari server at https://<fqdn>:8440 (<ip>)"
+dest[14]=" Connecting to Ambari server at https://<fqdn>:8440 (<ip_x.x.x.x>)"
 
 src[15]="INFO 2015-12-01 19:52:21,066 DataCleaner.py:39 - Data cleanup thread started"
 dest[15]="INFO 2015-12-01 19:52:21,066 DataCleaner.py:39 - Data cleanup thread started"
@@ -95,10 +97,10 @@ src[20]="yarn-yarn-resourcemanager-ip-172-31-1-2.log"
 dest[20]="yarn-yarn-resourcemanager-<aws_hostname>.log"
 
 src[21]="192.168.99.100:9092"
-dest[21]="<ip>:9092"
+dest[21]="<ip_x.x.x.x>:9092"
 
 src[22]="192.168.99.100"
-dest[22]="<ip>"
+dest[22]="<ip_x.x.x.x>"
 
 src[23]="openssl req ... -passin hari:mypassword ..."
 dest[23]="openssl req ... -passin <password> ..."
@@ -138,7 +140,7 @@ test_anonymize(){
     src="$1"
     dest="$2"
     #[ -z "${src[$i]:-}" ] && { echo "skipping test $i..."; continue; }
-    result="$($perl -T ./anonymize.pl $args <<< "$src")"
+    result="$($anonymize $args <<< "$src")"
     if grep -Fq "$dest" <<< "$result"; then
         echo "SUCCEEDED anonymization test $i"
     else
@@ -178,9 +180,9 @@ run_tests  # ignore_run_unqualified
 
 # test ip prefix
 src="4.3.2.1"
-dest="<ip_prefix>.1"
-result="$($perl -T ./anonymize.pl --ip-prefix <<< "$src")"
-if grep -Fq "<ip_prefix>.1" <<< "$result"; then
+dest="<ip_x.x.x>.1"
+result="$($anonymize --ip-prefix <<< "$src")"
+if grep -Fq "<ip_x.x.x>.1" <<< "$result"; then
     echo "SUCCEEDED anonymization test ip_prefix"
 else
     echo "FAILED to anonymize line during test ip_prefix"
@@ -221,7 +223,7 @@ if [ -n "$parallel" ]; then
 fi
 
 echo "checking file args"
-if [ `$perl -T ./anonymize.pl -ae README.md | wc -l` -lt 100 ]; then
+if [ `$anonymize -ae README.md | wc -l` -lt 100 ]; then
     echo "Suspicious readme file arg result came to < 100 lines"
     exit 1
 fi
