@@ -30,11 +30,11 @@ All programs and their pre-compiled dependencies can be found ready to run on [D
 
 List all programs:
 ```
-docker run harisekhon/devops-perl-tools
+docker run harisekhon/tools
 ```
 Run any given program:
 ```
-docker run harisekhon/devops-perl-tools <program> <args>
+docker run harisekhon/tools <program> <args>
 ```
 
 #### Automated Build from source #####
@@ -155,10 +155,10 @@ https://github.com/HariSekhon/lib/archive/master.zip
 Unzip both and move Lib to the ```lib``` folder under Tools.
 
 ```
-unzip tools-master.zip
+unzip devops-tools-master.zip
 unzip lib-master.zip
 
-mv tools-master tools
+mv devops-tools-master tools
 mv lib-master lib
 mv -f lib tools/
 ```
