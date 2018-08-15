@@ -27,7 +27,7 @@ Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to thi
 There is also a Python version Anonymize.py available at https://github.com/harisekhon/pytools
 ";
 
-$VERSION = "0.11.0";
+$VERSION = "0.12.0";
 
 use strict;
 use warnings;
@@ -346,7 +346,8 @@ sub anonymize_hostname($){
                  (?<!\sid))
                  :(\d{1,5})
                  (?!\.?\w)/<hostname>:$1/gox;
-    $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/g;
+    $string =~ s/\b(?:ip-10-\d+-\d+-\d+|ip-172-1[6-9]-\d+-\d+|ip-172-2[0-9]-\d+-\d+|ip-172-3[0-1]-\d+-\d+|ip-192-168-\d+-\d+)\b(?!-\d)/<aws_hostname>/go;
+    $string =~ s/(\w+:\/\/)$hostname_regex/$1<hostname>/go;
     return $string;
 }
 
