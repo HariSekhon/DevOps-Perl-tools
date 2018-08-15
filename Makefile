@@ -52,23 +52,43 @@ endif
 
 .PHONY: build
 build:
-	@echo ===========
-	@echo Tools Build
-	@echo ===========
+	@echo ================
+	@echo Perl Tools Build
+	@echo ================
 
-	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
-	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
-	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
-
-	git submodule init
-	git submodule update --recursive
-
-	cd lib && $(MAKE)
+	$(MAKE) common
+	$(MAKE) perl
 
 	# don't track and commit your personal name, company name etc additions to anonymize_custom.conf back to Git since they are personal to you
 	git update-index --assume-unchanged anonymize_custom.conf
 	git update-index --assume-unchanged solr/solr-env.sh
 
+	@echo
+	@echo "BUILD SUCCESSFUL (tools)"
+
+.PHONY: common
+common: system-packages submodules
+	# Workaround for Mac OS X not finding the OpenSSL libraries when building
+	if [ -d /usr/local/opt/openssl/include -a \
+	     -d /usr/local/opt/openssl/lib     -a \
+	     `uname` = Darwin ]; then \
+	     sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
+	fi
+
+.PHONY: submodules
+submodules:
+	git submodule init
+	git submodule update --recursive
+
+.PHONY: system-packages
+system-packages:
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
+	if [ -x /usr/local/bin/brew -a `uname` = Darwin ]; then $(MAKE) homebrew-packages; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
+
+.PHONY: perl
+perl: perl-libs
 	#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
 
@@ -81,8 +101,9 @@ build:
 	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
 	yes "" | $(SUDO2) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`
 
-	@echo
-	@echo "BUILD SUCCESSFUL (tools)"
+.PHONY: perl-libs
+perl-libs:
+	cd lib && $(MAKE)
 
 .PHONY: quick
 quick:
@@ -117,6 +138,12 @@ yum-packages:
 yum-packages-remove:
 	cd lib && $(MAKE) yum-packages-remove
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do rpm -q $$x && $(SUDO) yum remove -y $$x; done
+
+.PHONY: homebrew-packages
+homebrew-packages:
+	# Sudo is not required as running Homebrew as root is extremely dangerous and no longer supported as Homebrew does not drop privileges on installation you would be giving all build scripts full access to your system
+	# Fails if any of the packages are already installed, ignore and continue - if it's a problem the latest build steps will fail with missing headers
+	brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt` || :
 
 .PHONY: lib-test
 lib-test:
