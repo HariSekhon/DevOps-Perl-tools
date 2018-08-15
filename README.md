@@ -155,10 +155,10 @@ https://github.com/HariSekhon/lib/archive/master.zip
 Unzip both and move Lib to the ```lib``` folder under Tools.
 
 ```
-unzip devops-tools-master.zip
+unzip devops-perl-tools-master.zip
 unzip lib-master.zip
 
-mv devops-tools-master tools
+mv devops-perl-tools-master tools
 mv lib-master lib
 mv -f lib tools/
 ```
