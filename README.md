@@ -5,7 +5,7 @@ Hari Sekhon - DevOps Perl Tools
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/network)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-blue.svg)](https://github.com/harisekhon/devops-perl-tools#hari-sekhon-tools)
-[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/devops-perl-tools/)
+[![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/tools/)
 [![](https://images.microbadger.com/badges/image/harisekhon/devops-perl-tools.svg)](http://microbadger.com/#/images/harisekhon/devops-perl-tools)
 
 ### Hadoop, Hive, Solr, NoSQL, Web, Linux Tools ###
@@ -26,7 +26,7 @@ https://www.linkedin.com/in/harisekhon
 
 #### Ready to run Docker image #####
 
-All programs and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/devops-perl-tools/).
+All programs and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/tools/).
 
 List all programs:
 ```
@@ -40,7 +40,7 @@ docker run harisekhon/devops-perl-tools <program> <args>
 #### Automated Build from source #####
 
 ```
-git clone https://github.com/harisekhon/devops-perl-tools
+git clone https://github.com/harisekhon/devops-perl-tools tools
 cd tools
 make
 ```
