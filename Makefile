@@ -18,17 +18,17 @@ export PATH := $(PATH):/usr/local/bin
 CPANM = cpanm
 
 ifdef PERLBREW_PERL
-	SUDO2 =
+	SUDO_PERL =
 else
-	SUDO2 = sudo
+	SUDO_PERL = sudo
 endif
 
-# must come after to reset SUDO2 to blank if root
+# must come after to reset SUDO_PERL to blank if root
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
 	SUDO =
-	SUDO2 =
+	SUDO_PERL =
 else
 	SUDO = sudo
 endif
@@ -72,7 +72,7 @@ common: system-packages submodules
 	if [ -d /usr/local/opt/openssl/include -a \
 	     -d /usr/local/opt/openssl/lib     -a \
 	     `uname` = Darwin ]; then \
-	     sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
+	     $(SUDO_PERL) OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
 	fi
 
 .PHONY: submodules
@@ -98,8 +98,8 @@ perl: perl-libs
 	# auto-configure cpan for Perl 5.8 which otherwise gets stuck prompting for a region for downloads
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
-	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
-	yes "" | $(SUDO2) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`
+	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
+	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`
 
 .PHONY: perl-libs
 perl-libs:
