@@ -22,9 +22,9 @@ cd "$srcdir";
 
 . "$srcdir/../bash-tools/utils.sh"
 
-export PROJECT="tools (perl)"
+export PROJECT="devops-perl-tools"
 
-section "Tools ALL Tests"
+section "DevOps Perl Tools ALL Tests"
 
 cd ..
 
