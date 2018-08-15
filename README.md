@@ -1,5 +1,5 @@
-Hari Sekhon Tools
-=================
+Hari Sekhon - DevOps Perl Tools
+===============================
 [![Build Status](https://travis-ci.org/HariSekhon/perl-tools.svg?branch=master)](https://travis-ci.org/HariSekhon/perl-tools)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1769cc854b5246968ee2bae1818f771a)](https://www.codacy.com/app/harisekhon/tools)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/tools.svg)](https://github.com/harisekhon/tools/stargazers)
