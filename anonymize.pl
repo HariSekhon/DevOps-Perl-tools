@@ -24,7 +24,7 @@ Create a list of phrases to anonymize from config by placing them in anonymize_c
 
 Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to this program.
 
-There is also a Python version Anonymize.py available at https://github.com/harisekhon/pytools
+There is also a Python version Anonymize.py available at https://github.com/harisekhon/devops-python-tools
 ";
 
 $VERSION = "0.13.0";

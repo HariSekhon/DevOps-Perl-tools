@@ -23,7 +23,7 @@ Written to flush OpenTSDB tables before shutdown as the bulk import tool is usin
 
 Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.1, 1.2.2
 
-See https://github.com/harisekhon/pytools for a better Python version which uses the Thrift API
+See https://github.com/harisekhon/devops-python-tools for a better Python version which uses the Thrift API
 
 "
 

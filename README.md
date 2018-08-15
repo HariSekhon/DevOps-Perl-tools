@@ -12,7 +12,7 @@ Hari Sekhon - DevOps Perl Tools
 
 A few of the Hadoop, NoSQL, Web & Linux tools I've written over the years. All programs have --help to list the available options.
 
-For many more tools see [PyTools](https://github.com/harisekhon/pytools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools.
+For many more tools see [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools.
 
 Hari Sekhon
 
@@ -58,7 +58,7 @@ Environment variables are supported for convenience and also to hide credentials
 
 ### Tools
 
-##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [PyTools](https://github.com/harisekhon/pytools) repo. #####
+##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo. #####
 
 - Linux:
   - ```anonymize.pl``` - anonymizes your configs / logs from files or stdin (for pasting to Apache Jira tickets or mailing lists)
@@ -83,7 +83,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
   - ```colors.pl``` - prints ASCII color code matrix fg/bg with corresponding terminal escape codes to help with tuning your shell
   - ```matrix.pl``` - prints a cool matrix of vertical scrolling characters using terminal tricks
-  - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [PyTools](https://github.com/harisekhon/pytools) repo)
+  - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
 
 - Web:
   - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return which server you're hitting for each request in real-time)
@@ -93,7 +93,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop cluster security Kerberos setup of FreeIPA principals and keytab distribution to the cluster nodes. Designed for Hortonworks HDP but now that other vendors such as IBM and Pivotal are standarizing on Ambari it should work the same for those distributions as well.
   - ```hadoop_hdfs_file_age_out.pl``` - prints or removes all HDFS files in a given directory tree older than a specified age
   - ```hadoop_hdfs_snapshot_age_out.pl``` - prints or removes HDFS snapshots older than a given age or matching a given regex pattern
-  - ```hbase_flush_tables.sh``` - flushes all or selected HBase tables (useful when bulk loading OpenTSDB with Durability.SKIP_WAL) (there is also a Python version of this in my [PyTools](https://github.com/harisekhon/pytools) repo)
+  - ```hbase_flush_tables.sh``` - flushes all or selected HBase tables (useful when bulk loading OpenTSDB with Durability.SKIP_WAL) (there is also a Python version of this in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
   - ```hive_to_elasticsearch.pl``` - bulk indexes structured Hive tables in Hadoop to Elasticsearch clusters - includes support for Kerberos, Hive partitioned tables with selected partitions, selected columns, index creation with configurable sharding, index aliasing and optimization
   - ```hive_table_print_null_columns.pl``` - finds Hive columns with all NULLs
   - ```hive_table_count_rows_with_nulls.pl``` - counts number of rows containing NULLs in any field
@@ -203,7 +203,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also ###
 
-* [PyTools](https://github.com/harisekhon/pytools) - 50+ tools for Hadoop, Spark (PySpark), Pig => Solr / Elasticsearch indexers, Pig Jython UDFs, Ambari Blueprints, AWS CloudFormation templates, HBase, Linux, IPython Notebook, Data converters between different data formats and syntactic validators for Avro, Parquet, CSV, JSON, INI (Java Properties), LDAP LDIF, XML, YAML...
+* [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) - 50+ tools for Hadoop, Spark (PySpark), Pig => Solr / Elasticsearch indexers, Pig Jython UDFs, Ambari Blueprints, AWS CloudFormation templates, HBase, Linux, IPython Notebook, Data converters between different data formats and syntactic validators for Avro, Parquet, CSV, JSON, INI (Java Properties), LDAP LDIF, XML, YAML...
 
 * [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 400+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
 
@@ -211,7 +211,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 * [PyLib](https://github.com/harisekhon/pylib) - Python port of the above library
 
-* [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [PyTools](https://github.com/harisekhon/pytools) repo.
+* [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo.
 
 You might also be interested in the following really nice Jupyter notebook for HDFS space analysis created by another Hortonworks guy Jonas Straub:
 
