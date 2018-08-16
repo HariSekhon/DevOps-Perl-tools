@@ -406,7 +406,7 @@ sub anonymize_proxy($){
     # * Connection #0 to host <host> left intact
     $string =~ s/(Connection #\d+ to host )$host_regex/$1<proxy_host>/go;
     # Via: 1.1 10.1.100.218 (Product Type and version)
-    $string =~ s/(Via:\s[^\s]+\s)$ip_regex.*/$1<proxy_ip>/go;
+    $string =~ s/(Via:\s\S+\s)$ip_regex.*/$1<proxy_ip>/go;
     # trying to anonymize passwords on the CLI will match too aggressively
     #$string =~ s/curl\s.+U.+\s//go;
     # if you are anonymization proxy addresses then you almost certainly want to anonymize the http_auth too
