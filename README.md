@@ -158,9 +158,9 @@ Unzip both and move Lib to the ```lib``` folder under Tools.
 unzip devops-perl-tools-master.zip
 unzip lib-master.zip
 
-mv devops-perl-tools-master tools
-mv lib-master lib
-mv -f lib tools/
+mv -v devops-perl-tools-master tools
+mv -v lib-master lib
+mv -vf lib tools/
 ```
 
 Proceed to install CPAN modules for whichever programs you want to use using your standard procedure - usually an internal mirror or proxy server to CPAN, or rpms / debs (some libraries are packaged by Linux distributions).
