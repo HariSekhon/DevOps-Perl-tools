@@ -116,7 +116,7 @@ The automated build will use 'sudo' to install required Perl CPAN libraries to t
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
 ```
-git clone https://github.com/harisekhon/devops-perl-tools
+git clone https://github.com/harisekhon/devops-perl-tools tools
 cd tools
 git submodule init
 git submodule update
