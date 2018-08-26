@@ -33,8 +33,8 @@ if echo "create keyspace hari with replication = {'class':'simplestrategy','repl
     echo "recasing of CQL FAILED"
     exit 1
 fi
-echo
 
+echo
 echo "Total Tests run: $total_run_count"
 time_taken "$start_time" "All version tests for $name completed in"
 echo
