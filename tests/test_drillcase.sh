@@ -22,9 +22,20 @@ cd $srcdir/..
 
 . ./tests/utils.sh
 
+section "DrillCase"
+
+name=drillcase
+
+start_time=$(date +%s)
+
 if echo "select columns[0] from myTable where name = 'hari';" | $perl -T ./drillcase.pl | tee /dev/stderr | grep -qF "SELECT columns[0] FROM myTable WHERE name = 'hari';"; then
     echo "recasing of Drill statement succeeded"
 else
     echo "recasing of Drill statement FAILED"
     exit 1
 fi
+
+echo
+echo "Total Tests run: $total_run_count"
+time_taken "$start_time" "All version tests for $name completed in"
+echo
