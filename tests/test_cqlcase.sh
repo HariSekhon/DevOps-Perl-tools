@@ -21,9 +21,20 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
+section "CQLCase"
+
+name=cqlcase
+
+start_time=$(date +%s)
+
 if echo "create keyspace hari with replication = {'class':'simplestrategy','replication_factor':3};" | $perl -T ./cqlcase.pl | tee /dev/stderr | grep -q "CREATE KEYSPACE hari WITH replication = {'class':'SimpleStrategy','replication_factor':3};"; then
     echo "recasing of CQL succeeded"
  else
     echo "recasing of CQL FAILED"
     exit 1
 fi
+echo
+
+echo "Total Tests run: $total_run_count"
+time_taken "$start_time" "All version tests for $name completed in"
+echo
