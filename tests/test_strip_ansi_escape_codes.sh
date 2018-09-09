@@ -35,7 +35,7 @@ if echo "some highlighted content" |
     grep -q '^some highlighted content$'; then
     echo "ANSI escape code stripping SUCCEEDED"
  else
-    echo "ANSI escape code stripping SUCCEEDED"
+    echo "ANSI escape code stripping FAILED"
     exit 1
 fi
 
