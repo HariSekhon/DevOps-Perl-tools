@@ -19,6 +19,8 @@ cd "$srcdir/..";
 
 section "Strip ANSI Escape Codes"
 
+name="strip_ansi_escape_codes.pl"
+
 start_time=$(date +%s)
 
 if is_mac; then
@@ -29,8 +31,6 @@ fi
 if echo "some highlighted content" |
     grep --color=yes highlighted |
     $perl -T ./strip_ansi_escape_codes.pl |
-    tee /dev/stderr |
-    cat $cat_opts |
     tee /dev/stderr |
     grep -q '^some highlighted content$'; then
     echo "ANSI escape code stripping SUCCEEDED"
