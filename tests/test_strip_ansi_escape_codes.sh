@@ -28,6 +28,7 @@ if is_mac; then
 else
     cat_opts="-A"
 fi
+run++
 if echo "some highlighted content" |
     grep --color=yes highlighted |
     $perl -T ./strip_ansi_escape_codes.pl |
