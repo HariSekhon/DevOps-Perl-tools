@@ -15,8 +15,10 @@
 
 $DESCRIPTION="Strip ANSI Escape Codes from Text String
 
-Works as a standard unix filter program, taking files are arguments or assuming input from standard input and printing to standard output.
+Works as a standard unix filter program, reading from file arguments or standard input and printing to standard output.
 ";
+
+# Simple program to expose strip_ansi_escape_codes utility function as a general purpose command line unix filter program
 
 $VERSION = "0.1";
 
