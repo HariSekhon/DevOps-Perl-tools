@@ -18,7 +18,7 @@ $DESCRIPTION = "Anonymizes usernames, passwords, IP addresses, hostnames, emails
 
 Also has support for network device configurations including Cisco and Juniper, and should work on devices with similar configs as well.
 
-Works like a standard unix filter program, taking input from standard input or file(s) given as arguments and prints the modified output to standard output (to redirect to a new file or copy buffer).
+Works like a standard unix filter program, reading from file arguments or standard input and printing the modified output to standard output (to redirect to a new file or copy buffer).
 
 Create a list of phrases to anonymize from config by placing them in anonymize_custom.conf in the same directory as this program, one PCRE format regex per line, blank lines and lines prefixed with # are ignored.
 
