@@ -15,7 +15,7 @@
 
 $DESCRIPTION="Converts UTF characters to ASCII
 
-Works as a standard unix filter program, taking files are arguments or assuming input from standard input and printing to standard output.
+Works as a standard unix filter program, reading from file arguments or standard input and printing to standard output
 
 Known Issues: uses the Text::Unidecode CPAN module, which seems to convert unknown chars to \"a\"";
 
