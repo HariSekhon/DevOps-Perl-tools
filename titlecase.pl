@@ -13,9 +13,9 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-$DESCRIPTION="Capitalizes the first letter of each word (eg. to use a sentence as a title).
+$DESCRIPTION="Capitalizes the first letter of each word (eg. to use a sentence as a title)
 
-Works as a standard unix filter program, taking files are arguments or assuming input from standard input and printing to standard output.
+Works as a standard unix filter program, reading from file arguments or standard input and printing to standard output
 
 Does not uppercase letters immediately after an apostrophe (unless a/i) or a dot except for dotted acronyms (2 or more letters preceeded by dots immediately following each other).
 
