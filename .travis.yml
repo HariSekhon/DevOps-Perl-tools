@@ -12,8 +12,7 @@ perl:
   #- "5.18-shrplib"
   #- "5.16"
   # Redis module now requires Perl 5.10
-  # 5.10 build has broken without code change
-  #- "5.10"
+  - "5.10"
   #- "5.8"
 
 sudo: required
