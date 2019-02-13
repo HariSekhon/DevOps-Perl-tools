@@ -103,7 +103,7 @@ perl: perl-libs
 	fi
 	@echo
 	@echo "Installing CPAN Modules"
-	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
+	#yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
 	@echo
 	@echo "Installing any CPAN Modules missed by system packages"
 	for cpan_module in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/cpan-requirements-packaged.txt`; do \
