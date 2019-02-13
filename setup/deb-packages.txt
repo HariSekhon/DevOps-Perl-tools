@@ -19,14 +19,6 @@ gcc
 git
 wget
 
-libcam-pdf-perl
-libcrypt-rc4-perl
-libsearch-elasticsearch-perl
-libtext-pdf-perl
-libtext-unidecode-perl
-libxml-perl
-libxml-validate-perl
-
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev
 # needed to build XML::LibXML
