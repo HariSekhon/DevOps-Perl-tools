@@ -14,26 +14,5 @@
 #                            CPAN Module Dependencies
 # ============================================================================ #
 
-CAM::PDF
-# required for CAM::PDF
-Crypt::RC4
-#IO::Socket::SSL
-JSON
-JSON::XS
-LWP::Simple
-LWP::UserAgent
-Module::CPANfile::Result
-Module::Install::Admin
-#Net::LDAP
-#Net::LDAP::Filter
-#Net::LDAPI
-#Net::LDAPS
-Search::Elasticsearch
-Term::ReadKey
-# required for CAM::PDF
-Text::PDF
-Text::Unidecode
-Time::HiRes
-# use system package instead now as this fails to compile on Debian 9 Stretch citing libxml2 version unsupported
-#XML::LibXML
-XML::Validate
+#Module::CPANfile::Result
+#Module::Install::Admin
