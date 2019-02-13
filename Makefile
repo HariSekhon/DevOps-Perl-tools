@@ -94,15 +94,21 @@ perl: perl-libs
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
 	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
-
+	@echo
 	# Workaround for Mac OS X not finding the OpenSSL libraries when building
 	if [ -d /usr/local/opt/openssl/include -a \
 	     -d /usr/local/opt/openssl/lib     -a \
 	     `uname` = Darwin ]; then \
 	     yes "" | $(SUDO_PERL) OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) --notest Crypt::SSLeay; \
 	fi
-
-	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`
+	@echo
+	@echo "Installing CPAN Modules"
+	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
+	@echo
+	@echo "Installing any CPAN Modules missed by system packages"
+	for cpan_module in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/cpan-requirements-packaged.txt`; do \
+		perl -e "use $$cpan_module;" || $(SUDO_PERL) $(CPANM) --notest "$$cpan_module" || exit $$?; \
+	done
 
 .PHONY: perl-libs
 perl-libs:
