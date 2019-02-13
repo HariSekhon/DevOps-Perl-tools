@@ -1,0 +1,25 @@
+#  vim:ts=4:sts=4:sw=4:noet
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/devops-perl-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                         Deb CPAN Package Requirements
+# ============================================================================ #
+
+# These will be installed if available in the repos, otherwise skipped and installed via cpanm
+
+libcam-pdf-perl
+libcrypt-rc4-perl
+libsearch-elasticsearch-perl
+libtext-pdf-perl
+libtext-unidecode-perl
+libxml-perl
+libxml-validate-perl
