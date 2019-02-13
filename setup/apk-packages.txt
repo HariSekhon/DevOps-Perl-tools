@@ -25,5 +25,7 @@ libressl-dev
 perl
 perl-dev
 perl-doc
-perl-xml-libxml
 wget
+
+perl-xml-libxml
+perl-crypt-rc4
