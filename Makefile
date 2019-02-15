@@ -214,3 +214,30 @@ mount: docker-mount
 .PHONY: push
 push:
 	git push
+
+.PHONY: docker-mount
+docker-mount:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	#docker run -ti --rm --privileged=true -v $$PWD:/tools harisekhon/tools bash -c "cd /tools; exec bash"
+	docker run -ti --rm  -v $$PWD:/tools harisekhon/tools bash -c "cd /tools; exec bash"
+
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/tools
+.PHONY: docker-alpine
+docker-alpine:
+	docker run -ti -v $$PWD:/tools alpine /tools/bash-tools/exec-interactive.sh 'cd /tools && apk add --no-cache make && make build test'
+
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/tools
+.PHONY: docker-debian
+docker-debian:
+	docker run -ti -v $$PWD:/tools debian /tools/bash-tools/exec-interactive.sh 'cd /tools && apt-get update && apt-get install -y make && make build test'
+
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/tools
+.PHONY: docker-centos
+docker-centos:
+	docker run -ti -v $$PWD:/tools centos /tools/bash-tools/exec-interactive.sh 'cd /tools && yum install -y make && make build test'
+
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/tools
+.PHONY: docker-ubuntu
+docker-ubuntu:
+	docker run -ti -v $$PWD:/tools ubuntu /tools/bash-tools/exec-interactive.sh 'cd /tools && apt-get update && apt-get install -y make && make build test'
