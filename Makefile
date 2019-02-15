@@ -242,7 +242,7 @@ docker-mount:
 # For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/tools
 .PHONY: docker-alpine
 docker-alpine:
-	docker run -ti -v $$PWD:/tools alpine /tools/bash-tools/exec-interactive.sh 'cd /tools && apk add --no-cache make && make build test'
+	docker run -ti -v $$PWD:/tools alpine sh /tools/bash-tools/exec-interactive.sh 'cd /tools && apk add --no-cache make && make build test'
 
 # For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/tools
 .PHONY: docker-debian
