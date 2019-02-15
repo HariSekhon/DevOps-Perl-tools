@@ -11,15 +11,15 @@
 #
 
 # ============================================================================ #
-#                            Deb Package Requirements
+#                         Deb CPAN Package Requirements
 # ============================================================================ #
 
-perl
-gcc
-git
-wget
+# These will be installed if available in the repos, otherwise skipped and installed via cpanm
 
-# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-libssl-dev
-# needed to build XML::LibXML
-libxml2-dev
+libcam-pdf-perl
+libcrypt-rc4-perl
+libsearch-elasticsearch-perl
+libtext-pdf-perl
+libtext-unidecode-perl
+libxml-perl
+libxml-validate-perl

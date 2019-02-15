@@ -11,15 +11,15 @@
 #
 
 # ============================================================================ #
-#                            Deb Package Requirements
+#                             CPAN Modules Packaged
 # ============================================================================ #
 
-perl
-gcc
-git
-wget
-
-# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-libssl-dev
-# needed to build XML::LibXML
-libxml2-dev
+CAM::PDF
+# required for CAM::PDF
+Crypt::RC4
+Net::LDAP::Filter
+Search::Elasticsearch
+# required for CAM::PDF
+Text::PDF
+Text::Unidecode
+XML::Validate

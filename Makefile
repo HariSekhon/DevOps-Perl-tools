@@ -94,15 +94,21 @@ perl: perl-libs
 	# this doesn't work it's misaligned with the prompts, should use expect instead if I were going to do this
 	#(echo y;echo o conf prerequisites_policy follow;echo o conf commit) | cpan
 	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
-
+	@echo
 	# Workaround for Mac OS X not finding the OpenSSL libraries when building
 	if [ -d /usr/local/opt/openssl/include -a \
 	     -d /usr/local/opt/openssl/lib     -a \
 	     `uname` = Darwin ]; then \
 	     yes "" | $(SUDO_PERL) OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) --notest Crypt::SSLeay; \
 	fi
-
-	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`
+	@echo
+	@echo "Installing CPAN Modules"
+	#yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
+	@echo
+	@echo "Installing any CPAN Modules missed by system packages"
+	for cpan_module in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/cpan-requirements-packaged.txt`; do \
+		perl -e "use $$cpan_module;" || $(SUDO_PERL) $(CPANM) --notest "$$cpan_module" || exit 1; \
+	done
 
 .PHONY: perl-libs
 perl-libs:
@@ -127,6 +133,7 @@ apk-packages-remove:
 apt-packages:
 	$(SUDO) apt-get update
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-cpan.txt` || :
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
@@ -135,6 +142,16 @@ apt-packages-remove:
 
 .PHONY: yum-packages
 yum-packages:
+	# to fetch and untar ZooKeeper, plus wget epel rpm
+	rpm -q wget || yum install -y wget
+	
+	# epel-release is in the list of rpms to install via yum in setup/rpm-packages.txt but this is a more backwards compatible method of installing that will work on older versions of RHEL / CentOS as well so is left here for compatibility purposes
+	#
+	# python-pip requires EPEL, so try to get the correct EPEL rpm
+	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
+	# must instead do wget
+	rpm -q epel-release      || yum install -y epel-release || { wget -t 5 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
+
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
 
 .PHONY: yum-packages-remove
