@@ -118,6 +118,7 @@ quick:
 .PHONY: apk-packages
 apk-packages:
 	bash-tools/apk-install-packages.sh setup/apk-packages.txt setup/apk-packages-dev.txt
+	NO_FAIL=1 bash-tools/apk-install-packages.sh setup/apk-packages-cpan.txt
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
