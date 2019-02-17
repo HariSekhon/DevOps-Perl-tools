@@ -1,0 +1,18 @@
+#  vim:ts=4:sts=4:sw=4:noet
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/devops-perl-tools
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                        Alpine CPAN Package Requirements
+# ============================================================================ #
+
+perl-xml-libxml
+perl-crypt-rc4
