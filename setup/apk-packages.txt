@@ -26,6 +26,3 @@ perl
 perl-dev
 perl-doc
 wget
-
-perl-xml-libxml
-perl-crypt-rc4
