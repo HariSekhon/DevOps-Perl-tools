@@ -117,8 +117,7 @@ quick:
 
 .PHONY: apk-packages
 apk-packages:
-	$(SUDO) apk update
-	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages.txt setup/apk-packages-dev.txt`
+	bash-tools/apk-install-packages.sh setup/apk-packages.txt setup/apk-packages-dev.txt
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
@@ -128,9 +127,8 @@ apk-packages-remove:
 
 .PHONY: apt-packages
 apt-packages:
-	$(SUDO) apt-get update
-	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
-	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-cpan.txt` || :
+	bash-tools/apt-install-packages.sh setup/deb-packages.txt setup/deb-packages-dev.txt
+	NO_FAIL=1 NO_UPDATE=1 bash-tools/apt-install-packages.sh setup/deb-packages-cpan.txt
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
@@ -139,17 +137,8 @@ apt-packages-remove:
 
 .PHONY: yum-packages
 yum-packages:
-	# to fetch and untar ZooKeeper, plus wget epel rpm
-	rpm -q wget || yum install -y wget
-	
-	# epel-release is in the list of rpms to install via yum in setup/rpm-packages.txt but this is a more backwards compatible method of installing that will work on older versions of RHEL / CentOS as well so is left here for compatibility purposes
-	#
-	# python-pip requires EPEL, so try to get the correct EPEL rpm
-	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
-	# must instead do wget
-	rpm -q epel-release      || yum install -y epel-release || { wget -t 5 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
-
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
+	bash-tools/yum-install-packages.sh setup/rpm-packages.txt setup/rpm-packages-dev.txt
+	NO_FAIL=1 bash-tools/yum-install-packages.sh setup/rpm-packages-cpan.txt
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
