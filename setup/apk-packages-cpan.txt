@@ -11,18 +11,8 @@
 #
 
 # ============================================================================ #
-#                          Alpine Package Requirements
+#                        Alpine CPAN Package Requirements
 # ============================================================================ #
 
-alpine-sdk
-bash
-expat-dev
-gcc
-git
-#libxml2-dev
-#openssl-dev
-libressl-dev
-perl
-perl-dev
-perl-doc
-wget
+perl-xml-libxml
+perl-crypt-rc4
