@@ -41,8 +41,8 @@ build:
 	@echo ================
 
 	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make; exit $?; fi
-	$(MAKE) system-packages
+	if [ -z "$(CPANM)" ]; then make; exit $$?; fi
+	$(MAKE) system-packages-perl
 	$(MAKE) perl
 
 	# don't track and commit your personal name, company name etc additions to anonymize_custom.conf back to Git since they are personal to you
