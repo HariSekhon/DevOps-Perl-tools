@@ -41,8 +41,8 @@ build:
 	@echo ================
 
 	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make; exit $?; fi
-	$(MAKE) system-packages
+	if [ -z "$(CPANM)" ]; then make; exit $$?; fi
+	$(MAKE) system-packages-perl
 	$(MAKE) perl
 
 	# don't track and commit your personal name, company name etc additions to anonymize_custom.conf back to Git since they are personal to you
@@ -91,3 +91,16 @@ clean:
 .PHONY: deep-clean
 deep-clean: clean
 	cd lib && $(MAKE) deep-clean
+
+.PHONY: dockerhub
+dockerhub:
+	# Tools
+	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/1ce5ac1d-4ce6-4051-8246-2e05e042dfd7/trigger/6b4c6eeb-ed48-4e01-954f-ec2e0692ca35/call/
+	# Alpine Github
+	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/df816f2a-9407-4f1b-8b51-39615d784e65/trigger/8d9cb826-48df-439c-8c20-1975713064fc/call/
+	# Debian Github
+	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/439eff84-50c7-464a-a49e-0ac0bf1a9a43/trigger/0cfb3fe7-2028-494b-a43b-068435e6a2b3/call/
+	# CentOS Github
+	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/efba1846-5a9e-470a-92f8-69edc1232ba0/trigger/316d1158-7ffb-49a4-a7bd-8e5456ba2d15/call/
+	# Ubuntu Github
+	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/8b3dc094-d4ca-4c92-861e-1e842b5fac42/trigger/abd4dbf0-14bc-454f-9cde-081ec014bc48/call/
