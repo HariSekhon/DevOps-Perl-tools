@@ -14,9 +14,6 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
-# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-openssl-devel
-
 # needed to build XML::LibXML
 #libxml2-devel
 
