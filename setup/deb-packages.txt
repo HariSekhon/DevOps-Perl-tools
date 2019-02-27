@@ -14,12 +14,4 @@
 #                            Deb Package Requirements
 # ============================================================================ #
 
-perl
-gcc
-git
 wget
-
-# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-libssl-dev
-# needed to build XML::LibXML
-libxml2-dev
