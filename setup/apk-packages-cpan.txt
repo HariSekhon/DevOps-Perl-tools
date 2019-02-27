@@ -14,5 +14,4 @@
 #                        Alpine CPAN Package Requirements
 # ============================================================================ #
 
-perl-xml-libxml
 perl-crypt-rc4
