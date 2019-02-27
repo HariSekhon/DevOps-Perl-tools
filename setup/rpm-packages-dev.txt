@@ -14,10 +14,5 @@
 #                          RPM Dev Package Requirements
 # ============================================================================ #
 
-gcc
-#libxml2-devel
-#mysql-devel
+# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 openssl-devel
-perl-CPAN
-python-devel
-wget
