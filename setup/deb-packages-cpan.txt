@@ -21,5 +21,4 @@ libcrypt-rc4-perl
 libsearch-elasticsearch-perl
 libtext-pdf-perl
 libtext-unidecode-perl
-libxml-perl
 libxml-validate-perl
