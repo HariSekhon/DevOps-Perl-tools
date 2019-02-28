@@ -17,7 +17,7 @@
 CAM::PDF
 # required for CAM::PDF
 Crypt::RC4
-Net::LDAP::Filter
+#Net::LDAP::Filter
 Search::Elasticsearch
 # required for CAM::PDF
 Text::PDF
