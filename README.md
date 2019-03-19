@@ -1,6 +1,6 @@
 Hari Sekhon - DevOps Perl Tools
 ===============================
-[![Build Status](https://travis-ci.org/HariSekhon/devops-perl-tools.svg?branch=master)](https://travis-ci.org/HariSekhon/devops-perl-tools)
+[![Build Status](https://travis-ci.org/HariSekhon/DevOps-Perl-tools.svg?branch=master)](https://travis-ci.org/HariSekhon/DevOps-Perl-tools)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1769cc854b5246968ee2bae1818f771a)](https://www.codacy.com/app/harisekhon/devops-perl-tools)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/network)
