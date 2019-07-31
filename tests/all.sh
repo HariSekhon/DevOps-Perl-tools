@@ -20,7 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir";
 
-. "$srcdir/../bash-tools/utils.sh"
+. "$srcdir/../bash-tools/lib/utils.sh"
 
 export PROJECT="devops-perl-tools"
 

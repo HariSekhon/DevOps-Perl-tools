@@ -22,7 +22,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$srcdir/excluded.sh"
 
 # shellcheck disable=SC1090
-. "$srcdir/../bash-tools/utils.sh"
+. "$srcdir/../bash-tools/lib/utils.sh"
 
 # shellcheck disable=SC1090
 . "$srcdir/../bash-tools/docker.sh"
