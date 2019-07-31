@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 #  Author: Hari Sekhon
 #  Date: 2015-03-06 20:22:35 +0000 (Fri, 06 Mar 2015)
