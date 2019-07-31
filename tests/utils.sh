@@ -18,8 +18,13 @@ set -eu
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# shellcheck disable=SC1090
 . "$srcdir/excluded.sh"
+
+# shellcheck disable=SC1090
 . "$srcdir/../bash-tools/utils.sh"
+
+# shellcheck disable=SC1090
 . "$srcdir/../bash-tools/docker.sh"
 
 export COMPOSE_PROJECT_NAME="tools"
@@ -31,7 +36,7 @@ perl="perl"
 
 if [ -n "${PERLBREW_PERL:-}" ]; then
     PERL_VERSION="${PERLBREW_PERL}"
-    PERL_VERSION="${PERLBREW_PERL/perl-/}"
+    export PERL_VERSION="${PERLBREW_PERL/perl-/}"
 
     # For Travis CI which installs modules locally
 #    export PERL5LIB=$(echo \
@@ -51,18 +56,23 @@ if [ -n "${PERLBREW_PERL:-}" ]; then
 
     sudo=sudo
     #perl="/home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl"
+    # shellcheck disable=SC2016
     PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
 else
     sudo=""
+    # shellcheck disable=SC2016
     PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
 fi
+export sudo
+export PERL_MAJOR_VERSION
 
+# shellcheck disable=SC1090
 . "$srcdir/excluded.sh"
 
 check(){
     cmd=$1
     msg=$2
-    if eval $cmd; then
+    if eval "$cmd"; then
         echo "SUCCESS: $msg"
     else
         echo "FAILED: $msg"
