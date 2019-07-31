@@ -20,8 +20,11 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
+# $perl defined in utils.sh
+# shellcheck disable=SC2154
 if echo "select * from blah" | $perl -T ./sqlcase.pl | tee /dev/stderr | grep -q 'SELECT \* FROM blah'; then
     echo "recasing of SQL succeeded"
  else
