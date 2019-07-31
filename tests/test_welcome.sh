@@ -20,6 +20,9 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
+# $perl is defined in utils
+# shellcheck disable=SC2154
 $perl -T ./welcome.pl
