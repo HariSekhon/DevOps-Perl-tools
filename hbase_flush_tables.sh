@@ -30,8 +30,6 @@ See https://github.com/harisekhon/devops-python-tools for a better Python versio
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 
-srcdir="$(cd "$(dirname "$0")" && pwd)"
-
 die(){
     echo "$@"
     exit 1
@@ -42,8 +40,8 @@ usage(){
 "
 }
 
-for x in $@; do
-    case $x in
+for x in "$@"; do
+    case "$x" in
          -*) usage
             ;;
     esac
@@ -57,7 +55,7 @@ tables="$(sed -n '/TABLE/,/row.*[[:space:]]in[[:space:]].*[[:space:]]seconds/p' 
 
 [ -z "$tables" ] && die "No Tables Found"
 
-tables_to_flush="$(egrep "$regex" <<< "$tables")"
+tables_to_flush="$(grep -E "$regex" <<< "$tables")"
 
 [ -z "$tables_to_flush" ] && die "No Tables Found Matching the given regex '$regex'"
 
