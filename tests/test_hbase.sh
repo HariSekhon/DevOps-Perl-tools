@@ -20,10 +20,11 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir2/.."
 
+# shellcheck disable=SC1090
 . "$srcdir2/utils.sh"
-. "$srcdir2/../bash-tools/docker.sh"
 
-srcdir="$srcdir2"
+# shellcheck disable=SC1090
+. "$srcdir2/../bash-tools/docker.sh"
 
 section "H B a s e"
 
@@ -37,7 +38,7 @@ export HBASE_STARGATE_PORT_DEFAULT=8080
 export HBASE_THRIFT_PORT_DEFAULT=9090
 export ZOOKEEPER_PORT_DEFAULT=2181
 
-export HBASE_VERSIONS="${@:-latest 0.96 0.98 1.0 1.1 1.2 1.3}"
+export HBASE_VERSIONS="${*:-latest 0.96 0.98 1.0 1.1 1.2 1.3}"
 
 check_docker_available
 
@@ -50,8 +51,10 @@ test_hbase(){
     section2 "Setting up HBase $version test container"
     VERSION="$version" docker-compose up -d
     hr
-    if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
+    if [ "$version" = "0.96" ] || [ "$version" = "0.98" ]; then
+        # shellcheck disable=SC2034
         local export HBASE_MASTER_PORT_DEFAULT=60010
+        # shellcheck disable=SC2034
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     echo "getting HBase dynamic port mappings:"
@@ -63,6 +66,7 @@ test_hbase(){
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT"
     hr
     # ============================================================================ #
+    # shellcheck disable=SC2086
     when_ports_available "$HBASE_HOST" $HBASE_PORTS
     hr
     when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
