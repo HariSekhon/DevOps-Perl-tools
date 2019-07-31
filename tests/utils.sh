@@ -25,7 +25,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$srcdir/../bash-tools/lib/utils.sh"
 
 # shellcheck disable=SC1090
-. "$srcdir/../bash-tools/docker.sh"
+. "$srcdir/../bash-tools/lib/docker.sh"
 
 export COMPOSE_PROJECT_NAME="tools"
 

@@ -24,7 +24,7 @@ cd "$srcdir2/.."
 . "$srcdir2/utils.sh"
 
 # shellcheck disable=SC1090
-. "$srcdir2/../bash-tools/docker.sh"
+. "$srcdir2/../bash-tools/lib/docker.sh"
 
 section "H B a s e"
 
