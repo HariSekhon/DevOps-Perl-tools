@@ -27,8 +27,10 @@ fi
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
+# shellcheck disable=SC2154
 anonymize="$perl -T ./anonymize.pl"
 
 src[0]="2015-11-19 09:59:59,893 - Execution of 'mysql -u root --password=somep@ssword! -h myHost.internal  -s -e \"select version();\"' returned 1. ERROR 2003 (HY000): Can't connect to MySQL server on 'host.domain.com' (111)"
@@ -143,6 +145,8 @@ dest[35]="<mac>"
 
 args="-ae"
 test_anonymize(){
+    local src
+    local dest
     src="$1"
     dest="$2"
     #[ -z "${src[$i]:-}" ] && { echo "skipping test $i..."; continue; }
@@ -171,7 +175,7 @@ fi
 # this gives the number of elements and prevents testing the last element(s) if commenting something out in the middle
 #for (( i = 0 ; i < ${#src[@]} ; i++ )); do
 run_tests(){
-    test_numbers="${@:-${!src[@]}}"
+    test_numbers="${*:-${!src[@]}}"
     for i in $test_numbers; do
         [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
         [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
@@ -229,7 +233,9 @@ if [ -n "$parallel" ]; then
 fi
 
 echo "checking file args"
-if [ `$anonymize -ae README.md | wc -l` -lt 100 ]; then
+# do not quote $anonymize, allow to split to contain full cli args
+# shellcheck disable=SC2046
+if [ $($anonymize -ae README.md | wc -l) -lt 100 ]; then
     echo "Suspicious readme file arg result came to < 100 lines"
     exit 1
 fi
