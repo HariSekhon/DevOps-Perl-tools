@@ -18,8 +18,9 @@ set -eu
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd $srcdir/..
+cd "$srcdir/.."
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
 section "DrillCase"
@@ -29,6 +30,8 @@ name=drillcase
 start_time=$(date +%s)
 
 run++
+# $perl defined in utils
+# shellcheck disable=SC2154
 if echo "select columns[0] from myTable where name = 'hari';" | $perl -T ./drillcase.pl | tee /dev/stderr | grep -qF "SELECT columns[0] FROM myTable WHERE name = 'hari';"; then
     echo "recasing of Drill statement succeeded"
 else
@@ -37,6 +40,8 @@ else
 fi
 
 echo
+# $run_count defined in run++
+# shellcheck disable=SC2154
 echo "Total Tests run: $run_count"
 time_taken "$start_time" "All version tests for $name completed in"
 echo
