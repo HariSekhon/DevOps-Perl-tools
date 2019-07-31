@@ -20,16 +20,15 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir";
 
+# shellcheck disable=SC1090
 . "$srcdir/../bash-tools/lib/utils.sh"
 
 export PROJECT="devops-perl-tools"
 
 section "DevOps Perl Tools ALL Tests"
 
-cd ..
+../bash-tools/all.sh
 
-bash-tools/all.sh
+./help.sh
 
-tests/help.sh
-
-bash-tools/run_tests.sh
+../bash-tools/run_tests.sh
