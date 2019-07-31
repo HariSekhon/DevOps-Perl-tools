@@ -20,16 +20,20 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC1091
 . tests/utils.sh
 
-for x in $(echo *.pl *.py *.rb 2>/dev/null); do
+for x in $(echo ./*.pl ./*.py ./*.rb 2>/dev/null); do
     isExcluded "$x" && continue
     set +e
     optional_cmd=""
     if [[ $x =~ .*\.pl$ ]]; then
+        # shellcheck disable=SC2154
         optional_cmd="$perl -T"
     fi
-    echo $optional_cmd ./$x --help
+    echo "$optional_cmd ./$x --help"
+    # do not quote as must expand args
+    # shellcheck disable=SC2086
     $optional_cmd ./$x --help # >/dev/null
     status=$?
     set -e
