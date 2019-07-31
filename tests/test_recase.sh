@@ -20,8 +20,11 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
+# $perl defined by utils
+# shellcheck disable=SC2154
 if echo oRg.Apache.Hadoop.Mapred.TextInputFormaT | $perl -T ./recase.pl | tee /dev/stderr | grep -q org.apache.hadoop.mapred.TextInputFormat; then
     echo "recasing of Hadoop TextInputFormat succeeded"
  else
