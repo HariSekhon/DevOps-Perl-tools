@@ -23,7 +23,7 @@ cd "$srcdir/..";
 # shellcheck disable=SC1091
 . tests/utils.sh
 
-for x in $(echo ./*.pl ./*.py ./*.rb 2>/dev/null); do
+for x in $(find . -iname '*.pl' -o -iname '*.py' -o -iname '*.rb'); do
     isExcluded "$x" && continue
     set +e
     optional_cmd=""
