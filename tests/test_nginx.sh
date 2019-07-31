@@ -19,6 +19,7 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir2/..";
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
 # because including bash-tools/util.sh resets the srcdir
@@ -26,7 +27,7 @@ srcdir="$srcdir2"
 
 section "N g i n x"
 
-export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-latest 1.7 1.8 1.9 1.10 1.11 1.12 1.13}}"
+export NGINX_VERSIONS="${*:-${NGINX_VERSIONS:-latest 1.7 1.8 1.9 1.10 1.11 1.12 1.13}}"
 
 NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
 NGINX_HOST="${NGINX_HOST##*/}"
@@ -54,14 +55,18 @@ test_nginx(){
     docker_compose_port Nginx
     # ============================================================================ #
     hr
+    # defined by docker_compose_port()
+    # shellcheck disable=SC2153
     when_ports_available "$NGINX_HOST" "$NGINX_PORT"
     hr
     # ============================================================================ #
     if [ -z "${NOTESTS:-}" ]; then
-        run $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
+        # $perl defined in utils.sh
+        # shellcheck disable=SC2154,SC2086
+        run "$perl" -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
 
         echo "Testing Nginx stats stub failure:"
-        run_fail 2 $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
+        run_fail 2 "$perl" -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
     fi
     # ============================================================================ #
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
@@ -84,10 +89,12 @@ test_nginx(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    run $perl -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
+    run "$perl" -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
 
-    run $perl -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
+    run "$perl" -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
 
+    # $run_count assigned by run_*() functions
+    # shellcheck disable=SC2154
     echo "Completed $run_count Nginx tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
