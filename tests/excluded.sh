@@ -26,6 +26,7 @@ ${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || z
 isExcluded(){
     local prog="$1"
     [[ "$prog" =~ ^\* ]] && return 0
+    [[ "$prog" =~ Makefile.PL ]] && return 0
     # ignore zookeeper plugins if Net::ZooKeeper module is not available
     if grep -q "Net::ZooKeeper" "$prog" && ! [ $zookeeper_built ]; then
         echo "skipping $prog due to Net::ZooKeeper dependency not having been built (do 'make zookeeper' if intending to use this plugin)"
