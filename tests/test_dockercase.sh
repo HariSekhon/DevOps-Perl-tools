@@ -21,16 +21,19 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$srcdir/";
 
 # don't pick up $PATH/spark/bin/utils.sh
+# shellcheck disable=SC1091
 . ./utils.sh
 
 md5sum="md5sum"
 checksum='14afceeaf204606f9027af58a4f70c4c'
 
+# defined by utils
+# shellcheck disable=SC2154
 $perl -T ../dockercase.pl Dockerfile > Dockerfile2
-if [ "`uname -s`" = 'Darwin' ]; then
+if [ "$(uname -s)" = 'Darwin' ]; then
     md5sum="md5 -r"
 fi
-if [ "`$md5sum Dockerfile2 | awk '{print $1}'`" = "$checksum" ]; then
+if [ "$("$md5sum" Dockerfile2 | awk '{print $1}')" = "$checksum" ]; then
     echo "recasing of Dockerfile succeeded"
  else
     echo "recasing of Dockerfile FAILED"
