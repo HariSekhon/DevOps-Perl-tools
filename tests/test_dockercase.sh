@@ -33,7 +33,7 @@ $perl -T ../dockercase.pl Dockerfile > Dockerfile2
 if [ "$(uname -s)" = 'Darwin' ]; then
     md5sum="md5 -r"
 fi
-if [ "$("$md5sum" Dockerfile2 | awk '{print $1}')" = "$checksum" ]; then
+if [ "$($md5sum Dockerfile2 | awk '{print $1}')" = "$checksum" ]; then
     echo "recasing of Dockerfile succeeded"
  else
     echo "recasing of Dockerfile FAILED"
