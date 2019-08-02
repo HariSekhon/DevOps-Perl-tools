@@ -24,6 +24,7 @@ cd "$srcdir/..";
 . tests/utils.sh
 
 for x in $(find . -iname '*.pl' -o -iname '*.py' -o -iname '*.rb'); do
+    [ -x "$x" ] || continue
     isExcluded "$x" && continue
     set +e
     optional_cmd=""
