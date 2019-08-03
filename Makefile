@@ -30,6 +30,8 @@
 
 # ===================
 
+REPO := HariSekhon/DevOps-Perl-tools
+
 ifneq ("$(wildcard bash-tools/Makefile.in)", "")
 	include bash-tools/Makefile.in
 endif
@@ -77,11 +79,11 @@ test: lib-test
 
 .PHONY: travis
 travis:
-	travis_last_log.py /DevOps-Perl-tools
+	travis_last_log.py $(REPO)
 
 .PHONY: travis-debug
 travis-debug:
-	travis_debug_session.py /DevOps-Perl-tools
+	travis_debug_session.py $(REPO)
 
 .PHONY: basic-test
 basic-test: lib-test
