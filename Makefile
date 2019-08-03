@@ -77,14 +77,6 @@ lib-test:
 test: lib-test
 	tests/all.sh
 
-.PHONY: travis
-travis:
-	travis_last_log.py $(REPO)
-
-.PHONY: travis-debug
-travis-debug:
-	travis_debug_session.py $(REPO)
-
 .PHONY: basic-test
 basic-test: lib-test
 	. tests/excluded.sh; bash-tools/all.sh
