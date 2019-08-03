@@ -97,9 +97,9 @@ EOF
     fi
     hr
     # ============================================================================ #
-    docker_exec hbase_flush_tables.sh
+    docker_exec /tools/hbase_flush_tables.sh
 
-    docker_exec hbase_flush_tables.sh .2
+    docker_exec /tools/hbase_flush_tables.sh .2
 
     docker-compose down
     echo
