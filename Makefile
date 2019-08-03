@@ -79,6 +79,10 @@ test: lib-test
 travis:
 	travis_last_log.py /DevOps-Perl-tools
 
+.PHONY: travis-debug
+travis-debug:
+	travis_debug_session.py /DevOps-Perl-tools
+
 .PHONY: basic-test
 basic-test: lib-test
 	. tests/excluded.sh; bash-tools/all.sh
