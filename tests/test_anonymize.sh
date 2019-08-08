@@ -239,5 +239,3 @@ if [ $($anonymize -ae README.md | wc -l) -lt 100 ]; then
     echo "Suspicious readme file arg result came to < 100 lines"
     exit 1
 fi
-
-exit 0
