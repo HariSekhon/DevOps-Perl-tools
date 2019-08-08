@@ -25,3 +25,6 @@ cd "$srcdir/..";
 
 # shellcheck disable=SC2154
 $perl -T ./colors.pl
+
+# shellcheck disable=SC2154
+$perl -T ./colors.pl -v
