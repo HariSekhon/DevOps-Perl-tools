@@ -15,7 +15,7 @@
 
 $DESCRIPTION = "Program to show all the ASCII terminal code Foreground/Background color combinations in a terminal to make it easy to pick for writing fancy programs";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 use strict;
 use warnings;
@@ -39,7 +39,7 @@ push(@effects, qw/4 5/) if $verbose;
 
 print "\nASCII Terminal Codes Color Key:
 
-EF  = Effect (1 = bold, 4 = underline & 5 = blink only shown in verbose mode)
+EF  = Effect [1 = bold, 4 = underline, 5 = blink (only shown in verbose mode)]
 TXT = Foreground text color
 BG  = Background solid color
 \n";
