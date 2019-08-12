@@ -32,7 +32,7 @@
 
 REPO := HariSekhon/DevOps-Perl-tools
 
-CODE_FILES := $(shell find . -type f -name '*.pl' -o -name '*.pm' -o -name '*.sh' | grep -v -e /lib/ -e bash-tools)
+CODE_FILES := $(shell find . -type f -name '*.pl' -o -type f -name '*.pm' -o -type f -name '*.sh' | grep -v -e /lib/ -e bash-tools)
 
 ifneq ("$(wildcard bash-tools/Makefile.in)", "")
 	include bash-tools/Makefile.in
