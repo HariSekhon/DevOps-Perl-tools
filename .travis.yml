@@ -7,13 +7,17 @@
 language: perl
 perl:
   # this build has thread support
-  - "5.24-shrplib"
+  - "5.26-shrplib"
   #- "5.22"
   #- "5.18-shrplib"
   #- "5.16"
   # Redis module now requires Perl 5.10
   - "5.10"
   #- "5.8"
+
+os:
+  - linux
+  - osx
 
 sudo: required
 
