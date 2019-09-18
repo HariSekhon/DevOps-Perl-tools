@@ -1,5 +1,62 @@
+# vim: filetype=conf
+
 # This doesn't actually work on already committed files,  git update-index --assume-unchanged is set in Makefile instead
 anonymize_custom.conf
+
 solr-env.sh
 *.log
 *.swp
+
+# ============================================================================ #
+
+# Created by https://www.gitignore.io/api/perl,perl6
+# Edit at https://www.gitignore.io/?templates=perl,perl6
+
+### Perl ###
+!Build/
+.last_cover_stats
+/META.yml
+/META.json
+/MYMETA.*
+*.o
+*.pm.tdy
+*.bs
+
+# Devel::Cover
+cover_db/
+
+# Devel::NYTProf
+nytprof.out
+
+# Dizt::Zilla
+/.build/
+
+# Module::Build
+_build/
+Build
+Build.bat
+
+# Module::Install
+inc/
+
+# ExtUtils::MakeMaker
+/blib/
+/_eumm/
+/*.gz
+/Makefile
+/Makefile.old
+/MANIFEST.bak
+/pm_to_blib
+/*.zip
+
+### Perl6 ###
+# Gitignore for Perl 6 (http://www.perl6.org)
+# As part of https://github.com/github/gitignore
+
+# precompiled files
+.precomp
+lib/.precomp
+
+
+# End of https://www.gitignore.io/api/perl,perl6
+
