@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2230
 #  vim:ts=4:sts=4:sw=4:et
 #
 #  Author: Hari Sekhon
@@ -34,7 +35,7 @@ isExcluded(){
     fi
     # this external git check is expensive, skip it when in CI as using fresh git checkouts
     is_CI && return 1
-    if command -v git &>/dev/null; then
+    if which git &>/dev/null; then
         commit="$(git log "$prog" | head -n1 | grep 'commit')"
         if [ -z "$commit" ]; then
             return 0
