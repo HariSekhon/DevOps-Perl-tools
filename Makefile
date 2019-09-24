@@ -85,7 +85,7 @@ basic-test: lib-test
 	tests/help.sh
 
 .PHONY: install
-install:
+install: build
 	@echo "No installation needed, just add '$(PWD)' to your \$$PATH"
 
 .PHONY: clean
