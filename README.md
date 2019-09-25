@@ -170,7 +170,7 @@ All CPAN modules are listed in the ```setup/cpan-requirements.txt``` file.
 
 #### Configuration for Strict Domain / FQDN validation ####
 
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via my [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring to permit custom TLDs like `.local`, `.intranet`, `.vm`, `.cloud` etc. (these common ones are already supported by default).
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via my [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring to permit custom TLDs like `.local`, `.intranet`, `.vm`, `.cloud` etc. (all already included in there because they're common across companies internal environments).
 
 
 ### Updating ###
