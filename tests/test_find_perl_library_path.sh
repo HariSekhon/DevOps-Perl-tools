@@ -29,5 +29,6 @@ run_grep '/Time/HiRes.pm' ./find_perl_library_path.pl JSON Time::HiRes
 run_grep 'lib/HariSekhonUtils.pm' ./find_perl_library_path.pl HariSekhonUtils
 run_grep 'lib/HariSekhon/Solr.pm' ./find_perl_library_path.pl HariSekhon::Solr
 ERRCODE=2 run_grep '' ./find_perl_library_path.pl nonexistentmodule
-ERRCODE=3 run_grep '' ./find_perl_library_path.pl
-run_usage ./find_perl_library_path.pl
+run_grep 'Perl' ./find_perl_library_path.pl
+run_usage ./find_perl_library_path.pl -h
+run_usage ./find_perl_library_path.pl --help
