@@ -19,11 +19,13 @@ Simple tool to print the local path to one or more libraries given as arguments
 
 Useful for finding where things are installed on different operating systems like Mac vs Linux
 
+If no libraries are specified, finds the default library location via File::Basename
+
 Tested on Perl 5.x on Mac and Linux
 
 ";
 
-$VERSION = "0.1.0";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
@@ -32,7 +34,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 
-if(not @ARGV or @ARGV < 1){
+sub usage_local(){
     # doing this as a sub has a prototype mismatch if you import anything that has the same sub name, eg. usage() from HariSekhonUtils.pm
     #usage;
     my $progname = basename $0;
@@ -46,9 +48,16 @@ if(not @ARGV or @ARGV < 1){
 }
 
 my $exitcode = 0;
+
 foreach my $module (@ARGV){
+    if($module =~ /^-/){
+        usage_local();
+    }
+}
+
+sub get_module_path($){
     #$module =~ /^([A-Za-z0-9:]+)$/ or next
-    #$module = $1;
+    my $module = shift;
     my $path = $module;
     $path =~ s/::/\//g;
     # normalize between adding .pm or omitting it for each module
@@ -61,12 +70,26 @@ foreach my $module (@ARGV){
     if($@){
         print STDERR  "perl module '$module' not found: $@";
         $exitcode = 2;
-        next;
+        return;
     }
     if(exists $INC{$path}){
-        print "$INC{$path}\n";
+        return "$INC{$path}";
     } else {
         $exitcode = 3;
     }
 }
+
+if(@ARGV){
+    foreach my $module (@ARGV){
+        my $path = get_module_path($module);
+        if(defined($path)){
+            print "$path\n";
+        }
+    }
+} else {
+    my $path = get_module_path("File::Basename");
+    $path =~ s/\/File\/Basename.pm//;
+    print "$path\n";
+}
+
 exit $exitcode
