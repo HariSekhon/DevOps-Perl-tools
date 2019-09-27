@@ -13,11 +13,17 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-$DESCRIPTION = "Prints the location of Perl modules given as arguments
+$DESCRIPTION = "
 
-Tested on Mac OS X and Linux";
+Simple tool to print the local path to one or more libraries given as arguments
 
-$VERSION = "0.1";
+Useful for finding where things are installed on different operating systems like Mac vs Linux
+
+Tested on Perl 5.x on Mac and Linux
+
+";
+
+$VERSION = "0.1.0";
 
 use strict;
 use warnings;
@@ -26,12 +32,27 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 
+if(not @ARGV or @ARGV < 1){
+    # doing this as a sub has a prototype mismatch if you import anything that has the same sub name, eg. usage() from HariSekhonUtils.pm
+    #usage;
+    my $progname = basename $0;
+    my $description = $main::DESCRIPTION;
+    $description =~ s/^\s*//;
+    $description =~ s/\s*$//;
+    print "$description\n\n\n";
+    print "usage: $progname <library1> [<library2> <library3>...]\n\n";
+    exit 3;
+
+}
+
 my $exitcode = 0;
 foreach my $module (@ARGV){
     #$module =~ /^([A-Za-z0-9:]+)$/ or next
     #$module = $1;
     my $path = $module;
     $path =~ s/::/\//g;
+    # normalize between adding .pm or omitting it for each module
+    $path =~ s/.pm$//;
     $path =~ s/$/.pm/;
     eval {
         require $path;
