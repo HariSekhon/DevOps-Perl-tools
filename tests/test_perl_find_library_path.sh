@@ -26,7 +26,6 @@ section "Perl Find Library Path"
 
 start_time="$(start_timer "perl_find_library_path")"
 
-
 run ./perlpath.pl
 
 run_grep '/File/Basename.pm$' $perl ./perl_find_library_path.pl File::Basename
