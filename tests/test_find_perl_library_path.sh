@@ -22,13 +22,13 @@ cd "$srcdir/..";
 # shellcheck disable=SC1091
 . ./tests/utils.sh
 
-run_grep '/File/Basename.pm$' ./find_perl_library_path.pl File::Basename
-run_grep '/JSON.pm' ./find_perl_library_path.pl JSON
-run_grep '/JSON.pm' ./find_perl_library_path.pl JSON Time::HiRes
-run_grep '/Time/HiRes.pm' ./find_perl_library_path.pl JSON Time::HiRes
-run_grep 'lib/HariSekhonUtils.pm' ./find_perl_library_path.pl HariSekhonUtils
-run_grep 'lib/HariSekhon/Solr.pm' ./find_perl_library_path.pl HariSekhon::Solr
-ERRCODE=2 run_grep '' ./find_perl_library_path.pl nonexistentmodule
-run_grep 'Perl' ./find_perl_library_path.pl
-run_usage ./find_perl_library_path.pl -h
-run_usage ./find_perl_library_path.pl --help
+run_grep '/File/Basename.pm$' ./perl_find_library_path.pl File::Basename
+run_grep '/JSON.pm' ./perl_find_library_path.pl JSON
+run_grep '/JSON.pm' ./perl_find_library_path.pl JSON Time::HiRes
+run_grep '/Time/HiRes.pm' ./perl_find_library_path.pl JSON Time::HiRes
+run_grep 'lib/HariSekhonUtils.pm' ./perl_find_library_path.pl HariSekhonUtils
+run_grep 'lib/HariSekhon/Solr.pm' ./perl_find_library_path.pl HariSekhon::Solr
+ERRCODE=2 run_grep '' ./perl_find_library_path.pl nonexistentmodule
+run_grep 'Perl' ./perl_find_library_path.pl
+run_usage ./perl_find_library_path.pl -h
+run_usage ./perl_find_library_path.pl --help
