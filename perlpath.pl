@@ -21,7 +21,7 @@ Tested on Perl 5.x on Mac and Linux
 
 ";
 
-$VERSION = "0.1.0";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
