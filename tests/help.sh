@@ -23,7 +23,7 @@ cd "$srcdir/..";
 # shellcheck disable=SC1091
 . tests/utils.sh
 
-for x in $(find -maxdepth 1 . -iname '*.pl' -o -iname '*.py' -o -iname '*.rb'); do
+while read -r x; do
     #[ -x "$x" ] || continue
     isExcluded "$x" && continue
     set +e
@@ -39,5 +39,5 @@ for x in $(find -maxdepth 1 . -iname '*.pl' -o -iname '*.py' -o -iname '*.rb'); 
     status=$?
     set -e
     [ $status = 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
-done
+done < <(find . -maxdepth 1 -iname '*.pl' -o -iname '*.py' -o -iname '*.rb')
 echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
