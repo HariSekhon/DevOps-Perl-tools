@@ -21,13 +21,30 @@ Tested on Perl 5.x on Mac and Linux
 
 ";
 
-$VERSION = "0.1.0";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
+use File::Basename;
 #BEGIN {
 #    use File::Basename;
 #    use lib dirname(__FILE__) . "/lib";
 #}
+
+sub usage(){
+    my $progname = basename $0;
+    my $description = $main::DESCRIPTION;
+    $description =~ s/^\s*//;
+    $description =~ s/\s*$//;
+    print "$description\n\n\n";
+    print "usage: $progname\n\n";
+    exit 3;
+
+}
+
+
+if(@ARGV){
+    usage;
+}
 
 print join("\n", @INC);
