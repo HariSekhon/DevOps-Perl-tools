@@ -49,7 +49,7 @@ The 'make' command will initialize my library submodule and  use 'sudo' to insta
 
 Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/devops-perl-tools#detailed-build-instructions) further down for more information.
 
-### Creating self-contained versions of all the scripts with dependencies built in to each file
+### Optional: Generate self-contained Perl scripts with all dependencies built in to each file for easy distribution
 
 After the `make` build has finished, if you want to make self-contained versions of all the perl scripts with all dependencies included for copying around, run:
 
