@@ -4,6 +4,8 @@
 anonymize_custom.conf
 
 solr-env.sh
+fatpacks/
+fatlib/
 *.log
 *.swp
 
