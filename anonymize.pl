@@ -27,7 +27,7 @@ Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to thi
 There is also a newer Python version with more redactions and features such as --hash-hostnames available at https://github.com/harisekhon/devops-python-tools
 ";
 
-$VERSION = "0.13.0";
+$VERSION = "0.13.1";
 
 use strict;
 use warnings;
@@ -420,6 +420,7 @@ sub anonymize_http_auth($){
     $string =~ s/([\w-]*[\s-](?:Authentication|Authorization):\s*(?:Basic|Digest)\s+).+$/$1<auth_token>/go;
     # Proxy auth using Basic with user '.+'
     $string =~ s/(Proxy auth using \w+ with user )(['"]).+(['"])/$1'<proxy_user>$2$3/go;
+    $string =~ s/(\btoken:\s+)[A-Za-z0-9]+/$1<token>/go;
     return $string;
 }
 
