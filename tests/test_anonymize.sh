@@ -147,6 +147,11 @@ dest[34]="<mac>"
 src[35]="A1-B2-C3-D4-E4-F6"
 dest[35]="<mac>"
 
+
+src[112]="travis token:  Abc123"
+dest[112]="travis token:  <token>"
+
+
 args="-ae"
 test_anonymize(){
     local src
