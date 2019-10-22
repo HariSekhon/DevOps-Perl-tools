@@ -83,21 +83,21 @@ Environment variables are supported for convenience and also to hide credentials
     - placeholder tokens indicate what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
   - ```sqlcase.pl``` - capitalizes SQL code in files or stdin:
-    - ```*case.pl``` - more specific language support for just about every databases and SQL-like language out there plus a few more like Docker:
-      - [Apache Drill](https://drill.apache.org/)
-      - [Cassandra](http://cassandra.apache.org/) CQL
-      - [Couchbase](https://www.couchbase.com/) N1QL
-      - [Docker (Dockerfiles)](https://www.docker.com)
-      - [Hive](https://hive.apache.org)
-      - [Impala](https://impala.apache.org)
-      - [InfluxDB](https://www.influxdata.com)
-      - [Microsoft SQL Server](https://en.wikipedia.org/wiki/Microsoft_SQL_Server)
-      - [MySQL](https://www.mysql.com)
-      - [Neo4j](https://neo4j.com)
-      - [Oracle](https://www.oracle.com/uk/index.html)
-      - [Pig](https://pig.apache.org) Latin
-      - [PostgreSQL](https://www.postgresql.org)
-      - [Snowflake](https://www.snowflake.com)
+    - ```*case.pl``` - more specific language support for just about every databases and SQL-like language out there plus a few more like [Docker](https://www.docker.com) [Dockerfiles](https://docs.docker.com/engine/reference/builder/):
+      - [Apache Drill](https://drill.apache.org/) SQL
+      - [Cassandra](http://cassandra.apache.org/) [CQL](http://cassandra.apache.org/doc/latest/cql/)
+      - [Couchbase](https://www.couchbase.com/) [N1QL](https://www.couchbase.com/products/n1ql) (SQL for JSON)
+      - [Docker](https://www.docker.com) ([Dockerfiles](https://docs.docker.com/engine/reference/builder/))
+      - [Hive](https://hive.apache.org) [HQL](https://cwiki.apache.org/confluence/display/Hive/LanguageManual)
+      - [Impala](https://impala.apache.org) SQL
+      - [InfluxDB](https://www.influxdata.com) [InfluxQL](https://docs.influxdata.com/influxdb/v1.7/query_language/spec/)
+      - [Microsoft SQL Server](https://en.wikipedia.org/wiki/Microsoft_SQL_Server) SQL
+      - [MySQL](https://www.mysql.com) SQL
+      - [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/)
+      - [Oracle](https://www.oracle.com/uk/index.html) SQL
+      - [Pig](https://pig.apache.org) [Latin](https://pig.apache.org/docs/r0.17.0/basic.html)
+      - [PostgreSQL](https://www.postgresql.org) SQL
+      - [Snowflake](https://www.snowflake.com) SQL
     - written to help clean up docs and SQL scripts (I don't even bother writing capitalised SQL code any more I just run it through this via a vim shortcut)
   - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
   - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
