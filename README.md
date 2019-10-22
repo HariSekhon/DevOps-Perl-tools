@@ -83,7 +83,21 @@ Environment variables are supported for convenience and also to hide credentials
     - placeholder tokens indicate what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
   - ```sqlcase.pl``` - capitalizes SQL code in files or stdin:
-    - ```*case.pl``` - more specific language support for Hive, Impala, Cassandra CQL, Couchbase N1QL, MySQL, PostgreSQL, Apache Drill, Microsoft SQL Server, Oracle, Pig Latin, Neo4j, InfluxDB and Docker
+    - ```*case.pl``` - more specific language support for just about every databases and SQL-like language out there plus a few more like Docker:
+      - [Apache Drill](https://drill.apache.org/)
+      - [Cassandra](http://cassandra.apache.org/) CQL
+      - [Couchbase](https://www.couchbase.com/) N1QL
+      - [Docker (Dockerfiles)](https://www.docker.com)
+      - [Hive](https://hive.apache.org)
+      - [Impala](https://impala.apache.org)
+      - [InfluxDB](https://www.influxdata.com)
+      - [Microsoft SQL Server](https://en.wikipedia.org/wiki/Microsoft_SQL_Server)
+      - [MySQL](https://www.mysql.com)
+      - [Neo4j](https://neo4j.com)
+      - [Oracle](https://www.oracle.com/uk/index.html)
+      - [Pig](https://pig.apache.org) Latin
+      - [PostgreSQL](https://www.postgresql.org)
+      - [Snowflake](https://www.snowflake.com)
     - written to help clean up docs and SQL scripts (I don't even bother writing capitalised SQL code any more I just run it through this via a vim shortcut)
   - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
   - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
