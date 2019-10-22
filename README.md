@@ -106,7 +106,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
   - ```flock.pl``` - file locking to prevent running the same program twice at the same time. RHEL 6 now has a native version of this
   - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
-  - ```colors.pl``` - prints ASCII color code matrix fg/bg with corresponding terminal escape codes to help with tuning your shell
+  - ```colors.pl``` - prints ASCII color code matrix of all foreground + background combinations showing the corresponding terminal escape codes to help with tuning your shell
   - ```matrix.pl``` - prints a cool matrix of vertical scrolling characters using terminal tricks
   - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
 
