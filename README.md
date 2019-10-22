@@ -93,7 +93,7 @@ Environment variables are supported for convenience and also to hide credentials
       - `influxcase.pl` - [InfluxDB](https://www.influxdata.com) [InfluxQL](https://docs.influxdata.com/influxdb/v1.7/query_language/spec/)
       - `mssqlcase.pl` - [Microsoft SQL Server](https://en.wikipedia.org/wiki/Microsoft_SQL_Server) SQL
       - `mysqlcase.pl` - [MySQL](https://www.mysql.com) SQL
-      - `n1qlcase.pl` - [Couchbase](https://www.couchbase.com/) [N1QL](https://www.couchbase.com/products/n1ql) (SQL for JSON)
+      - `n1qlcase.pl` - [Couchbase](https://www.couchbase.com/) [N1QL](https://www.couchbase.com/products/n1ql)
       - `oraclecase.pl` / `plsqlcase.pl` - [Oracle](https://www.oracle.com/uk/index.html) SQL
       - `pgsqlcase.pl` - [PostgreSQL](https://www.postgresql.org) SQL
       - `pigcase.pl` - [Pig](https://pig.apache.org) [Latin](https://pig.apache.org/docs/r0.17.0/basic.html)
