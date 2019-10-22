@@ -83,7 +83,21 @@ Environment variables are supported for convenience and also to hide credentials
     - placeholder tokens indicate what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
   - ```sqlcase.pl``` - capitalizes SQL code in files or stdin:
-    - ```*case.pl``` - more specific language support for Hive, Impala, Cassandra CQL, Couchbase N1QL, MySQL, PostgreSQL, Apache Drill, Microsoft SQL Server, Oracle, Pig Latin, Neo4j, InfluxDB and Docker
+    - ```*case.pl``` - more specific language support for just about every database and SQL-like language out there plus a few more non-SQL languages like [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/) and [Docker](https://www.docker.com)'s [Dockerfiles](https://docs.docker.com/engine/reference/builder/):
+      - `cqlcase.pl` - [Cassandra](http://cassandra.apache.org/) [CQL](http://cassandra.apache.org/doc/latest/cql/)
+      - `cyphercase.pl` - [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/)
+      - `dockercase.pl` - [Docker](https://www.docker.com) ([Dockerfiles](https://docs.docker.com/engine/reference/builder/))
+      - `drillcase.pl` - [Apache Drill](https://drill.apache.org/) SQL
+      - `hivecase.pl` - [Hive](https://hive.apache.org) [HQL](https://cwiki.apache.org/confluence/display/Hive/LanguageManual)
+      - `impalacase.pl` - [Impala](https://impala.apache.org) SQL
+      - `influxcase.pl` - [InfluxDB](https://www.influxdata.com) [InfluxQL](https://docs.influxdata.com/influxdb/v1.7/query_language/spec/)
+      - `mssqlcase.pl` - [Microsoft SQL Server](https://en.wikipedia.org/wiki/Microsoft_SQL_Server) SQL
+      - `mysqlcase.pl` - [MySQL](https://www.mysql.com) SQL
+      - `n1qlcase.pl` - [Couchbase](https://www.couchbase.com/) [N1QL](https://www.couchbase.com/products/n1ql)
+      - `oraclecase.pl` / `plsqlcase.pl` - [Oracle](https://www.oracle.com/uk/index.html) SQL
+      - `pgsqlcase.pl` - [PostgreSQL](https://www.postgresql.org) SQL
+      - `pigcase.pl` - [Pig](https://pig.apache.org) [Latin](https://pig.apache.org/docs/r0.17.0/basic.html)
+      - `snowflakecase..pl` - [Snowflake](https://www.snowflake.com) SQL
     - written to help clean up docs and SQL scripts (I don't even bother writing capitalised SQL code any more I just run it through this via a vim shortcut)
   - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
   - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
@@ -92,7 +106,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
   - ```flock.pl``` - file locking to prevent running the same program twice at the same time. RHEL 6 now has a native version of this
   - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
-  - ```colors.pl``` - prints ASCII color code matrix fg/bg with corresponding terminal escape codes to help with tuning your shell
+  - ```colors.pl``` - prints ASCII color code matrix of all foreground + background combinations showing the corresponding terminal escape codes to help with tuning your shell
   - ```matrix.pl``` - prints a cool matrix of vertical scrolling characters using terminal tricks
   - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
 
@@ -216,7 +230,9 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 * [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) - 75+ DevOps CLI tools for Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
 
-* [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 400+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
+* [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 450+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
+
+* [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools) - 80+ DevOps Bash scripts, advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.toprc`, Utility Code Library used by CI and all my GitHub repos - includes code for AWS, Kubernetes, Kafka, Docker, Git, Code & build linting, package management for Linux / Mac / Perl / Python / Ruby / Golang, and lots more random goodies
 
 * [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools) - 80+ DevOps Bash scripts, advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.toprc`, Utility Code Library used by CI and all my GitHub repos - includes code for AWS, Kubernetes, Kafka, Docker, Git, Code & build linting, package management for Linux / Mac / Perl / Python / Ruby / Golang, and lots more random goodies
 
