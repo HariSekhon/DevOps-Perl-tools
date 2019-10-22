@@ -83,7 +83,7 @@ Environment variables are supported for convenience and also to hide credentials
     - placeholder tokens indicate what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
   - ```sqlcase.pl``` - capitalizes SQL code in files or stdin:
-    - ```*case.pl``` - more specific language support for just about every database and SQL-like language out there plus a few more non-SQL languages like [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/) and [Docker](https://www.docker.com) [Dockerfiles](https://docs.docker.com/engine/reference/builder/):
+    - ```*case.pl``` - more specific language support for just about every database and SQL-like language out there plus a few more non-SQL languages like [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/) and [Docker](https://www.docker.com)'s [Dockerfiles](https://docs.docker.com/engine/reference/builder/):
       - `cqlcase.pl` - [Cassandra](http://cassandra.apache.org/) [CQL](http://cassandra.apache.org/doc/latest/cql/)
       - `cyphercase.pl` - [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/)
       - `dockercase.pl` - [Docker](https://www.docker.com) ([Dockerfiles](https://docs.docker.com/engine/reference/builder/))
