@@ -18,7 +18,7 @@ our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), pri
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL / Couchbase N1QL / Apache Drill etc. Also works with Oracle, SQL Server and Snowflake specific keywords and generic SQL etc.
 ";
 
-$VERSION = "0.7.6";
+$VERSION = "0.7.7";
 
 use strict;
 use warnings;
@@ -44,6 +44,7 @@ my $NEO4J_CYPHER_CONF   = "neo4j_cypher_keywords.conf";
 my $ORACLE_CONF         = "oracle_keywords.conf";
 my $PGSQL_CONF          = "pgsql_keywords.conf";
 my $PIG_CONF            = "pig_keywords.conf";
+my $SNOWFLAKE_CONF      = "snowflake_keywords.conf";
 
 # Generic keywords are not hidden .dot files as they are intended to be changed by user
 my $RECASE_CONF         = "recase_keywords.conf";
@@ -96,6 +97,10 @@ if($progname =~ /hive/){
     $CONF = "$CONF_DIR/$ORACLE_CONF";
     $DESCRIPTION =~ s/various SQL.*/Oracle PL\/SQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/PL\/SQL/g;
+} elsif($progname =~ /snowflake/){
+    $CONF = "$CONF_DIR/$SNOWFLAKE_CONF";
+    $DESCRIPTION =~ s/various SQL.*/Snowflake SQL code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/Snowflake SQL/g;
 } elsif($progname =~ /pig/){
     $CONF = "$CONF_DIR/$PIG_CONF";
     $DESCRIPTION =~ s/various SQL.*/Pig code and documentation/;
