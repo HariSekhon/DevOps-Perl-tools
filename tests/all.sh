@@ -27,7 +27,7 @@ export PROJECT="devops-perl-tools"
 
 section "DevOps Perl Tools ALL Tests"
 
-../bash-tools/all.sh
+../bash-tools/check_all.sh
 
 ./help.sh
 
