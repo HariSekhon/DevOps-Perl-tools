@@ -17,7 +17,10 @@ $DESCRIPTION = "Prints a cool Matrix effect in your terminal
 
 Thanks to my colleagues Chris Greatbanks and Sameer Charania at BSkyB for sharing this cool web tip with me on which I decided to base this code:
 
-http://www.climagic.org/coolstuff/matrix-effect.html";
+http://www.climagic.org/coolstuff/matrix-effect.html
+
+I've since discovered an even better version called 'cmatrix' available on Mac Homebrew
+";
 
 $VERSION = "0.2.1";
 
