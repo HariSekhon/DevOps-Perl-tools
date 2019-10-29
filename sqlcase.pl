@@ -18,7 +18,7 @@ our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), pri
 Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL / Couchbase N1QL / Apache Drill etc. Also works with Oracle, SQL Server and Snowflake specific keywords and generic SQL etc.
 ";
 
-$VERSION = "0.7.8";
+$VERSION = "0.7.9";
 
 use strict;
 use warnings;
@@ -223,15 +223,15 @@ sub recase ($;$) {
             }
             foreach my $keyword_regex (sort keys %regexes){
                 if($string =~ /(^|$sep)($keyword_regex)($sep|$)/gi){
-                    my $uc_keyword;
+                    my $uc_keyword = $2;
                     if($keyword_regex =~ /[a-z]/){
                         # XXX: special rule to uppercase Pig variables
                         if($pig and $no_upper_variables == 0 and $keyword_regex eq '\$\w+'){
-                            $uc_keyword = uc $2;
+                            $uc_keyword = uc $uc_keyword;
                         } else {
                             # this would have included regex chars instead of just the case replacements
                             #$uc_keyword = $keyword;
-                            $uc_keyword = $2;
+                            $uc_keyword = $uc_keyword;
                             foreach(split(/[^A-Za-z_]/, $keyword_regex)){
                                 $uc_keyword =~ s/(^|$sep)($_)($sep|$)/$1$_$3/gi and vlog3 "replaced keyword $_ with uppercase";
                             }
