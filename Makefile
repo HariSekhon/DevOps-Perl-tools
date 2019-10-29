@@ -97,8 +97,8 @@ clean:
 deep-clean: clean
 	cd lib && $(MAKE) deep-clean
 
-.PHONY: dockerhub
-dockerhub:
+.PHONY: dockerhub-trigger
+dockerhub-trigger:
 	# Tools
 	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/1ce5ac1d-4ce6-4051-8246-2e05e042dfd7/trigger/6b4c6eeb-ed48-4e01-954f-ec2e0692ca35/call/
 	# Alpine Github
