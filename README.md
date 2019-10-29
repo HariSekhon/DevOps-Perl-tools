@@ -97,7 +97,7 @@ Environment variables are supported for convenience and also to hide credentials
       - `oraclecase.pl` / `plsqlcase.pl` - [Oracle](https://www.oracle.com/uk/index.html) SQL
       - `pgsqlcase.pl` - [PostgreSQL](https://www.postgresql.org) SQL
       - `pigcase.pl` - [Pig](https://pig.apache.org) [Latin](https://pig.apache.org/docs/r0.17.0/basic.html)
-      - `redshiftcase..pl` - [Redshift](https://aws.amazon.com/redshift/) SQL
+      - `redshiftcase..pl` - [AWS Redshift](https://aws.amazon.com/redshift/) SQL
       - `snowflakecase..pl` - [Snowflake](https://www.snowflake.com) SQL
     - written to help clean up docs and SQL scripts (I don't even bother writing capitalised SQL code any more I just run it through this via a vim shortcut)
   - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
