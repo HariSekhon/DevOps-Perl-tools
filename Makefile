@@ -71,6 +71,10 @@ perl: perl-libs cpan
 perl-libs:
 	cd lib && $(MAKE)
 
+.PHONY: fatpacks-local
+fatpacks-local:
+	cp -a .recase "$(FATPACKS_DIR)/"
+
 .PHONY: lib-test
 lib-test:
 	cd lib && $(MAKE) test
