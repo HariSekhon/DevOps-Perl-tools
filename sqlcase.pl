@@ -15,7 +15,11 @@
 
 our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output
 
-Primarily written to help me clean up various SQL across Hive / Impala / MySQL / Cassandra CQL / Couchbase N1QL / Apache Drill etc. Also works with Oracle, SQL Server and Snowflake specific keywords and generic SQL etc.
+Primarily written to help me clean up various SQL and since expanded to a wide variety of RDBMS, MPP, SQL-on-Hadoop systems including MySQL, PostgreSQL, AWS Redshift, Snowflake, Apache Drill, Hive, Impala, Cassandra CQL, Oracle, Microsoft SQL Server, Couchbase N1QL and even Dockerfiles, Pig Latin, Neo4J Cypher and InfluxDB
+
+Integrated with the advanced .vimrc in the adjacent DevOps Bash tools repo to be called via a quick hotkey while editing
+
+https://github.com/HariSekhon/DevOps-Bash-tools
 ";
 
 $VERSION = "0.7.9";
