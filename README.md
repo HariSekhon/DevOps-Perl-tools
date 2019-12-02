@@ -112,7 +112,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
 
 - Web:
-  - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return which server you're hitting for each request in real-time)
+  - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return which server you're hitting for each request in real-time). I also use this a ping replacement to google.com to check internet networking in environments where everything except HTTP traffic is blocked
   - ```watch_nginx_stats.pl``` - watches nginx stats via the HttpStubStatusModule module
 
 - Hadoop Ecosystem:
