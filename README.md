@@ -8,15 +8,15 @@ Hari Sekhon - DevOps Perl Tools
 [![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/tools/)
 [![](https://images.microbadger.com/badges/image/harisekhon/tools.svg)](http://microbadger.com/#/images/harisekhon/tools)
 
-### Hadoop, Hive, Solr, NoSQL, Web, Linux Tools ###
+### Linux, Web, Anonymizer, SQL ReCaser, Hadoop, Hive, Solr, Big Data & NoSQL Tools ###
 
-A few of the Hadoop, NoSQL, Web & Linux tools I've written over the years. All programs have --help to list the available options.
+A few of the Linux, Web, Big Data & NoSQL tools I've written over the years, plus templates for various programming languages and Kubernetes. All programs have --help to list the available options.
 
-For many more tools see [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Hadoop, NoSQL and Linux/Web tools.
+For many more tools see [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Linux, Web, Big Data & NoSQL tools.
 
 Hari Sekhon
 
-Big Data Contractor, United Kingdom
+Cloud & Big Data Contractor, United Kingdom
 
 https://www.linkedin.com/in/harisekhon
 
@@ -233,7 +233,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 * [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 450+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
 
-* [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools) - 80+ DevOps Bash scripts, advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.toprc`, Utility Code Library used by CI and all my GitHub repos - includes code for AWS, Kubernetes, Kafka, Docker, Git, Code & build linting, package management for Linux / Mac / Perl / Python / Ruby / Golang, and lots more random goodies
+* [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools) - 100+ DevOps Bash scripts, advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.toprc`, Utility Code Library used by CI and all my GitHub repos - includes code for AWS, Kubernetes, Kafka, Docker, Git, Code & build linting, package management for Linux / Mac / Perl / Python / Ruby / Golang, and lots more random goodies
 
 * [HAProxy-configs](https://github.com/harisekhon/haproxy-configs) - 80+ HAProxy Configs for Hadoop, Big Data, NoSQL, Docker, Elasticsearch, SolrCloud, HBase, Cloudera, Hortonworks, MapR, MySQL, PostgreSQL, Apache Drill, Hive, Presto, Impala, ZooKeeper, OpenTSDB, InfluxDB, Prometheus, Kibana, Graphite, SSH, RabbitMQ, Redis, Riak, Rancher etc.
 
