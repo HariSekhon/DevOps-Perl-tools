@@ -129,7 +129,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```hive_table_count_rows_with_nulls.pl``` - counts number of rows containing NULLs in any field
   - ```pentaho_backup.pl``` - script to back up the local [Pentaho](https://marketplace.hitachivantara.com/pentaho/) BA or DI Server
   - ```ibm_bigsheets_config_git.pl``` - revision controls [IBM BigSheets](https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/c0057518.html) configurations from API to Git
-  - ```datameer_config_git.pl``` - revision controls Datameer configurations from API to Git
+  - ```datameer_config_git.pl``` - revision controls [Datameer](https://www.datameer.com/) configurations from API to Git
   - ```hadoop_config_diff.pl``` - tool to diff configs between [Hadoop](https://hadoop.apache.org/) clusters XML from files or live HTTP config endpoints
   - ```solr_cli.pl``` - [Solr](https://lucene.apache.org/solr/) CLI tool for fast and easy [Solr](https://lucene.apache.org/solr/) / [SolrCloud](https://lucene.apache.org/solr/guide/6_6/solrcloud.html) administration. Supports optional environment variables to minimize --switches (can be set permanently in `solr/solr-env.sh`). Uses the Solr Cores and Collections APIs, makes Solr administration a lot easier
 
