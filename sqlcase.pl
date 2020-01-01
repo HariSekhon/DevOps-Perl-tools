@@ -15,14 +15,14 @@
 
 our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output
 
-Primarily written to help me clean up various SQL and since expanded to a wide variety of RDBMS, MPP, SQL-on-Hadoop systems including MySQL, PostgreSQL, AWS Redshift, Snowflake, Apache Drill, Hive, Impala, Cassandra CQL, Oracle, Microsoft SQL Server, Couchbase N1QL and even Dockerfiles, Pig Latin, Neo4J Cypher and InfluxDB
+Primarily written to help me clean up various SQL and since expanded to a wide variety of RDBMS, MPP, SQL-on-Hadoop systems including MySQL, PostgreSQL, Presto / AWS Athena, AWS Redshift, Snowflake, Apache Drill, Hive, Impala, Cassandra CQL, Oracle, Microsoft SQL Server, Couchbase N1QL and even Dockerfiles, Pig Latin, Neo4J Cypher and InfluxDB
 
 Integrated with the advanced .vimrc in the adjacent DevOps Bash tools repo to be called via a quick hotkey while editing
 
 https://github.com/HariSekhon/DevOps-Bash-tools
 ";
 
-$VERSION = "0.7.9";
+$VERSION = "0.7.10";
 
 use strict;
 use warnings;
@@ -48,6 +48,7 @@ my $NEO4J_CYPHER_CONF   = "neo4j_cypher_keywords.conf";
 my $ORACLE_CONF         = "oracle_keywords.conf";
 my $PGSQL_CONF          = "pgsql_keywords.conf";
 my $PIG_CONF            = "pig_keywords.conf";
+my $PRESTO_CONF         = "presto_keywords.conf";
 my $REDSHIFT_CONF       = "redshift_keywords.conf";
 my $SNOWFLAKE_CONF      = "snowflake_keywords.conf";
 
@@ -61,6 +62,7 @@ my $n1ql   = 0;
 my $docker = 0;
 my $pig    = 0;
 my $neo4j  = 0;
+my $presto = 0;
 my $recase = 0;
 my $no_upper_variables = 0;
 
@@ -106,6 +108,10 @@ if($progname =~ /hive/){
     $CONF = "$CONF_DIR/$ORACLE_CONF";
     $DESCRIPTION =~ s/various SQL.*/Oracle PL\/SQL code and documentation/;
     $DESCRIPTION =~ s/SQL(?:-like)/PL\/SQL/g;
+} elsif($progname =~ /\bathena|\bpresto/){
+    $CONF = "$CONF_DIR/$PRESTO_CONF";
+    $DESCRIPTION =~ s/various SQL.*/Presto SQL \/ AWS Athena code and documentation/;
+    $DESCRIPTION =~ s/SQL(?:-like)/Presto SQL \/ AWS Athena/g;
 } elsif($progname =~ /snowflake/){
     $CONF = "$CONF_DIR/$SNOWFLAKE_CONF";
     $DESCRIPTION =~ s/various SQL.*/Snowflake SQL code and documentation/;
