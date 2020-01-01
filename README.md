@@ -88,6 +88,7 @@ Environment variables are supported for convenience and also to hide credentials
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
   - ```sqlcase.pl``` - capitalizes [SQL](https://en.wikipedia.org/wiki/SQL) code in files or stdin:
     - ```*case.pl``` - more specific language support for just about every database and SQL-like language out there plus a few more non-SQL languages like [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/) and [Docker](https://www.docker.com)'s [Dockerfiles](https://docs.docker.com/engine/reference/builder/):
+      - `athenacase.pl` - [AWS Athena](https://aws.amazon.com/athena/) SQL
       - `cqlcase.pl` - [Cassandra](http://cassandra.apache.org/) [CQL](http://cassandra.apache.org/doc/latest/cql/)
       - `cyphercase.pl` - [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/)
       - `dockercase.pl` - [Docker](https://www.docker.com) ([Dockerfiles](https://docs.docker.com/engine/reference/builder/))
@@ -101,6 +102,7 @@ Environment variables are supported for convenience and also to hide credentials
       - `oraclecase.pl` / `plsqlcase.pl` - [Oracle](https://www.oracle.com/uk/index.html) SQL
       - `pgsqlcase.pl` - [PostgreSQL](https://www.postgresql.org) SQL
       - `pigcase.pl` - [Pig](https://pig.apache.org) [Latin](https://pig.apache.org/docs/r0.17.0/basic.html)
+      - `prestocase.pl` - [Presto](https://prestosql.io/) SQL
       - `redshiftcase..pl` - [AWS Redshift](https://aws.amazon.com/redshift/) SQL
       - `snowflakecase..pl` - [Snowflake](https://www.snowflake.com) SQL
     - written to help clean up docs and SQL scripts (I don't even bother writing capitalised SQL code any more I just run it through this via a vim shortcut)
