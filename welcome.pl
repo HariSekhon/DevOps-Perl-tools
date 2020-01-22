@@ -17,7 +17,7 @@ $DESCRIPTION = "Prints a slick welcome message with last login time
 
 Tested on Mac OS X and Linux";
 
-$VERSION = "2.1";
+$VERSION = "2.1.1";
 
 use strict;
 use warnings;
@@ -37,7 +37,7 @@ my $quick;
 );
 get_options();
 
-set_timeout();
+set_timeout(20);
 
 # not set on Alpine Linux in Docker
 my $user = $ENV{"USER"};
