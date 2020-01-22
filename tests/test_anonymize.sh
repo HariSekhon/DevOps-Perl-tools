@@ -250,6 +250,7 @@ if [ $($anonymize -ae README.md | wc -l) -lt 100 ]; then
 fi
 
 echo
+# shellcheck disable=SC2154
 echo "Total Tests run: $run_count"
 time_taken "$start_time" "SUCCESS! All tests for $anonymize completed in"
 echo
