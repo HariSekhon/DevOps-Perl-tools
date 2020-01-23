@@ -1,8 +1,7 @@
 #!/usr/bin/perl -T
 #
 #  Author: Hari Sekhon
-#  Date: 2013-05-30 10:34:27 +0100 (Thu, 30 May 2013)
-#  Copied for repurpose 27/6/2014
+#  Date: 27/6/2014
 #
 #  https://github.com/harisekhon/devops-perl-tools
 #
