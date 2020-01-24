@@ -127,7 +127,7 @@ dest[27]="SomeClass\$method:20 something happened"
 #dest[28]="-passphrase '<password>'"
 
 src[29]=" at host.domain.com(Thread.java:789)"
-dest[29]=" at host.domain.com(Thread.java:789"
+dest[29]=" at host.domain.com(Thread.java:789)"
 
 src[30]="jdbc:hive2://hiveserver2:10000/myDB"
 dest[30]="jdbc:hive2://<hostname>:10000/myDB"
