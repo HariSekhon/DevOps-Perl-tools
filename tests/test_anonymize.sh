@@ -19,11 +19,11 @@ set -euo pipefail
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 test_num="${1:-}"
-parallel=""
-if [ "$test_num" = "p" ]; then
-    parallel="1"
-    test_num=""
-fi
+#parallel=""
+#if [ "$test_num" = "p" ]; then
+#    parallel="1"
+#    test_num=""
+#fi
 
 cd "$srcdir/..";
 
@@ -188,12 +188,9 @@ run_tests(){
     for i in $test_numbers; do
         [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
         [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
-        if [ -n "$parallel" ]; then
-            test_anonymize "${src[$i]}" "${dest[$i]}" &
-        else
-            test_anonymize "${src[$i]}" "${dest[$i]}"
-        fi
+        #test_anonymize "${src[$i]}" "${dest[$i]}"
     done
+    "$srcdir/test_anonymize.py"
 }
 run_tests  # ignore_run_unqualified
 
@@ -231,15 +228,15 @@ dest[104]="some description <cisco_description>"
 args="--network"
 run_tests 103 104  # ignore_run_unqualified
 
-if [ -n "$parallel" ]; then
-    # can't trust exit code for parallel yet, only for quick local testing
-    exit 1
-#    for i in ${!src[@]}; do
-#        let j=$i+1
-#        wait %$j
-#        [ $? -eq 0 ] || { echo "FAILED"; exit $?; }
-#    done
-fi
+#if [ -n "$parallel" ]; then
+#    # can't trust exit code for parallel yet, only for quick local testing
+#    exit 1
+##    for i in ${!src[@]}; do
+##        let j=$i+1
+##        wait %$j
+##        [ $? -eq 0 ] || { echo "FAILED"; exit $?; }
+##    done
+#fi
 
 echo "checking file args"
 # do not quote $anonymize, allow to split to contain full cli args
