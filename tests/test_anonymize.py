@@ -38,7 +38,7 @@ def run():
     test_input = '\n'.join([src[key] for key in src_keys])
 
     print('running anonymize tests using: {} {}'.format(anonymize, args))
-    process = subprocess.Popen([anonymize, args], stdin=PIPE, stdout=PIPE)
+    process = subprocess.Popen([os.getenv('perl', 'perl'), '-T', anonymize, args], stdin=PIPE, stdout=PIPE)
     (stdout, _) = process.communicate(input=test_input)
     index = 0
     for line in stdout.split('\n'):   # pylint: disable=redefined-outer-name
