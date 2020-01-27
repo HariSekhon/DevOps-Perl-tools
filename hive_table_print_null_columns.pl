@@ -15,7 +15,14 @@
 
 $DESCRIPTION = "Hive tool to print any columns from a table that contain entirely null fields
 
-Written to find and clean data before importing to 0xdata H2O since there is a Java bug relating to entirely null columns";
+Written to find and clean data before importing to 0xdata H2O since there is a Java bug relating to entirely null columns
+
+See Also:
+
+Newer version for HiveServer2 in DevOps Python tools repo:
+
+https://github.com/harisekhon/devops-python-tools
+";
 
 $VERSION = "0.2.2";
 
