@@ -193,7 +193,7 @@ run_tests(){
     done
     "$srcdir/test_anonymize.py" "${*:-${!src[@]}}"
 }
-run_tests  # ignore_run_unqualified
+run_tests "$@"  # ignore_run_unqualified
 
 # test ip prefix
 src="4.3.2.1"
