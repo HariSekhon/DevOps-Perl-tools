@@ -128,7 +128,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```hadoop_hdfs_snapshot_age_out.pl``` - prints or removes [Hadoop HDFS](https://hadoop.apache.org/) snapshots older than a given age or matching a given regex pattern
   - ```hbase_flush_tables.sh``` - flushes all or selected [HBase](https://hbase.apache.org/) tables (useful when bulk loading [OpenTSDB](http://opentsdb.net/) with Durability.SKIP_WAL) (there is also a Python version of this in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
   - ```hive_to_elasticsearch.pl``` - bulk indexes structured [Hive](https://hive.apache.org/) tables in [Hadoop](https://hadoop.apache.org/) to [Elasticsearch](https://www.elastic.co/) clusters - includes support for Kerberos, Hive partitioned tables with selected partitions, selected columns, index creation with configurable sharding, index aliasing and optimization
-  - ```hive_table_print_null_columns.pl``` - finds [Hive](https://hive.apache.org/) columns with all NULLs
+  - ```hive_table_print_null_columns.pl``` - finds [Hive](https://hive.apache.org/) columns with all NULLs (see newer version in [DevOps Python tools](https://github.com/harisekhon/devops-python-tools) repo for HiveServer2 and Impala)
   - ```hive_table_count_rows_with_nulls.pl``` - counts number of rows containing NULLs in any field
   - ```pentaho_backup.pl``` - script to back up the local [Pentaho](https://marketplace.hitachivantara.com/pentaho/) BA or DI Server
   - ```ibm_bigsheets_config_git.pl``` - revision controls [IBM BigSheets](https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/c0057518.html) configurations from API to Git
