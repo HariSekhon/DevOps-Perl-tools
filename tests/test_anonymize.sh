@@ -189,8 +189,9 @@ run_tests(){
         [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
         [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
         #test_anonymize "${src[$i]}" "${dest[$i]}"
+        run++
     done
-    "$srcdir/test_anonymize.py"
+    "$srcdir/test_anonymize.py" "${*:-${!src[@]}}"
 }
 run_tests  # ignore_run_unqualified
 
