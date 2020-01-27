@@ -19,7 +19,7 @@ Written to find and clean data before importing to 0xdata H2O since there is a J
 
 See Also:
 
-Newer version for HiveServer2 in DevOps Python tools repo:
+Newer versions for HiveServer2 and Impala in DevOps Python tools repo:
 
 https://github.com/harisekhon/devops-python-tools
 ";
