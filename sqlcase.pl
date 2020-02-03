@@ -22,7 +22,7 @@ Integrated with the advanced .vimrc in the adjacent DevOps Bash tools repo to be
 https://github.com/HariSekhon/DevOps-Bash-tools
 ";
 
-$VERSION = "0.7.10";
+$VERSION = "0.7.11";
 
 use strict;
 use warnings;
@@ -220,7 +220,7 @@ sub recase ($;$) {
         # removed \. because of WITH PARAMETERS (credentials.file=file.txt)
         # don't uppercase group.domain => GROUP.domain
         # removed colon :  because of "jdbc:oracle:..."
-        my $sep = '\s|=|\(|\)|\[|\]|,|;|\n|\r\n|\"|#|--|<|>|' . "'";
+        my $sep = '[\s=\(\)\[\],;\r\n"\'#<>-]+';
         if($docker){
             foreach my $keyword_regex (sort keys %keywords){
                 $string =~ s/^(\s*)$keyword_regex(\s)/$1$keyword_regex$2/gi and vlog3 "replaced Docker keyword $keyword_regex";
@@ -250,6 +250,7 @@ sub recase ($;$) {
                         $uc_keyword = uc $2;
                     }
                     # have to redefine comment chars here because variable length negative lookbehind isn't implemented
+                    # also, comments are pre-stripped to --query 'show databases' isn't going to be caught because it clashes with standard SQL comments
                     $string =~ s/(?<!\s#)(?<!\s--)(^|$sep)$keyword_regex($sep|$)/$1$uc_keyword$2/gi and vlog3 "replaced keyword '$uc_keyword'";
                 }
             }
