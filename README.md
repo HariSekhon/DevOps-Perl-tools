@@ -9,6 +9,11 @@ Hari Sekhon - DevOps Perl Tools
 [![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/tools/)
 [![](https://images.microbadger.com/badges/image/harisekhon/tools.svg)](http://microbadger.com/#/images/harisekhon/tools)
 
+[![CI Mac](https://github.com/HariSekhon/devops-perl-tools/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/devops-perl-tools/actions?query=workflow%3A%22CI+Mac%22)
+[![CI Ubuntu](https://github.com/HariSekhon/devops-perl-tools/workflows/CI%20Ubuntu/badge.svg)](https://github.com/HariSekhon/devops-perl-tools/actions?query=workflow%3A%22CI+Ubuntu%22)
+[![CI CentOS](https://github.com/HariSekhon/devops-perl-tools/workflows/CI%20CentOS/badge.svg)](https://github.com/HariSekhon/devops-perl-tools/actions?query=workflow%3A%22CI+CentOS%22)
+[![CI Alpine](https://github.com/HariSekhon/devops-perl-tools/workflows/CI%20Alpine/badge.svg)](https://github.com/HariSekhon/devops-perl-tools/actions?query=workflow%3A%22CI+Alpine%22)
+
 ### Linux, Web, Anonymizer, SQL ReCaser, Hadoop, Hive, Solr, Big Data & NoSQL Tools
 
 A few of the Linux, Web, Big Data & NoSQL tools I've written over the years, plus templates for various programming languages and Kubernetes. All programs have --help to list the available options.
