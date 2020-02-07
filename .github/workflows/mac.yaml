@@ -13,8 +13,8 @@
 
 name: CI Mac
 
-env:
-  DEBUG: 1
+#env:
+#  DEBUG: 1
 
 on:
   push:
@@ -37,5 +37,7 @@ jobs:
         key: ${{ runner.os }}-cpanm-${{ hashFiles('**/cpan-requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-cpanm-
-    - name: build & test
-      run: make build test
+    - name: build
+      run: make
+    - name: test
+      run: make test
