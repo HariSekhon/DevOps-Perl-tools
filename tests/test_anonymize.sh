@@ -184,14 +184,20 @@ fi
 # this gives the number of elements and prevents testing the last element(s) if commenting something out in the middle
 #for (( i = 0 ; i < ${#src[@]} ; i++ )); do
 run_tests(){
+    type -P python &>/dev/null
+    python_available=$?
     test_numbers="${*:-${!src[@]}}"
     for i in $test_numbers; do
         [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
         [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
-        #test_anonymize "${src[$i]}" "${dest[$i]}"
-        run++
+        if [ $python_available -ne 0 ]; then
+            test_anonymize "${src[$i]}" "${dest[$i]}"
+            run++
+        fi
     done
-    "$srcdir/test_anonymize.py" "${*:-${!src[@]}}"
+    if [ $python_available -eq 0 ]; then
+        "$srcdir/test_anonymize.py" "${*:-${!src[@]}}"
+    fi
 }
 run_tests "$@"  # ignore_run_unqualified
 
