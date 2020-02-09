@@ -18,7 +18,7 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-test_num="${1:-}"
+test_nums="${1:-}"
 #parallel=""
 #if [ "$test_num" = "p" ]; then
 #    parallel="1"
@@ -34,6 +34,36 @@ section anonymize.pl
 
 # shellcheck disable=SC2154
 anonymize="$perl -T ./anonymize.pl"
+
+start_time="$(start_timer "$anonymize")"
+
+# ============================================================================ #
+#                                  Custom Tests
+# ============================================================================ #
+
+if [ -z "$test_nums" ]; then
+    echo "checking file args:"
+    run++
+    if [ `$anonymize -ae README.md | wc -l` -gt 100 ]; then
+        echo "SUCCEEDED - anonymized README.md > 100 lines"
+    else
+        echo "FAILED - suspicious README.md file arg result came to <= 100 lines"
+        exit 1
+    fi
+    hr
+
+    echo "testing --email replacememnt format:"
+    run_grep "<user>@<domain>" $anonymize --email <<< "hari@domain.com"
+    run_grep "<user>@<domain>" $anonymize -E <<< "hari@domain.com"
+
+    echo "testing --ip-prefix behaviour:"
+    run_grep "<ip_x.x.x>.1" $anonymize --ip-prefix <<< "4.3.2.1"
+
+    echo "testing --hash-hostnames:"
+    run_grep "^http://[a-f0-9]{12}:80/path$" $anonymize --hash-hostnames <<< "http://test.domain.com:80/path"
+fi
+
+# ============================================================================ #
 
 start_time="$(start_timer "$anonymize")"
 
@@ -78,10 +108,10 @@ dest[12]=" main.py:74 - loglevel=logging.INFO"
 
 # creating an exception for this would prevent anonymization legitimate .PY domains after a leading timestamp, which is legit, added main.py to
 src[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://ip-1-2-3-4.eu-west-1.compute.internal:8440 (1.2.3.4)"
-dest[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://<fqdn>:8440 (<ip_x.x.x.x>)"
+dest[13]="INFO 1111-22-33 44:55:66,777 main.py:8 -  Connecting to Ambari server at https://<ip-x-x-x-x>.<fqdn>:8440 (<ip_x.x.x.x>)"
 
 src[14]=" Connecting to Ambari server at https://ip-1-2-3-4.eu-west-1.compute.internal:8440 (1.2.3.4)"
-dest[14]=" Connecting to Ambari server at https://<fqdn>:8440 (<ip_x.x.x.x>)"
+dest[14]=" Connecting to Ambari server at https://<ip-x-x-x-x>.<fqdn>:8440 (<ip_x.x.x.x>)"
 
 src[15]="INFO 2015-12-01 19:52:21,066 DataCleaner.py:39 - Data cleanup thread started"
 dest[15]="INFO 2015-12-01 19:52:21,066 DataCleaner.py:39 - Data cleanup thread started"
@@ -95,12 +125,14 @@ dest[17]="/usr/hdp/2.3.0.0-2557"
 # can't safely prevent this without potentially exposing real IPs
 #src[18]="/usr/hdp/2.3.0.0"
 #dest[18]="/usr/hdp/2.3.0.0"
+src[18]="hari/blah@realm"
+dest[18]="<user>/<instance>@<domain>"
 
 src[19]="ranger-plugins-audit-0.5.0.2.3.0.0-2557.jar"
 dest[19]="ranger-plugins-audit-0.5.0.2.3.0.0-2557.jar"
 
 src[20]="yarn-yarn-resourcemanager-ip-172-31-1-2.log"
-dest[20]="yarn-yarn-resourcemanager-<aws_hostname>.log"
+dest[20]="yarn-yarn-resourcemanager-<ip-x-x-x-x>.log"
 
 src[21]="192.168.99.100:9092"
 dest[21]="<ip_x.x.x.x>:9092"
@@ -147,21 +179,197 @@ dest[34]="<mac>"
 src[35]="A1-B2-C3-D4-E4-F6"
 dest[35]="<mac>"
 
-
-src[112]="travis token:  Abc123"
-dest[112]="travis token:  <token>"
-
-
 args="-ae"
+src[36]='\\blah'
+dest[36]='\\<hostname>'
+
+src[37]='\\blah\path\to\data'
+dest[37]='\\<hostname>\path\to\data'
+
+src[38]='MYDOMAIN\hari'
+dest[38]='<domain>\<user>'
+
+src[39]="S-1-5-21-3623811015-3361044348-30300820-1013"
+dest[39]="<windows_SID>"
+
+src[40]="hari/host.domain.com@REALM.COM"
+dest[40]="<user>/<instance>@<domain>"
+
+src[41]="host/host.domain.com@REALM.ORG"
+dest[41]="host/<instance>@<domain>"
+
+src[42]="hive/_HOST@REALM.NET"
+dest[42]="<user>/_HOST@<domain>"
+
+src[43]="hdfs/HTTP@REALM.COM"
+dest[43]="<user>/HTTP@<domain>"
+
+src[44]="/tmp/krb5cc_12345"
+dest[44]="/tmp/krb5cc_<uid>"
+
+src[45]=" --user=hari"
+dest[45]=" --user=<user>"
+
+src[46]=" 1.2.3.4/24"
+dest[46]=" <ip_x.x.x.x>/<cidr_mask>"
+
+src[47]="blah@MyREALM1"
+dest[47]="<user>@<domain>"
+
+src[48]="@MyREALM"
+dest[48]="@<domain>"
+
+src[49]="hari@"
+dest[49]="<user>@"
+
+# LDAP too many tests!!
+src[50]="CN=Hari Sekhon,OU=MyOU,DC=MyDomain,DC=com"
+dest[50]="CN=<cn>,OU=<ou>,DC=<dc>,DC=<dc>"
+
+src[51]="Ou=blah"
+dest[51]="Ou=<ou>"
+
+src[52]="DC=blah"
+dest[52]="DC=<dc>"
+
+src[53]="dn: CN=Hari Sekhon,OU=My OU,DC=MyDomain,DC=com"
+#dest[53]="dn: CN=<cn>,OU=<ou>,DC=<dc>,DC=<dc>"
+dest[53]="dn: <dn>"
+
+src[54]="cn: Hari Sekhon"
+dest[54]="cn: <cn>"
+
+src[55]="sn: Sekhon"
+dest[55]="sn: <sn>"
+
+src[56]="title: Awesome Techie"
+dest[56]="title: <title>"
+
+src[57]="description: Awesome Techie"
+dest[57]="description: <description>"
+
+src[58]="givenName: Hari"
+dest[58]="givenName: <givenname>"
+
+src[59]="distinguishedName: CN=Hari Sekhon,OU=MyOU,DC=MyDomain,DC=com"
+dest[59]="distinguishedName: <distinguishedname>"
+
+src[60]="memberOf: CN=MyGroup1,OU=MyOU,OU=Ops,DC=MyDomain,DC=com"
+dest[60]="memberOf: <memberof>"
+
+src[61]="department: My IT Dept"
+dest[61]="department: <department>"
+
+src[62]="name: Hari Sekhon"
+dest[62]="name: <name>"
+
+src[63]="objectGUID:: a1b2c3d4T=="
+dest[63]="objectGUID:: <objectguid>"
+
+src[64]="primaryGroupID: 123"
+dest[64]="primaryGroupID: <primarygroupid>"
+
+src[65]="objectSid:: ABCDEF12345678+RmG+abcdef12345678=="
+dest[65]="objectSid:: <objectsid>"
+
+src[66]="sAMAccountName: hari"
+dest[66]="sAMAccountName: <samaccountname>"
+
+#src[67]="sAMAccountName: hari"
+#dest[67]="sAMAccountName: <sAMAccountName>"
+
+src[68]="objectCategory: CN=Person,CN=Schema,CN=Configuration,DC=MyDomain,DC=com"
+#dest[68]="objectCategory: CN=Person,CN=Schema,CN=Configuration,DC=<domain>,DC=<domain>"
+dest[68]="objectCategory: <objectcategory>"
+
+src[69]="msDS-AuthenticatedAtDC: CN=MyDC1,OU=Domain Controllers,DC=MyDomain,DC=com"
+#dest[69]="msDS-AuthenticatedAtDC: <msDS-AuthenticatedAtDC>"
+dest[69]="msDS-AuthenticatedAtDC: CN=<cn>,OU=<ou>,DC=<dc>,DC=<dc>"
+
+src[70]="uid: hari"
+dest[70]="uid: <uid>"
+
+src[71]="gidNumber: 10001"
+dest[71]="gidNumber: <gidnumber>"
+
+src[72]="uidNumber: 30001"
+dest[72]="uidNumber: <uidnumber>"
+
+src[73]="msSFU30Name: hari"
+dest[73]="msSFU30Name: <mssfu30name>"
+
+src[74]="msSFU30NisDomain: MyDomain"
+#dest[74]="msSFU30NisDomain: <domain>"
+dest[74]="msSFU30NisDomain: <mssfu30nisdomain>"
+
+src[75]="unixHomeDirectory: /home/hari"
+dest[75]="unixHomeDirectory: /home/<user>"
+
+src[76]="member: CN=Hari Sekhon,OU=MyOU,DC=MyDomain,DC=com"
+#dest[76]="member: CN=<cn>"
+#dest[76]="member: CN=<cn>,OU=<ou>,DC=<dc>,DC=<dc>"
+dest[76]="member: <member>"
+
+src[77]="adminDisplayName: Administrator"
+dest[77]="adminDisplayName: <admindisplayname>"
+
+src[78]="ldap://ldap.example.com/cn=John%20Doe,dc=example,dc=com"
+dest[78]="ldap://<fqdn>/cn=<cn>,dc=<dc>,dc=<dc>"
+
+src[79]="userPassword=mysecret"
+#dest[79]="userPassword=<userpassword>"
+dest[79]="userPassword=<password>"
+
+src[80]=" Authorization: Basic 123456ABCDEF"
+dest[80]=" Authorization: Basic <token>"
+
+src[81]="https://mylonggithubtoken@github.com/harisekhon/nagios-plugins"
+dest[81]="https://<user>@<domain>/<custom>/nagios-plugins"
+
+# --ldap attribute matches are done before --user matches
+src[82]="uid = hari"
+dest[82]="uid = <uid>"
+
+src[83]=" --group-name=techies"
+dest[83]=" --group-name=<group>"
+
+src[84]="ldap:///dc=example,dc=com??sub?(givenName=John)"
+dest[84]="ldap:///dc=<dc>,dc=<dc>??sub?(givenName=<givenname>)"
+
+src[85]="ip-1-2-3-4-5"
+dest[85]="ip-1-2-3-4-5"
+
+src[86]="dip-1-2-3-4-5"
+dest[86]="dip-1-2-3-4-5"
+
+src[87]="1.2.3.4.5"
+dest[87]="1.2.3.4.5"
+
+# check escape codes get stripped if present (eg. if piping from grep --color-yes)
+#src[88]="some^[[01;31m^[[Khost^[[m^[[Kname:443"
+#src[88]="some\e[01;31m\e[Khost\e[m\e[K:443"
+src[88]="$(echo somehost:443 | grep --color=yes host)"
+dest[88]="<hostname>:443"
+
+args="-aPe"
+
 test_anonymize(){
     local src
     local dest
+    run++
     src="$1"
     dest="$2"
     #[ -z "${src[$i]:-}" ] && { echo "skipping test $i..."; continue; }
+    # didn't work for \e escape codes for ANSI stripping test
+    #result="$(echo -e "$src" | $anonymize $args)"
     result="$($anonymize $args <<< "$src")"
-    if grep -Fq "$dest" <<< "$result"; then
-        echo "SUCCEEDED anonymization test $i"
+    if grep -xFq "$dest" <<< "$result"; then
+        echo -n "SUCCEEDED anonymization test $i"
+        if [ -n "${SHOW_OUTPUT:-}" ]; then
+            echo " => $dest"
+        else
+            echo
+        fi
     else
         echo "FAILED to anonymize line during test $i"
         echo "input:    $src"
@@ -171,12 +379,14 @@ test_anonymize(){
     fi
 }
 
-if [ -n "$test_num" ]; then
-    grep -q '^[[:digit:]]\+$' <<< "$test_num" || { echo "invalid test '$test_num', not a positive integer"; exit 2; }
-    i=$test_num
-    [ -n "${src[$i]:-}" ]  || { echo "invalid test number given: src[$i] not defined"; exit 1; }
-    [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
-    test_anonymize "${src[$i]}" "${dest[$i]}"
+if [ -n "$test_nums" ]; then
+    for test_num in $test_nums; do
+        grep -q '^[[:digit:]]\+$' <<< "$test_num" || { echo "invalid test '$test_num', not a positive integer"; exit 2; }
+        i=$test_num
+        [ -n "${src[$i]:-}" ]  || { echo "invalid test number given: src[$i] not defined"; exit 1; }
+        [ -n "${dest[$i]:-}" ] || { echo "code error: dest[$i] not defined"; exit 1; }
+        test_anonymize "${src[$i]}" "${dest[$i]}"
+    done
     exit 0
 fi
 
@@ -184,8 +394,10 @@ fi
 # this gives the number of elements and prevents testing the last element(s) if commenting something out in the middle
 #for (( i = 0 ; i < ${#src[@]} ; i++ )); do
 run_tests(){
+    set +e
     type -P python &>/dev/null
     python_available=$?
+    set -e
     test_numbers="${*:-${!src[@]}}"
     for i in $test_numbers; do
         [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
@@ -201,20 +413,7 @@ run_tests(){
 }
 run_tests "$@"  # ignore_run_unqualified
 
-# test ip prefix
-src="4.3.2.1"
-dest="<ip_x.x.x>.1"
-result="$($anonymize --ip-prefix <<< "$src")"
-if grep -Fq "<ip_x.x.x>.1" <<< "$result"; then
-    echo "SUCCEEDED anonymization test ip_prefix"
-else
-    echo "FAILED to anonymize line during test ip_prefix"
-    echo "input:    $src"
-    echo "expected: $dest"
-    echo "got:      $result"
-    exit 1
-fi
-
+echo "tests preseving text without --network enabled:"
 # check normal don't strip these
 src[101]="reading password from foo"
 dest[101]="reading password from foo"
@@ -225,6 +424,7 @@ dest[102]="some description = blah, module = foo"
 args="-Hiukex"
 #run_tests 101 102  # ignore_run_unqualified
 
+echo "network specific tests:"
 # now check --network / --cisco / --juniper do strip these
 src[103]="reading password from bar"
 dest[103]="reading password <cisco_password>"
