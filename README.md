@@ -41,7 +41,7 @@ All programs and their pre-compiled dependencies can be found ready to run on [D
 List all programs:
 
 ```
-docker run harisekhon/tools
+docker run harisekhon/perl-tools
 ```
 
 Run any given program:
