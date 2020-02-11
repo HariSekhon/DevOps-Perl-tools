@@ -23,6 +23,13 @@ cd "$srcdir/.."
 # shellcheck disable=SC1091
 . ./tests/utils.sh
 
+# Fedora doesn't have /var/log/wtmp
+if ! [ -f /var/log/wtmp ]; then
+    # defined in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
+    $sudo touch /var/log/wtmp || :
+fi
+
 # $perl is defined in utils
 # shellcheck disable=SC2154
 $perl -T ./welcome.pl
