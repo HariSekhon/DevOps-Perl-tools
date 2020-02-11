@@ -18,17 +18,17 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$srcdir";
+cd "$srcdir/..";
 
 # shellcheck disable=SC1090
-. "$srcdir/../bash-tools/lib/utils.sh"
+. "bash-tools/lib/utils.sh"
 
 export PROJECT="devops-perl-tools"
 
 section "DevOps Perl Tools ALL Tests"
 
-../bash-tools/check_all.sh
+bash-tools/check_all.sh
 
-./help.sh
+tests/help.sh
 
-../bash-tools/run_tests.sh
+bash-tools/run_tests.sh
