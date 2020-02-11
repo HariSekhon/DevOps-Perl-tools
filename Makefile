@@ -73,7 +73,7 @@ perl-libs:
 
 .PHONY: fatpacks-local
 fatpacks-local:
-	cp -a .recase "$(FATPACKS_DIR)/"
+	[ -n "$(INSIDE_DOCKER)" ] || cp -a .recase "$(FATPACKS_DIR)/"
 
 .PHONY: lib-test
 lib-test:
