@@ -27,7 +27,7 @@ cd "$srcdir/.."
 
 section "Docker Image"
 
-export DOCKER_IMAGE="harisekhon/tools"
+export DOCKER_IMAGE="harisekhon/perl-tools"
 
 if is_CI && is_docker_available; then
     [ -n "${NO_DOCKER:-}" ] && exit 0
