@@ -37,6 +37,8 @@ jobs:
         key: ${{ runner.os }}-cpanm-${{ hashFiles('**/cpan-requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-cpanm-
+    - name: brew update
+      run: which brew && brew update || :
     - name: build
       run: make
     - name: test
