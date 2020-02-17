@@ -34,13 +34,13 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/Library/Caches/pip
-        key: ${{ runner.os }}-pip-devops-perl-tools  # -${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-devops-perl-tools #-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-devops-perl-tools
     - uses: actions/cache@v1
       with:
         path: ~/.cpanm
-        key: ${{ runner.os }}-cpanm-devops-perl-tools  # ${{ hashFiles('**/cpan-requirements.txt') }}
+        key: ${{ runner.os }}-cpanm-devops-perl-tools-${{ hashFiles('**/cpan-requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-cpanm-devops-perl-tools
     - name: brew update
