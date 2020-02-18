@@ -51,6 +51,10 @@ jobs:
       run: |
         cd "/tmp/$repo" &&
         make
+    - name: fatpacks
+      run: |
+        cd "/tmp/$repo" &&
+        make fatpacks
     - name: test
       run: |
         cd "/tmp/$repo" &&
