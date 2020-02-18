@@ -55,7 +55,6 @@ install:
   - travis_retry make
 
 script:
-  - make fatpacks
   - travis_retry make test
 
 after_success:
