@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -T
 #
 #  Author: Hari Sekhon
 #  Date: 2019-09-27
@@ -25,7 +25,7 @@ Tested on Perl 5.x on Mac and Linux
 
 ";
 
-$VERSION = "0.2.0";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -58,11 +58,15 @@ foreach my $module (@ARGV){
 sub get_module_path($){
     #$module =~ /^([A-Za-z0-9:]+)$/ or next
     my $module = shift;
+    $module =~ /^([\w:]+)$/ or die "Failed module regex regex validation for $module";
+    $module = $1;
     my $path = $module;
     $path =~ s/::/\//g;
     # normalize between adding .pm or omitting it for each module
     $path =~ s/.pm$//;
     $path =~ s/$/.pm/;
+    $path =~ /^([\w.\/]+)$/ or die "Failed path regex regex validation for $path";
+    $path = $1;
     eval {
         require $path;
         import $module;
