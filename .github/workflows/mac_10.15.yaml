@@ -47,5 +47,7 @@ jobs:
       run: which brew && brew update || echo
     - name: build
       run: make
+    - name: fatpacks
+      run: make fatpacks
     - name: test
       run: make test
