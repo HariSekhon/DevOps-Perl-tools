@@ -45,5 +45,7 @@ jobs:
           ${{ runner.os }}-cpanm-devops-perl-tools
     - name: build
       run: make
+    - name: fatpacks
+      run: make fatpacks
     - name: test
       run: make test
