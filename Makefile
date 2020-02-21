@@ -45,7 +45,8 @@ build:
 	@echo ================
 
 	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make; exit $$?; fi
+	@# doesn't exit Make anyway, just doubles build time, and don't wanna use oneshell
+	@#if [ -z "$(CPANM)" ]; then make; exit $$?; fi
 	$(MAKE) system-packages-perl
 	$(MAKE) perl
 
