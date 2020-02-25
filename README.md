@@ -10,7 +10,7 @@ Hari Sekhon - DevOps Perl Tools
 [![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![DockerHub Pulls](https://img.shields.io/docker/pulls/harisekhon/tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![DockerHub Build Automated](https://img.shields.io/docker/automated/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
-[![Docker Build Status](https://img.shields.io/docker/cloud/build/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
+[![Docker Build Status](https://img.shields.io/docker/cloud/build/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/builds)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/perl-tools.svg)](http://microbadger.com/#/images/harisekhon/perl-tools)
 
 [![CI Mac](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Mac%22)
