@@ -16,17 +16,21 @@
 # ===================
 # bootstrap commands:
 
+# setup/bootstrap.sh
+#
+# OR
+#
 # Alpine:
 #
-#   apk add --no-cache git $(MAKE) && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && $(MAKE)
-
+#   apk add --no-cache git make && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && make
+#
 # Debian / Ubuntu:
 #
-#   apt-get update && apt-get install -y $(MAKE) git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && $(MAKE)
-
+#   apt-get update && apt-get install -y make git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && make
+#
 # RHEL / CentOS:
 #
-#   yum install -y $(MAKE) git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && $(MAKE)
+#   yum install -y make git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && make
 
 # ===================
 
