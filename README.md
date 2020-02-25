@@ -8,7 +8,7 @@ Hari Sekhon - DevOps Perl Tools
 
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-blue.svg)](https://github.com/harisekhon/devops-perl-tools#hari-sekhon-tools)
 [![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
-[![DockerHub Pulls](https://img.shields.io/docker/pulls/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
+[![DockerHub Pulls](https://img.shields.io/docker/pulls/harisekhon/tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![DockerHub Build Automated](https://img.shields.io/docker/automated/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![Docker Build Status](https://img.shields.io/docker/build/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/perl-tools.svg)](http://microbadger.com/#/images/harisekhon/perl-tools)
