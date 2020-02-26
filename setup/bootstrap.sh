@@ -27,8 +27,7 @@ srcdir="$(dirname "$0")"
 
 repo="https://github.com/HariSekhon/DevOps-Perl-tools"
 
-# TODO: change to perl-tools
-directory="tools"
+directory="perl-tools"
 
 if [ "$(uname -s)" = Darwin ]; then
     echo "Bootstrapping Mac"
@@ -54,7 +53,7 @@ fi
 if [ "${srcdir##*/}" = setup ]; then
     cd "$srcdir/.."
 elif [ -d "$directory" ]; then
-    cd pytools
+    cd "$directory"
 else
     git clone "$repo" "$directory"
     cd "$directory"
