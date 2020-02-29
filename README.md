@@ -1,7 +1,6 @@
 Hari Sekhon - DevOps Perl Tools
 ===============================
 
-[![Build Status](https://travis-ci.org/HariSekhon/DevOps-Perl-tools.svg?branch=master)](https://travis-ci.org/HariSekhon/DevOps-Perl-tools)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1769cc854b5246968ee2bae1818f771a)](https://www.codacy.com/app/harisekhon/devops-perl-tools)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools.svg)](https://github.com/harisekhon/devops-perl-tools/network)
@@ -12,6 +11,19 @@ Hari Sekhon - DevOps Perl Tools
 [![DockerHub Build Automated](https://img.shields.io/docker/automated/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/builds)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/perl-tools.svg)](http://microbadger.com/#/images/harisekhon/perl-tools)
+
+[![Travis CI](https://img.shields.io/travis/harisekhon/DevOps-Perl-tools/master?logo=travis)](https://travis-ci.org/HariSekhon/DevOps-Perl-tools)
+[![AppVeyor](https://img.shields.io/appveyor/build/harisekhon/DevOps-Perl-tools/master?logo=appveyor)](https://ci.appveyor.com/project/HariSekhon/DevOps-Perl-tools/branch/master)
+[![Drone](https://img.shields.io/drone/build/HariSekhon/DevOps-Perl-tools/master?logo=drone)](https://cloud.drone.io/HariSekhon/DevOps-Perl-tools)
+[![CircleCI](https://circleci.com/gh/HariSekhon/DevOps-Perl-tools.svg?style=svg)](https://circleci.com/gh/HariSekhon/DevOps-Perl-tools)
+[![Codeship Status for HariSekhon/DevOps-Perl-tools](https://app.codeship.com/projects/c9e3bf70-3c5f-0138-d157-661d474a0ccb/status?branch=master)](https://app.codeship.com/projects/387254)
+[![Shippable]([![Codeship Status for HariSekhon/DevOps-Perl-tools](https://app.codeship.com/projects/c9e3bf70-3c5f-0138-d157-661d474a0ccb/status?branch=master)](https://app.codeship.com/projects/387254))](https://app.shippable.com/github/HariSekhon/DevOps-Perl-tools/dashboard/jobs)
+[![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FDevOps-Perl-tools?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/DevOps-Perl-tools/builds)
+[![Wercker](https://app.wercker.com/status/1f2132ff1c5b4098e3321456e67f54db/s/master "wercker status")](https://app.wercker.com/project/byKey/1f2132ff1c5b4098e3321456e67f54db)
+
+[![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.DevOps-Perl-tools?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=7&branchName=master)
+[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/DevOps-Perl-tools/master?logo=bitbucket)](https://bitbucket.org/harisekhon/DevOps-Perl-tools/addon/pipelines/home#!/)
+[![GitLab Pipeline](https://img.shields.io/gitlab/pipeline/harisekhon/DevOps-Perl-tools?logo=gitlab)](https://gitlab.com/HariSekhon/DevOps-Perl-tools/pipelines)
 
 [![CI Mac](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Mac%22)
 [![CI Ubuntu](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Ubuntu/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Ubuntu%22)
