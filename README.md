@@ -22,7 +22,7 @@ Hari Sekhon - DevOps Perl Tools
 [![Wercker](https://app.wercker.com/status/1f2132ff1c5b4098e3321456e67f54db/s/master "wercker status")](https://app.wercker.com/project/byKey/1f2132ff1c5b4098e3321456e67f54db)
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.DevOps-Perl-tools?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=7&branchName=master)
-[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/DevOps-Perl-tools/master?logo=bitbucket)](https://bitbucket.org/harisekhon/DevOps-Perl-tools/addon/pipelines/home#!/)
+[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/devops-perl-tools/master?logo=bitbucket)](https://bitbucket.org/harisekhon/devops-perl-tools/addon/pipelines/home#!/)
 [![GitLab Pipeline](https://img.shields.io/gitlab/pipeline/harisekhon/DevOps-Perl-tools?logo=gitlab)](https://gitlab.com/HariSekhon/DevOps-Perl-tools/pipelines)
 
 [![CI Mac](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Mac%22)
