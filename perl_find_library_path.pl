@@ -1,4 +1,5 @@
-#!/usr/bin/perl -T
+#!/usr/bin/perl
+# Don't use -T taint mode here as it ignores $PERL5LIB - allow -T on the CLI to compare the difference whereas -T here takes away that option
 #
 #  Author: Hari Sekhon
 #  Date: 2019-09-27
