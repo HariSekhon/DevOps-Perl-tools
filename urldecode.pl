@@ -15,12 +15,21 @@
 
 $DESCRIPTION="URL Decode text from standard input or arguments";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 use strict;
 use warnings;
 use utf8;
+BEGIN {
+    use File::Basename;
+    use lib dirname(__FILE__) . "/lib";
+}
+use HariSekhonUtils;
 use URI::Escape;
+
+remove_timeout;
+
+get_options();
 
 if(@ARGV){
     foreach(@ARGV){
