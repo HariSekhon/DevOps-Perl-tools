@@ -47,4 +47,4 @@ if(@ARGV){
     usage;
 }
 
-print join("\n", @INC);
+print join("\n", @INC) . "\n";
