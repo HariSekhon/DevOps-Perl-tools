@@ -17,7 +17,9 @@ $DESCRIPTION="Converts UTF characters to ASCII
 
 Works as a standard unix filter program, reading from file arguments or standard input and printing to standard output
 
-Known Issues: uses the Text::Unidecode CPAN module, which seems to convert unknown chars to \"a\"";
+Known Issues: uses the Text::Unidecode CPAN module, which seems to convert unknown chars to \"a\"
+
+See also unidecode.py (pip install unidecode) which contains a CLI program to do this";
 
 $VERSION = "0.6.2";
 
