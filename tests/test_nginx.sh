@@ -63,10 +63,10 @@ test_nginx(){
     if [ -z "${NOTESTS:-}" ]; then
         # $perl defined in utils.sh
         # shellcheck disable=SC2154,SC2086
-        eval run "$perl" -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
+        run "$perl" -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
 
         echo "Testing Nginx stats stub failure:"
-        eval run_fail 2 "$perl" -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
+        run_fail 2 "$perl" -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
     fi
     # ============================================================================ #
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
@@ -89,9 +89,9 @@ test_nginx(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    eval run "$perl" -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
+    run "$perl" -T ./watch_url.pl --url "http://$NGINX_HOST:$NGINX_PORT/" --interval=1 --count=3
 
-    eval run "$perl" -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
+    run "$perl" -T ./watch_nginx_stats.pl --url "http://$NGINX_HOST:$NGINX_PORT/status" --interval=1 --count=3
 
     # $run_count assigned by run_*() functions
     # shellcheck disable=SC2154
