@@ -52,10 +52,9 @@ install:
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # fixed core build to switch to cpanm for speed
-  - travis_retry make
+  - travis_retry make build fatpacks
 
 script:
-  - make fatpacks
   - travis_retry make test
 
 after_success:

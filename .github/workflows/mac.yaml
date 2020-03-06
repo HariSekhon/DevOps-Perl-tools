@@ -1,6 +1,6 @@
 #
 #  Author: Hari Sekhon
-#  Date: 2020-02-04 21:39:47 +0000 (Tue, 04 Feb 2020)
+#  Date: Tue Feb 4 09:53:28 2020 +0000
 #
 #  vim:ts=2:sts=2:sw=2:et
 #
@@ -27,17 +27,27 @@ on:
 jobs:
   build:
     #name: build
-    timeout-minutes: 10
+    timeout-minutes: 60
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/cache@v1
       with:
-        path: ~/.cpanm
-        key: ${{ runner.os }}-cpanm-${{ hashFiles('**/cpan-requirements.txt') }}
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-pip-devops-perl-tools  # -${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-cpanm-
+          ${{ runner.os }}-pip-devops-perl-tools
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cpanm
+        key: ${{ runner.os }}-cpanm-devops-perl-tools-${{ hashFiles('**/cpan-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-cpanm-devops-perl-tools
+    - name: brew update
+      run: which brew && brew update || echo
     - name: build
       run: make
+    - name: fatpacks
+      run: make fatpacks
     - name: test
       run: make test

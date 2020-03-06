@@ -21,7 +21,7 @@ Known Issues: uses the Text::Unidecode CPAN module, which seems to convert unkno
 
 See also unidecode.py (pip install unidecode) which contains a CLI program to do this";
 
-$VERSION = "0.6.2";
+$VERSION = "0.6.3";
 
 use strict;
 use warnings;
@@ -39,6 +39,8 @@ my $file;
 %options = (
     "f|files=s"     => [ \$file, "File(s) to unidecode, non-option arguments are also counted as files. If no files are given uses standard input stream" ],
 );
+
+remove_timeout;
 
 get_options();
 

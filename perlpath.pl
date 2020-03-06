@@ -17,6 +17,8 @@ $DESCRIPTION = "
 
 Simple tool to print the Perl \@INC path, one per line
 
+Perl path \@INC may be different between perl and perl -T runs as taint mode prevents loading \$PERL5LIB
+
 Tested on Perl 5.x on Mac and Linux
 
 ";
@@ -47,4 +49,4 @@ if(@ARGV){
     usage;
 }
 
-print join("\n", @INC);
+print join("\n", @INC) . "\n";
