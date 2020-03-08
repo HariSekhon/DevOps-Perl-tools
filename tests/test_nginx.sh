@@ -36,7 +36,7 @@ export NGINX_HOST
 
 export NGINX_PORT_DEFAULT="80"
 
-startupwait 5
+startupwait 10
 
 check_docker_available
 
