@@ -1,14 +1,14 @@
 Hari Sekhon - DevOps Perl Tools
 ===============================
 
-[![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/network)
 [![Codacy](https://api.codacy.com/project/badge/Grade/1769cc854b5246968ee2bae1818f771a)](https://www.codacy.com/app/harisekhon/devops-perl-tools)
 [![CodeFactor](https://www.codefactor.io/repository/github/harisekhon/DevOps-Perl-tools/badge)](https://www.codefactor.io/repository/github/harisekhon/DevOps-Perl-tools)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=alert_status)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
+[![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/network)
 
 [![Linux](https://img.shields.io/badge/OS-Linux-blue?logo=linux)](https://github.com/harisekhon/DevOps-Perl-tools)
 [![Mac](https://img.shields.io/badge/OS-Mac-blue?logo=apple)](https://github.com/harisekhon/DevOps-Perl-tools)
