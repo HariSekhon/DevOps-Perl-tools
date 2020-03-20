@@ -9,6 +9,7 @@ Hari Sekhon - DevOps Perl Tools
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/network)
+[![Lines of Code](https://img.shields.io/badge/lines%20of%20code-9.1k-lightgrey)](https://github.com/HariSekhon/DevOps-Perl-tools)
 
 [![Linux](https://img.shields.io/badge/OS-Linux-blue?logo=linux)](https://github.com/harisekhon/DevOps-Perl-tools)
 [![Mac](https://img.shields.io/badge/OS-Mac-blue?logo=apple)](https://github.com/harisekhon/DevOps-Perl-tools)
