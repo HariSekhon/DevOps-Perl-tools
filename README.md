@@ -28,8 +28,11 @@ Hari Sekhon - DevOps Perl Tools
 [![Shippable](https://img.shields.io/shippable/5e52c6364c324200063326d5/master?label=Shippable)](https://app.shippable.com/github/HariSekhon/DevOps-Perl-tools/dashboard/jobs)
 [![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FDevOps-Perl-tools?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/DevOps-Perl-tools/builds)
 [![Wercker](https://app.wercker.com/status/1f2132ff1c5b4098e3321456e67f54db/s/master "wercker status")](https://app.wercker.com/project/byKey/1f2132ff1c5b4098e3321456e67f54db)
-[![Cirrus CI](https://img.shields.io/cirrus/github/HariSekhon/DevOps-Perl-tools/master?logo=Cirrus%20CI&label=Cirrus%20CI)](https://cirrus-ci.com/github/HariSekhon/DevOps-Perl-tools)
 [![BuildKite](https://img.shields.io/buildkite/ca48d7fe0ea1028ec9d15894458a200d13d763ccc0d239b873/master?label=BuildKite)](https://buildkite.com/hari-sekhon/devops-perl-tools)
+[![buddy pipeline](https://app.buddy.works/harisekhon/devops-perl-tools/pipelines/pipeline/246987/badge.svg?token=7f63afa3c423a65e6e39a79be0386959e98c4105ea1e20f7f8b05d6d6b587038 "buddy pipeline")](https://app.buddy.works/harisekhon/devops-perl-tools/pipelines/pipeline/246987)
+[![Cirrus CI](https://img.shields.io/cirrus/github/HariSekhon/DevOps-Perl-tools/master?logo=Cirrus%20CI&label=Cirrus%20CI)](https://cirrus-ci.com/github/HariSekhon/DevOps-Perl-tools)
+[![Concourse](https://img.shields.io/badge/Concourse-ready-blue)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/.concourse.yml)
+[![GoCD](https://img.shields.io/badge/GoCD-ready-blue)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/.gocd.yml)
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.DevOps-Perl-tools?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=7&branchName=master)
 [![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/devops-perl-tools/master?logo=bitbucket&label=BitBucket)](https://bitbucket.org/harisekhon/devops-perl-tools/addon/pipelines/home#!/)
