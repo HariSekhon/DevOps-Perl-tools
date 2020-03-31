@@ -43,14 +43,13 @@ REPO := HariSekhon/DevOps-Perl-tools
 CODE_FILES := $(shell find . -type f -name '*.pl' -o -type f -name '*.pm' -o -type f -name '*.sh' | grep -Eve /lib/ -e /bash-tools/ -e /fatpacks/)
 
 .PHONY: build
-build:
+build: init
 	@echo ================
 	@echo Perl Tools Build
 	@echo ================
-	@bash-tools/git_summary_line.sh
+	@$(MAKE) git-summary
 	@echo
 
-	$(MAKE) init
 	@# doesn't exit Make anyway, just doubles build time, and don't wanna use oneshell
 	@#if [ -z "$(CPANM)" ]; then make; exit $$?; fi
 	$(MAKE) system-packages-perl
