@@ -47,6 +47,8 @@ build:
 	@echo ================
 	@echo Perl Tools Build
 	@echo ================
+	@bash-tools/git_summary_line.sh
+	@echo
 
 	$(MAKE) init
 	@# doesn't exit Make anyway, just doubles build time, and don't wanna use oneshell
