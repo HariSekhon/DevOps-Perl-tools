@@ -305,3 +305,5 @@ You might also be interested in the following really nice Jupyter notebook for H
 ### Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/HariSekhon/DevOps-Perl-tools.svg)](https://starchart.cc/HariSekhon/DevOps-Perl-tools)
+
+[git.io/perl-tools](https://git.io/perl-tools)
