@@ -18,7 +18,7 @@ Hari Sekhon - DevOps Perl Tools
 [![DockerHub Build Automated](https://img.shields.io/docker/automated/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/harisekhon/perl-tools.svg)](https://hub.docker.com/r/harisekhon/perl-tools/builds)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/perl-tools.svg)](http://microbadger.com/#/images/harisekhon/perl-tools)
-[![CI Builds Overview](https://img.shields.io/badge/CI%20Builds-Overview%20Page-blue)](https://github.com/HariSekhon/DevOps-Bash-tools/blob/master/STATUS.md)
+[![CI Builds Overview](https://img.shields.io/badge/CI%20Builds-Overview%20Page-blue)](https://bitbucket.org/harisekhon/devops-bash-tools/src/master/STATUS.md)
 
 [![Travis CI](https://img.shields.io/travis/harisekhon/DevOps-Perl-tools/master?logo=travis&label=Travis)](https://travis-ci.org/HariSekhon/DevOps-Perl-tools)
 [![AppVeyor](https://img.shields.io/appveyor/build/harisekhon/DevOps-Perl-tools/master?logo=appveyor&label=AppVeyor)](https://ci.appveyor.com/project/HariSekhon/DevOps-Perl-tools/branch/master)
@@ -26,9 +26,9 @@ Hari Sekhon - DevOps Perl Tools
 [![CircleCI](https://circleci.com/gh/HariSekhon/DevOps-Perl-tools.svg?style=svg)](https://circleci.com/gh/HariSekhon/DevOps-Perl-tools)
 [![Codeship Status for HariSekhon/DevOps-Perl-tools](https://app.codeship.com/projects/c9e3bf70-3c5f-0138-d157-661d474a0ccb/status?branch=master)](https://app.codeship.com/projects/387254)
 [![Shippable](https://img.shields.io/shippable/5e52c6364c324200063326d5/master?label=Shippable)](https://app.shippable.com/github/HariSekhon/DevOps-Perl-tools/dashboard/jobs)
-[![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FDevOps-Perl-tools?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/DevOps-Perl-tools/builds)
+[![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FDevOps-Perl-tools?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/edit/new/builds?id=5e58e2a9c1d3cf1248fa485b&pipeline=DevOps-Perl-tools&projects=GitHub&projectId=5e52ca8ea284e00f882ea992&context=github&filter=page:1;pageSize:10;timeFrameStart:week)
 [![Wercker](https://app.wercker.com/status/1f2132ff1c5b4098e3321456e67f54db/s/master "wercker status")](https://app.wercker.com/project/byKey/1f2132ff1c5b4098e3321456e67f54db)
-[![BuildKite](https://img.shields.io/buildkite/ca48d7fe0ea1028ec9d15894458a200d13d763ccc0d239b873/master?label=BuildKite)](https://buildkite.com/hari-sekhon/devops-perl-tools)
+[![BuildKite](https://img.shields.io/buildkite/0a23f5b0b09f6b2a913e3e3fa258494edb0e8dcda2b40e19fa/master?label=BuildKite)](https://buildkite.com/hari-sekhon/devops-perl-tools)
 [![buddy pipeline](https://app.buddy.works/harisekhon/devops-perl-tools/pipelines/pipeline/246987/badge.svg?token=7f63afa3c423a65e6e39a79be0386959e98c4105ea1e20f7f8b05d6d6b587038 "buddy pipeline")](https://app.buddy.works/harisekhon/devops-perl-tools/pipelines/pipeline/246987)
 [![Cirrus CI](https://img.shields.io/cirrus/github/HariSekhon/DevOps-Perl-tools/master?logo=Cirrus%20CI&label=Cirrus%20CI)](https://cirrus-ci.com/github/HariSekhon/DevOps-Perl-tools)
 [![Concourse](https://img.shields.io/badge/Concourse-ready-blue)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/.concourse.yml)
@@ -305,3 +305,5 @@ You might also be interested in the following really nice Jupyter notebook for H
 ### Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/HariSekhon/DevOps-Perl-tools.svg)](https://starchart.cc/HariSekhon/DevOps-Perl-tools)
+
+[git.io/perl-tools](https://git.io/perl-tools)
