@@ -57,6 +57,7 @@ Hari Sekhon - DevOps Perl Tools
 [![CI Fedora](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Fedora/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Fedora%22)
 [![CI Alpine](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Alpine/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Alpine%22)
 [![CI Alpine 3](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Alpine%203/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Alpine+3%22)
+[![CI Perl](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl%22)
 [![CI Perl 5.10](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.10/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.10%22)
 [![CI Perl 5.12](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.12/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.12%22)
 [![CI Perl 5.14](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.14/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.14%22)
