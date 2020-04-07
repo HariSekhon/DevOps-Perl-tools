@@ -57,6 +57,16 @@ Hari Sekhon - DevOps Perl Tools
 [![CI Fedora](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Fedora/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Fedora%22)
 [![CI Alpine](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Alpine/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Alpine%22)
 [![CI Alpine 3](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Alpine%203/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Alpine+3%22)
+[![CI Perl 5.10](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.10/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.10%22)
+[![CI Perl 5.12](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.12/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.12%22)
+[![CI Perl 5.14](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.14/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.14%22)
+[![CI Perl 5.16](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.16/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.16%22)
+[![CI Perl 5.18](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.18/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.18%22)
+[![CI Perl 5.20](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.20/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.20%22)
+[![CI Perl 5.22](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.22/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.22%22)
+[![CI Perl 5.24](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.24/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.24%22)
+[![CI Perl 5.26](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.26/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.26%22)
+[![CI Perl 5.28](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.28/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.28%22)
 
 ### Linux, Web, Anonymizer, SQL ReCaser, Hadoop, Hive, Solr, Big Data & NoSQL Tools
 
