@@ -85,7 +85,7 @@
     <mockito.version>1.10.19</mockito.version>
     <scala.mm.version>2.10</scala.mm.version>
     <!-- Kafka 0.9 requires Scala 2.10.5+ -->
-    <scala.version>2.10.6</scala.version>
+    <scala.version>2.13.2</scala.version>
     <scalatest.version>2.2.1</scalatest.version>
     <scala-maven-plugin.version>3.2.2</scala.maven.plugin.version>
     <slf4j.version>1.7.16</slf4j.version>
