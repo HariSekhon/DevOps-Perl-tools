@@ -70,7 +70,7 @@ my $noedit = 0;
     "q|quick|n|noedit" => [ \$noedit,    "Don't open \$EDITOR" ],
 );
 
-$usage_line = "usage: $progname -o [<type>] filename";
+$usage_line = "usage: $progname [<type>] filename";
 get_options();
 
 scalar @ARGV == 1 or scalar @ARGV == 2 or usage;
