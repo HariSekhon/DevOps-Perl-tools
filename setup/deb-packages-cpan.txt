@@ -19,6 +19,7 @@
 libcam-pdf-perl
 libcrypt-rc4-perl
 libsearch-elasticsearch-perl
+libtemplate-perl
 libtext-pdf-perl
 libtext-unidecode-perl
 libxml-validate-perl
