@@ -72,6 +72,10 @@ test_nginx(){
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
     VERSION="$version" docker-compose stop
     hr
+    if is_CI; then
+        docker ps -a
+        hr
+    fi
     echo "Now reconfiguring Nginx to support stats and restarting:"
     docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
     hr
