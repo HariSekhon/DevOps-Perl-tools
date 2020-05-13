@@ -70,7 +70,7 @@ test_nginx(){
     fi
     # ============================================================================ #
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
-    DOCKER_CONTAINER="$(docker ps | grep "_nginx" | head -n 1)"
+    DOCKER_CONTAINER="$(docker ps | awk '/_nginx/{print $NF; exit}')"
     VERSION="$version" docker-compose stop
     hr
     if is_CI; then
