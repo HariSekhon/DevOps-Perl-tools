@@ -35,7 +35,6 @@
     execute_commands:
       - apt update
       - apt install -qy git make
-      - rm -fr bash-tools lib
       - make init
       - make ci test
     volume_mappings:
