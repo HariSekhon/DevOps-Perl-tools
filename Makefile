@@ -64,6 +64,8 @@ build: init
 
 .PHONY: init
 init:
+	pwd
+	git submodule
 	git submodule update --init --recursive
 
 .PHONY: perl
