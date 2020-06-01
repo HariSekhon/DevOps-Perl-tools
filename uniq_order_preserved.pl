@@ -13,11 +13,14 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-$DESCRIPTION = "Filter program to print only non-repeated lines in input - unlike the unix command 'uniq' lines do not have to be adjacent, this is order preserving compared to 'sort | uniq'. I rustled this up quickly after needing to parse unique missing modules for building but maintaining order as some modules depend on others being built first.
+$DESCRIPTION = "Filter program to print only non-repeated lines in input - unlike the unix command 'uniq' lines do not have to be adjacent, this is order preserving compared to 'sort | uniq'. I rustled this up quickly after needing to parse unique missing modules for building but maintaining order as some modules depend on others being built first
 
-Works as a standard unix filter program taking either standard input or files supplied as arguments.
+Works as a standard unix filter program taking either standard input or files supplied as arguments
 
-Since this must maintain unique lines in memory for comparison, do not use this on very large files/inputs.";
+Since this must maintain unique lines in memory for comparison, do not use this on very large files/inputs
+
+Tested on Mac and Linux
+";
 
 $VERSION = "0.1";
 
