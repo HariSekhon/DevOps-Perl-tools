@@ -33,4 +33,6 @@ fi
 
 # $perl is defined in utils
 # shellcheck disable=SC2154
-$perl -T ./welcome.pl
+run "$perl" -T ./welcome.pl
+
+run "$perl" -T ./welcome.pl --quick
