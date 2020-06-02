@@ -23,6 +23,8 @@ cd "$srcdir/.."
 # shellcheck disable=SC1091
 . ./tests/utils.sh
 
+section "Testing Welcome"
+
 # Fedora doesn't have /var/log/wtmp
 if ! [ -f /var/log/wtmp ]; then
     echo "/var/log/wtmp doesn't exist, touching..."
