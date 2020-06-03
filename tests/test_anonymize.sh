@@ -44,7 +44,8 @@ start_time="$(start_timer "$anonymize")"
 if [ -z "$test_nums" ]; then
     echo "checking file args:"
     run++
-    if [ `$anonymize -ae README.md | wc -l` -gt 100 ]; then
+    readme_line_count="$($anonymize -ae README.md | wc -l | sed 's/[[:space:]]//g')"
+    if [ "$readme_line_count" -gt 100 ]; then
         echo "SUCCEEDED - anonymized README.md > 100 lines"
     else
         echo "FAILED - suspicious README.md file arg result came to <= 100 lines"
@@ -53,10 +54,15 @@ if [ -z "$test_nums" ]; then
     hr
 
     echo "testing --email replacememnt format:"
+    # need expansion for perl -T
+    # shellcheck disable=SC2086
     run_grep "<email>" $anonymize --email <<< "hari@domain.com"
+    # shellcheck disable=SC2086
     run_grep "<email>" $anonymize -E <<< "hari@domain.com"
 
     echo "testing --ip-prefix behaviour:"
+    # need expansion for perl -T
+    # shellcheck disable=SC2086
     run_grep "<ip_x.x.x>.1" $anonymize --ip-prefix <<< "4.3.2.1"
 
     #echo "testing --hash-hostnames:"
