@@ -25,6 +25,8 @@ cd "$srcdir/.."
 
 section "Testing Uniq Order Preserved"
 
+# $perl defined in utils.sh
+# shellcheck disable=SC2154
 run "$perl" -T uniq_order_preserved.pl < tests/data/uniq.txt
 
 run "$perl" -T uniq_order_preserved.pl tests/data/uniq.txt
