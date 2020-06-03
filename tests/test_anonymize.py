@@ -34,7 +34,7 @@ def run():
     global dest # pylint: disable=global-statement
     src = {int(k) : v for k, v in src.items()}
     dest = {int(k) : v for k, v in dest.items()}
-    src_keys = sorted(src)  # pylint: disable=redefined-outer-name
+    src_keys = sorted(src)
     test_input = '\n'.join([src[_] for _ in src_keys])
 
     print('running anonymize tests using: {} {}'.format(anonymize, args))
