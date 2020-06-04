@@ -13,7 +13,9 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-$DESCRIPTION = "Program to show all the ASCII terminal code Foreground/Background color combinations in a terminal to make it easy to pick for writing fancy programs";
+$DESCRIPTION = "Program to show all the ASCII terminal code Foreground/Background color combinations in a terminal to make it easy to pick for writing fancy programs
+
+Tested on Mac OS X and Linux";
 
 $VERSION = "0.1.1";
 
