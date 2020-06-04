@@ -7,6 +7,8 @@ Hari Sekhon - DevOps Perl Tools
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
+[![Code Inspector Grade](https://www.code-inspector.com/project/4745/status/svg)](https://frontend.code-inspector.com/project/4745/dashboard)
+[![Code Inspector Score](https://www.code-inspector.com/project/4745/score/svg)](https://frontend.code-inspector.com/project/4745/dashboard)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools)](https://github.com/harisekhon/devops-perl-tools/network)
 [![Lines of Code](https://img.shields.io/badge/lines%20of%20code-9.1k-lightgrey)](https://github.com/HariSekhon/DevOps-Perl-tools)
