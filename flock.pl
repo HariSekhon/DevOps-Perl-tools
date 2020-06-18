@@ -13,7 +13,11 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-$DESCRIPTION = "Arbitrary locking utility. Useful for safely running commands that would otherwise clash";
+$DESCRIPTION = "Arbitrary locking utility
+
+Gains an exclusive lock and executes the given command, then releases the lock
+
+Aborts without executing the command if the lock is already in use to prevent commands clashing";
 
 $VERSION = "1.2.1";
 
