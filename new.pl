@@ -88,6 +88,7 @@ my %vim_type_opts = (
     'py'   => '+20 -c normal$',
     'java' => '+-3 -c normal$',
     'sbt'  => '+24 -c stopinsert',
+    'sh'   => '+22 -c stopinsert',
     'spec' => '+11 -c normal$',
     't'    => '+-2 -c normal$',
 );
