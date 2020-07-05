@@ -24,15 +24,19 @@ Supports any file extension types found under $srcdir/templates including:
 c           C source
 go          Golang program
 py          Python
-pl          Perl
-t           Perl test file
-rb          Ruby
 sql         SQL script
 sh          Bash Shell script
+rb          Ruby
+pl          Perl
+t           Perl test
+pm          Perl module
+bat         Batch file
+js          JScript
+vbs         VBS script
 jsh         Java 11 script
-groovy
-scala
-java
+groovy      Groovy script
+scala       Scala main source
+java        Java main source
 
 build.gradle    Gradle template
 build.sbt       SBT template
@@ -46,10 +50,6 @@ Jenkinsfile
 
 file        Unix file
 winfile     Windows file
-
-bat         Batch file
-js          JS script
-vbs         VBS script
 
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
