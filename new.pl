@@ -22,12 +22,27 @@ If only 1 script is specified then you will be dropped into a vim on the file.
 Supports any file extension types found under $srcdir/templates including:
 
 c           C source
-pl          Perl script
-py          Python script
-rb          Ruby script
-sh          Shell script
+go          Golang program
+py          Python
+pl          Perl
+t           Perl test file
+rb          Ruby
+sql         SQL script
+sh          Bash Shell script
+jsh         Java 11 script
+groovy
+scala
+java
 
-Makefile    Makefile
+build.gradle    Gradle template
+build.sbt       SBT template
+pom.xml         Maven template
+yaml            YAML template
+
+Makefile
+Dockerfile
+docker-compose.yml
+Jenkinsfile
 
 file        Unix file
 winfile     Windows file
