@@ -39,7 +39,7 @@ vbs         VBS script
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -282,7 +282,9 @@ foreach(@snippets){
 $vars{"NAME"} = $name;
 $vars{"DATE"} = $date;
 $vars{"URL"}  = "https://github.com/harisekhon";
-if($dirname =~ /\/github\//){
+if($ENV{"PWD"} =~ /playlists/){
+    $vars{"URL"} .= "/spotify-playlists";
+} elsif($dirname =~ /\/github\//){
     my $basedir = $dirname;
     $basedir =~ s/.*\/github\///;
     $basedir =~ s/\/.*//;
@@ -292,14 +294,14 @@ if($dirname =~ /\/github\//){
 } elsif($base_filename eq "Dockerfile" or
         $base_filename eq "entrypoint.sh"){
     $vars{"URL"} .= "/Dockerfiles"
-} elsif($ext eq "sh"){
-    $vars{"URL"} .= "/devops-bash-tools";
-} elsif($ext eq "pl"){
-    $vars{"URL"} .= "/devops-perl-tools";
-} elsif($ext eq "py"){
-    $vars{"URL"} .= "/devops-python-tools";
-} elsif($ext eq "pm"){
-    $vars{"URL"} .= "/lib";
+#} elsif($ext eq "sh"){
+#    $vars{"URL"} .= "/devops-bash-tools";
+#} elsif($ext eq "pl"){
+#    $vars{"URL"} .= "/devops-perl-tools";
+#} elsif($ext eq "py"){
+#    $vars{"URL"} .= "/devops-python-tools";
+#} elsif($ext eq "pm"){
+#    $vars{"URL"} .= "/lib";
 } elsif($ext eq "yaml"){
     # indent by 2 spaces not 4 for YAML
     $vars{"VIM_TAGS"} =~ s/4/2/g;
