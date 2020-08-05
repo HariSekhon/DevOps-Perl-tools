@@ -119,8 +119,8 @@ curl https://raw.githubusercontent.com/HariSekhon/DevOps-Perl-tools/master/setup
 or manually
 
 ```
-git clone https://github.com/harisekhon/devops-perl-tools tools
-cd tools
+git clone https://github.com/harisekhon/devops-perl-tools perl-tools
+cd perl-tools
 make
 ```
 
@@ -223,7 +223,7 @@ The automated build will use 'sudo' to install required Perl CPAN libraries to t
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
 ```
-git clone https://github.com/harisekhon/devops-perl-tools tools
+git clone https://github.com/harisekhon/devops-perl-tools perl-tools
 cd tools
 git submodule update --init
 ```
@@ -264,9 +264,9 @@ Unzip both and move Lib to the ```lib``` folder under Tools.
 unzip devops-perl-tools-master.zip
 unzip lib-master.zip
 
-mv -v devops-perl-tools-master tools
+mv -v devops-perl-tools-master perl-tools
 mv -v lib-master lib
-mv -vf lib tools/
+mv -vf lib perl-tools/
 ```
 
 Proceed to install CPAN modules for whichever programs you want to use using your standard procedure - usually an internal mirror or proxy server to CPAN, or rpms / debs (some libraries are packaged by Linux distributions).
