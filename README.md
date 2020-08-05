@@ -110,13 +110,19 @@ docker run harisekhon/perl-tools <program> <args>
 
 #### Automated Build from source
 
+installs git, make, pulls the repo and build the dependencies:
+
+```
+curl https://raw.githubusercontent.com/HariSekhon/DevOps-Perl-tools/master/setup/bootstrap.sh | sh
+```
+
+or manually
+
 ```
 git clone https://github.com/harisekhon/devops-perl-tools tools
 cd tools
 make
 ```
-
-The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/devops-perl-tools#manual-setup) section instead.
 
 Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/devops-perl-tools#detailed-build-instructions) further down for more information.
 
@@ -204,6 +210,8 @@ Environment variables are supported for convenience and also to hide credentials
 
 
 ### Detailed Build Instructions
+
+The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/devops-perl-tools#manual-setup) section instead.
 
 ##### Perlbrew localized installs
 
