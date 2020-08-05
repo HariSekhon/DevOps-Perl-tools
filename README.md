@@ -79,7 +79,7 @@ Hari Sekhon - DevOps Perl Tools
 
 A few of the Linux, Web, Big Data & NoSQL tools I've written over the years, plus templates for various programming languages and Kubernetes. All programs have --help to list the available options.
 
-For many more tools see [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains many more Linux, Web, Big Data & NoSQL tools.
+For many more tools see the [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools), [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) and the [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) which contains hundreds more scripts and programs for Cloud, Big Data, NoSQL, RDBMS, Web and Linux.
 
 Hari Sekhon
 
