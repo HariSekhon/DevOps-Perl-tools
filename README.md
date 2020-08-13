@@ -43,7 +43,7 @@ Hari Sekhon - DevOps Perl Tools
 <!--[![Wercker](https://img.shields.io/wercker/ci/5e58ef724fb3d108006b2038/master?label=Wercker&logo=oracle)](https://app.wercker.com/harisekhon/DevOps-Perl-tools/runs)-->
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.DevOps-Perl-tools?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=7&branchName=master)
-[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/devops-perl-tools/master?logo=bitbucket&label=BitBucket)](https://bitbucket.org/harisekhon/devops-perl-tools/addon/pipelines/home#!/)
+[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/devops-perl-tools/master?logo=bitbucket&label=BitBucket%20CI)](https://bitbucket.org/harisekhon/devops-perl-tools/addon/pipelines/home#!/)
 [![GitLab Pipeline](https://img.shields.io/gitlab/pipeline/harisekhon/DevOps-Perl-tools?logo=gitlab&label=GitLab%20CI)](https://gitlab.com/HariSekhon/DevOps-Perl-tools/pipelines)
 [![Repo on GitHub](https://img.shields.io/badge/repo-GitHub-blue?logo=github)](https://github.com/HariSekhon/DevOps-Perl-tools)
 [![Repo on GitLab](https://img.shields.io/badge/repo-GitLab-blue?logo=gitlab)](https://gitlab.com/HariSekhon/DevOps-Perl-tools)
