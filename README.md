@@ -81,9 +81,11 @@ Hari Sekhon - DevOps Perl Tools
 [![CI Perl 5.26](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.26/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.26%22)
 [![CI Perl 5.28](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/CI%20Perl%205.28/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22CI+Perl+5.28%22)
 
+[git.io/perl-tools](https://git.io/perl-tools)
+
 ### Linux, Web, Anonymizer, SQL ReCaser, Hadoop, Hive, Solr, Big Data & NoSQL Tools
 
-A few of the Linux, Web, Big Data & NoSQL tools I've written over the years, plus templates for various programming languages and Kubernetes. All programs have --help to list the available options.
+DevOps, Linux, SQL, Web, Big Data, NoSQL, templates for various programming languages and Kubernetes. All programs have `--help`.
 
 See also the [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools), [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) and [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) repos which contains hundreds more scripts and programs for Cloud, Big Data, SQL, NoSQL, Web and Linux.
 
