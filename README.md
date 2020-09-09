@@ -181,7 +181,7 @@ Environment variables are supported for convenience and also to hide credentials
       - `mysqlcase.pl` - [MySQL](https://www.mysql.com) SQL
       - `n1qlcase.pl` - [Couchbase](https://www.couchbase.com/) [N1QL](https://www.couchbase.com/products/n1ql)
       - `oraclecase.pl` / `plsqlcase.pl` - [Oracle](https://www.oracle.com/uk/index.html) SQL
-      - `pgsqlcase.pl` - [PostgreSQL](https://www.postgresql.org) SQL
+      - `postgrescase.pl` / `pgsqlcase.pl` - [PostgreSQL](https://www.postgresql.org) SQL
       - `pigcase.pl` - [Pig](https://pig.apache.org) [Latin](https://pig.apache.org/docs/r0.17.0/basic.html)
       - `prestocase.pl` - [Presto](https://prestosql.io/) SQL
       - `redshiftcase..pl` - [AWS Redshift](https://aws.amazon.com/redshift/) SQL
