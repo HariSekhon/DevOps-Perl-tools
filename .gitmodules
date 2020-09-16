@@ -12,3 +12,6 @@
 [submodule "templates/kubernetes"]
 	path = templates/kubernetes
 	url = https://github.com/HariSekhon/Kubernetes-templates
+[submodule "sql-keywords"]
+	path = sql-keywords
+	url = https://github.com/HariSekhon/SQL-keywords

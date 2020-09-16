@@ -22,7 +22,7 @@ Integrated with the advanced .vimrc in the adjacent DevOps Bash tools repo to be
 https://github.com/HariSekhon/DevOps-Bash-tools
 ";
 
-$VERSION = "0.7.11";
+$VERSION = "0.7.12";
 
 use strict;
 use warnings;
@@ -32,7 +32,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 
-my $CONF_DIR            = ".recase";
+my $CONF_DIR            = "sql-keywords";
 # The SQL language files shouldn't be actively changed by users so hidden/tidied away under .recase directory
 my $CONF                = "sql_keywords.conf";
 my $CASSANDRA_CQL_CONF  = "cassandra_cql_keywords.conf";
