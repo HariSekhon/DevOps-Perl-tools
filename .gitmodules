@@ -9,3 +9,6 @@
 [submodule "sql"]
 	path = sql
 	url = https://github.com/HariSekhon/SQL-scripts
+[submodule "templates/kubernetes"]
+	path = templates/kubernetes
+	url = https://github.com/HariSekhon/Kubernetes-templates
