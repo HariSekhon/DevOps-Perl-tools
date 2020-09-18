@@ -121,7 +121,7 @@ docker run harisekhon/perl-tools <program> <args>
 installs git, make, pulls the repo and build the dependencies:
 
 ```
-curl https://raw.githubusercontent.com/HariSekhon/DevOps-Perl-tools/master/setup/bootstrap.sh | sh
+curl -L git.io/perl-bootstrap | sh
 ```
 
 or manually
