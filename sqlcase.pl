@@ -33,7 +33,7 @@ BEGIN {
 use HariSekhonUtils;
 
 my $CONF_DIR            = "sql-keywords";
-# The SQL language files shouldn't be actively changed by users so hidden/tidied away under .recase directory
+# The SQL language files shouldn't need to be actively changed by users and are kept in a separate submodule
 my $CONF                = "sql_keywords.conf";
 my $CASSANDRA_CQL_CONF  = "cassandra_cql_keywords.conf";
 my $COUCHBASE_N1QL_CONF = "couchbase_n1ql_keywords.conf";
