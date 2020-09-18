@@ -81,7 +81,7 @@ perl-libs:
 
 .PHONY: fatpacks-local
 fatpacks-local:
-	[ -n "$(INSIDE_DOCKER)" ] || cp -a .recase "$(FATPACKS_DIR)/"
+	[ -n "$(INSIDE_DOCKER)" ] || cp -a sql-keywords "$(FATPACKS_DIR)/"
 
 .PHONY: lib-test
 lib-test:
