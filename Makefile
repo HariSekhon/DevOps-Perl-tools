@@ -81,7 +81,7 @@ perl-libs:
 
 .PHONY: fatpacks-local
 fatpacks-local:
-	[ -n "$(INSIDE_DOCKER)" ] || cp -a sql-keywords templates "$(FATPACKS_DIR)/"
+	cp -a sql-keywords templates "$(FATPACKS_DIR)/"
 
 .PHONY: lib-test
 lib-test:
