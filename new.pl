@@ -54,7 +54,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -296,19 +296,22 @@ foreach(@snippets){
 }
 $vars{"NAME"} = $name;
 $vars{"DATE"} = $date;
-$vars{"URL"}  = "https://github.com/harisekhon";
+# TODO: get this from git repo remote
+$vars{"URL"}  = "https://github.com/HariSekhon";
 if($ENV{"PWD"} =~ /playlists/){
-    $vars{"URL"} .= "/spotify-playlists";
+    $vars{"URL"} .= "/Spotify-Playlists";
+} elsif($ENV{"PWD"} =~ /k8s$/){
+    $vars{"URL"} .= "/kubernetes-templates";
+} elsif($plugin){
+    $vars{"URL"} .= "/Nagios-Plugins";
+} elsif($base_filename eq "Dockerfile" or
+        $base_filename eq "entrypoint.sh"){
+    $vars{"URL"} .= "/Dockerfiles"
 } elsif($dirname =~ /\/github\//){
     my $basedir = $dirname;
     $basedir =~ s/.*\/github\///;
     $basedir =~ s/\/.*//;
     $vars{"URL"} .= "/$basedir";
-} elsif($plugin){
-    $vars{"URL"} .= "/nagios-plugins";
-} elsif($base_filename eq "Dockerfile" or
-        $base_filename eq "entrypoint.sh"){
-    $vars{"URL"} .= "/Dockerfiles"
 #} elsif($ext eq "sh"){
 #    $vars{"URL"} .= "/devops-bash-tools";
 #} elsif($ext eq "pl"){
@@ -317,14 +320,15 @@ if($ENV{"PWD"} =~ /playlists/){
 #    $vars{"URL"} .= "/devops-python-tools";
 #} elsif($ext eq "pm"){
 #    $vars{"URL"} .= "/lib";
-} elsif($ext eq "yaml"){
+}
+if($ext eq "yaml"){
     # indent by 2 spaces not 4 for YAML
     $vars{"VIM_TAGS"} =~ s/4/2/g;
 }
 if($ext eq "py"){
     $vars{"MESSAGE"} =~ s/ and/\n#  and/;
 }
-$vars{"LINKEDIN"} = "https://www.linkedin.com/in/harisekhon";
+$vars{"LINKEDIN"} = "https://www.linkedin.com/in/HariSekhon";
 #inplace_edit($filename, 's/\$URL.*\$/\$URL\$/; s/\$Id.*\$/\$Id\$/');
 #$? and die "Error: failed to set date: $!";
 foreach(sort keys %vars){
