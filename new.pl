@@ -54,7 +54,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.2";
+$VERSION = "0.7.3";
 
 use strict;
 use warnings;
@@ -81,8 +81,8 @@ my $overwrite = 0;
 my $noedit = 0;
 
 %options = (
-    "o|overwrite"      => [ \$overwrite, "Overwrite file" ],
-    "q|quick|n|noedit" => [ \$noedit,    "Don't open \$EDITOR" ],
+    "o|overwrite"       => [ \$overwrite, "Overwrite file" ],
+    "q|quick|n|no-edit" => [ \$noedit,    "Don't open \$EDITOR" ],
 );
 
 $usage_line = "usage: $progname [<type>] filename";
@@ -222,14 +222,19 @@ if($ext eq "pl"){
         $vim_type_opts{"pl"} = "'+normal 16G17|'";
     }
 }
+
 my $template = "$templatedir/template.$ext";
+
 # If I find Makefile, pom.xml, assembly.sbt copy as is
-if(-f "$templatedir/template.$base_filename"){
+
+if(-f "$templatedir/$base_filename"){
+    $template = "$templatedir/$base_filename";
+} elsif(-f "$templatedir/template.$base_filename"){
+    $template = "$templatedir/template.$base_filename";
+} elsif(-f "$templatedir/template.$base_filename"){
     $template = "$templatedir/template.$base_filename";
 }elsif(-f "$templatedir/template.$filename"){
     $template = "$templatedir/template.$filename";
-}elsif(-f "$templatedir/$base_filename"){ # or -f "$templatedir/$base_filename.m4"){
-    $template = "$templatedir/$base_filename";
 }
 if (!(-e $template) ){ #or -e "$template.m4")){
     if(scalar @ARGV == 2){
