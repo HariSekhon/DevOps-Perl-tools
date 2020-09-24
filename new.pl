@@ -14,6 +14,7 @@
 # TODO: make it look for .ext, a.ext, a.b.ext etc
 
 my $templatedir = dirname(__FILE__) . "/templates";
+my $templatedir2 = dirname(__FILE__) . "/../templates";
 
 $DESCRIPTION = "Creates a new file of specified type with headers and code specific bits.
 
@@ -223,18 +224,25 @@ if($ext eq "pl"){
     }
 }
 
-my $template = "$templatedir/template.$ext";
+my $template;
+
+foreach my $templatedir ($templatedir2, $templatedir){
+    $template = "$templatedir/template.$ext";
 
 # If I find Makefile, pom.xml, assembly.sbt copy as is
 
-if(-f "$templatedir/$base_filename"){
-    $template = "$templatedir/$base_filename";
-} elsif(-f "$templatedir/template.$base_filename"){
-    $template = "$templatedir/template.$base_filename";
-} elsif(-f "$templatedir/template.$base_filename"){
-    $template = "$templatedir/template.$base_filename";
-}elsif(-f "$templatedir/template.$filename"){
-    $template = "$templatedir/template.$filename";
+    if(-f "$templatedir/$base_filename"){
+        $template = "$templatedir/$base_filename";
+    } elsif(-f "$templatedir/template.$base_filename"){
+        $template = "$templatedir/template.$base_filename";
+    } elsif(-f "$templatedir/template.$base_filename"){
+        $template = "$templatedir/template.$base_filename";
+    }elsif(-f "$templatedir/template.$filename"){
+        $template = "$templatedir/template.$filename";
+    }
+    if(-f "$template"){
+        last;
+    }
 }
 if (!(-e $template) ){ #or -e "$template.m4")){
     if(scalar @ARGV == 2){
