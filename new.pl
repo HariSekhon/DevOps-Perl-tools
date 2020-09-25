@@ -13,12 +13,13 @@
 
 # TODO: make it look for .ext, a.ext, a.b.ext etc
 
-my $templatedir = dirname(__FILE__) . "/templates";
-my $templatedir2 = dirname(__FILE__) . "/../templates";
+my $srcdir = dirname(__FILE__);
+my $templatedir  = "$srcdir/templates";
+my $templatedir2 = "$srcdir/../templates";
 
 $DESCRIPTION = "Creates a new file of specified type with headers and code specific bits.
 
-If only 1 script is specified then you will be dropped into a vim on the file.
+If only 1 script is specified then you will be dropped into your \$EDITOR on the file.
 
 Supports any file extension types found under $srcdir/templates including:
 
@@ -48,6 +49,7 @@ Makefile
 Dockerfile
 docker-compose.yml
 Jenkinsfile
+terraform / tf  (bundle of backend.tf, provider.tf, variables.tf and main.tf)
 
 file        Unix file
 winfile     Windows file
@@ -55,7 +57,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.3";
+$VERSION = "0.7.4";
 
 use strict;
 use warnings;
@@ -119,17 +121,25 @@ sub chmod_check($$){
     }
 }
 
-sub vim($$){
+sub editor($$){
     my $filename = shift;
     my $type     = shift;
-    my $cmd;
     my $vim_opts = "";
+    $ENV{"EDITOR"} =~ /^(\w+)$/;
+    my $editor = $1;
     if($filename =~ /docker-compose.ya?ml/){
         $vim_opts .= "+18 -c normal7l";
     } elsif(defined($vim_type_opts{$type})){
         $vim_opts .= "$vim_type_opts{$type}";
     }
-    $cmd = "vim + -c star $vim_opts '$filename'";
+    if(not $editor){
+        $editor="vim";
+    }
+    my $cmd = "$editor";
+    if($editor =~ /^vim?$/){
+        $cmd .= " + -c star $vim_opts";
+    }
+    $cmd .= " '$filename'";
     vlog2 $cmd;
     exec($cmd);
 }
@@ -224,34 +234,37 @@ if($ext eq "pl"){
     }
 }
 
-my $template;
+sub get_template(){
+    my $template;
+    foreach my $templatedir ($templatedir2, $templatedir){
+        $template = "$templatedir/template.$ext";
 
-foreach my $templatedir ($templatedir2, $templatedir){
-    $template = "$templatedir/template.$ext";
-
-# If I find Makefile, pom.xml, assembly.sbt copy as is
-
-    if(-f "$templatedir/$base_filename"){
-        $template = "$templatedir/$base_filename";
-    } elsif(-f "$templatedir/template.$base_filename"){
-        $template = "$templatedir/template.$base_filename";
-    } elsif(-f "$templatedir/template.$base_filename"){
-        $template = "$templatedir/template.$base_filename";
-    }elsif(-f "$templatedir/template.$filename"){
-        $template = "$templatedir/template.$filename";
+        # If I find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
+        if(-f "$templatedir/$base_filename"){
+            $template = "$templatedir/$base_filename";
+        } elsif(-f "$templatedir/template.$base_filename"){
+            $template = "$templatedir/template.$base_filename";
+        } elsif(-f "$templatedir/template.$base_filename"){
+            $template = "$templatedir/template.$base_filename";
+        }elsif(-f "$templatedir/template.$filename"){
+            $template = "$templatedir/template.$filename";
+        }
+        if(-f "$template"){
+            last;
+        }
     }
-    if(-f "$template"){
-        last;
+    if (!(-e $template) ){ #or -e "$template.m4")){
+        if(scalar @ARGV == 2){
+            die "ERROR: template for '$ext' type not found (couldn't find $template)"; # or $template.m4)"
+        }
+        $ext = "file";
+        $template = "$templatedir/template.$ext";
+        die "$template could not be found" unless (-f $template);
     }
+    return $template;
 }
-if (!(-e $template) ){ #or -e "$template.m4")){
-    if(scalar @ARGV == 2){
-        die "ERROR: template for '$ext' type not found (couldn't find $template)"; # or $template.m4)"
-    }
-    $ext = "file";
-    $template = "$templatedir/template.$ext";
-    die "$template could not be found" unless (-f $template);
-}
+
+my $template = get_template();
 
 #if(-f "$template.m4" and which("m4")){
 #    vlog2 "m4 installed and template found: $template";
@@ -360,35 +373,40 @@ if(defined($puppet_module)){
     #inplace_edit($filename, "s/NAME/$puppet_module/g");
     $name = $puppet_module;
 }
-#my $fh = open_file $template;
-#my $content = do { local $/; <$fh> };
-#close($fh);
-#my $mt = Mojo::Template->new;
-#my $output = $mt->render($content);
-vlog2 "creating from template '$template'";
-my $tt = Template->new(ABSOLUTE => 1);
-if (-f $filename){
-    if(not $overwrite){
-        die "$filename already exists, cannot create, aborting...\n"
+
+sub create_templated_file(){
+    #my $fh = open_file $template;
+    #my $content = do { local $/; <$fh> };
+    #close($fh);
+    #my $mt = Mojo::Template->new;
+    #my $output = $mt->render($content);
+    vlog2 "creating file '$filename' from template '$template'";
+    my $tt = Template->new(ABSOLUTE => 1);
+    if (-f $filename){
+        if(not $overwrite){
+            die "$filename already exists, cannot create, aborting...\n"
+        }
+    } elsif(-e $filename){
+        die "$filename already exists but is not a regular file!\n";
     }
-} elsif(-e $filename){
-    die "$filename already exists but is not a regular file!\n";
+    # To debug call without filename and will print to stdout instead
+    #$tt->process($template, \%vars) or die $tt->error(), '\n';
+    $tt->process($template, \%vars, $filename) or die $tt->error(), ' ';  # don't end in newline, give us this line number for debugging
+    #open my $fh, ">", $filename or die "failed to open '$filename' for writing";
+    #print $fh $output;
+    #close($fh);
+    chmod_check($filename, $ext);
+    #if($ext eq "py"){
+    #    system("cat '$filename'");
+    #    exit;
+    #}
 }
-# To debug call without filename and will print to stdout instead
-#$tt->process($template, \%vars) or die $tt->error(), '\n';
-$tt->process($template, \%vars, $filename) or die $tt->error(), '\n';
-#open my $fh, ">", $filename or die "failed to open '$filename' for writing";
-#print $fh $output;
-#close($fh);
-chmod_check($filename, $ext);
-#if($ext eq "py"){
-#    system("cat '$filename'");
-#    exit;
-#}
+
+create_templated_file();
 if($noedit){
     exit 0;
 } else {
-    vim($filename, $ext);
+    editor($filename, $ext);
 }
 
 # should not reach here chmod_open should be doing an exec
