@@ -82,6 +82,12 @@ my @exe_types = qw/exp php pl py rb sh tcl/;
 
 my $overwrite = 0;
 my $noedit = 0;
+my $filename;
+my $ext;
+my %vars;
+my $plugin = 0;
+my $lib    = 1;
+my $puppet_module;
 
 %options = (
     "o|overwrite"       => [ \$overwrite, "Overwrite file" ],
@@ -111,21 +117,29 @@ my %vim_type_opts = (
     't'    => '+-2 -c normal$',
 );
 
-sub chmod_check($$){
-    my $filename = shift;
-    my $type     = shift;
-    my $mode = 0755;
-    if(grep { $_ eq $type } @exe_types){
-        vlog2 "chmod $mode";
-        chmod $mode, $filename;
+sub main(){
+    parse();
+    process_extension_logic();
+    my $template = get_template($filename, $ext);
+    load_vars($filename, $template, $ext);
+    create_templated_file($filename, $template, $ext);
+    if($noedit){
+        exit 0;
+    } else {
+        editor($filename, $ext);
     }
+
+    # should not reach here chmod_open should be doing an exec
+    die "UNKNOWN ERROR: hit end of code after chmod_open()";
 }
+
+main();
 
 sub editor($$){
     my $filename = shift;
     my $type     = shift;
     my $vim_opts = "";
-    $ENV{"EDITOR"} =~ /^(\w+)$/;
+    $ENV{"EDITOR"} =~ /^([A-Za-z0-9-]+)$/;
     my $editor = $1;
     if($filename =~ /docker-compose.ya?ml/){
         $vim_opts .= "+18 -c normal7l";
@@ -144,97 +158,10 @@ sub editor($$){
     exec($cmd);
 }
 
-my $ext;
-my $filename;
-if(scalar @ARGV == 1){
-    $ext = $filename = $ARGV[0];
-    $ext =~ s/^.*\///;
-    $ext =~ s/^.*\.//;
-    if(basename(dirname(abs_path($filename))) eq "docs"){
-        $ext = "doc";
-    } elsif($ext eq $ARGV[0]){
-        $ext = "file";
-    }
-} elsif(scalar @ARGV == 2){
-    $ext = $ARGV[0];
-    $filename = $ARGV[1];
-} else {
-    usage;
-}
-
-vlog_option "arg filename", $filename;
-vlog_option "arg ext",      $ext;
-
-$ext =~ /^([A-Za-z0-9]+)$/ or usage "invalid ext given";
-$ext = $1;
-
-if($ext eq "file" and $filename eq "sbt"){
-    vlog2 "file 'sbt' detected, resetting filename to build.sbt";
-    $filename = "build.sbt";
-    $ext  = "sbt";
-}
-
-# doesn't work but not needed, if we find assembly.sbt in the template dir we use that
-#if($filename eq "assembly.sbt"){
-#    $ext = "assembly.sbt";
-#}
-
-$filename    = validate_filename($filename);
-$templatedir = validate_directory($templatedir, 0, "template dir");
-
-my $puppet_module;
-if($filename eq "ppmod"){
-    die "didn't specify module name/path after ppmod\n";
-}
-if($ext eq "ppmod"){
-    vlog2 "ppmod";
-    $ext = "pp";
-    $filename =~ /((.*modules)\/([\w-]+))$/ or die "Failed to determine puppet module name, expecting modules/<name>\n";
-    my $module_path = $1;
-    my $modules_dir = $2;
-    $puppet_module  = $3;
-    (-d $modules_dir ) or die "modules dir $modules_dir not found\n";
-    die "$module_path already exists\n" if(-e $module_path);
-    make_path("$module_path/files", "$module_path/manifests", {$verbose => 1}) or die "Failed to create puppet $module_path/files and $module_path/manifests directories $!";
-    $filename = "$module_path/manifests/init.pp";
-}
-
-my $plugin = 0;
-my $lib    = 1;
-
-my $base_filename = basename $filename;
-my $dirname = abs_path(dirname($filename));
-if(! -d $dirname){
-    make_path($dirname, {$verbose => 1}) or die "Failed to create target directory '$dirname': $!";
-}
-
-if(grep { $ext eq $_ } qw/standalone solo plain simple/){
-    vlog2 "standalone";
-    $lib = 0;
-    $ext = $ARGV[1];
-    $ext =~ s/^.*\.//;
-} elsif($ext eq "plugin"){
-    vlog2 "plugin";
-    $plugin = 1;
-    $ext = $ARGV[1];
-    $ext =~ s/^.*\.//;
-} elsif($base_filename =~ /^check_/){
-    vlog2 "implicit plugin check_";
-    $plugin = 1;
-}
-# re-untaint ext
-$ext =~ /^([A-Za-z0-9]+)$/ or die "invalid ext found";
-$ext = $1;
-
-if($ext eq "pl"){
-    if($plugin){
-        $vim_type_opts{"pl"} = "'+normal 17G30|'";
-    } elsif($lib){
-        $vim_type_opts{"pl"} = "'+normal 16G17|'";
-    }
-}
-
-sub get_template(){
+sub get_template($$){
+    my $filename = shift;
+    my $base_filename = basename $filename;
+    my $ext = shift;
     my $template;
     foreach my $templatedir ($templatedir2, $templatedir){
         $template = "$templatedir/template.$ext";
@@ -264,117 +191,11 @@ sub get_template(){
     return $template;
 }
 
-my $template = get_template();
-
-#if(-f "$template.m4" and which("m4")){
-#    vlog2 "m4 installed and template found: $template";
-my $name;
-if(basename($template) eq basename($filename)){
-    $name = abs_path(dirname($filename));
-} else {
-    $name = $filename;
-}
-    $name = basename($name);
-    if($ext eq "pm"){
-        ($name = $filename) =~ s/\//::/g;
-    }
-    $name =~ s/\.$ext$//;
-    vlog2 "name = $name";
-    #my $env_cred = $name;
-    #for($env_cred){
-    for($name){
-        #s/^check_//;
-        #s/_[^_]+$//;
-        s/[_-]/ /g;
-        s/\b(.)/\u$1/g;
-        s/ //g;
-    }
-#    my $macros = "";
-#    $macros .= " -DLIB"    if $lib;
-#    $macros .= " -DPLUGIN" if $plugin;
-#    my $cmd = "m4 -DNAME='$name' -DENV_CRED='$env_cred' $macros -I '$templatedir' '$template.m4' > '$filename'";
-
-# filename is full path so regex end
-if($ext eq "sbt" or $filename =~ /pom.xml$/){
-    $name = basename($dirname);
-}
-
-#inplace_edit($filename, 's/  Date:[^\r\n]*/  Date: ' . strftime('%F %T %z (%a, %d %b %Y)', localtime) . '/');
-my $date = strftime('%F %T %z (%a, %d %b %Y)', localtime);
-# Make this generic by detecting all .snippets or something and then iterating on them to replace %SNIPPET_NAME% from files
-#my $license_fh = open_file "$templatedir/license";
-#my $license = <$license_fh>;
-#close $license_fh;
-my @snippets = glob "$templatedir/snippet.*";
-my %vars;
-my $snippet_name;
-my $snippet;
-my $fh;
-foreach(@snippets){
-    ($snippet_name = uc basename $_) =~ s/^snippet\.//i;
-    $snippet_name = validate_filename($snippet_name, undef, "snippet $snippet_name", 1);
-    #$snippet = do { local $/; <{open_file($_)}> };
-    $fh = open_file($_);
-    $snippet = do { local $/; <$fh> };
-    close($fh);
-    chomp $snippet;
-    $vars{$snippet_name} = $snippet;
-}
-$vars{"NAME"} = $name;
-$vars{"DATE"} = $date;
-# TODO: get this from git repo remote
-$vars{"URL"}  = "https://github.com/HariSekhon";
-if($ENV{"PWD"} =~ /playlists/){
-    $vars{"URL"} .= "/Spotify-Playlists";
-} elsif($ENV{"PWD"} =~ /k8s$/){
-    $vars{"URL"} .= "/kubernetes-templates";
-} elsif($plugin){
-    $vars{"URL"} .= "/Nagios-Plugins";
-} elsif($base_filename eq "Dockerfile" or
-        $base_filename eq "entrypoint.sh"){
-    $vars{"URL"} .= "/Dockerfiles"
-} elsif($dirname =~ /\/github\//){
-    my $basedir = $dirname;
-    $basedir =~ s/.*\/github\///;
-    $basedir =~ s/\/.*//;
-    $vars{"URL"} .= "/$basedir";
-#} elsif($ext eq "sh"){
-#    $vars{"URL"} .= "/devops-bash-tools";
-#} elsif($ext eq "pl"){
-#    $vars{"URL"} .= "/devops-perl-tools";
-#} elsif($ext eq "py"){
-#    $vars{"URL"} .= "/devops-python-tools";
-#} elsif($ext eq "pm"){
-#    $vars{"URL"} .= "/lib";
-}
-if($ext eq "yaml"){
-    # indent by 2 spaces not 4 for YAML
-    $vars{"VIM_TAGS"} =~ s/4/2/g;
-}
-if($ext eq "py"){
-    $vars{"MESSAGE"} =~ s/ and/\n#  and/;
-}
-$vars{"LINKEDIN"} = "https://www.linkedin.com/in/HariSekhon";
-#inplace_edit($filename, 's/\$URL.*\$/\$URL\$/; s/\$Id.*\$/\$Id\$/');
-#$? and die "Error: failed to set date: $!";
-foreach(sort keys %vars){
-    vlog3 sprintf "snippet: %s => %s", $_, $vars{$_};
-}
-
-if($plugin and $ext eq "pl"){
-    $template = "$templatedir/template-plugin.pl";
-} elsif($base_filename =~ /docker-compose.ya?ml/){
-    $vars{"NAME"} =~ s/-?docker-compose-?//i;
-    $vars{"NAME"} = lc $vars{"NAME"};
-    $template = "$templatedir/docker-compose.yml";
-}
-
-if(defined($puppet_module)){
-    #inplace_edit($filename, "s/NAME/$puppet_module/g");
-    $name = $puppet_module;
-}
-
-sub create_templated_file(){
+sub create_templated_file($$$){
+    my $filename = $_[0];
+    my $template = $_[1];
+    my $ext      = $_[2];
+    #my %vars = %{$_[3]};
     #my $fh = open_file $template;
     #my $content = do { local $/; <$fh> };
     #close($fh);
@@ -402,12 +223,227 @@ sub create_templated_file(){
     #}
 }
 
-create_templated_file();
-if($noedit){
-    exit 0;
-} else {
-    editor($filename, $ext);
+sub chmod_check($$){
+    my $filename = shift;
+    my $type     = shift;
+    my $mode = 0755;
+    if(grep { $_ eq $type } @exe_types){
+        vlog2 "chmod $mode";
+        chmod $mode, $filename;
+    }
 }
 
-# should not reach here chmod_open should be doing an exec
-die "UNKNOWN ERROR: hit end of code after chmod_open()";
+# ============================================================================ #
+#                                 P a r s i n g
+# ============================================================================ #
+
+sub parse(){
+    if(scalar @ARGV == 1){
+        $ext = $filename = $ARGV[0];
+        $ext =~ s/^.*\///;
+        $ext =~ s/^.*\.//;
+        if(basename(dirname(abs_path($filename))) eq "docs"){
+            $ext = "doc";
+        } elsif($ext eq $ARGV[0]){
+            $ext = "file";
+        }
+    } elsif(scalar @ARGV == 2){
+        $ext = $ARGV[0];
+        $filename = $ARGV[1];
+    } else {
+        usage;
+    }
+
+    vlog_option "arg filename", $filename;
+    vlog_option "arg ext",      $ext;
+
+    $ext =~ /^([A-Za-z0-9]+)$/ or usage "invalid ext given";
+    $ext = $1;
+
+    if($ext eq "file" and $filename eq "sbt"){
+        vlog2 "file 'sbt' detected, resetting filename to build.sbt";
+        $filename = "build.sbt";
+        $ext  = "sbt";
+    }
+
+    # doesn't work but not needed, if we find assembly.sbt in the template dir we use that
+    #if($filename eq "assembly.sbt"){
+    #    $ext = "assembly.sbt";
+    #}
+
+    $filename    = validate_filename($filename);
+    $templatedir = validate_directory($templatedir, 0, "template dir");
+}
+
+# ============================================================================ #
+#                    E x t e n s i o n   P r o c e s s i n g
+# ============================================================================ #
+
+sub process_extension_logic(){
+    if($filename eq "ppmod"){
+        die "didn't specify module name/path after ppmod\n";
+    }
+    if($ext eq "ppmod"){
+        vlog2 "ppmod";
+        $ext = "pp";
+        $filename =~ /((.*modules)\/([\w-]+))$/ or die "Failed to determine puppet module name, expecting modules/<name>\n";
+        my $module_path = $1;
+        my $modules_dir = $2;
+        $puppet_module  = $3;
+        (-d $modules_dir ) or die "modules dir $modules_dir not found\n";
+        die "$module_path already exists\n" if(-e $module_path);
+        make_path("$module_path/files", "$module_path/manifests", {$verbose => 1}) or die "Failed to create puppet $module_path/files and $module_path/manifests directories $!";
+        $filename = "$module_path/manifests/init.pp";
+    }
+
+    my $base_filename = basename $filename;
+    my $dirname = abs_path(dirname($filename));
+    if(! -d $dirname){
+        make_path($dirname, {$verbose => 1}) or die "Failed to create target directory '$dirname': $!";
+    }
+
+    if(grep { $ext eq $_ } qw/standalone solo plain simple/){
+        vlog2 "standalone";
+        $lib = 0;
+        $ext = $ARGV[1];
+        $ext =~ s/^.*\.//;
+    } elsif($ext eq "plugin"){
+        vlog2 "plugin";
+        $plugin = 1;
+        $ext = $ARGV[1];
+        $ext =~ s/^.*\.//;
+    } elsif($base_filename =~ /^check_/){
+        vlog2 "implicit plugin check_";
+        $plugin = 1;
+    }
+    # re-untaint ext
+    $ext =~ /^([A-Za-z0-9]+)$/ or die "invalid ext found";
+    $ext = $1;
+
+    if($ext eq "pl"){
+        if($plugin){
+            $vim_type_opts{"pl"} = "'+normal 17G30|'";
+        } elsif($lib){
+            $vim_type_opts{"pl"} = "'+normal 16G17|'";
+        }
+    }
+}
+
+# ============================================================================ #
+#                      T e m p l a t e   V a r i a b l e s
+# ============================================================================ #
+
+sub load_vars($$$){
+    my $filename = $_[0];
+    my $template = $_[1];
+    my $ext = $_[2];
+    my $base_filename = basename $filename;
+    my $dirname = abs_path(dirname($filename));
+
+    #if(-f "$template.m4" and which("m4")){
+    #    vlog2 "m4 installed and template found: $template";
+    my $name;
+    if(basename($template) eq basename($filename)){
+        $name = abs_path(dirname($filename));
+    } else {
+        $name = $filename;
+    }
+        $name = basename($name);
+        if($ext eq "pm"){
+            ($name = $filename) =~ s/\//::/g;
+        }
+        $name =~ s/\.$ext$//;
+        vlog2 "name = $name";
+        #my $env_cred = $name;
+        #for($env_cred){
+        for($name){
+            #s/^check_//;
+            #s/_[^_]+$//;
+            s/[_-]/ /g;
+            s/\b(.)/\u$1/g;
+            s/ //g;
+        }
+    #    my $macros = "";
+    #    $macros .= " -DLIB"    if $lib;
+    #    $macros .= " -DPLUGIN" if $plugin;
+    #    my $cmd = "m4 -DNAME='$name' -DENV_CRED='$env_cred' $macros -I '$templatedir' '$template.m4' > '$filename'";
+
+    # filename is full path so regex end
+    if($ext eq "sbt" or $filename =~ /pom.xml$/){
+        $name = basename($dirname);
+    }
+
+    #inplace_edit($filename, 's/  Date:[^\r\n]*/  Date: ' . strftime('%F %T %z (%a, %d %b %Y)', localtime) . '/');
+    my $date = strftime('%F %T %z (%a, %d %b %Y)', localtime);
+    # Make this generic by detecting all .snippets or something and then iterating on them to replace %SNIPPET_NAME% from files
+    #my $license_fh = open_file "$templatedir/license";
+    #my $license = <$license_fh>;
+    #close $license_fh;
+    my @snippets = glob "$templatedir/snippet.*";
+    my $snippet_name;
+    my $snippet;
+    my $fh;
+    foreach(@snippets){
+        ($snippet_name = uc basename $_) =~ s/^snippet\.//i;
+        $snippet_name = validate_filename($snippet_name, undef, "snippet $snippet_name", 1);
+        #$snippet = do { local $/; <{open_file($_)}> };
+        $fh = open_file($_);
+        $snippet = do { local $/; <$fh> };
+        close($fh);
+        chomp $snippet;
+        $vars{$snippet_name} = $snippet;
+    }
+    $vars{"NAME"} = $name;
+    $vars{"DATE"} = $date;
+    # TODO: get this from git repo remote
+    $vars{"URL"}  = "https://github.com/HariSekhon";
+    if($ENV{"PWD"} =~ /playlists/){
+        $vars{"URL"} .= "/Spotify-Playlists";
+    } elsif($ENV{"PWD"} =~ /k8s$/){
+        $vars{"URL"} .= "/kubernetes-templates";
+    } elsif($plugin){
+        $vars{"URL"} .= "/Nagios-Plugins";
+    } elsif($base_filename eq "Dockerfile" or
+            $base_filename eq "entrypoint.sh"){
+        $vars{"URL"} .= "/Dockerfiles"
+    } elsif($dirname =~ /\/github\//){
+        my $basedir = $dirname;
+        $basedir =~ s/.*\/github\///;
+        $basedir =~ s/\/.*//;
+        $vars{"URL"} .= "/$basedir";
+    #} elsif($ext eq "sh"){
+    #    $vars{"URL"} .= "/devops-bash-tools";
+    #} elsif($ext eq "pl"){
+    #    $vars{"URL"} .= "/devops-perl-tools";
+    #} elsif($ext eq "py"){
+    #    $vars{"URL"} .= "/devops-python-tools";
+    #} elsif($ext eq "pm"){
+    #    $vars{"URL"} .= "/lib";
+    }
+    if($ext eq "yaml"){
+        # indent by 2 spaces not 4 for YAML
+        $vars{"VIM_TAGS"} =~ s/4/2/g;
+    }
+    if($ext eq "py"){
+        $vars{"MESSAGE"} =~ s/ and/\n#  and/;
+    }
+    $vars{"LINKEDIN"} = "https://www.linkedin.com/in/HariSekhon";
+    #inplace_edit($filename, 's/\$URL.*\$/\$URL\$/; s/\$Id.*\$/\$Id\$/');
+    #$? and die "Error: failed to set date: $!";
+    foreach(sort keys %vars){
+        vlog3 sprintf "snippet: %s => %s", $_, $vars{$_};
+    }
+
+    if($plugin and $ext eq "pl"){
+        $template = "$templatedir/template-plugin.pl";
+    } elsif($base_filename =~ /docker-compose.ya?ml/){
+        $vars{"NAME"} =~ s/-?docker-compose-?//i;
+        $vars{"NAME"} = lc $vars{"NAME"};
+        $template = "$templatedir/docker-compose.yml";
+    }
+
+    if(defined($puppet_module)){
+        #inplace_edit($filename, "s/NAME/$puppet_module/g");
+        $name = $puppet_module;
+    }
+}
