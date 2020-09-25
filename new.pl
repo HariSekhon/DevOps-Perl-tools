@@ -57,7 +57,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.4";
+$VERSION = "0.7.5";
 
 use strict;
 use warnings;
@@ -120,9 +120,21 @@ my %vim_type_opts = (
 sub main(){
     parse();
     process_extension_logic();
-    my $template = get_template($filename, $ext);
-    load_vars($filename, $template, $ext);
-    create_templated_file($filename, $template, $ext);
+    if($filename eq "terraform"
+        or
+       $filename eq "tf"){
+       for my $filename ("backend.tf", "provider.tf", "variables.tf", "main.tf"){
+            my $template = get_template($filename, $ext);
+            load_vars($filename, $template, $ext);
+            create_templated_file($filename, $template, $ext);
+        }
+        my @filenames = qw/backend.tf provider.tf variables.tf main.tf/;
+        $filename = \@filenames;
+    } else {
+        my $template = get_template($filename, $ext);
+        load_vars($filename, $template, $ext);
+        create_templated_file($filename, $template, $ext);
+    }
     if($noedit){
         exit 0;
     } else {
@@ -153,7 +165,16 @@ sub editor($$){
     if($editor =~ /^vim?$/){
         $cmd .= " + -c star $vim_opts";
     }
-    $cmd .= " '$filename'";
+    if(ref($filename) eq 'ARRAY'){
+        foreach(@$filename){
+            $cmd .= " '$_'";
+        }
+        if($editor =~ /^vim?$/){
+            $cmd .= " -O";
+        }
+    } else {
+        $cmd .= " '$filename'";
+    }
     vlog2 $cmd;
     exec($cmd);
 }
