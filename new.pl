@@ -14,8 +14,13 @@
 # TODO: make it look for .ext, a.ext, a.b.ext etc
 
 my $srcdir = dirname(__FILE__);
-my $templatedir  = "$srcdir/templates";
-my $templatedir2 = "$srcdir/../templates";
+my $templatedir = "$srcdir/templates";
+my @templatedirs = (
+    "$srcdir/../templates",
+    "$srcdir/templates",
+    "$srcdir/../bash-tools",
+    "$srcdir/bash-tools"
+);
 
 $DESCRIPTION = "Creates a new file of specified type with headers and code specific bits.
 
@@ -57,7 +62,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.6";
+$VERSION = "0.7.7";
 
 use strict;
 use warnings;
@@ -184,7 +189,7 @@ sub get_template($$){
     my $base_filename = basename $filename;
     my $ext = shift;
     my $template;
-    foreach my $templatedir ($templatedir2, $templatedir){
+    foreach my $templatedir (@templatedirs){
         $template = "$templatedir/template.$ext";
 
         # If I find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
@@ -206,7 +211,9 @@ sub get_template($$){
             die "ERROR: template for '$ext' type not found (couldn't find $template)"; # or $template.m4)"
         }
         $ext = "file";
-        $template = "$templatedir/template.$ext";
+        foreach my $templatedir (@templatedirs){
+            $template = "$templatedir/template.$ext";
+        }
         die "$template could not be found" unless (-f $template);
     }
     return $template;
@@ -293,7 +300,7 @@ sub parse(){
     #}
 
     $filename    = validate_filename($filename);
-    $templatedir = validate_directory($templatedir, 0, "template dir");
+    #$templatedir = validate_directory($templatedir, "template dir", "noquit");
 }
 
 # ============================================================================ #
