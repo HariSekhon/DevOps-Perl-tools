@@ -167,9 +167,6 @@ sub editor($$){
         $editor="vim";
     }
     my $cmd = "$editor";
-    if($editor =~ /^vim?$/){
-        $cmd .= " + -c star $vim_opts";
-    }
     if(ref($filename) eq 'ARRAY'){
         foreach(@$filename){
             $cmd .= " '$_'";
@@ -178,6 +175,14 @@ sub editor($$){
             $cmd .= " -O";
         }
     } else {
+        if($editor =~ /^vim?$/){
+            open(my $fh, $filename);
+            @_=<$fh>;
+            # only drop in to editing mode if the length of the template fits on the screen, otherwise you'd need to scroll upwards
+            if($. < $ENV{"LINES"}){
+                $cmd .= " + -c star $vim_opts";
+            }
+        }
         $cmd .= " '$filename'";
     }
     vlog2 $cmd;
