@@ -217,7 +217,9 @@ sub get_template($$){
         }
         $ext = "file";
         foreach my $templatedir (@templatedirs){
-            $template = "$templatedir/template.$ext";
+            if (-f "$templatedir/template.$ext") {
+                $template = "$templatedir/template.$ext";
+            }
         }
         die "$template could not be found" unless (-f $template);
     }
