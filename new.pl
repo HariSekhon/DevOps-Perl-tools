@@ -16,10 +16,17 @@
 my $srcdir = dirname(__FILE__);
 my $templatedir = "$srcdir/templates";
 my @templatedirs = (
+    # order is important - this is order of search / priority
     "$srcdir/../templates",
     "$srcdir/templates",
     "$srcdir/../bash-tools",
     "$srcdir/bash-tools"
+);
+
+my @template_subdirs = (
+    # order is important - this is order of search / priority - more specific should come first
+    "kubernetes-templates",
+    ""
 );
 
 $DESCRIPTION = "Creates a new file of specified type with headers and code specific bits.
@@ -62,7 +69,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.7";
+$VERSION = "0.7.8";
 
 use strict;
 use warnings;
@@ -194,24 +201,30 @@ sub get_template($$){
     my $base_filename = basename $filename;
     my $ext = shift;
     my $template;
-    foreach my $templatedir (@templatedirs){
-        $template = "$templatedir/template.$ext";
-
-        # If I find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
-        if(-f "$templatedir/$base_filename"){
-            $template = "$templatedir/$base_filename";
-        } elsif(-f "$templatedir/template.$base_filename"){
-            $template = "$templatedir/template.$base_filename";
-        } elsif(-f "$templatedir/template.$base_filename"){
-            $template = "$templatedir/template.$base_filename";
-        }elsif(-f "$templatedir/template.$filename"){
-            $template = "$templatedir/template.$filename";
-        }
-        if(-f "$template"){
-            last;
+    foreach my $templatedir2 (@templatedirs){
+        foreach my $subdir (@template_subdirs){
+            if($subdir){
+                $templatedir = "$templatedir2/$subdir";
+                vlog3 "templatedir = $templatedir";
+            }
+            # If I find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
+            if(-f "$templatedir/$base_filename"){
+                $template = "$templatedir/$base_filename";
+            } elsif(-f "$templatedir/template.$base_filename"){
+                $template = "$templatedir/template.$base_filename";
+            } elsif(-f "$templatedir/template.$base_filename"){
+                $template = "$templatedir/template.$base_filename";
+            }elsif(-f "$templatedir/template.$filename"){
+                $template = "$templatedir/template.$filename";
+            }elsif(-f "$templatedir/template.$ext"){
+                $template = "$templatedir/template.$ext";
+            }
+            if($template and -f $template){
+                return $template;
+            }
         }
     }
-    if (!(-e $template) ){ #or -e "$template.m4")){
+    if (! $template or ! -e $template ){ #or -e "$template.m4")){
         if(scalar @ARGV == 2){
             die "ERROR: template for '$ext' type not found (couldn't find $template)"; # or $template.m4)"
         }
