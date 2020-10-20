@@ -69,7 +69,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.8";
+$VERSION = "0.7.9";
 
 use strict;
 use warnings;
@@ -204,7 +204,7 @@ sub get_template($$){
     foreach my $templatedir2 (@templatedirs){
         foreach my $subdir (@template_subdirs){
             if($subdir){
-                $templatedir = "$templatedir2/$subdir";
+                my $templatedir = "$templatedir2/$subdir";
                 vlog3 "templatedir = $templatedir";
             }
             # If I find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
