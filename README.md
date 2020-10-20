@@ -19,7 +19,7 @@ Hari Sekhon - DevOps Perl Tools
 [![Docker](https://img.shields.io/badge/container-Docker-blue?logo=docker)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![DockerHub Pulls](https://img.shields.io/docker/pulls/harisekhon/perl-tools?label=DockerHub%20pulls&logo=docker)](https://hub.docker.com/r/harisekhon/perl-tools)
 [![DockerHub Build Automated](https://img.shields.io/docker/automated/harisekhon/perl-tools?logo=docker)](https://hub.docker.com/r/harisekhon/perl-tools/)
-[![StarTrack](https://img.shields.io/badge/Star-Track-blue?logo=github?logo=github)](https://seladb.github.io/StarTrack-js/#/preload?r=HariSekhon,Nagios-Plugins&r=HariSekhon,DevOps-Python-tools&r=HariSekhon,DevOps-Perl-tools&r=HariSekhon,DevOps-Bash-tools&r=HariSekhon,Dockerfiles&r=HariSekhon,HAProxy-configs)
+[![StarTrack](https://img.shields.io/badge/Star-Track-blue?logo=github)](https://seladb.github.io/StarTrack-js/#/preload?r=HariSekhon,Nagios-Plugins&r=HariSekhon,Dockerfiles&r=HariSekhon,DevOps-Python-tools&r=HariSekhon,DevOps-Perl-tools&r=HariSekhon,DevOps-Bash-tools&r=HariSekhon,HAProxy-configs&r=HariSekhon,SQL-scripts)
 <!-- these badges don't work any more
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/harisekhon/perl-tools?logo=docker)](https://hub.docker.com/r/harisekhon/perl-tools/builds)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/perl-tools.svg)](http://microbadger.com/#/images/harisekhon/perl-tools)
