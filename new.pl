@@ -17,10 +17,11 @@ my $srcdir = dirname(__FILE__);
 my $templatedir = "$srcdir/templates";
 my @templatedirs = (
     # order is important - this is order of search / priority
+    #                    - by searching adjacent repos first, we take the newest templates rather than the submodule's templates which are older
+    "$srcdir/../bash-tools",  # lots of awesome configs are stored in adjacent DevOps Bash tools repo which are even better than the generic templates submodule
+    "$srcdir/bash-tools",
     "$srcdir/../templates",
     "$srcdir/templates",
-    "$srcdir/../bash-tools",
-    "$srcdir/bash-tools"
 );
 
 my @template_subdirs = (
@@ -69,7 +70,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.9";
+$VERSION = "0.7.10";
 
 use strict;
 use warnings;
@@ -201,26 +202,20 @@ sub get_template($$){
     my $base_filename = basename $filename;
     my $ext = shift;
     my $template;
-    foreach my $templatedir2 (@templatedirs){
+    foreach my $templatedir (@templatedirs){
         foreach my $subdir (@template_subdirs){
+            my $template_subdir = $templatedir;
             if($subdir){
-                my $templatedir = "$templatedir2/$subdir";
-                vlog3 "templatedir = $templatedir";
+                $template_subdir = "$templatedir/$subdir";
             }
-            # If I find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
-            if(-f "$templatedir/$base_filename"){
-                $template = "$templatedir/$base_filename";
-            } elsif(-f "$templatedir/template.$base_filename"){
-                $template = "$templatedir/template.$base_filename";
-            } elsif(-f "$templatedir/template.$base_filename"){
-                $template = "$templatedir/template.$base_filename";
-            }elsif(-f "$templatedir/template.$filename"){
-                $template = "$templatedir/template.$filename";
-            }elsif(-f "$templatedir/template.$ext"){
-                $template = "$templatedir/template.$ext";
-            }
-            if($template and -f $template){
-                return $template;
+            vlog3 "templatedir = $template_subdir";
+            # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
+            foreach("$template_subdir/$base_filename",
+                    "$template_subdir/template.$base_filename",
+                    "$template_subdir/template.$ext"){
+                if(-f $_){
+                    return $_;
+                }
             }
         }
     }
@@ -234,7 +229,7 @@ sub get_template($$){
                 $template = "$templatedir/template.$ext";
             }
         }
-        die "$template could not be found" unless (-f $template);
+        die "template could not be found" unless (defined($template) and -f $template);
     }
     return $template;
 }
@@ -290,7 +285,9 @@ sub parse(){
         $ext = $filename = $ARGV[0];
         $ext =~ s/^.*\///;
         $ext =~ s/^.*\.//;
-        if(basename(dirname(abs_path($filename))) eq "docs"){
+        if(basename($filename) =~ /^(tf|terraform)$/){
+            $ext = "tf";
+        } elsif(basename(dirname(abs_path($filename))) eq "docs"){
             $ext = "doc";
         } elsif($ext eq $ARGV[0]){
             $ext = "file";
