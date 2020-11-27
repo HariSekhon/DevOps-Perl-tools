@@ -20,14 +20,11 @@ my @templatedirs = (
     #                    - by searching adjacent repos first, we take the newest templates rather than the submodule's templates which are older
     "$srcdir/../bash-tools",  # lots of awesome configs are stored in adjacent DevOps Bash tools repo which are even better than the generic templates submodule
     "$srcdir/bash-tools",
+    "$srcdir/../kubernetes-templates",
+    "$srcdir/../templates/kubernetes-templates",
     "$srcdir/../templates",
     "$srcdir/templates",
-);
-
-my @template_subdirs = (
-    # order is important - this is order of search / priority - more specific should come first
-    "kubernetes-templates",
-    ""
+    "$srcdir/templates/kubernetes-templates",
 );
 
 $DESCRIPTION = "Creates a new file of specified type with headers and code specific bits.
@@ -70,7 +67,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.11";
+$VERSION = "0.7.12";
 
 use strict;
 use warnings;
@@ -203,28 +200,21 @@ sub get_template($$){
     my $ext = shift;
     my $template;
     foreach my $templatedir (@templatedirs){
-        foreach my $subdir (@template_subdirs){
-            my $template_subdir = $templatedir;
-            if($subdir){
-                $template_subdir = "$templatedir/$subdir";
+        # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
+        foreach("$templatedir/$base_filename"){
+            if(-f $_){
+                return $_;
             }
-            vlog3 "templatedir = $template_subdir";
-            # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
-            foreach("$template_subdir/$base_filename"){
-                if(-f $_){
-                    return $_;
-                }
-            }
-            my $filename_suffix = "$template_subdir/$base_filename";
-            $filename_suffix =~ s/^.*[.-]([^.-]+\.)/$1/;
-            if(-f "$template_subdir/$filename_suffix"){
-                return "$template_subdir/$filename_suffix";
-            }
-            foreach("$template_subdir/template.$base_filename",
-                    "$template_subdir/template.$ext"){
-                if(-f $_){
-                    return $_;
-                }
+        }
+        my $filename_suffix = "$templatedir/$base_filename";
+        $filename_suffix =~ s/^.*[.-]([^.-]+\.)/$1/;
+        if(-f "$templatedir/$filename_suffix"){
+            return "$templatedir/$filename_suffix";
+        }
+        foreach("$templatedir/template.$base_filename",
+                "$templatedir/template.$ext"){
+            if(-f $_){
+                return $_;
             }
         }
     }
