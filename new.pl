@@ -24,8 +24,8 @@ my @templatedirs = (
     "$srcdir/../kubernetes-templates",
     "$srcdir/../templates/kubernetes-templates",
     "$srcdir/../templates",
-    "$srcdir/templates",
     "$srcdir/templates/kubernetes-templates",
+    "$srcdir/templates",
 );
 
 $DESCRIPTION = "Creates a new file of specified type with headers and code specific bits.
