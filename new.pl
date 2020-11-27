@@ -20,6 +20,7 @@ my @templatedirs = (
     #                    - by searching adjacent repos first, we take the newest templates rather than the submodule's templates which are older
     "$srcdir/../bash-tools",  # lots of awesome configs are stored in adjacent DevOps Bash tools repo which are even better than the generic templates submodule
     "$srcdir/bash-tools",
+    "$srcdir/../k8s",
     "$srcdir/../kubernetes-templates",
     "$srcdir/../templates/kubernetes-templates",
     "$srcdir/../templates",
