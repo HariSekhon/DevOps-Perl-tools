@@ -68,7 +68,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.0";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -204,7 +204,17 @@ sub get_template($$){
     if($ext  =~ /^ya?ml$/){
         @exts = ("yml", "yaml");
     }
+
     my $base_filename = basename $filename;
+    my $dirname = abs_path dirname $filename;
+
+    # Special Rules
+    if($dirname =~ /\/\.github\/workflows$/ and $ext =~ /^ya?ml$/){
+        $base_filename = "github_workflow.yaml";
+    } elsif($plugin and $ext eq "pl"){
+        $base_filename = "template-plugin.pl";
+    }
+
     # check each template directory for an exact match first at the most specific
     foreach my $templatedir (@templatedirs){
         # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
@@ -507,12 +517,9 @@ sub load_vars($$$){
         vlog3 sprintf "snippet: %s => %s", $_, $vars{$_};
     }
 
-    if($plugin and $ext eq "pl"){
-        $template = "$templatedir/template-plugin.pl";
-    } elsif($base_filename =~ /docker-compose.ya?ml/){
+    if($base_filename =~ /docker-compose.ya?ml/){
         $vars{"NAME"} =~ s/-?docker-compose-?//i;
         $vars{"NAME"} = lc $vars{"NAME"};
-        $template = "$templatedir/docker-compose.yml";
     }
 
     if(defined($puppet_module)){
