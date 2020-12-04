@@ -18,14 +18,14 @@ my $templatedir = "$srcdir/templates";
 my @templatedirs = (
     # order is important - this is order of search / priority
     #                    - by searching adjacent repos first, we take the newest templates rather than the submodule's templates which are older
-    "$srcdir/../bash-tools",  # lots of awesome configs are stored in adjacent DevOps Bash tools repo which are even better than the generic templates submodule
-    "$srcdir/bash-tools",
     "$srcdir/../k8s",
     "$srcdir/../kubernetes-templates",
     "$srcdir/../templates/kubernetes-templates",
     "$srcdir/../templates",
     "$srcdir/templates/kubernetes-templates",
     "$srcdir/templates",
+    "$srcdir/../bash-tools",  # lots of awesome configs are stored in adjacent DevOps Bash tools repo which are even better than the generic templates submodule, but we don't want to override to more complicated huge Makefile rather than the template Makefile, so only use stuff from here if we haven't got a more generic template
+    "$srcdir/bash-tools",
 );
 
 $DESCRIPTION = "Creates a new file of specified type with headers and code specific bits.
@@ -68,7 +68,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.7.12";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -197,9 +197,25 @@ sub editor($$){
 
 sub get_template($$){
     my $filename = shift;
-    my $base_filename = basename $filename;
     my $ext = shift;
     my $template;
+    my @exts = ($ext);
+    # check for templates of either file extension
+    if($ext  =~ /^ya?ml$/){
+        @exts = ("yml", "yaml");
+    }
+
+    my $base_filename = basename $filename;
+    my $dirname = abs_path dirname $filename;
+
+    # Special Rules
+    if($dirname =~ /\/\.github\/workflows$/ and $ext =~ /^ya?ml$/){
+        $base_filename = "github_workflow.yaml";
+    } elsif($plugin and $ext eq "pl"){
+        $base_filename = "template-plugin.pl";
+    }
+
+    # check each template directory for an exact match first at the most specific
     foreach my $templatedir (@templatedirs){
         # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
         foreach("$templatedir/$base_filename"){
@@ -207,15 +223,37 @@ sub get_template($$){
                 return $_;
             }
         }
-        my $filename_suffix = "$templatedir/$base_filename";
-        $filename_suffix =~ s/^.*[.-]([^.-]+\.)/$1/;
-        if(-f "$templatedir/$filename_suffix"){
-            return "$templatedir/$filename_suffix";
+    }
+    # next check for an exact template match with extension variations
+    foreach my $templatedir (@templatedirs){
+        foreach my $ext (@exts){
+            my $base_filename_ext_variation = $base_filename;
+            $base_filename_ext_variation =~ s/\.[^.]+$//;
+            $base_filename_ext_variation .= ".$ext";
+            my $template = "$templatedir/$base_filename_ext_variation";
+            if(-f $template){
+                return $template;
+            }
         }
-        foreach("$templatedir/template.$base_filename",
-                "$templatedir/template.$ext"){
-            if(-f $_){
-                return $_;
+    }
+    # next check for template.NAME.EXT
+    foreach my $templatedir (@templatedirs){
+        foreach my $ext (@exts){
+            my $base_filename_ext_variation = $base_filename;
+            $base_filename_ext_variation =~ s/\.[^.]+$//;
+            $base_filename_ext_variation .= ".$ext";
+            my $template = "$templatedir/template.$base_filename_ext_variation";
+            if(-f $template){
+                return $template;
+            }
+        }
+    }
+    # next check for template.EXT
+    foreach my $templatedir (@templatedirs){
+        foreach my $ext (@exts){
+            my $template = "$templatedir/template.$ext";
+            if(-f $template){
+                return $template;
             }
         }
     }
@@ -225,13 +263,13 @@ sub get_template($$){
         }
         $ext = "file";
         foreach my $templatedir (@templatedirs){
-            if (-f "$templatedir/template.$ext") {
-                $template = "$templatedir/template.$ext";
+            my $template = "$templatedir/template.$ext";
+            if (-f $template){
+                return $template;
             }
         }
-        die "template could not be found" unless (defined($template) and -f $template);
     }
-    return $template;
+    die "template could not be found" unless (defined($template) and -f $template);
 }
 
 sub create_templated_file($$$){
@@ -479,12 +517,9 @@ sub load_vars($$$){
         vlog3 sprintf "snippet: %s => %s", $_, $vars{$_};
     }
 
-    if($plugin and $ext eq "pl"){
-        $template = "$templatedir/template-plugin.pl";
-    } elsif($base_filename =~ /docker-compose.ya?ml/){
+    if($base_filename =~ /docker-compose.ya?ml/){
         $vars{"NAME"} =~ s/-?docker-compose-?//i;
         $vars{"NAME"} = lc $vars{"NAME"};
-        $template = "$templatedir/docker-compose.yml";
     }
 
     if(defined($puppet_module)){
