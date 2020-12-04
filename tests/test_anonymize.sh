@@ -406,6 +406,8 @@ run_tests(){
     type -P python &>/dev/null
     python_available=$?
     set -e
+    # expands to the list of indicies in the array, starting at zero - this is easier to work with that ${#src} which is a total
+    # that is off by one for index usage and doesn't support sparse arrays for any  missing/disabled test indicies
     test_numbers="${*:-${!src[@]}}"
     for i in $test_numbers; do
         [ -n "${src[$i]:-}" ]  || { echo "code error: src[$i] not defined";  exit 1; }
