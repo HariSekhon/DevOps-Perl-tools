@@ -95,10 +95,10 @@ DevOps, Linux, SQL, Web, Big Data, NoSQL, templates for various programming lang
 
 See Also:
 
-- [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools)
-- [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools)
-- [DevOps Golang Tools](https://github.com/harisekhon/devops-golang-tools)
-- [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins)
+  - [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools)
+  - [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools)
+  - [DevOps Golang Tools](https://github.com/harisekhon/devops-golang-tools)
+  - [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins)
 
 repos which contains hundreds more scripts and programs for Cloud, Big Data, SQL, NoSQL, Web and Linux.
 
