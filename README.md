@@ -89,11 +89,18 @@ Hari Sekhon - DevOps Perl Tools
 
 [git.io/perl-tools](https://git.io/perl-tools)
 
-### Linux, Web, Anonymizer, SQL ReCaser, Hadoop, Hive, Solr, Big Data & NoSQL Tools
+## Linux, Web, Anonymizer, SQL ReCaser, Hadoop, Hive, Solr, Big Data & NoSQL Tools
 
 DevOps, Linux, SQL, Web, Big Data, NoSQL, templates for various programming languages and Kubernetes. All programs have `--help`.
 
-See also the [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools), [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) and [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) repos which contains hundreds more scripts and programs for Cloud, Big Data, SQL, NoSQL, Web and Linux.
+See Also:
+
+- [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools)
+- [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools)
+- [DevOps Golang Tools](https://github.com/harisekhon/devops-golang-tools)
+- [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins)
+
+repos which contains hundreds more scripts and programs for Cloud, Big Data, SQL, NoSQL, Web and Linux.
 
 Hari Sekhon
 
@@ -104,9 +111,9 @@ Cloud & Big Data Contractor, United Kingdom
 
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodule and possibly new upstream libraries
 
-### Quick Start
+## Quick Start
 
-#### Ready to run Docker image
+### Ready to run Docker image
 
 All programs and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/tools/).
 
@@ -122,7 +129,7 @@ Run any given program:
 docker run harisekhon/perl-tools <program> <args>
 ```
 
-#### Automated Build from source
+### Automated Build from source
 
 installs git, make, pulls the repo and build the dependencies:
 
@@ -151,14 +158,14 @@ make fatpacks
 The self-contained scripts will be available in the `fatpacks/` directory which is also tarred to `fatpacks.tar.gz`.
 
 
-### Usage ###
+### Usage
 
 All programs come with a ```--help``` switch which includes a program description and the list of command line options.
 
 Environment variables are supported for convenience and also to hide credentials from being exposed in the process list eg. ```$PASSWORD```. These are indicated in the ```--help``` descriptions in brackets next to each option and often have more specific overrides with higher precedence eg. ```$SOLR_HOST``` takes priority over ```$HOST```.
 
 
-### Tools
+### DevOps Perl Tools - Inventory
 
 ##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo
 
