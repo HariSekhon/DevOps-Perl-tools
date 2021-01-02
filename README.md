@@ -75,6 +75,8 @@ Hari Sekhon - DevOps Perl Tools
 [![Fedora](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Fedora/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Fedora%22)
 [![Alpine](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Alpine/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Alpine%22)
 [![Alpine 3](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Alpine%203/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Alpine+3%22)
+
+[![Perl versions](https://img.shields.io/badge/Perl-5.10+-39457E?logo=perl)](https://github.com/harisekhon/DevOps-Perl-tools)
 [![Perl](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl%22)
 [![Perl 5.10](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.10/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.10%22)
 [![Perl 5.12](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.12/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.12%22)
