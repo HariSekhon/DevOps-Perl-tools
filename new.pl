@@ -24,6 +24,7 @@ my @templatedirs = (
     "$srcdir/../kubernetes-templates",
     "$srcdir/../tf",
     "$srcdir/../tf-templates",
+    "$srcdir/../terraform",
     "$srcdir/../terraform-templates",
     "$srcdir/../templates/kubernetes-templates",
     "$srcdir/../templates/terraform-templates",
