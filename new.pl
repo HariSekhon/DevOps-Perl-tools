@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# TODO: follow capitalization of the local git repo eg. Terraform
+
 # TODO: re-enable .m4 support, java not picking up .java.m4 only .java and not changing class NAME
 
 # TODO: make it look for .ext, a.ext, a.b.ext etc
@@ -20,9 +22,14 @@ my @templatedirs = (
     #                    - by searching adjacent repos first, we take the newest templates rather than the submodule's templates which are older
     "$srcdir/../k8s",
     "$srcdir/../kubernetes-templates",
+    "$srcdir/../tf",
+    "$srcdir/../tf-templates",
+    "$srcdir/../terraform-templates",
     "$srcdir/../templates/kubernetes-templates",
+    "$srcdir/../templates/terraform-templates",
     "$srcdir/../templates",
     "$srcdir/templates/kubernetes-templates",
+    "$srcdir/templates/terraform-templates",
     "$srcdir/templates",
     "$srcdir/../bash-tools",  # lots of awesome configs are stored in adjacent DevOps Bash tools repo which are even better than the generic templates submodule, but we don't want to override to more complicated huge Makefile rather than the template Makefile, so only use stuff from here if we haven't got a more generic template
     "$srcdir/bash-tools",
@@ -68,7 +75,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.1";
+$VERSION = "0.8.2";
 
 use strict;
 use warnings;
