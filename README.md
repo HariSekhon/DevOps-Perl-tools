@@ -41,10 +41,10 @@ Hari Sekhon - DevOps Perl Tools
 [![Shippable](https://img.shields.io/shippable/5e52c6364c324200063326d5/master?label=Shippable&logo=jfrog)](https://app.shippable.com/github/HariSekhon/DevOps-Perl-tools/dashboard/jobs)
 [![BuildKite](https://img.shields.io/buildkite/0a23f5b0b09f6b2a913e3e3fa258494edb0e8dcda2b40e19fa/master?label=BuildKite&logo=buildkite)](https://buildkite.com/hari-sekhon/devops-perl-tools)
 [![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FDevOps-Perl-tools?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/edit/new/builds?id=5e58e2a9c1d3cf1248fa485b&pipeline=DevOps-Perl-tools&projects=GitHub&projectId=5e52ca8ea284e00f882ea992&context=github&filter=page:1;pageSize:10;timeFrameStart:week)
-[![buddy pipeline](https://app.buddy.works/harisekhon/devops-perl-tools/pipelines/pipeline/246987/badge.svg?token=7f63afa3c423a65e6e39a79be0386959e98c4105ea1e20f7f8b05d6d6b587038 "buddy pipeline")](https://app.buddy.works/harisekhon/devops-perl-tools/pipelines/pipeline/246987)
 [![Cirrus CI](https://img.shields.io/cirrus/github/HariSekhon/DevOps-Perl-tools/master?logo=Cirrus%20CI&label=Cirrus%20CI)](https://cirrus-ci.com/github/HariSekhon/DevOps-Perl-tools)
 [![Semaphore](https://harisekhon.semaphoreci.com/badges/DevOps-Perl-tools.svg)](https://harisekhon.semaphoreci.com/projects/DevOps-Perl-tools)
 [![Wercker](https://app.wercker.com/status/1f2132ff1c5b4098e3321456e67f54db/s/master "wercker status")](https://app.wercker.com/harisekhon/DevOps-Perl-tools/runs)
+[![Buddy](https://img.shields.io/badge/Buddy-ready-1A86FD?logo=buddy)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/buddy.yml)
 <!--[![Wercker](https://img.shields.io/wercker/ci/5e58ef724fb3d108006b2038/master?label=Wercker&logo=oracle)](https://app.wercker.com/harisekhon/DevOps-Perl-tools/runs)-->
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.DevOps-Perl-tools?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=7&branchName=master)
