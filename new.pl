@@ -180,6 +180,12 @@ sub editor($$){
     if(not $editor){
         $editor="vim";
     }
+    # terminal is not fully functional
+    #my $cmd = ". ~/.bashrc; $editor";
+    # bashrc returns due to non-interactive, not getting paths
+    #my $cmd = "export TERM=xterm; . ~/.bashrc; $editor";
+    # the \$PATH here is stripped by perl protections in lib, would be best to restore :-/
+    #my $cmd = "echo \$PATH; pwd; $editor";
     my $cmd = "$editor";
     if(ref($filename) eq 'ARRAY'){
         foreach(@$filename){
@@ -488,7 +494,9 @@ sub load_vars($$$){
     $vars{"DATE"} = $date;
     # TODO: get this from git repo remote
     $vars{"URL"}  = "https://github.com/HariSekhon";
-    if($ENV{"PWD"} =~ /playlists/){
+    if($ENV{"PWD"} =~ /\/work/){
+        # don't add suffix
+    } elsif($ENV{"PWD"} =~ /playlists/){
         $vars{"URL"} .= "/Spotify-Playlists";
     } elsif($ENV{"PWD"} =~ /k8s$/){
         $vars{"URL"} .= "/kubernetes-templates";
