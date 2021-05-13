@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.2";
+$VERSION = "0.8.3";
 
 use strict;
 use warnings;
@@ -229,10 +229,17 @@ sub get_template($$){
         $base_filename = "template-plugin.pl";
     }
 
+    my $file_ext = "";
+    if($base_filename =~ /\.([^\.]+$)/){
+        $file_ext = $1;
+    }
+
     # check each template directory for an exact match first at the most specific
     foreach my $templatedir (@templatedirs){
         # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
-        foreach("$templatedir/$base_filename"){
+        # or else a template of an exact name eg. deployment.yaml
+        # or else a template of a sort name eg. deployment, but that has the same file extension eg. yaml
+        foreach(("$templatedir/$base_filename", "$templatedir/$ext", "$templatedir/$ext.$file_ext")){
             if(-f $_){
                 return $_;
             }
@@ -273,7 +280,11 @@ sub get_template($$){
     }
     if (! $template or ! -e $template ){ #or -e "$template.m4")){
         if(scalar @ARGV == 2){
-            die "ERROR: template for '$ext' type not found (couldn't find $template)"; # or $template.m4)"
+            if($template){
+                die "ERROR: template for '$ext' type not found (couldn't find file '$template')"; # or $template.m4)"
+            } else {
+                die "ERROR: template for '$ext' type not found";
+            }
         }
         $ext = "file";
         foreach my $templatedir (@templatedirs){
@@ -354,8 +365,9 @@ sub parse(){
     vlog_option "arg filename", $filename;
     vlog_option "arg ext",      $ext;
 
-    $ext =~ /^([A-Za-z0-9]+)$/ or usage "invalid ext given";
-    $ext = $1;
+    # allow whole filename type to be able to instantiate complex templates by name rather than extension
+    #$ext =~ /^([A-Za-z0-9]+)$/ or usage "invalid ext given";
+    $ext = validate_filename($ext);
 
     if($ext eq "file" and $filename eq "sbt"){
         vlog2 "file 'sbt' detected, resetting filename to build.sbt";
@@ -414,8 +426,8 @@ sub process_extension_logic(){
         $plugin = 1;
     }
     # re-untaint ext
-    $ext =~ /^([A-Za-z0-9]+)$/ or die "invalid ext found";
-    $ext = $1;
+    #$ext =~ /^([A-Za-z0-9]+)$/ or die "invalid ext found";
+    #$ext = $1;
 
     if($ext eq "pl"){
         if($plugin){
