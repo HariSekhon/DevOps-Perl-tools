@@ -4,7 +4,7 @@
 #  Date: 2013-09-29 23:49:14 +0100 (Sun, 29 Sep 2013)
 #  Rewrite of shell version written on: 2009-03-16 09:53:29 2007 +0000 (Fri, 16 Mar 2009)
 #
-#  http://github.com/harisekhon/devops-perl-tools
+#  http://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying LICENSE file
 #
@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.3";
+$VERSION = "0.8.4";
 
 use strict;
 use warnings;
@@ -220,9 +220,12 @@ sub get_template($$){
     }
 
     my $base_filename = basename $filename;
+    my $base_filename_hidden = $base_filename;
+    $base_filename_hidden =~ s/^\.//;
+
     my $dirname = abs_path dirname $filename;
 
-    # Special Rules
+    # Special Rules - to be mostly avoided in favour of uniform conventions
     if($dirname =~ /\/\.github\/workflows$/ and $ext =~ /^ya?ml$/){
         $base_filename = "github_workflow.yaml";
     } elsif($plugin and $ext eq "pl"){
@@ -239,7 +242,7 @@ sub get_template($$){
         # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
         # or else a template of an exact name eg. deployment.yaml
         # or else a template of a sort name eg. deployment, but that has the same file extension eg. yaml
-        foreach(("$templatedir/$base_filename", "$templatedir/$ext", "$templatedir/$ext.$file_ext")){
+        foreach(("$templatedir/$base_filename", "$templatedir/$base_filename_hidden", "$templatedir/$ext", "$templatedir/$ext.$file_ext")){
             if(-f $_){
                 return $_;
             }
