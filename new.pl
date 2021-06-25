@@ -514,7 +514,7 @@ sub load_vars($$$){
     } elsif($ENV{"PWD"} =~ /playlists/){
         $vars{"URL"} .= "/Spotify-Playlists";
     } elsif($ENV{"PWD"} =~ /k8s$/){
-        $vars{"URL"} .= "/kubernetes-templates";
+        $vars{"URL"} .= "/Kubernetes-configs";
     } elsif($plugin){
         $vars{"URL"} .= "/Nagios-Plugins";
     } elsif($base_filename eq "Dockerfile" or
