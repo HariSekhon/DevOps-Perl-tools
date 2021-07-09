@@ -33,7 +33,7 @@ Hari Sekhon - DevOps Perl Tools
 [![GoCD](https://img.shields.io/badge/GoCD-ready-blue?logo=go)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/.gocd.yml)
 [![TeamCity](https://img.shields.io/badge/TeamCity-ready-blue?logo=teamcity)](https://github.com/HariSekhon/TeamCity-CI)
 
-[![Travis CI](https://img.shields.io/travis/harisekhon/DevOps-Perl-tools/master?logo=travis&label=Travis%20CI)](https://travis-ci.org/HariSekhon/DevOps-Perl-tools)
+[![Travis CI](https://img.shields.io/badge/TravisCI-legacy-lightgrey?logo=travis&label=Travis%20CI)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/.travis.yml)
 [![AppVeyor](https://img.shields.io/appveyor/build/harisekhon/DevOps-Perl-tools/master?logo=appveyor&label=AppVeyor)](https://ci.appveyor.com/project/HariSekhon/DevOps-Perl-tools/branch/master)
 [![Drone](https://img.shields.io/drone/build/HariSekhon/DevOps-Perl-tools/master?logo=drone&label=Drone)](https://cloud.drone.io/HariSekhon/DevOps-Perl-tools)
 [![CircleCI](https://circleci.com/gh/HariSekhon/DevOps-Perl-tools.svg?style=svg)](https://circleci.com/gh/HariSekhon/DevOps-Perl-tools)
