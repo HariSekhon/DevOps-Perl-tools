@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.4";
+$VERSION = "0.8.5";
 
 use strict;
 use warnings;
@@ -242,7 +242,7 @@ sub get_template($$){
         # if we find a template file of the exact same name, eg. Makefile, Dockerfile, pom.xml, assembly.sbt etc. then copy as is
         # or else a template of an exact name eg. deployment.yaml
         # or else a template of a sort name eg. deployment, but that has the same file extension eg. yaml
-        foreach(("$templatedir/$base_filename", "$templatedir/$base_filename_hidden", "$templatedir/$ext", "$templatedir/$ext.$file_ext")){
+        foreach(("$templatedir/$base_filename", "$templatedir/$filename", "$templatedir/$base_filename_hidden", "$templatedir/$ext", "$templatedir/$ext.$file_ext")){
             if(-f $_){
                 return $_;
             }
