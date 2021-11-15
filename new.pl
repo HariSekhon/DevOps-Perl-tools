@@ -142,7 +142,7 @@ sub main(){
     if($filename eq "terraform"
         or
        $filename eq "tf"){
-       my @filenames = qw/backend.tf provider.tf variables.tf terraform.tfvars main.tf/;
+       my @filenames = qw/backend.tf provider.tf variables.tf versions.tf terraform.tfvars main.tf/;
        for my $filename (@filenames){
             my $template = get_template($filename, $ext);
             load_vars($filename, $template, $ext);
