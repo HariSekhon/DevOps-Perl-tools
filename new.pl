@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.5";
+$VERSION = "0.8.6";
 
 use strict;
 use warnings;
@@ -355,12 +355,15 @@ sub parse(){
         $ext = $filename = $ARGV[0];
         $ext =~ s/^.*\///;
         $ext =~ s/^.*\.//;
-        if(basename($filename) =~ /^(tf|terraform)$/){
-            $ext = "tf";
-        } elsif(basename(dirname(abs_path($filename))) eq "docs"){
-            $ext = "doc";
-        } elsif($ext eq $ARGV[0]){
-            $ext = "file";
+        # directory slashes screw up some implicit matching with error "fileparse(): need a valid pathname at..."
+        if(not $filename =~ /\//){
+            if(basename($filename) =~ /^(tf|terraform)$/){
+                $ext = "tf";
+            } elsif(basename(dirname(abs_path($filename))) eq "docs"){
+                $ext = "doc";
+            } elsif($ext eq $ARGV[0]){
+                $ext = "file";
+            }
         }
     } elsif(scalar @ARGV == 2){
         $ext = $ARGV[0];
