@@ -414,6 +414,8 @@ sub process_extension_logic(){
 
     my $base_filename = basename $filename;
     my $dirname = abs_path(dirname($filename));
+    $dirname =~ /^($dirname_regex)$/ or die "directory '$dirname' failed regex safety validation";
+    $dirname = $1;
     if(! -d $dirname){
         make_path($dirname, {$verbose => 1}) or die "Failed to create target directory '$dirname': $!";
     }
