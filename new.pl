@@ -355,15 +355,15 @@ sub parse(){
         $ext = $filename = $ARGV[0];
         $ext =~ s/^.*\///;
         $ext =~ s/^.*\.//;
-        # directory slashes screw up some implicit matching with error "fileparse(): need a valid pathname at..."
-        if(not $filename =~ /\//){
+        if($filename !~ /\//){
+            # this errors out when there is a directory slash with error "fileparse(): need a valid pathname at..."
             if(basename($filename) =~ /^(tf|terraform)$/){
                 $ext = "tf";
-            } elsif(basename(dirname(abs_path($filename))) eq "docs"){
-                $ext = "doc";
-            } elsif($ext eq $ARGV[0]){
-                $ext = "file";
             }
+        } elsif(basename(dirname(abs_path($filename))) eq "docs"){
+            $ext = "doc";
+        } elsif($ext eq $ARGV[0]){
+            $ext = "file";
         }
     } elsif(scalar @ARGV == 2){
         $ext = $ARGV[0];
