@@ -20,6 +20,8 @@ my $templatedir = "$srcdir/templates";
 my @templatedirs = (
     # order is important - this is order of search / priority
     #                    - by searching adjacent repos first, we take the newest templates rather than the submodule's templates which are older
+    "$srcdir/../templates",
+    "$srcdir/templates",
     "$srcdir/../k8s",
     "$srcdir/../kubernetes-templates",
     "$srcdir/../tf",
@@ -28,10 +30,8 @@ my @templatedirs = (
     "$srcdir/../terraform-templates",
     "$srcdir/../templates/kubernetes-templates",
     "$srcdir/../templates/terraform-templates",
-    "$srcdir/../templates",
     "$srcdir/templates/kubernetes-templates",
     "$srcdir/templates/terraform-templates",
-    "$srcdir/templates",
     "$srcdir/../bash-tools",  # lots of awesome configs are stored in adjacent DevOps Bash tools repo which are even better than the generic templates submodule, but we don't want to override to more complicated huge Makefile rather than the template Makefile, so only use stuff from here if we haven't got a more generic template
     "$srcdir/bash-tools",
 );
