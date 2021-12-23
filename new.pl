@@ -68,7 +68,7 @@ Makefile
 Dockerfile
 docker-compose.yml
 Jenkinsfile
-terraform / tf  (bundle of backend.tf, providers.tf, variables.tf, terraform.tfvars and main.tf)
+terraform / tf  (bundle of backend.tf, provider.tf, variables.tf, terraform.tfvars and main.tf)
 
 file        Unix file
 winfile     Windows file
@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.7";
+$VERSION = "0.8.6";
 
 use strict;
 use warnings;
@@ -142,7 +142,7 @@ sub main(){
     if($filename eq "terraform"
         or
        $filename eq "tf"){
-       my @filenames = qw/backend.tf providers.tf variables.tf versions.tf terraform.tfvars main.tf/;
+       my @filenames = qw/backend.tf provider.tf variables.tf versions.tf terraform.tfvars main.tf/;
        for my $filename (@filenames){
             my $template = get_template($filename, $ext);
             load_vars($filename, $template, $ext);
