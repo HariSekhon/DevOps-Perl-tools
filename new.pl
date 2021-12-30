@@ -76,13 +76,15 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.6";
+$VERSION = "0.8.7";
 
 use strict;
 use warnings;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
+    # wiped out by HariSekhonUtils for taint safety, restore for $EDITOR as vim relies on it for lots of special customizations in ~/.vimrc in DevOps-Bash-tools repo
+    $main::ORIGINAL_PATH = $ENV{'PATH'};
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
 use Carp;
@@ -204,6 +206,13 @@ sub editor($$){
             }
         }
         $cmd .= " '$filename'";
+    }
+    # untaint PATH
+    if($main::ORIGINAL_PATH =~ /^([\w\s\/\.\@:-]+)$/){
+        vlog2 "restored PATH = $1";
+        $ENV{'PATH'} = $1;
+    } else {
+        vlog2 "PATH has characters not expected in regex untaint, not passing through to editor (use uniq_chars.sh from DevOps-Bash-tools to compare to regex)";
     }
     vlog2 $cmd;
     exec($cmd);
