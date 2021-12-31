@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.7";
+$VERSION = "0.8.9";
 
 use strict;
 use warnings;
@@ -235,8 +235,8 @@ sub get_template($$){
     my $dirname = abs_path dirname $filename;
 
     # Special Rules - to be mostly avoided in favour of uniform conventions
-    if($dirname =~ /\/\.github\/workflows$/ and $ext =~ /^ya?ml$/){
-        $base_filename = "github_workflow.yaml";
+    if($ext eq "github-actions" or ($dirname =~ /\/\.github\/workflows$/ and $ext =~ /^ya?ml$/)){
+        $base_filename = "github-actions.yaml";
     } elsif($plugin and $ext eq "pl"){
         $base_filename = "template-plugin.pl";
     }
