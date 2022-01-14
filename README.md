@@ -122,13 +122,13 @@ All programs and their pre-compiled dependencies can be found ready to run on [D
 
 List all programs:
 
-```
+```bash
 docker run harisekhon/perl-tools
 ```
 
 Run any given program:
 
-```
+```bash
 docker run harisekhon/perl-tools <program> <args>
 ```
 
@@ -136,13 +136,13 @@ docker run harisekhon/perl-tools <program> <args>
 
 installs git, make, pulls the repo and build the dependencies:
 
-```
+```bash
 curl -L https://git.io/perl-bootstrap | sh
 ```
 
 or manually
 
-```
+```bash
 git clone https://github.com/harisekhon/devops-perl-tools perl-tools
 cd perl-tools
 make
@@ -154,7 +154,7 @@ Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/de
 
 After the `make` build has finished, if you want to make self-contained versions of all the perl scripts with all dependencies included for copying around, run:
 
-```
+```bash
 make fatpacks
 ```
 
@@ -246,7 +246,7 @@ The automated build will use 'sudo' to install required Perl CPAN libraries to t
 
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
-```
+```bash
 git clone https://github.com/harisekhon/devops-perl-tools perl-tools
 cd tools
 git submodule update --init
@@ -259,7 +259,7 @@ Then proceed to install the CPAN modules below by hand.
 
 Install the following CPAN modules using the cpan command, using sudo if you're not root:
 
-```
+```bash
 sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::HiRes XML::LibXML XML::Validate ...
 ```
 
@@ -267,7 +267,7 @@ The full list of CPAN modules is in ```setup/cpan-requirements.txt```.
 
 You can install the entire list of cpan requirements like so:
 
-```
+```bash
 sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt)
 ```
 
@@ -284,7 +284,7 @@ Download the Tools and Lib git repos as zip files:
 
 Unzip both and move Lib to the ```lib``` folder under Tools.
 
-```
+```bash
 unzip devops-perl-tools-master.zip
 unzip lib-master.zip
 
@@ -320,7 +320,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 To trigger all tests run:
 
-```
+```bash
 make test
 ```
 
