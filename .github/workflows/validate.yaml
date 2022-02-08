@@ -11,6 +11,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
+---
 name: Validation
 
 on:
@@ -30,3 +31,6 @@ jobs:
   validate:
     name: Validate
     uses: HariSekhon/GitHub-Actions/.github/workflows/validate.yaml@master
+    with:
+      env: |
+        NO_PERL_SYNTAX_CHECK=1
