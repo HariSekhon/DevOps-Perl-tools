@@ -92,6 +92,9 @@ Hari Sekhon - DevOps Perl Tools
 [![Perl 5.24](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.24/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.24%22)
 [![Perl 5.26](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.26/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.26%22)
 [![Perl 5.28](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.28/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.28%22)
+[![Perl 5.30](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.30/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.30%22)
+[![Perl 5.32](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.32/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.32%22)
+[![Perl 5.34](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.34/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.34%22)
 
 [git.io/perl-tools](https://git.io/perl-tools)
 
