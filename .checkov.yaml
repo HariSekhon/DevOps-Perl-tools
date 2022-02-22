@@ -35,6 +35,7 @@ skip-path:
   - bash-tools
   - lib
   - sql
+  - sql-keywords
   - templates
 docker-image: harisekhon/perl-tools
 download-external-modules: true  # without this gets lots of annoying warning lines such as '2022-02-22 16:14:40,180 [MainThread  ] [WARNI]  Failed to download module x/y/z:n.n.n'
