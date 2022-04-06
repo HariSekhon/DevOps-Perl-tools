@@ -61,6 +61,12 @@ Hari Sekhon - DevOps Perl Tools
 [![Validation](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/validate.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/validate.yaml)
 [![Semgrep](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/semgrep.yaml)
 
+[![Docker Build (Alpine)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_alpine.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_alpine.yaml)
+[![Docker Build (CentOS)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_centos.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_centos.yaml)
+[![Docker Build (Debian)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_debian.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_debian.yaml)
+[![Docker Build (Fedora)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_fedora.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_fedora.yaml)
+[![Docker Build (Ubuntu)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_ubuntu.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_ubuntu.yaml)
+
 [![GitHub Actions Ubuntu](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/GitHub%20Actions%20Ubuntu/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22GitHub+Actions+Ubuntu%22)
 [![Mac](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Mac/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Mac%22)
 [![Mac 10.15](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Mac%2010.15/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Mac+10.15)
