@@ -1,6 +1,12 @@
 Hari Sekhon - DevOps Perl Tools
 ===============================
 
+[![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools?logo=github)](https://github.com/harisekhon/devops-perl-tools/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools?logo=github)](https://github.com/harisekhon/devops-perl-tools/network)
+[![Lines of Code](https://img.shields.io/badge/lines%20of%20code-9.1k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/DevOps-Perl-tools)
+[![License](https://img.shields.io/github/license/HariSekhon/DevOps-Perl-tools)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/LICENSE)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/HariSekhon/DevOps-Perl-tools?logo=github)](https://github.com/HariSekhon/DevOps-Perl-tools/commits/master)
+
 [![Codacy](https://app.codacy.com/project/badge/Grade/366f2da87b794566bbf194092752f25a)](https://www.codacy.com/gh/HariSekhon/DevOps-Perl-tools/dashboard)
 [![CodeFactor](https://www.codefactor.io/repository/github/harisekhon/DevOps-Perl-tools/badge)](https://www.codefactor.io/repository/github/harisekhon/DevOps-Perl-tools)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=alert_status)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
@@ -9,11 +15,6 @@ Hari Sekhon - DevOps Perl Tools
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Codiga Grade](https://api.codiga.io/project/4745/status/svg)](https://app.codiga.io/project/4745/dashboard)
 [![Codiga Score](https://api.codiga.io/project/4745/score/svg)](https://app.codiga.io/project/4745/dashboard)
-[![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools?logo=github)](https://github.com/harisekhon/devops-perl-tools/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools?logo=github)](https://github.com/harisekhon/devops-perl-tools/network)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/HariSekhon/DevOps-Perl-tools?logo=github)](https://github.com/HariSekhon/DevOps-Perl-tools/commits/master)
-[![Lines of Code](https://img.shields.io/badge/lines%20of%20code-9.1k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/DevOps-Perl-tools)
-[![License](https://img.shields.io/github/license/HariSekhon/DevOps-Perl-tools)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/LICENSE)
 
 [![Linux](https://img.shields.io/badge/OS-Linux-blue?logo=linux)](https://github.com/harisekhon/DevOps-Perl-tools)
 [![Mac](https://img.shields.io/badge/OS-Mac-blue?logo=apple)](https://github.com/harisekhon/DevOps-Perl-tools)
