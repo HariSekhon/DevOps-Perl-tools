@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 27/6/2014
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 $DESCRIPTION = "Hive tool to print any columns from a table that contain entirely null fields
@@ -21,7 +21,7 @@ See Also:
 
 Newer versions for HiveServer2 and Impala in DevOps Python tools repo:
 
-https://github.com/harisekhon/devops-python-tools
+https://github.com/HariSekhon/DevOps-Python-tools
 ";
 
 $VERSION = "0.2.2";

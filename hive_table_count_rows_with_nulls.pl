@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2013-05-30 10:34:27 +0100 (Thu, 30 May 2013)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # Wrote this while on a data science course, everything on this course so far is old news to me... I guess that's good?

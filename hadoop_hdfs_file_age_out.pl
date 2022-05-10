@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2013-01-14 20:50:13 +0000 (Mon, 14 Jan 2013)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 $DESCRIPTION = "Prints files from one or more Hadoop HDFS directory trees (default /tmp) that are older than the given Days Hours Mins. Deletes files if specifying --rm

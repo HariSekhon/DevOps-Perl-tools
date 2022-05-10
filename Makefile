@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
 #  to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # ===================
@@ -22,15 +22,15 @@
 #
 # Alpine:
 #
-#   apk add --no-cache git make && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && make
+#   apk add --no-cache git make && git clone https://github.com/HariSekhon/DevOps-Perl-tools && cd tools && make
 #
 # Debian / Ubuntu:
 #
-#   apt-get update && apt-get install -y make git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && make
+#   apt-get update && apt-get install -y make git && git clone https://github.com/HariSekhon/DevOps-Perl-tools && cd tools && make
 #
 # RHEL / CentOS:
 #
-#   yum install -y make git && git clone https://github.com/harisekhon/devops-perl-tools && cd tools && make
+#   yum install -y make git && git clone https://github.com/HariSekhon/DevOps-Perl-tools && cd tools && make
 
 # ===================
 

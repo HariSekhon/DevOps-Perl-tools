@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2020-03-04 09:49:50 +0000 (Wed, 04 Mar 2020)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 $DESCRIPTION="URL Encode text from standard input or arguments";

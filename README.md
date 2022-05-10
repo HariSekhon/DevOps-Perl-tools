@@ -1,8 +1,8 @@
 Hari Sekhon - DevOps Perl Tools
 ===============================
 
-[![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools?logo=github)](https://github.com/harisekhon/devops-perl-tools/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools?logo=github)](https://github.com/harisekhon/devops-perl-tools/network)
+[![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-perl-tools?logo=github)](https://github.com/HariSekhon/DevOps-Perl-tools/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-perl-tools?logo=github)](https://github.com/HariSekhon/DevOps-Perl-tools/network)
 [![Lines of Code](https://img.shields.io/badge/lines%20of%20code-9.1k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/DevOps-Perl-tools)
 [![License](https://img.shields.io/github/license/HariSekhon/DevOps-Perl-tools)](https://github.com/HariSekhon/DevOps-Perl-tools/blob/master/LICENSE)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/HariSekhon/DevOps-Perl-tools?logo=github)](https://github.com/HariSekhon/DevOps-Perl-tools/commits/master)
@@ -16,8 +16,8 @@ Hari Sekhon - DevOps Perl Tools
 [![Codiga Grade](https://api.codiga.io/project/4745/status/svg)](https://app.codiga.io/project/4745/dashboard)
 [![Codiga Score](https://api.codiga.io/project/4745/score/svg)](https://app.codiga.io/project/4745/dashboard)
 
-[![Linux](https://img.shields.io/badge/OS-Linux-blue?logo=linux)](https://github.com/harisekhon/DevOps-Perl-tools)
-[![Mac](https://img.shields.io/badge/OS-Mac-blue?logo=apple)](https://github.com/harisekhon/DevOps-Perl-tools)
+[![Linux](https://img.shields.io/badge/OS-Linux-blue?logo=linux)](https://github.com/HariSekhon/DevOps-Perl-tools)
+[![Mac](https://img.shields.io/badge/OS-Mac-blue?logo=apple)](https://github.com/HariSekhon/DevOps-Perl-tools)
 [![Docker](https://img.shields.io/badge/container-Docker-blue?logo=docker&logoColor=white)](https://hub.docker.com/r/harisekhon/perl-tools/)
 [![Dockerfile](https://img.shields.io/badge/repo-Dockerfiles-blue?logo=docker&logoColor=white)](https://github.com/HariSekhon/Dockerfiles)
 [![DockerHub Pulls](https://img.shields.io/docker/pulls/harisekhon/perl-tools?label=DockerHub%20pulls&logo=docker&logoColor=white)](https://hub.docker.com/r/harisekhon/perl-tools)
@@ -88,7 +88,7 @@ Hari Sekhon - DevOps Perl Tools
 [![Alpine](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Alpine/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Alpine%22)
 [![Alpine 3](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Alpine%203/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Alpine+3%22)
 
-[![Perl versions](https://img.shields.io/badge/Perl-5.10+-39457E?logo=perl)](https://github.com/harisekhon/DevOps-Perl-tools)
+[![Perl versions](https://img.shields.io/badge/Perl-5.10+-39457E?logo=perl)](https://github.com/HariSekhon/DevOps-Perl-tools)
 [![Perl](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl%22)
 [![Perl 5.10](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.10/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.10%22)
 [![Perl 5.12](https://github.com/HariSekhon/DevOps-Perl-tools/workflows/Perl%205.12/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions?query=workflow%3A%22Perl+5.12%22)
@@ -112,10 +112,10 @@ DevOps, Linux, SQL, Web, Big Data, NoSQL, templates for various programming lang
 
 See Also:
 
-  - [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools)
-  - [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools)
-  - [DevOps Golang Tools](https://github.com/harisekhon/devops-golang-tools)
-  - [Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins)
+  - [DevOps Bash Tools](https://github.com/HariSekhon/DevOps-Bash-tools)
+  - [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools)
+  - [DevOps Golang Tools](https://github.com/HariSekhon/DevOps-Golang-tools)
+  - [Advanced Nagios Plugins Collection](https://github.com/HariSekhon/Nagios-Plugins)
 
 repos which contains hundreds more scripts and programs for Cloud, Big Data, SQL, NoSQL, Web and Linux.
 
@@ -123,7 +123,7 @@ Hari Sekhon
 
 Cloud & Big Data Contractor, United Kingdom
 
-[![My LinkedIn](https://img.shields.io/badge/LinkedIn%20Profile-HariSekhon-blue?logo=linkedin)](https://www.linkedin.com/in/harisekhon/)
+[![My LinkedIn](https://img.shields.io/badge/LinkedIn%20Profile-HariSekhon-blue?logo=linkedin)](https://www.linkedin.com/in/HariSekhon/)
 ###### (you're welcome to connect with me on LinkedIn)
 
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodule and possibly new upstream libraries
@@ -157,12 +157,12 @@ curl -L https://git.io/perl-bootstrap | sh
 or manually
 
 ```bash
-git clone https://github.com/harisekhon/devops-perl-tools perl-tools
+git clone https://github.com/HariSekhon/DevOps-Perl-tools perl-tools
 cd perl-tools
 make
 ```
 
-Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/devops-perl-tools#detailed-build-instructions) further down for more information.
+Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/DevOps-Perl-tools#detailed-build-instructions) further down for more information.
 
 #### Optional: Generate self-contained Perl scripts with all dependencies built in to each file for easy distribution
 
@@ -184,7 +184,7 @@ Environment variables are supported for convenience and also to hide credentials
 
 ### DevOps Perl Tools - Inventory
 
-##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo
+##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) repo
 
 - Linux:
   - ```anonymize.pl``` - anonymizes your configs / logs from files or stdin (for pasting to Apache Jira tickets or mailing lists)
@@ -226,7 +226,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
   - ```colors.pl``` - prints ASCII color code matrix of all foreground + background combinations showing the corresponding terminal escape codes to help with tuning your shell
   - ```matrix.pl``` - prints a cool matrix of vertical scrolling characters using terminal tricks
-  - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
+  - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) repo)
 
 - Web:
   - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return which server you're hitting for each request in real-time). I also use this a ping replacement to google.com to check internet networking in environments where everything except HTTP traffic is blocked
@@ -236,9 +236,9 @@ Environment variables are supported for convenience and also to hide credentials
   - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop [Ambari](https://ambari.apache.org/) cluster security Kerberos setup of [FreeIPA](https://www.freeipa.org/page/Main_Page) principals and keytab distribution to the cluster nodes
   - ```hadoop_hdfs_file_age_out.pl``` - prints or removes all [Hadoop HDFS](https://hadoop.apache.org/) files in a given directory tree older than a specified age
   - ```hadoop_hdfs_snapshot_age_out.pl``` - prints or removes [Hadoop HDFS](https://hadoop.apache.org/) snapshots older than a given age or matching a given regex pattern
-  - ```hbase_flush_tables.sh``` - flushes all or selected [HBase](https://hbase.apache.org/) tables (useful when bulk loading [OpenTSDB](http://opentsdb.net/) with Durability.SKIP_WAL) (there is also a Python version of this in my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo)
+  - ```hbase_flush_tables.sh``` - flushes all or selected [HBase](https://hbase.apache.org/) tables (useful when bulk loading [OpenTSDB](http://opentsdb.net/) with Durability.SKIP_WAL) (there is also a Python version of this in my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) repo)
   - ```hive_to_elasticsearch.pl``` - bulk indexes structured [Hive](https://hive.apache.org/) tables in [Hadoop](https://hadoop.apache.org/) to [Elasticsearch](https://www.elastic.co/) clusters - includes support for Kerberos, Hive partitioned tables with selected partitions, selected columns, index creation with configurable sharding, index aliasing and optimization
-  - ```hive_table_print_null_columns.pl``` - finds [Hive](https://hive.apache.org/) columns with all NULLs (see newer versions in [DevOps Python tools](https://github.com/harisekhon/devops-python-tools) repo for [HiveServer2](https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Overview) and [Impala](https://impala.apache.org/))
+  - ```hive_table_print_null_columns.pl``` - finds [Hive](https://hive.apache.org/) columns with all NULLs (see newer versions in [DevOps Python tools](https://github.com/HariSekhon/DevOps-Python-tools) repo for [HiveServer2](https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Overview) and [Impala](https://impala.apache.org/))
   - ```hive_table_count_rows_with_nulls.pl``` - counts number of rows containing NULLs in any field
   - ```pentaho_backup.pl``` - script to back up the local [Pentaho](https://marketplace.hitachivantara.com/pentaho/) BA or DI Server
   - ```ibm_bigsheets_config_git.pl``` - revision controls [IBM BigSheets](https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/c0057518.html) configurations from API to Git
@@ -249,7 +249,7 @@ Environment variables are supported for convenience and also to hide credentials
 
 ### Detailed Build Instructions
 
-The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/harisekhon/devops-perl-tools#manual-setup) section instead.
+The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN modules. If you want more control over what is installed you must follow the [Manual Setup](https://github.com/HariSekhon/DevOps-Perl-tools#manual-setup) section instead.
 
 ##### Perlbrew localized installs
 
@@ -261,7 +261,7 @@ The automated build will use 'sudo' to install required Perl CPAN libraries to t
 Enter the tools directory and run git submodule init and git submodule update to fetch my library repo and then install the CPAN modules as mentioned further down:
 
 ```bash
-git clone https://github.com/harisekhon/devops-perl-tools perl-tools
+git clone https://github.com/HariSekhon/DevOps-Perl-tools perl-tools
 cd tools
 git submodule update --init
 ```
@@ -292,7 +292,7 @@ You're now ready to use these programs.
 
 Download the Tools and Lib git repos as zip files:
 
-[https://github.com/HariSekhon/devops-perl-tools/archive/master.zip](https://github.com/HariSekhon/devops-perl-tools/archive/master.zip)
+[https://github.com/HariSekhon/DevOps-Perl-tools/archive/master.zip](https://github.com/HariSekhon/DevOps-Perl-tools/archive/master.zip)
 
 [https://github.com/HariSekhon/lib/archive/master.zip](https://github.com/HariSekhon/lib/archive/master.zip)
 
@@ -314,7 +314,7 @@ All CPAN modules are listed in the ```setup/cpan-requirements.txt``` file.
 
 #### Configuration for Strict Domain / FQDN validation ####
 
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via my [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring to permit custom TLDs like `.local`, `.intranet`, `.vm`, `.cloud` etc. (all already included in there because they're common across companies internal environments).
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via my [Lib](https://github.com/HariSekhon/lib) submodule - see there for details on configuring to permit custom TLDs like `.local`, `.intranet`, `.vm`, `.cloud` etc. (all already included in there because they're common across companies internal environments).
 
 
 ### Updating
@@ -328,9 +328,9 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 [Continuous Integration](https://travis-ci.org/HariSekhon/devops-perl-tools) is run on this repo with tests for success and failure scenarios:
 
-- unit tests for the custom supporting [perl library](https://github.com/harisekhon/lib)
+- unit tests for the custom supporting [perl library](https://github.com/HariSekhon/lib)
 - integration tests of the top level programs using the libraries for things like option parsing
-- [functional tests](https://github.com/HariSekhon/devops-perl-tools/tree/master/tests) for the top level programs using local test data and [Docker containers](https://hub.docker.com/u/harisekhon/)
+- [functional tests](https://github.com/HariSekhon/DevOps-Perl-tools/tree/master/tests) for the top level programs using local test data and [Docker containers](https://hub.docker.com/u/harisekhon/)
 
 To trigger all tests run:
 
@@ -348,7 +348,7 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 ### See Also
 
-- [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools) - 700+ DevOps Bash Scripts, Advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.gitconfig`, CI configs & Utility Code Library - AWS, GCP, Kubernetes, Docker, Kafka, Hadoop, SQL, BigQuery, Hive, Impala, PostgreSQL, MySQL, LDAP, DockerHub, Jenkins, Spotify API & MP3 tools, Git tricks, GitHub API, GitLab API, BitBucket API, Code & build linting, package management for Linux / Mac / Python / Perl / Ruby / NodeJS / Golang, and lots more random goodies
+- [DevOps Bash Tools](https://github.com/HariSekhon/DevOps-Bash-tools) - 700+ DevOps Bash Scripts, Advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.gitconfig`, CI configs & Utility Code Library - AWS, GCP, Kubernetes, Docker, Kafka, Hadoop, SQL, BigQuery, Hive, Impala, PostgreSQL, MySQL, LDAP, DockerHub, Jenkins, Spotify API & MP3 tools, Git tricks, GitHub API, GitLab API, BitBucket API, Code & build linting, package management for Linux / Mac / Python / Perl / Ruby / NodeJS / Golang, and lots more random goodies
 
 - [SQL Scripts](https://github.com/HariSekhon/SQL-scripts) - 100+ SQL Scripts - PostgreSQL, MySQL, AWS Athena, Google BigQuery
 
@@ -356,17 +356,17 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 - [Kubernetes configs](https://github.com/HariSekhon/Kubernetes-configs) - Kubernetes YAML configs - Best Practices, Tips & Tricks are baked right into the templates for future deployments
 
-- [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) - 80+ DevOps CLI tools for AWS, GCP, Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
+- [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) - 80+ DevOps CLI tools for AWS, GCP, Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
 
-- [The Advanced Nagios Plugins Collection](https://github.com/harisekhon/nagios-plugins) - 450+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
+- [The Advanced Nagios Plugins Collection](https://github.com/HariSekhon/Nagios-Plugins) - 450+ programs for Nagios monitoring your Hadoop & NoSQL clusters. Covers every Hadoop vendor's management API and every major NoSQL technology (HBase, Cassandra, MongoDB, Elasticsearch, Solr, Riak, Redis etc.) as well as message queues (Kafka, RabbitMQ), continuous integration (Jenkins, Travis CI) and traditional infrastructure (SSL, Whois, DNS, Linux)
 
 - [HAProxy Configs](https://github.com/HariSekhon/HAProxy-configs) - 80+ HAProxy Configs for Hadoop, Big Data, NoSQL, Docker, Elasticsearch, SolrCloud, HBase, Cloudera, Hortonworks, MapR, MySQL, PostgreSQL, Apache Drill, Hive, Presto, Impala, ZooKeeper, OpenTSDB, InfluxDB, Prometheus, Kibana, Graphite, SSH, RabbitMQ, Redis, Riak, Rancher etc.
 
 - [Dockerfiles](https://github.com/HariSekhon/Dockerfiles) - 50+ DockerHub public images for Docker & Kubernetes - Hadoop, Kafka, ZooKeeper, HBase, Cassandra, Solr, SolrCloud, Presto, Apache Drill, Nifi, Spark, Mesos, Consul, Riak, OpenTSDB, Jython, Advanced Nagios Plugins & DevOps Tools repos on Alpine, CentOS, Debian, Fedora, Ubuntu, Superset, H2O, Serf, Alluxio / Tachyon, FakeS3
 
-- [Perl Lib](https://github.com/harisekhon/lib) - my personal Perl library leveraged in this repo as a submodule
+- [Perl Lib](https://github.com/HariSekhon/lib) - my personal Perl library leveraged in this repo as a submodule
 
-- [PyLib](https://github.com/harisekhon/pylib) - Python port of the above library
+- [PyLib](https://github.com/HariSekhon/pylib) - Python port of the above library
 
 You might also be interested in the following really nice Jupyter notebook for HDFS space analysis created by another Hortonworks guy Jonas Straub:
 

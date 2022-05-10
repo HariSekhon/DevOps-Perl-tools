@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2015-02-07 16:06:33 +0000 (Sat, 07 Feb 2015)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 $DESCRIPTION = "Filter program to print only non-repeated lines in input - unlike the unix command 'uniq' lines do not have to be adjacent, this is order preserving compared to 'sort | uniq'. I rustled this up quickly after needing to parse unique missing modules for building but maintaining order as some modules depend on others being built first

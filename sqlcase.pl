@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2013-06-05 14:08:20 +0100 (Wed, 05 Jun 2013)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 our $DESCRIPTION = "Util to re-case SQL-like keywords from stdin or file(s), prints to standard output

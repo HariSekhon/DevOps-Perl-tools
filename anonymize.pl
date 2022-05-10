@@ -4,14 +4,14 @@
 #  Date:         2010-05-18 10:39:51 +0100 (Tue, 18 May 2010)
 #  Rewrite Date: 2013-07-18 21:17:41 +0100 (Thu, 18 Jul 2013)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 $DESCRIPTION = "Anonymizes usernames, passwords, IP addresses, hostnames, emails addresses, Company Name, Your Name(!) from text logs or config files to make suitable for sharing in email with vendors, public tickets, Jiras or pastebin like websites.
@@ -24,7 +24,7 @@ Create a list of phrases to anonymize from config by placing them in anonymize_c
 
 Ignore phrases are in a similar file anonymize_ignore.conf, also adjacent to this program.
 
-There is also a newer Python version with more redactions and features such as --hash-hostnames available at https://github.com/harisekhon/devops-python-tools
+There is also a newer Python version with more redactions and features such as --hash-hostnames available at https://github.com/HariSekhon/DevOps-Python-tools
 ";
 
 $VERSION = "0.13.1";

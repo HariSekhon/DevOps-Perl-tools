@@ -4,13 +4,13 @@
 #  Author: Hari Sekhon
 #  Date: 2016-09-13 09:17:01 +0200 (Tue, 13 Sep 2016)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 DESCRIPTION="Script to flush HBase tables
@@ -23,7 +23,7 @@ Written to flush OpenTSDB tables before shutdown as the bulk import tool is usin
 
 Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.1, 1.2.2
 
-See https://github.com/harisekhon/devops-python-tools for a better Python version which uses the Thrift API
+See https://github.com/HariSekhon/DevOps-Python-tools for a better Python version which uses the Thrift API
 
 "
 

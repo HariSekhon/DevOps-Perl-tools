@@ -3,14 +3,14 @@
 #  Author: Hari Sekhon
 #  Date: 2013-02-11 11:50:00 +0000 (Mon, 11 Feb 2013)
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 $DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex.

@@ -5,14 +5,14 @@
 #  Original Date: 2013-01-14 20:50:13 +0000 (Mon, 14 Jan 2013)
 #  Date: 2015-05-08
 #
-#  https://github.com/harisekhon/devops-perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # forked from hadoop_hdfs_file_age_out.pl
@@ -151,7 +151,7 @@ sub process_snapshots($){
             my $snapshot_name = basename($2);
             if($dir_type ne "d"){
                 # assert this should never happen
-                die "non-directory found! ('$dir'). see -vvv output and raise a ticket at https://github.com/harisekhon/devops-perl-tools/issues\n";
+                die "non-directory found! ('$dir'). see -vvv output and raise a ticket at https://github.com/HariSekhon/DevOps-Perl-tools/issues\n";
             }
             if ($snapshot_name =~ qr{
                                       [\'\"\`] |

@@ -4,7 +4,7 @@
   "material": {
     "type": "git",
     "attributes": {
-  	"url": "https://github.com/harisekhon/devops-perl-tools",
+  	"url": "https://github.com/HariSekhon/DevOps-Perl-tools",
   	"branch": "master",
   	"auto_update": true
     }

@@ -1,6 +1,6 @@
 [submodule "lib"]
 	path = lib
-	url = https://github.com/harisekhon/lib
+	url = https://github.com/HariSekhon/lib
 	branch = master
 [submodule "bash-tools"]
 	path = bash-tools
@@ -17,4 +17,4 @@
 	url = https://github.com/HariSekhon/SQL-keywords
 [submodule "templates"]
 	path = templates
-	url = https://github.com/HariSekhon/templates
+	url = https://github.com/HariSekhon/Templates
