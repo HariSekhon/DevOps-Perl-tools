@@ -78,7 +78,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.8.11";
+$VERSION = "0.9.0";
 
 use strict;
 use warnings;
@@ -94,6 +94,7 @@ use Cwd 'abs_path';
 use File::Copy;
 use File::Path 'make_path';
 use File::Temp 'tempfile';
+#use Git;
 #use Mojo::Template;
 use POSIX;
 use Template;
@@ -531,32 +532,42 @@ sub load_vars($$$){
     }
     $vars{"NAME"} = $name;
     $vars{"DATE"} = $date;
-    # TODO: get this from git repo remote
-    $vars{"URL"}  = "https://github.com/HariSekhon";
-    if($ENV{"PWD"} =~ /\/work/){
-        # don't add suffix
-    } elsif($ENV{"PWD"} =~ /playlists/){
-        $vars{"URL"} .= "/Spotify-Playlists";
-    } elsif($ENV{"PWD"} =~ /k8s$/){
-        $vars{"URL"} .= "/Kubernetes-configs";
-    } elsif($plugin){
-        $vars{"URL"} .= "/Nagios-Plugins";
-    } elsif($base_filename eq "Dockerfile" or
-            $base_filename eq "entrypoint.sh"){
-        $vars{"URL"} .= "/Dockerfiles"
-    } elsif($dirname =~ /\/github\//){
-        my $basedir = $dirname;
-        $basedir =~ s/.*\/github\///;
-        $basedir =~ s/\/.*//;
-        $vars{"URL"} .= "/$basedir";
-    #} elsif($ext eq "sh"){
-    #    $vars{"URL"} .= "/devops-bash-tools";
-    #} elsif($ext eq "pl"){
-    #    $vars{"URL"} .= "/devops-perl-tools";
-    #} elsif($ext eq "py"){
-    #    $vars{"URL"} .= "/devops-python-tools";
-    #} elsif($ext eq "pm"){
-    #    $vars{"URL"} .= "/lib";
+    # Insecure dependency in chdir while running with -T switch at /Library/Perl/5.18/Git.pm line 1744.
+    #my $repo = Git->repository();
+    #my @remotes = $repo->command('remote', '-v');
+    #$vars{"URL"} = $remotes[0];
+    #$vars{"URL"} =~ s/\.git.*$//;
+    #$vars{"URL"} =~ s/:/\//g;
+    #$vars{"URL"} =~ s/.*@/https:\/\//;
+    $vars{"URL"} = `git remote -v | grep -im1 '^origin.*github.com' | awk '{print \$2}' | sed 's/\\.git.*\$//; s|:|/|g; s|.*@|https://|'`;
+    chomp $vars{"URL"};
+    if(!$vars{"URL"}){
+        $vars{"URL"}  = "https://github.com/HariSekhon";
+        if($ENV{"PWD"} =~ /\/work/){
+            # don't add suffix
+        } elsif($ENV{"PWD"} =~ /playlists/){
+            $vars{"URL"} .= "/Spotify-Playlists";
+        } elsif($ENV{"PWD"} =~ /k8s$/){
+            $vars{"URL"} .= "/Kubernetes-configs";
+        } elsif($plugin){
+            $vars{"URL"} .= "/Nagios-Plugins";
+        } elsif($base_filename eq "Dockerfile" or
+                $base_filename eq "entrypoint.sh"){
+            $vars{"URL"} .= "/Dockerfiles"
+        } elsif($dirname =~ /\/github\//){
+            my $basedir = $dirname;
+            $basedir =~ s/.*\/github\///;
+            $basedir =~ s/\/.*//;
+            $vars{"URL"} .= "/$basedir";
+        #} elsif($basedir =~ s/bash-tools/){
+        #    $vars{"URL"} .= "/DevOps-Bash-tools";
+        #} elsif($basedir =~ s/perl-tools/){
+        #    $vars{"URL"} .= "/DevOps-Perl-tools";
+        #} elsif($basedir =~ s/pytools|python-tools/){
+        #    $vars{"URL"} .= "/DevOps-Python-tools";
+        #} elsif($ext eq "pm"){
+        #    $vars{"URL"} .= "/lib";
+        }
     }
     if($ext eq "yaml"){
         # indent by 2 spaces not 4 for YAML
