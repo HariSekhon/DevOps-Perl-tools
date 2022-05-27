@@ -20,8 +20,6 @@ my $templatedir = "$srcdir/templates";
 my @templatedirs = (
     # order is important - this is order of search / priority
     #                    - by searching adjacent repos first, we take the newest templates rather than the submodule's templates which are older
-    "$srcdir/../jenkins",
-    "$srcdir/../github-actions",
     "$srcdir/../templates",
     "$srcdir/templates",
     "$srcdir/../k8s",
