@@ -537,6 +537,8 @@ sub load_vars($$$){
     #$vars{"URL"} =~ s/\.git.*$//;
     #$vars{"URL"} =~ s/:/\//g;
     #$vars{"URL"} =~ s/.*@/https:\/\//;
+    $dirname = validate_dirname($dirname);
+    chdir "$dirname";
     $vars{"URL"} = `git remote -v | grep -im1 '^origin.*github.com' | awk '{print \$2}' | sed 's/\\.git.*\$//; s|:|/|g; s|.*@|https://|'`;
     chomp $vars{"URL"};
     if(!$vars{"URL"}){
