@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.0";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
