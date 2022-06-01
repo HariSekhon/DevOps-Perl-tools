@@ -26,6 +26,8 @@ ${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || z
 
 isExcluded(){
     local prog="$1"
+    # false positive
+    # shellcheck disable=SC2049
     [[ "$prog" =~ ^\* ]] && return 0
     [[ "$prog" =~ Makefile.PL ]] && return 0
     [[ "$prog" =~ contrib/hdfs-du-viz.sh ]] && return 0
