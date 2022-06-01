@@ -4,7 +4,7 @@
 #  Date: 2013-09-29 23:49:14 +0100 (Sun, 29 Sep 2013)
 #  Rewrite of shell version written on: 2009-03-16 09:53:29 2007 +0000 (Fri, 16 Mar 2009)
 #
-#  http://github.com/HariSekhon/DevOps-Perl-tools
+#  https://github.com/HariSekhon/DevOps-Perl-tools
 #
 #  License: see accompanying LICENSE file
 #
