@@ -21,7 +21,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$srcdir/..";
 
 # shellcheck disable=SC1090
-. "bash-tools/lib/utils.sh"
+. "$srcdir/../bash-tools/lib/utils.sh"
 
 export PROJECT="devops-perl-tools"
 
