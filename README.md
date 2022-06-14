@@ -62,6 +62,7 @@ Hari Sekhon - DevOps Perl Tools
 [![ShellCheck](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/shellcheck.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/shellcheck.yaml)
 [![Validation](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/validate.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/validate.yaml)
 [![Semgrep](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/semgrep.yaml)
+[![Semgrep Cloud](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/semgrep-cloud.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/semgrep-cloud.yaml)
 [![Kics](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/kics.yaml)
 
 [![Docker Build (Alpine)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_alpine.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_alpine.yaml)
