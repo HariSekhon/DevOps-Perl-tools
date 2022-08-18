@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.3";
+$VERSION = "0.9.4";
 
 use strict;
 use warnings;
@@ -90,6 +90,7 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 use Carp;
 use Cwd 'abs_path';
 use File::Copy;
+use File::Glob qw(:globally :nocase);
 use File::Path 'make_path';
 use File::Temp 'tempfile';
 #use Git;
@@ -291,6 +292,21 @@ sub get_template($$){
             my $template = "$templatedir/template.$base_filename_ext_variation";
             if(-f $template){
                 return $template;
+            }
+        }
+    }
+    # check for a template that matches the filename suffix
+    foreach my $templatedir (@templatedirs){
+        foreach my $ext (@exts){
+            my $base_filename_ext_variation = $base_filename;
+            $base_filename_ext_variation =~ s/\.[^.]+$//;
+            $base_filename_ext_variation .= ".$ext";
+            foreach my $template (glob("$templatedir/* $templatedir/.*")){
+                vlog2 "checking $template";
+                my $template_basename = basename $template;
+                if($base_filename_ext_variation =~ /^.+[\.-]$template_basename$/){
+                    return $template;
+                }
             }
         }
     }
