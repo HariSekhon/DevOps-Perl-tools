@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.4";
+$VERSION = "0.9.5";
 
 use strict;
 use warnings;
@@ -302,6 +302,9 @@ sub get_template($$){
             $base_filename_ext_variation =~ s/\.[^.]+$//;
             $base_filename_ext_variation .= ".$ext";
             foreach my $template (glob("$templatedir/* $templatedir/.*")){
+                if(! -f $template){
+                    next;
+                }
                 vlog2 "checking $template";
                 my $template_basename = basename $template;
                 if($base_filename_ext_variation =~ /^.+[\.-]$template_basename$/){
