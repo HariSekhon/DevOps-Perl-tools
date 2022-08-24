@@ -240,8 +240,6 @@ sub get_template($$){
     if($ext =~ /^ya?ml$/){
         if($dirname =~ /\/\.github\/workflows$/ and $ext =~ /^ya?ml$/){
             $base_filename = "github-workflow.yaml";
-        } elsif ($filename =~ /patch/){
-            $base_filename = "patch.yaml"
         }
     } elsif($plugin and $ext eq "pl"){
         $base_filename = "template-plugin.pl";
