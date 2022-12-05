@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.6";
+$VERSION = "0.9.7";
 
 use strict;
 use warnings;
@@ -101,7 +101,7 @@ use Template;
 $ENV{'PATH'} .= ':' . dirname(__FILE__) . '/../pytools';
 
 my $comment = "#";
-my @exe_types = qw/exp php pl py rb sh tcl/;
+my @exe_types = qw/exp php pl py rb sh bash ksh tcl scpt/;
 
 my $overwrite = 0;
 my $noedit = 0;
