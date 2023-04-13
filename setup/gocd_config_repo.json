@@ -1,5 +1,5 @@
 {
-  "id": "devops-perl-tools",
+  "id": "DevOps-Perl-tools",
   "plugin_id": "yaml.config.plugin",
   "material": {
     "type": "git",
