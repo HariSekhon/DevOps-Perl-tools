@@ -38,7 +38,6 @@
 [![BuildKite](https://img.shields.io/buildkite/0a23f5b0b09f6b2a913e3e3fa258494edb0e8dcda2b40e19fa/master?label=BuildKite&logo=buildkite)](https://buildkite.com/hari-sekhon/devops-perl-tools)
 [![AppVeyor](https://img.shields.io/appveyor/build/harisekhon/DevOps-Perl-tools/master?logo=appveyor&label=AppVeyor)](https://ci.appveyor.com/project/HariSekhon/DevOps-Perl-tools/branch/master)
 [![Drone](https://img.shields.io/drone/build/HariSekhon/DevOps-Perl-tools/master?logo=drone&label=Drone)](https://cloud.drone.io/HariSekhon/DevOps-Perl-tools)
-[![Codeship Status for HariSekhon/DevOps-Perl-tools](https://app.codeship.com/projects/c9e3bf70-3c5f-0138-d157-661d474a0ccb/status?branch=master)](https://app.codeship.com/projects/387254)
 [![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FDevOps-Perl-tools?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/edit/new/builds?id=5e58e2a9c1d3cf1248fa485b&pipeline=DevOps-Perl-tools&projects=GitHub&projectId=5e52ca8ea284e00f882ea992&context=github&filter=page:1;pageSize:10;timeFrameStart:week)
 [![Cirrus CI](https://img.shields.io/cirrus/github/HariSekhon/DevOps-Perl-tools/master?logo=Cirrus%20CI&label=Cirrus%20CI)](https://cirrus-ci.com/github/HariSekhon/DevOps-Perl-tools)
 [![Semaphore](https://harisekhon.semaphoreci.com/badges/DevOps-Perl-tools.svg)](https://harisekhon.semaphoreci.com/projects/DevOps-Perl-tools)
