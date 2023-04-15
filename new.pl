@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.7";
+$VERSION = "0.9.8";
 
 use strict;
 use warnings;
@@ -374,9 +374,12 @@ sub create_templated_file($$$){
 sub chmod_check($$){
     my $filename = shift;
     my $type     = shift;
+    my $ext      = $filename;
+    $ext =~ s/.*\.//;
     my $mode = 0755;
-    if(grep { $_ eq $type } @exe_types){
-        vlog2 "chmod $mode";
+    if(grep { $_ eq $type } @exe_types or
+       grep { $_ eq $ext }  @exe_types){
+        vlog2 sprintf("chmod %o", $mode);
         chmod $mode, $filename;
     }
 }
