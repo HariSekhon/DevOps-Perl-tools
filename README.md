@@ -374,6 +374,8 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 - [PyLib](https://github.com/HariSekhon/pylib) - Python port of the above library
 
+- [Diagrams-as-Code](https://github.com/HariSekhon/Diagrams-as-Code) - Cloud & Open Source architecture diagrams with Python source code provided - automatically regenerated via GitHub Actions CI/CD - AWS, GCP, Kubernetes, ArgoCD, Kong API Gateway, Nginx, Redis, PostgreSQL, Kafka, Spark, web farms, event processing...
+
 You might also be interested in the following really nice Jupyter notebook for HDFS space analysis created by another Hortonworks guy Jonas Straub:
 
 - [https://github.com/mr-jstraub/HDFSQuota/blob/master/HDFSQuota.ipynb](https://github.com/mr-jstraub/HDFSQuota/blob/master/HDFSQuota.ipynb)
