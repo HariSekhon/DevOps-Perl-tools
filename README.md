@@ -12,6 +12,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Perl-tools)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Perl-tools&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=HariSekhon_DevOps-Perl-tools)
 [![Codiga Grade](https://api.codiga.io/project/4745/status/svg)](https://app.codiga.io/project/4745/dashboard)
 [![Codiga Score](https://api.codiga.io/project/4745/score/svg)](https://app.codiga.io/project/4745/dashboard)
 
