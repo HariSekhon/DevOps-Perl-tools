@@ -66,7 +66,6 @@
 [![Kics](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/kics.yaml)
 
 [![Docker Build (Alpine)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_alpine.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_alpine.yaml)
-[![Docker Build (CentOS)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_centos.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_centos.yaml)
 [![Docker Build (Debian)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_debian.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_debian.yaml)
 [![Docker Build (Fedora)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_fedora.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_fedora.yaml)
 [![Docker Build (Ubuntu)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_ubuntu.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Perl-tools/actions/workflows/docker_perl_ubuntu.yaml)
