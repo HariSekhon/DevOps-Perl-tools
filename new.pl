@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.8";
+$VERSION = "0.9.9";
 
 use strict;
 use warnings;
@@ -210,7 +210,7 @@ sub editor($$){
         $cmd .= " '$filename'";
     }
     # untaint PATH
-    if($main::ORIGINAL_PATH =~ /^([\w\s\/\.\@:_-]+)$/){
+    if($main::ORIGINAL_PATH =~ /^([\w\s\/\.\@:_+-]+)$/){
         vlog2 "restored PATH = $1";
         $ENV{'PATH'} = $1;
     } else {
