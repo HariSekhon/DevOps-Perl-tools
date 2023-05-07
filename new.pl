@@ -578,6 +578,8 @@ sub load_vars($$$){
         $vars{"URL"}  = "https://github.com/HariSekhon";
         if($ENV{"PWD"} =~ /\/work/){
             # don't add suffix
+        } elsif($ext eq "d2" or $base_filename =~ /diagram/){
+            $vars{"URL"} .= "/Diagrams-as-Code";
         } elsif($ENV{"PWD"} =~ /playlists/){
             $vars{"URL"} .= "/Spotify-Playlists";
         } elsif($ENV{"PWD"} =~ /k8s$/){
