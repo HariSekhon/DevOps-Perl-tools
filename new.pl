@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.9";
+$VERSION = "0.9.10";
 
 use strict;
 use warnings;
@@ -349,7 +349,7 @@ sub create_templated_file($$$){
     #close($fh);
     #my $mt = Mojo::Template->new;
     #my $output = $mt->render($content);
-    vlog2 "creating file '$filename' from template '$template'";
+    vlog2 "\ncreating file '$filename' from template '$template'\n";
     my $tt = Template->new(ABSOLUTE => 1);
     if (-f $filename){
         if(not $overwrite){
@@ -364,7 +364,15 @@ sub create_templated_file($$$){
     #open my $fh, ">", $filename or die "failed to open '$filename' for writing";
     #print $fh $output;
     #close($fh);
-    chmod_check($filename, $ext);
+
+    vlog2 "copying octal file permissions from source template '$template' to file '$filename'\n";
+    my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($template);
+    chmod $mode, $filename;
+
+    vlog2 `ls -l '$filename'`;
+
+    #chmod_check($filename, $ext);
+
     #if($ext eq "py"){
     #    system("cat '$filename'");
     #    exit;
@@ -512,7 +520,7 @@ sub load_vars($$$){
             ($name = $filename) =~ s/\//::/g;
         }
         $name =~ s/\.$ext$//;
-        vlog2 "name = $name";
+        vlog2 "\nname = $name";
         #my $env_cred = $name;
         #for($env_cred){
         for($name){
@@ -566,6 +574,7 @@ sub load_vars($$$){
     $vars{"URL"} = `git remote -v | grep -im1 '^origin.*github.com' | awk '{print \$2}' | sed 's/\\.git.*\$//; s|:|/|g; s|.*@|https://|'`;
     chomp $vars{"URL"};
     if(!$vars{"URL"}){
+        vlog2 "Failed to determine Git Remote URL - using best effort inference for header URL\n";
         $vars{"URL"}  = "https://github.com/HariSekhon";
         if($ENV{"PWD"} =~ /\/work/){
             # don't add suffix
