@@ -22,7 +22,7 @@ cd "$srcdir2/..";
 # shellcheck disable=SC1091
 . ./tests/utils.sh
 
-# because including bash-tools/util.sh resets the srcdir
+# because including bash-tools/lib/utils.sh resets the srcdir
 srcdir="$srcdir2"
 
 section "N g i n x"

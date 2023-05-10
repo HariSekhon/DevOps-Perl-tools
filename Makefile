@@ -72,7 +72,7 @@ init:
 perl: perl-libs cpan
 	@# workaround for broken pod coverage tests
 	@#yes | $(SUDO) cpan --force XML::Validate
-	@#bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
+	@#bash-tools/perl/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
 	@:
 
 .PHONY: perl-libs
@@ -94,7 +94,7 @@ test: lib-test
 
 .PHONY: basic-test
 basic-test: lib-test
-	. tests/excluded.sh; bash-tools/check_all.sh
+	. tests/excluded.sh; bash-tools/checks/check_all.sh
 	tests/help.sh
 
 .PHONY: install
