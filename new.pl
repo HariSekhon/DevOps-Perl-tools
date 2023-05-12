@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.11";
+$VERSION = "0.10.0";
 
 use strict;
 use warnings;
@@ -508,17 +508,27 @@ sub load_vars($$$){
     my $template = $_[1];
     my $ext = $_[2];
     my $base_filename = basename $filename;
+    my $base_template = basename $template;
+    $base_template =~ s/.[^.]+$//;
+    $base_template .= ".$ext";
     my $dirname = abs_path(dirname($filename));
 
     #if(-f "$template.m4" and which("m4")){
     #    vlog2 "m4 installed and template found: $template";
     my $name;
-    if(basename($template) eq basename($filename)){
-        $name = abs_path(dirname($filename));
+    print "filename = $filename\n";
+    print "template = $template\n";
+    if($base_filename eq $base_template){
+        $name = basename($dirname);
+        # for Kustomize go up one level
+        if($name eq "base" or $name eq "overlay"){
+            $name = basename(abs_path(dirname($filename) . "/.."));
+        }
+    } elsif ($base_filename =~ /-$base_template$/){
+        $name = $base_filename;
+        $name =~ s/-$base_template$//;
     } else {
-        $name = $filename;
-    }
-        $name = basename($name);
+        $name = $base_filename;
         if($ext eq "pm"){
             ($name = $filename) =~ s/\//::/g;
         }
@@ -533,6 +543,7 @@ sub load_vars($$$){
             s/\b(.)/\u$1/g;
             s/ //g;
         }
+    }
     #    my $macros = "";
     #    $macros .= " -DLIB"    if $lib;
     #    $macros .= " -DPLUGIN" if $plugin;
