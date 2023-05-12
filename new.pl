@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.9.10";
+$VERSION = "0.9.11";
 
 use strict;
 use warnings;
@@ -367,6 +367,9 @@ sub create_templated_file($$$){
 
     vlog2 "copying octal file permissions from source template '$template' to file '$filename'\n";
     my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($template);
+    # untaint the mode to be safe to pass to chmod
+    $mode =~ /^(\d+)$/;
+    $mode = $1;
     chmod $mode, $filename;
 
     vlog2 `ls -l '$filename'`;
