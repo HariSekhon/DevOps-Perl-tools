@@ -230,13 +230,14 @@ sub editor($$){
         }
         next if($dir =~ /\.\./);  # remove all upwards traversal paths
         next if($dir =~ /tmp/);   # remove all paths in tmp dirs
-        my $mode = (stat($dir))[2] & 07777;  # mask to get the permission bits
-        #next if ($mode & 00002);  # skip if world-writable bit is set
+        my $mode = (stat($dir))[2];
         if($mode){
-            printf "%s: mode = %o\n", $dir, $mode;
+            #next if ($mode & 00002);  # skip if world-writable bit is set
+            my $octal = $mode & 07777;  # mask to get the permission bits
+            vlog3 sprintf("%s: mode = %o\n", $dir, $mode);
             # could probably do this better but it's not easily documented how
             #if(sprintf("%o", $mode) =~ /[67]$/){
-            if($mode & 00002){
+            if($octal & 00002){
                 print "WARNING: stripping directory '$dir' from \$PATH for being world writeable\n";
                 next;
             }
