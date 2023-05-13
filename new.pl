@@ -158,10 +158,9 @@ sub main(){
         load_vars($filename, $template, $ext);
         create_templated_file($filename, $template, $ext);
     }
+    editor($filename, $ext);
     if($noedit){
         exit 0;
-    } else {
-        editor($filename, $ext);
     }
 
     # should not reach here chmod_open should be doing an exec
@@ -235,7 +234,7 @@ sub editor($$){
         if(defined($mode)){
             #next if ($mode & 00002);  # skip if world-writable bit is set
             my $octal = $mode & 07777;  # mask to get the permission bits
-            vlog3 sprintf("%s: mode = %o\n", $dir, $mode);
+            debug sprintf("%s: mode = %o", $dir, $mode);
             # could probably do this better but it's not easily documented how
             #if(sprintf("%o", $mode) =~ /[67]$/){
             if($octal & 00002){
@@ -250,10 +249,12 @@ sub editor($$){
         push(@path2, $dir);
     }
     $ENV{'PATH'} = join(':', @path2);
-    vlog2 "restored PATH = $ENV{PATH}";
+    vlog2 "restored PATH = $ENV{PATH}\n";
     # =================
     vlog2 $cmd;
-    exec($cmd);
+    unless($noedit){
+        exec($cmd);
+    }
 }
 
 sub get_template($$){
