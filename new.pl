@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.10.0";
+$VERSION = "0.11.0";
 
 use strict;
 use warnings;
@@ -209,13 +209,44 @@ sub editor($$){
         }
         $cmd .= " '$filename'";
     }
+    # =================
     # untaint PATH
-    if($main::ORIGINAL_PATH =~ /^([\w\s\/\.\@:_+-]+)$/){
-        vlog2 "restored PATH = $1";
-        $ENV{'PATH'} = $1;
-    } else {
-        vlog2 "PATH has characters not expected in regex untaint, not passing through to editor (use uniq_chars.sh from DevOps-Bash-tools to compare to regex)";
+    my @path = split(/:/, $main::ORIGINAL_PATH);
+    my @path2;
+    #@path = grep(!/\.\./, @path); # remove all upwards traversal paths
+    #@path = grep(!/tmp/, @path);  # remove all paths in tmp dirs
+    #$ENV{'PATH'} = join(':', @path); # put the survivors back
+    #if($main::ORIGINAL_PATH =~ /^([\w\s\/\.\@:_+-]+)$/){
+    #    $ENV{'PATH'} = $1;
+    #} else {
+    #    vlog2 "PATH has characters not expected in regex untaint, not passing through to editor (use uniq_chars.sh from DevOps-Bash-tools to compare to regex)";
+    #}
+    for my $dir (@path){
+        if($dir =~ /^([\w\s\/\.\@_+-]+)$/){
+            $dir = $1;
+        } else {
+            printf "WARNING: directory in \$PATH does not match expected regex, not restoring to \$PATH: %s\n", $dir;
+            next;
+        }
+        next if($dir =~ /\.\./);  # remove all upwards traversal paths
+        next if($dir =~ /tmp/);   # remove all paths in tmp dirs
+        my $mode = (stat($dir))[2] & 07777;  # mask to get the permission bits
+        #next if ($mode & 00002);  # skip if world-writable bit is set
+        if($mode){
+            printf "%s: mode = %o\n", $dir, $mode;
+            # could probably do this better but it's not easily documented how
+            #if(sprintf("%o", $mode) =~ /[67]$/){
+            if($mode & 00002){
+                print "WARNING: stripping directory '$dir' from \$PATH for being world writeable\n";
+                next;
+            }
+        }
+        # if dir passes all checks then return it to path
+        push(@path2, $dir);
     }
+    $ENV{'PATH'} = join(':', @path2);
+    vlog2 "restored PATH = $ENV{PATH}";
+    # =================
     vlog2 $cmd;
     exec($cmd);
 }
