@@ -231,7 +231,8 @@ sub editor($$){
         next if($dir =~ /\.\./);  # remove all upwards traversal paths
         next if($dir =~ /tmp/);   # remove all paths in tmp dirs
         my $mode = (stat($dir))[2];
-        if($mode){
+        # if dir doesn't exist $mode will be undefined and result in warnings otherwise
+        if(defined($mode)){
             #next if ($mode & 00002);  # skip if world-writable bit is set
             my $octal = $mode & 07777;  # mask to get the permission bits
             vlog3 sprintf("%s: mode = %o\n", $dir, $mode);
@@ -241,6 +242,9 @@ sub editor($$){
                 print "WARNING: stripping directory '$dir' from \$PATH for being world writeable\n";
                 next;
             }
+        } else {
+            # skip adding directories to the path that aren't found and we don't get a stat $mode for
+            next;
         }
         # if dir passes all checks then return it to path
         push(@path2, $dir);
