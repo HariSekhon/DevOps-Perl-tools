@@ -13,8 +13,6 @@
 
 # TODO: re-enable .m4 support, java not picking up .java.m4 only .java and not changing class NAME
 
-# TODO: make it look for .ext, a.ext, a.b.ext etc
-
 my $srcdir = dirname(__FILE__);
 my $templatedir = "$srcdir/templates";
 my @templatedirs = (
@@ -76,7 +74,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.11.1";
+$VERSION = "0.11.2";
 
 use strict;
 use warnings;
@@ -265,6 +263,11 @@ sub get_template($$){
     # check for templates of either file extension
     if($ext  =~ /^ya?ml$/){
         @exts = ("yml", "yaml");
+    }
+    # look for second-level extensions such as .pkr.hcl to match template.pkr.hcl and not just template.hcl
+    if($filename =~ /\.([^.]+\.$ext)$/){
+        #push(@exts, $1);
+        unshift @exts, $1;  # prepend to give priority over template.hcl
     }
 
     my $base_filename = basename $filename;
