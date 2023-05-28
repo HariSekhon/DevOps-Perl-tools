@@ -76,7 +76,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.11.0";
+$VERSION = "0.11.1";
 
 use strict;
 use warnings;
@@ -88,7 +88,7 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
 use Carp;
-use Cwd 'abs_path';
+use Cwd qw/abs_path realpath/;
 use File::Copy;
 use File::Glob qw(:globally :nocase);
 use File::Path 'make_path';
@@ -402,8 +402,12 @@ sub create_templated_file($$$){
     #print $fh $output;
     #close($fh);
 
-    vlog2 "copying octal file permissions from source template '$template' to file '$filename'\n";
-    my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($template);
+    my $resolved_path = realpath($template);
+    if (!defined($resolved_path)){
+        die "template '$template' failed to resolve to a destination path, symlink broken?\n";
+    }
+    vlog2 "copying octal file permissions from source template '$resolved_path' to file '$filename'\n";
+    my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($resolved_path);
     # untaint the mode to be safe to pass to chmod
     $mode =~ /^(\d+)$/;
     $mode = $1;
