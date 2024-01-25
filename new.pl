@@ -74,7 +74,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.11.2";
+$VERSION = "0.11.3";
 
 use strict;
 use warnings;
@@ -390,7 +390,7 @@ sub create_templated_file($$$){
     #my $mt = Mojo::Template->new;
     #my $output = $mt->render($content);
     vlog2 "\ncreating file '$filename' from template '$template'\n";
-    my $tt = Template->new(ABSOLUTE => 1);
+    my $tt = Template->new(ABSOLUTE => 1) or die "Can't instantiate Template->new(): $Template::ERROR => $!";
     if (-f $filename){
         if(not $overwrite){
             die "$filename already exists, cannot create, aborting...\n"
