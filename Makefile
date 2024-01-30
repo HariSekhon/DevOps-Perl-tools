@@ -79,6 +79,10 @@ perl: perl-libs cpan
 perl-libs:
 	cd lib && $(MAKE)
 
+.PHONY: reinstall
+reinstall:
+	export CPAN_OPTS="--reinstall" $(MAKE) perl
+
 .PHONY: fatpacks-local
 fatpacks-local:
 	cp -a sql-keywords templates "$(FATPACKS_DIR)/"
