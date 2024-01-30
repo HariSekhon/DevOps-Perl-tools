@@ -79,9 +79,9 @@ perl: perl-libs cpan
 perl-libs:
 	cd lib && $(MAKE)
 
-.PHONY: reinstall
-reinstall:
-	PERL_USER_INSTALL=1 CPAN_OPTS="--reinstall" $(MAKE) perl
+#.PHONY: reinstall
+#reinstall:
+#    PERL_USER_INSTALL=1 CPAN_OPTS="--reinstall" $(MAKE) perl
 
 .PHONY: fatpacks-local
 fatpacks-local:
