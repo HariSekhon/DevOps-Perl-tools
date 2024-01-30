@@ -81,7 +81,7 @@ perl-libs:
 
 .PHONY: reinstall
 reinstall:
-	export CPAN_OPTS="--reinstall" $(MAKE) perl
+	CPAN_OPTS="--reinstall" $(MAKE) perl
 
 .PHONY: fatpacks-local
 fatpacks-local:
