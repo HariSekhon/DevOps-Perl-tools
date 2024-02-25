@@ -171,7 +171,8 @@ Environment variables are supported for convenience and also to hide credentials
 
 ##### NOTE: Hadoop HDFS API Tools, Pig => Elasticsearch/Solr, Pig Jython UDFs and authenticated PySpark IPython Notebook have moved to my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) repo
 
-- Linux:
+#### Linux
+
   - ```anonymize.pl``` - anonymizes your configs / logs from files or stdin (for pasting to Apache Jira tickets or mailing lists)
     - anonymizes:
       - hostnames / domains / FQDNs
@@ -182,6 +183,25 @@ Environment variables are supported for convenience and also to hide credentials
     - ```anonymize_custom.conf``` - put regex of your Name/Company/Project/Database/Tables to anonymize to ```<custom>```
     - placeholder tokens indicate what was stripped out (eg. ```<fqdn>```, ```<password>```, ```<custom>```)
     - ```--ip-prefix``` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating with each other to compare configs and log communications
+  - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
+  - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
+  - ```titlecase.pl``` - capitalizes the first letter of each input word in files or stdin
+  - ```pdf_to_txt.pl``` - converts PDF to text for analytics (see also [Apache PDFBox](https://pdfbox.apache.org/) and pdf2text unix tool)
+  - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
+  - ```flock.pl``` - file locking to prevent running the same program twice at the same time. RHEL 6 now has a native version of this
+  - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
+  - ```colors.pl``` - prints ASCII color code matrix of all foreground + background combinations showing the corresponding terminal escape codes to help with tuning your shell
+  - ```matrix.pl``` - prints a cool matrix of vertical scrolling characters using terminal tricks
+  - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) repo)
+
+#### SQL
+
+Written to help clean up docs and SQL scripts.
+
+I don't even bother writing capitalised SQL code any more I
+just run it through this via a vim shortcut
+([.vimrc](https://github.com/HariSekhon/DevOps-Bash-tools/blob/master/configs/.vimrc)).
+
   - ```sqlcase.pl``` - capitalizes [SQL](https://en.wikipedia.org/wiki/SQL) code in files or stdin:
     - ```*case.pl``` - more specific language support for just about every database and SQL-like language out there plus a few more non-SQL languages like [Neo4j](https://neo4j.com) [Cypher](https://neo4j.com/developer/cypher-query-language/) and [Docker](https://www.docker.com)'s [Dockerfiles](https://docs.docker.com/engine/reference/builder/):
       - `athenacase.pl` - [AWS Athena](https://aws.amazon.com/athena/) SQL
@@ -201,23 +221,17 @@ Environment variables are supported for convenience and also to hide credentials
       - `prestocase.pl` - [Presto](https://prestosql.io/) SQL
       - `redshiftcase..pl` - [AWS Redshift](https://aws.amazon.com/redshift/) SQL
       - `snowflakecase..pl` - [Snowflake](https://www.snowflake.com) SQL
-    - written to help clean up docs and SQL scripts (I don't even bother writing capitalised SQL code any more I just run it through this via a vim shortcut)
-  - ```diffnet.pl``` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe from standard diff command)
-  - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
-  - ```titlecase.pl``` - capitalizes the first letter of each input word in files or stdin
-  - ```pdf_to_txt.pl``` - converts PDF to text for analytics (see also [Apache PDFBox](https://pdfbox.apache.org/) and pdf2text unix tool)
-  - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
-  - ```flock.pl``` - file locking to prevent running the same program twice at the same time. RHEL 6 now has a native version of this
-  - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
-  - ```colors.pl``` - prints ASCII color code matrix of all foreground + background combinations showing the corresponding terminal escape codes to help with tuning your shell
-  - ```matrix.pl``` - prints a cool matrix of vertical scrolling characters using terminal tricks
-  - ```welcome.pl``` - cool spinning welcome message greeting your username and showing last login time and user to put in your shell's ```.profile``` (there is also a python version in my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) repo)
 
-- Web:
+#### Web
+
   - ```watch_url.pl``` - watches a given url, outputting status code and optionally selected output, useful for debugging web farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return which server you're hitting for each request in real-time). I also use this a ping replacement to google.com to check internet networking in environments where everything except HTTP traffic is blocked
   - ```watch_nginx_stats.pl``` - watches nginx stats via the HttpStubStatusModule module
 
-- [Hadoop](https://hadoop.apache.org/) Ecosystem:
+#### Solr
+
+  - ```solr_cli.pl``` - [Solr](https://lucene.apache.org/solr/) CLI tool for fast and easy [Solr](https://lucene.apache.org/solr/) / [SolrCloud](https://lucene.apache.org/solr/guide/6_6/solrcloud.html) administration. Supports optional environment variables to minimize --switches (can be set permanently in `solr/solr-env.sh`). Uses the Solr Cores and Collections APIs, makes Solr administration a lot easier
+
+#### Hadoop Ecosystem
   - ```ambari_freeipa_kerberos_setup.pl``` - Automates Hadoop [Ambari](https://ambari.apache.org/) cluster security Kerberos setup of [FreeIPA](https://www.freeipa.org/page/Main_Page) principals and keytab distribution to the cluster nodes
   - ```hadoop_hdfs_file_age_out.pl``` - prints or removes all [Hadoop HDFS](https://hadoop.apache.org/) files in a given directory tree older than a specified age
   - ```hadoop_hdfs_snapshot_age_out.pl``` - prints or removes [Hadoop HDFS](https://hadoop.apache.org/) snapshots older than a given age or matching a given regex pattern
@@ -229,8 +243,6 @@ Environment variables are supported for convenience and also to hide credentials
   - ```ibm_bigsheets_config_git.pl``` - revision controls [IBM BigSheets](https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/c0057518.html) configurations from API to Git
   - ```datameer_config_git.pl``` - revision controls [Datameer](https://www.datameer.com/) configurations from API to Git
   - ```hadoop_config_diff.pl``` - tool to diff configs between [Hadoop](https://hadoop.apache.org/) clusters XML from files or live HTTP config endpoints
-  - ```solr_cli.pl``` - [Solr](https://lucene.apache.org/solr/) CLI tool for fast and easy [Solr](https://lucene.apache.org/solr/) / [SolrCloud](https://lucene.apache.org/solr/guide/6_6/solrcloud.html) administration. Supports optional environment variables to minimize --switches (can be set permanently in `solr/solr-env.sh`). Uses the Solr Cores and Collections APIs, makes Solr administration a lot easier
-
 
 ### Detailed Build Instructions
 
