@@ -85,8 +85,8 @@ sub show_jinfo_classpath($){
             $cmd .= "<embedded JVM no classname from JPS output>";
         }
         debug "JPS input detected";
-        print "JPS:       $cmd\n";
-        print "command: " . `ps -f -p $pid | tail -n +2` . "\n\n";
+        print "JPS:     $cmd\n";
+        print "command: " . `ps -f -p $pid | tail -n +2 | sed 's/^[[:space:]]*//'` . "\n\n";
     } else {
         unless($cmd =~ /\bjava\b/){
             vlog2 "skipping $cmd since it doesn't match /\\bjava\\b/";
