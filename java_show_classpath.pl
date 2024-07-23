@@ -94,7 +94,7 @@ sub show_jinfo_classpath($){
             vlog2 "skipping $cmd since it doesn't match /\\bjava\\b/";
             return;
         }
-        $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
+        #$cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
         print "\ncommand:  $cmd\n\n";
         # support ps -ef and ps aux type inputs for convenience
         if($cmd =~ /^\s*\w+\s+(\d+)\s+\d+(?:\.\d+)?\s+\d+(?:\.\d+)?/){
