@@ -17,7 +17,7 @@ $DESCRIPTION = "Program to print all the command line classpaths of Java process
 
 Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
 
-$VERSION = 0.4;
+$VERSION = 0.5;
 
 use strict;
 use warnings;
@@ -56,7 +56,7 @@ if(defined($command_regex)){
 sub show_cli_classpath($){
     my $cmd = shift;
     $cmd =~ /\bjava\b/ or return;
-    ( my $args = $cmd ) =~ s/.*?java\s+//;;
+    ( my $args = $cmd ) =~ s/.*?java\s+//;
     $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
     print "\ncommand:  $cmd\n\n";
     my $count = 0;
@@ -86,7 +86,7 @@ sub show_jinfo_classpath($){
         }
         debug "JPS input detected";
         print "JPS:     $cmd\n";
-        print "command: " . `ps h -fp $pid` . "\n\n";
+        print "command: " . `ps -f -p $pid | tail -n +2` . "\n\n";
     } else {
         unless($cmd =~ /\bjava\b/){
             vlog2 "skipping $cmd since it doesn't match /\\bjava\\b/";
@@ -107,9 +107,11 @@ sub show_jinfo_classpath($){
     my @output = cmd("jinfo $pid");
     my $found_classpath = 0;
     foreach(@output){
-        if(/error/i){
-            die "jinfo error attaching to process id $pid\n$_\n";
-        }
+        # breaks on:
+        #   /Users/hari/Library/Application Support/JetBrains/IdeaIC2023.3/plugins/sonarlint-intellij/sloop/lib/error_prone_annotations-2.18.0.jar
+        #if(/error/i){
+        #    die "jinfo error attaching to process id $pid\n$_\n";
+        #}
         /^java.class.path\s*=\s*/ or next;
         s/^java.class.path\s*=\s*//;
         my $count = 0;
