@@ -13,7 +13,7 @@
 #  https://www.linkedin.com/in/HariSekhon
 #
 
-$DESCRIPTION = "Program to print all the command line classpaths of Java processes based on a given regex.
+$DESCRIPTION = "Prints all the command line classpaths of Java processes, optionally filtering Java processes by a given regex
 
 Credit to Clint Heath & Linden Hillenbrand @ Cloudera for giving me this idea";
 
