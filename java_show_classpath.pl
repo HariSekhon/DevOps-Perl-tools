@@ -141,7 +141,7 @@ if($stdin){
 } else {
     unless(open $fh, "jps |"){
         warn "\nWARNING: jps failed, perhaps not in \$PATH? (\$PATH = $ENV{PATH})\n";
-        warn "\nWARNING: Falling back to ps command\n\n";
+        warn "\nWARNING: Falling back to ps command, may be less accurate\n\n";
         open $fh, "ps -e -o pid,user,command |";
     }
 }
