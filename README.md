@@ -187,7 +187,7 @@ Environment variables are supported for convenience and also to hide credentials
   - ```xml_diff.pl``` / ```hadoop_config_diff.pl``` - tool to help find differences between XML / Hadoop configs, can diff XML from HTTP addresses to diff live running clusters
   - ```titlecase.pl``` - capitalizes the first letter of each input word in files or stdin
   - ```pdf_to_txt.pl``` - converts PDF to text for analytics (see also [Apache PDFBox](https://pdfbox.apache.org/) and pdf2text unix tool)
-  - ```java_show_classpath.pl``` - shows java classpaths of a running Java program in a sane way
+  - ```java_show_classpath.pl``` - shows Java classpaths, one per line, of currently running Java programs
   - ```flock.pl``` - file locking to prevent running the same program twice at the same time. RHEL 6 now has a native version of this
   - ```uniq_order_preserved.pl``` - like `uniq` but you don't have to sort first and it preserves the ordering
   - ```colors.pl``` - prints ASCII color code matrix of all foreground + background combinations showing the corresponding terminal escape codes to help with tuning your shell
