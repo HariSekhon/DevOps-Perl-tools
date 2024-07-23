@@ -107,8 +107,10 @@ sub show_jinfo_classpath($){
     my @output = cmd("jinfo $pid");
     my $found_classpath = 0;
     foreach(@output){
-        # breaks on:
+        # breaks on this content:
+        #
         #   /Users/hari/Library/Application Support/JetBrains/IdeaIC2023.3/plugins/sonarlint-intellij/sloop/lib/error_prone_annotations-2.18.0.jar
+        #
         #if(/error/i){
         #    die "jinfo error attaching to process id $pid\n$_\n";
         #}
