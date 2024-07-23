@@ -59,7 +59,7 @@ sub show_cli_classpath($){
     my $cmd = shift;
     $cmd =~ /\bjava\b/ or return;
     ( my $args = $cmd ) =~ s/.*?java\s+//;
-    $cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
+    #$cmd =~ s/\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/ <CLASSPATHS> /;
     print "\ncommand:  $cmd\n\n";
     my $count = 0;
     if($args =~ /\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/i){
