@@ -63,7 +63,7 @@ sub show_cli_classpath($){
     print "\ncommand:  $cmd\n\n";
     my $count = 0;
     if($args =~ /\s-(?:cp|classpath)(?:\s+|=)([^\s+]+)(?:\s|$)/i){
-        foreach(split(/\:/, $1)){
+        foreach(split(/:/, $1)){
             next if /^\s*$/;
             print "classpath:  $_\n";
             $count++;
@@ -119,7 +119,7 @@ sub show_jinfo_classpath($){
         /^java.class.path\s*=\s*/ or next;
         s/^java.class.path\s*=\s*//;
         my $count = 0;
-        foreach(split(/:/, $_)){
+        foreach(split(/\\:/, $_)){
             next if /^\s*$/;
             print "classpath:  $_\n";
             $count++;
