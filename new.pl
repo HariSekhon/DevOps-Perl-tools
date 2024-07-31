@@ -74,7 +74,7 @@ winfile     Windows file
 If type is omitted, it is taken from the file extension, otherwise it defaults to unix file
 ";
 
-$VERSION = "0.11.3";
+$VERSION = "0.11.4";
 
 use strict;
 use warnings;
@@ -86,7 +86,7 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
 use Carp;
-use Cwd qw/abs_path realpath/;
+use Cwd qw/abs_path cwd realpath/;
 use File::Copy;
 use File::Glob qw(:globally :nocase);
 use File::Path 'make_path';
@@ -628,8 +628,12 @@ sub load_vars($$$){
     #$vars{"URL"} =~ s/:/\//g;
     #$vars{"URL"} =~ s/.*@/https:\/\//;
     $dirname = validate_dirname($dirname);
+    my $original_dir = cwd;
+    $original_dir = isDirname($original_dir) || die "Failed to determine \$PWD";
     chdir "$dirname";
     $vars{"URL"} = `git remote -v | grep -im1 '^origin.*github.com' | awk '{print \$2}' | sed 's/\\.git.*\$//; s|:|/|g; s|.*@|https://|'`;
+    # restore original directory otherwise relative path like .github/CODEOWNERS messes up the the template creation path (creates .github/.github/CODEOWNERS) and editor vim opening path
+    chdir "$original_dir";
     chomp $vars{"URL"};
     if(!$vars{"URL"}){
         vlog2 "Failed to determine Git Remote URL - using best effort inference for header URL\n";
