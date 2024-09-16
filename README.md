@@ -330,9 +330,9 @@ You might also be interested in the following really nice Jupyter notebook for H
 
 [https://github.com/mr-jstraub/HDFSQuota/blob/master/HDFSQuota.ipynb](https://github.com/mr-jstraub/HDFSQuota/blob/master/HDFSQuota.ipynb)
 
-### Stargazers over time
+## Star History
 
-[![Stargazers over time](https://starchart.cc/HariSekhon/DevOps-Perl-tools.svg)](https://starchart.cc/HariSekhon/DevOps-Perl-tools)
+[![Star History Chart](https://api.star-history.com/svg?repos=HariSekhon/DevOps-Perl-tools&type=Date)](https://star-history.com/#HariSekhon/DevOps-Perl-tools&Date)
 
 [git.io/perl-tools](https://git.io/perl-tools)
 
