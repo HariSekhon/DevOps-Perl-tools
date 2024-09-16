@@ -183,7 +183,7 @@ have moved to my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Pyth
       [Juniper](https://www.juniper.net) [ScreenOS](https://www.juniper.net/documentation/product/en_US/screenos)
       configurations passwords, shared keys and SNMP strings
   - `anonymize_custom.conf` - put regex of your Name/Company/Project/Database/Tables to anonymize to `<custom>`
-  - placeholder tokens indicate what was stripped out (eg. `<fqdn>`, `<password>`, `<custom>`)
+    placeholder tokens indicate what was stripped out (eg. `<fqdn>`, `<password>`, `<custom>`)
   - `--ip-prefix` leaves the last IP octect to aid in cluster debugging to still see differentiated nodes communicating
     with each other to compare configs and log communications
 - `diffnet.pl` - simplifies diff output to show only lines added/removed, not moved, from patch files or stdin (pipe
@@ -236,11 +236,12 @@ just run it through this via a vim shortcut
 
 #### Web
 
-- `watch_url.pl` - watches a given url, outputting status code and optionally selected output, useful for debugging web
-  farms behind load balancers and seeing the distribution to different servers (tip: set a /hostname handler to return
-  which server you're hitting for each request in real-time). I also use this a ping replacement to google.com to check
+- `watch_url.pl` - watches a given url, outputting status code and optionally selected output
+  - Useful for debugging web farms behind load balancers and seeing the distribution to different servers
+  - Tip: set a /hostname handler to return which server you're hitting for each request in real-time
+  - I also use this a ping replacement to google.com to check
   internet networking in environments where everything except HTTP traffic is blocked
-- `watch_nginx_stats.pl` - watches nginx stats via the HttpStubStatusModule module
+- `watch_nginx_stats.pl` - watches nginx stats via the `HttpStubStatusModule` module
 
 #### Solr
 
@@ -278,7 +279,7 @@ just run it through this via a vim shortcut
 
 ### Detailed Build Instructions
 
-The 'make' command will initialize my library submodule and  use 'sudo' to install the required system packages and CPAN
+The `make` command will initialize my library submodule and  use `sudo` to install the required system packages and CPAN
 modules. If you want more control over what is installed you must follow the
 [Manual Setup](https://github.com/HariSekhon/DevOps-Perl-tools#manual-setup) section instead.
 
@@ -303,7 +304,7 @@ Then proceed to install the CPAN modules below by hand.
 
 #### CPAN Modules
 
-Install the following CPAN modules using the cpan command, using sudo if you're not root:
+Install the following CPAN modules using the cpan command, using `sudo` if you're not root:
 
 ```bash
 sudo cpan JSON LWP::Simple LWP::UserAgent Term::ReadKey Text::Unidecode Time::HiRes XML::LibXML XML::Validate ...
