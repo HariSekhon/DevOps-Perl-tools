@@ -82,5 +82,5 @@ else
 fi
 
 if [ -z "${NO_MAKE:-}" ]; then
-    make install
+    make
 fi
