@@ -99,7 +99,7 @@ use Template;
 $ENV{'PATH'} .= ':' . dirname(__FILE__) . '/../pytools';
 
 my $comment = "#";
-my @exe_types = qw/exp php pl py rb sh bash ksh tcl scpt/;
+my @exe_types = qw/exp php pl py rb sh bash ksh lua tcl scpt/;
 
 my $overwrite = 0;
 my $noedit = 0;
